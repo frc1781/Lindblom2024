@@ -1,0 +1,119 @@
+package tech.team1781.utils;
+
+import edu.wpi.first.math.geometry.Pose2d;
+
+/**
+ * Very similar to the PVector class, except it has an E in it.
+ * 
+ * @author Vincent Dizon
+ */
+
+public class EVector {
+    public double x, y, z;
+
+    /**
+     * 
+     * @param inputs 0-3 inputs
+     */
+    public EVector(double... inputs) {
+        switch (inputs.length) {
+            case 1:
+                x = inputs[0];
+                y = 0;
+                z = 0;
+                break;
+            case 2:
+                x = inputs[0];
+                y = inputs[1];
+                z = 0;
+                break;
+            case 3:
+                x = inputs[0];
+                y = inputs[1];
+                z = inputs[2];
+                break;
+        }
+    }
+
+    public static EVector fromPose(Pose2d pose) {
+        return new EVector(pose.getX(), pose.getY(), pose.getRotation().getRadians());
+    }
+
+    public static EVector newVector(double... inputs) {
+        return new EVector(inputs);
+    }
+
+    public static EVector fromPose2d(Pose2d input) {
+        return new EVector(input.getTranslation().getX(), input.getTranslation().getY(),
+                input.getRotation().getRadians());
+    }
+
+    public double dist(EVector other) {
+        return Math.sqrt(Math.pow(other.x - x, 2) + Math.pow(other.y - y, 2) + Math.pow(other.z - z, 2));
+    }
+
+    public void set(double... inputs) {
+        switch (inputs.length) {
+            case 1:
+                x = inputs[0];
+                y = 0;
+                z = 0;
+                break;
+            case 2:
+                x = inputs[0];
+                y = inputs[1];
+                z = 0;
+                break;
+            case 3:
+                x = inputs[0];
+                y = inputs[1];
+                z = inputs[2];
+                break;
+        }
+    }
+
+    public static EVector fromAngle(double angle, EVector vector) {
+        return new EVector(vector.x * Math.cos(angle), vector.y * Math.sin(angle), vector.z);
+    }
+
+    public static EVector fromAngle(double angle) {
+        return new EVector(Math.cos(angle), Math.sin(angle), 0);
+    }
+
+    public double heading() {
+        return Math.atan2(y, x);
+    }
+
+    public double angleBetween(EVector other) {
+        EVector deltaVector = other.sub(this);
+        return Math.atan(deltaVector.y / deltaVector.x);
+    }
+
+    public EVector copy() {
+        return new EVector(x, y, z);
+    }
+
+    public EVector add(EVector vector) {
+        return new EVector(x + vector.x, y + vector.y, z + vector.z);
+    }
+
+    public EVector sub(EVector vector) {
+        return new EVector(x - vector.x, y - vector.y, z - vector.z);
+    }
+
+    public EVector mult(double scalar) {
+        return new EVector(x * scalar, y * scalar, z * scalar);
+    }
+
+    public EVector div(double scalar) {
+        return new EVector(x / scalar, y / scalar, z / scalar);
+    }
+
+    public EVector rotate(double angle) {
+        return new EVector(x * Math.cos(angle) - y * Math.sin(angle), x * Math.sin(angle) + y * Math.cos(angle), z);
+    }
+
+    public String asString() {
+        return "(" + x + ", " + y + ", " + z + ")";
+    }
+}

@@ -1,0 +1,116 @@
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
+
+package frc.robot;
+
+import java.util.ArrayList;
+
+import edu.wpi.first.wpilibj.TimedRobot;
+import tech.team1781.Input;
+import tech.team1781.autonomous.AutonomousHandler;
+import tech.team1781.autonomous.RoutineOverException;
+import tech.team1781.autonomous.routines.ExampleRoutine;
+import tech.team1781.control.ControlSystem;
+import tech.team1781.subsystems.DriveSystem;
+import tech.team1781.subsystems.EESubsystem;
+
+/**
+ * The VM is configured to automatically run this class, and to call the functions corresponding to
+ * each mode, as described in the TimedRobot documentation. If you change the name of this class or
+ * the package after creating this project, you must also update the build.gradle file in the
+ * project.
+ */
+public class Robot extends TimedRobot {
+  /**
+   * This function is run when the robot is first started up and should be used for any
+   * initialization code.
+   */
+
+  private Input mInput;
+
+  //Subsystems go here
+  private DriveSystem mDriveSystem;
+  private ArrayList<EESubsystem> mSubsystems;
+  
+  //control and autonomous
+  private ControlSystem mControlSystem;
+  private AutonomousHandler mAutonomousHandler;
+
+  @Override
+  public void robotInit() {
+    mInput = new Input();
+    
+    //initialize subsystems here
+    mDriveSystem = new DriveSystem();
+
+    mSubsystems.add(mDriveSystem);
+
+    mControlSystem = new ControlSystem(mDriveSystem);
+    mAutonomousHandler = new AutonomousHandler(mControlSystem, new ExampleRoutine());
+
+  }
+
+  @Override
+  public void robotPeriodic() {}
+
+  @Override
+  public void autonomousInit() {
+    mAutonomousHandler.init();
+
+    for(EESubsystem e : mSubsystems) {
+      e.genericInit();
+      e.autonomousInit();
+    }
+  }
+
+  @Override
+  public void autonomousPeriodic() {
+    try {
+      mAutonomousHandler.run();
+    } catch (RoutineOverException e) {
+      e.printStackTrace();
+    }
+
+    mControlSystem.run();
+
+    for(EESubsystem e : mSubsystems) {
+      e.genericPeriodic();
+      e.autonomousPeriodic();
+    }
+  }
+
+  @Override
+  public void teleopInit() {
+    for(EESubsystem e : mSubsystems) {
+      e.genericInit();
+      e.teleopInit();
+    }
+  }
+
+  @Override
+  public void teleopPeriodic() {
+    for(EESubsystem e : mSubsystems) {
+      e.genericPeriodic();
+      e.teleopPeriodic();
+    }
+  }
+
+  @Override
+  public void disabledInit() {}
+
+  @Override
+  public void disabledPeriodic() {}
+
+  @Override
+  public void testInit() {}
+
+  @Override
+  public void testPeriodic() {}
+
+  @Override
+  public void simulationInit() {}
+
+  @Override
+  public void simulationPeriodic() {}
+}
