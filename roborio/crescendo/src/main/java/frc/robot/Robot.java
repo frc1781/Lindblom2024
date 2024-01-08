@@ -4,7 +4,16 @@
 
 package frc.robot;
 
+import java.util.ArrayList;
+
 import edu.wpi.first.wpilibj.TimedRobot;
+import tech.team1781.Input;
+import tech.team1781.autonomous.AutonomousHandler;
+import tech.team1781.autonomous.RoutineOverException;
+import tech.team1781.autonomous.routines.ExampleRoutine;
+import tech.team1781.control.ControlSystem;
+import tech.team1781.subsystems.DriveSystem;
+import tech.team1781.subsystems.EESubsystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -17,23 +26,75 @@ public class Robot extends TimedRobot {
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
+
+  private Input mInput;
+
+  //Subsystems go here
+  private DriveSystem mDriveSystem;
+  private ArrayList<EESubsystem> mSubsystems;
+  
+  //control and autonomous
+  private ControlSystem mControlSystem;
+  private AutonomousHandler mAutonomousHandler;
+
   @Override
-  public void robotInit() {}
+  public void robotInit() {
+    mInput = new Input();
+    
+    //initialize subsystems here
+    mDriveSystem = new DriveSystem();
+
+    mSubsystems.add(mDriveSystem);
+
+    mControlSystem = new ControlSystem(mDriveSystem);
+    mAutonomousHandler = new AutonomousHandler(mControlSystem, new ExampleRoutine());
+
+  }
 
   @Override
   public void robotPeriodic() {}
 
   @Override
-  public void autonomousInit() {}
+  public void autonomousInit() {
+    mAutonomousHandler.init();
+
+    for(EESubsystem e : mSubsystems) {
+      e.genericInit();
+      e.autonomousInit();
+    }
+  }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    try {
+      mAutonomousHandler.run();
+    } catch (RoutineOverException e) {
+      e.printStackTrace();
+    }
+
+    mControlSystem.run();
+
+    for(EESubsystem e : mSubsystems) {
+      e.genericPeriodic();
+      e.autonomousPeriodic();
+    }
+  }
 
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+    for(EESubsystem e : mSubsystems) {
+      e.genericInit();
+      e.teleopInit();
+    }
+  }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    for(EESubsystem e : mSubsystems) {
+      e.genericPeriodic();
+      e.teleopPeriodic();
+    }
+  }
 
   @Override
   public void disabledInit() {}
