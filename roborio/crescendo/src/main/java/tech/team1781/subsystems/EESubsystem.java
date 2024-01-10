@@ -4,17 +4,20 @@ package tech.team1781.subsystems;
 public abstract class EESubsystem {
    protected final String name;
    protected double currentTime;
+   protected OperatingMode currentMode; 
+
    private SubsystemState mCurrentState;
    
    protected EESubsystem(String _name) {
     name = _name;
    }
 
-   public void genericInit() {
+   public void setOperatingMode(OperatingMode mode) {
+      currentMode = mode;
+      init();
    }
 
-   public void genericPeriodic() {
-   }
+   public abstract void genericPeriodic();
 
    public final void feedStateTime(double sampledTime) {
     currentTime = sampledTime;
@@ -28,20 +31,22 @@ public abstract class EESubsystem {
     return mCurrentState;
    }
 
+   public abstract void init();
+
    public abstract void getToState();
 
    public abstract boolean matchesDesiredState();
 
-   public abstract void autonomousInit();
-
    public abstract void autonomousPeriodic();
-
-   public abstract void teleopInit();
 
    public abstract void teleopPeriodic();
 
    public interface SubsystemState {
 
+   }
+
+   public enum OperatingMode {
+      DISABLED, TELEOP, AUTONOMOUS, SIMULATION, TEST
    }
 
 }

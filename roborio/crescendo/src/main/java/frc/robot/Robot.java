@@ -14,6 +14,7 @@ import tech.team1781.autonomous.routines.ExampleRoutine;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.subsystems.DriveSystem;
 import tech.team1781.subsystems.EESubsystem;
+import tech.team1781.subsystems.EESubsystem.OperatingMode;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -59,8 +60,7 @@ public class Robot extends TimedRobot {
     mAutonomousHandler.init();
 
     for(EESubsystem e : mSubsystems) {
-      e.genericInit();
-      e.autonomousInit();
+      e.setOperatingMode(OperatingMode.AUTONOMOUS);
     }
   }
 
@@ -83,8 +83,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     for(EESubsystem e : mSubsystems) {
-      e.genericInit();
-      e.teleopInit();
+      e.setOperatingMode(OperatingMode.TELEOP);
     }
   }
 

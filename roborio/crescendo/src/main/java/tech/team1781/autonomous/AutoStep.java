@@ -1,4 +1,4 @@
-package tech.team1781.autonomous.routines;
+package tech.team1781.autonomous;
 
 import edu.wpi.first.math.trajectory.Trajectory;
 import tech.team1781.control.ControlSystem.Action;

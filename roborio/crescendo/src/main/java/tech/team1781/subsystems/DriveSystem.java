@@ -25,11 +25,6 @@ public class DriveSystem extends EESubsystem{
         throw new UnsupportedOperationException("Unimplemented method 'matchesDesiredState'");
     }
 
-    @Override
-    public void autonomousInit() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'autonomousInit'");
-    }
 
     @Override
     public void autonomousPeriodic() {
@@ -38,15 +33,21 @@ public class DriveSystem extends EESubsystem{
     }
 
     @Override
-    public void teleopInit() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'teleopInit'");
-    }
-
-    @Override
     public void teleopPeriodic() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'teleopPeriodic'");
+    }
+
+    @Override
+    public void genericPeriodic() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'genericPeriodic'");
+    }
+
+    @Override
+    public void init() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'init'");
     }
     
 }
