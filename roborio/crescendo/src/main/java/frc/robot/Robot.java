@@ -12,9 +12,9 @@ import tech.team1781.autonomous.AutonomousHandler;
 import tech.team1781.autonomous.RoutineOverException;
 import tech.team1781.autonomous.routines.ExampleRoutine;
 import tech.team1781.control.ControlSystem;
-import tech.team1781.subsystems.DriveSystem;
-import tech.team1781.subsystems.EESubsystem;
-import tech.team1781.subsystems.EESubsystem.OperatingMode;
+import tech.team1781.subsystems.DriveSystemController;
+import tech.team1781.subsystems.SubsystemController;
+import tech.team1781.subsystems.SubsystemController.OperatingMode;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -28,26 +28,15 @@ public class Robot extends TimedRobot {
    * initialization code.
    */
 
-  private Input mInput;
-
-  //Subsystems go here
-  private DriveSystem mDriveSystem;
-  private ArrayList<EESubsystem> mSubsystems;
-  
   //control and autonomous
   private ControlSystem mControlSystem;
   private AutonomousHandler mAutonomousHandler;
 
   @Override
   public void robotInit() {
-    mInput = new Input();
     
-    //initialize subsystems here
-    mDriveSystem = new DriveSystem();
 
-    mSubsystems.add(mDriveSystem);
-
-    mControlSystem = new ControlSystem(mDriveSystem);
+    mControlSystem = new ControlSystem();
     mAutonomousHandler = new AutonomousHandler(mControlSystem, new ExampleRoutine());
 
   }
@@ -58,10 +47,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     mAutonomousHandler.init();
-
-    for(EESubsystem e : mSubsystems) {
-      e.setOperatingMode(OperatingMode.AUTONOMOUS);
-    }
+    mControlSystem.init(OperatingMode.AUTONOMOUS);
   }
 
   @Override
@@ -74,29 +60,21 @@ public class Robot extends TimedRobot {
 
     mControlSystem.run();
 
-    for(EESubsystem e : mSubsystems) {
-      e.genericPeriodic();
-      e.autonomousPeriodic();
-    }
   }
 
   @Override
   public void teleopInit() {
-    for(EESubsystem e : mSubsystems) {
-      e.setOperatingMode(OperatingMode.TELEOP);
-    }
+    mControlSystem.init(OperatingMode.TELEOP);
   }
 
   @Override
   public void teleopPeriodic() {
-    for(EESubsystem e : mSubsystems) {
-      e.genericPeriodic();
-      e.teleopPeriodic();
-    }
+    mControlSystem.run();
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+  }
 
   @Override
   public void disabledPeriodic() {}

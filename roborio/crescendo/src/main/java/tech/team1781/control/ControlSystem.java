@@ -3,13 +3,15 @@ package tech.team1781.control;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+//TODO: change to pathplanner trajectory
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
 import tech.team1781.autonomous.AutoStep;
-import tech.team1781.subsystems.DriveSystem;
-import tech.team1781.subsystems.EESubsystem;
-import tech.team1781.subsystems.DriveSystem.DriveSystemState;
-import tech.team1781.subsystems.EESubsystem.SubsystemState;
+import tech.team1781.subsystems.DriveSystemController;
+import tech.team1781.subsystems.SubsystemController;
+import tech.team1781.subsystems.DriveSystemController.DriveSystemState;
+import tech.team1781.subsystems.SubsystemController.OperatingMode;
+import tech.team1781.subsystems.SubsystemController.SubsystemState;
 import tech.team1781.utils.EVector;
 
 public class ControlSystem {
@@ -19,18 +21,20 @@ public class ControlSystem {
     private boolean mIsRunningAction = false;
     private Timer mStepTime;
 
-    private ArrayList<EESubsystem> mSubsystems;
-    private DriveSystem mDriveSystem;
+    private ArrayList<SubsystemController> mSubsystems;
+    private DriveSystemController mDriveSystem;
+    
+    private OperatingMode mCurrentOperatingMode;
 
     public enum Action {
         EXAMPLE_ACTION
     }
 
-    public ControlSystem(DriveSystem driveSystem) {
-        mDriveSystem = driveSystem;
+    public ControlSystem() {
+        mDriveSystem = new DriveSystemController();
 
         mSubsystems = new ArrayList<>();
-        mSubsystems.add(driveSystem);
+        mSubsystems.add(mDriveSystem);
 
         initActions();
 
@@ -66,10 +70,17 @@ public class ControlSystem {
         return !mIsRunningAction; //&& mDriveSystem.matchesDesiredState();
     }
 
+    public void init(OperatingMode operatingMode) {
+        for(SubsystemController subsystem : mSubsystems) {
+            subsystem.setOperatingMode(operatingMode);
+        }
+    }
+
     public void run() {
-        for (EESubsystem subsystem : mSubsystems) {
+        for (SubsystemController subsystem : mSubsystems) {
             subsystem.getToState();
             subsystem.feedStateTime(mStepTime.get());
+            runSubsystemPeriodic(subsystem);
         }
 
         if (!mIsRunningAction) {
@@ -105,13 +116,28 @@ public class ControlSystem {
         mActions.put(action, settings);
     }
 
+    private void runSubsystemPeriodic(SubsystemController subsystem) {
+        subsystem.genericPeriodic();        
+        switch(mCurrentOperatingMode) {
+            case AUTONOMOUS:
+                subsystem.autonomousPeriodic();
+            break;
+            case TELEOP:
+                subsystem.teleopPeriodic();
+            break;
+            default: 
+            break; 
+                
+        }
+    }
+
 }
 
 class SubsystemSetting {
-    private EESubsystem mSubsystem;
+    private SubsystemController mSubsystem;
     private SubsystemState mState;
 
-    public SubsystemSetting(EESubsystem subsystem, SubsystemState state) {
+    public SubsystemSetting(SubsystemController subsystem, SubsystemState state) {
         mSubsystem = subsystem;
         mState = state;
     }

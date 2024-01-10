@@ -1,5 +1,6 @@
 package tech.team1781.autonomous;
 
+//TODO: Change to pathplanner trajectory
 import edu.wpi.first.math.trajectory.Trajectory;
 import tech.team1781.control.ControlSystem.Action;
 import tech.team1781.utils.EVector;

@@ -1,14 +1,14 @@
 package tech.team1781.subsystems;
 
 
-public abstract class EESubsystem {
+public abstract class SubsystemController {
    protected final String name;
    protected double currentTime;
    protected OperatingMode currentMode; 
 
    private SubsystemState mCurrentState;
    
-   protected EESubsystem(String _name) {
+   protected SubsystemController(String _name) {
     name = _name;
    }
 
