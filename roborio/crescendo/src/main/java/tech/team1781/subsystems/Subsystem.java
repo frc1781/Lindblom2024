@@ -1,14 +1,14 @@
 package tech.team1781.subsystems;
 
 
-public abstract class SubsystemController {
+public abstract class Subsystem {
    protected final String name;
    protected double currentTime;
    protected OperatingMode currentMode; 
 
    private SubsystemState mCurrentState;
    
-   protected SubsystemController(String _name) {
+   protected Subsystem(String _name) {
     name = _name;
    }
 

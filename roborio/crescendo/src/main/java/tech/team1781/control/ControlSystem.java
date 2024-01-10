@@ -7,11 +7,11 @@ import java.util.HashMap;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
 import tech.team1781.autonomous.AutoStep;
-import tech.team1781.subsystems.DriveSystemController;
-import tech.team1781.subsystems.SubsystemController;
-import tech.team1781.subsystems.DriveSystemController.DriveSystemState;
-import tech.team1781.subsystems.SubsystemController.OperatingMode;
-import tech.team1781.subsystems.SubsystemController.SubsystemState;
+import tech.team1781.subsystems.DriveSystem;
+import tech.team1781.subsystems.Subsystem;
+import tech.team1781.subsystems.DriveSystem.DriveSystemState;
+import tech.team1781.subsystems.Subsystem.OperatingMode;
+import tech.team1781.subsystems.Subsystem.SubsystemState;
 import tech.team1781.utils.EVector;
 
 public class ControlSystem {
@@ -21,8 +21,8 @@ public class ControlSystem {
     private boolean mIsRunningAction = false;
     private Timer mStepTime;
 
-    private ArrayList<SubsystemController> mSubsystems;
-    private DriveSystemController mDriveSystem;
+    private ArrayList<Subsystem> mSubsystems;
+    private DriveSystem mDriveSystem;
     
     private OperatingMode mCurrentOperatingMode;
 
@@ -31,7 +31,7 @@ public class ControlSystem {
     }
 
     public ControlSystem() {
-        mDriveSystem = new DriveSystemController();
+        mDriveSystem = new DriveSystem();
 
         mSubsystems = new ArrayList<>();
         mSubsystems.add(mDriveSystem);
@@ -71,13 +71,13 @@ public class ControlSystem {
     }
 
     public void init(OperatingMode operatingMode) {
-        for(SubsystemController subsystem : mSubsystems) {
+        for(Subsystem subsystem : mSubsystems) {
             subsystem.setOperatingMode(operatingMode);
         }
     }
 
     public void run() {
-        for (SubsystemController subsystem : mSubsystems) {
+        for (Subsystem subsystem : mSubsystems) {
             subsystem.getToState();
             subsystem.feedStateTime(mStepTime.get());
             runSubsystemPeriodic(subsystem);
@@ -116,7 +116,7 @@ public class ControlSystem {
         mActions.put(action, settings);
     }
 
-    private void runSubsystemPeriodic(SubsystemController subsystem) {
+    private void runSubsystemPeriodic(Subsystem subsystem) {
         subsystem.genericPeriodic();        
         switch(mCurrentOperatingMode) {
             case AUTONOMOUS:
@@ -134,10 +134,10 @@ public class ControlSystem {
 }
 
 class SubsystemSetting {
-    private SubsystemController mSubsystem;
+    private Subsystem mSubsystem;
     private SubsystemState mState;
 
-    public SubsystemSetting(SubsystemController subsystem, SubsystemState state) {
+    public SubsystemSetting(Subsystem subsystem, SubsystemState state) {
         mSubsystem = subsystem;
         mState = state;
     }
