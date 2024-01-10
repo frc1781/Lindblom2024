@@ -8,4 +8,8 @@ public class ConfigMap {
 
     public static final String BEST_TEAM_MEMBER = "Vincent";    
     
+    //Swerve
+
+    //First Drivebase
+    
 }
