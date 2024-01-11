@@ -12,9 +12,7 @@ import tech.team1781.autonomous.AutonomousHandler;
 import tech.team1781.autonomous.RoutineOverException;
 import tech.team1781.autonomous.routines.ExampleRoutine;
 import tech.team1781.control.ControlSystem;
-import tech.team1781.subsystems.DriveSystemController;
-import tech.team1781.subsystems.SubsystemController;
-import tech.team1781.subsystems.SubsystemController.OperatingMode;
+import tech.team1781.subsystems.Subsystem.OperatingMode;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
