@@ -9,6 +9,7 @@ public class ConfigMap {
     public static final String BEST_TEAM_MEMBER = "Vincent";    
     
     //Swerve
+    public static final double MAX_VELOCITY_METERS_PER_SECOND = 4.0;
 
     //First Drivebase
     

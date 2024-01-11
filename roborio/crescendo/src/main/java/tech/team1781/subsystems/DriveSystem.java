@@ -1,13 +1,13 @@
 package tech.team1781.subsystems;
 
-public class DriveSystemController extends SubsystemController{
+public class DriveSystem extends Subsystem{
 
-    public DriveSystemController() {
+    public DriveSystem() {
         super("Drive System");
         //TODO Auto-generated constructor stub
     }
 
-    public enum DriveSystemState implements SubsystemController.SubsystemState {
+    public enum DriveSystemState implements Subsystem.SubsystemState {
         DRIVE_SETPOINT, 
         DRIVE_TRAJECTORY,
         DRIVE_MANUAL

@@ -2,7 +2,10 @@ package tech.team1781.swerve;
 
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.compound.Diff_DutyCycleOut_Velocity;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkMax;
@@ -17,32 +20,26 @@ import edu.wpi.first.wpilibj.DriverStation;
 import tech.team1781.ConfigMap;
 import tech.team1781.utils.SwerveModuleConfiguration;
 
-public class NEOL1SwerveModule extends SwerveModule{
+public class KrakenL2SwerveModule extends SwerveModule{ 
     private SwerveModuleState mDesiredState = new SwerveModuleState();
 
-    private final CANSparkMax mDriveMotor;
+    private final TalonFX mDriveMotor;
     private final CANSparkMax mTurnMotor;
-    private final SparkPIDController mDrivePID;
     private final SparkPIDController mTurnPID;
     
-    private final RelativeEncoder mDriveEncoder;
     private final RelativeEncoder mTurnEncoder;
     private final CANcoder mTurnAbsoluteEncoder;
 
-    public NEOL1SwerveModule(int driveMotorID, int turnMotorID, int cancoderID, double cancoderOffset) {
+    public KrakenL2SwerveModule(int driveMotorID, int turnMotorID, int cancoderID, double cancoderOffset) {
         super(driveMotorID, turnMotorID, cancoderID, cancoderOffset);
-        mDriveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless);
+        mDriveMotor = new TalonFX(driveMotorID);
         mTurnMotor = new CANSparkMax(turnMotorID, MotorType.kBrushless);
         
-        mDriveMotor.restoreFactoryDefaults();
         mTurnMotor.restoreFactoryDefaults();
 
-        mDrivePID = mDriveMotor.getPIDController();
         mTurnPID = mTurnMotor.getPIDController();
-        mDriveEncoder = mDriveMotor.getEncoder();
         mTurnEncoder = mTurnMotor.getEncoder();
         
-        mDrivePID.setFeedbackDevice(mDriveEncoder);
         mTurnPID.setFeedbackDevice(mTurnEncoder);
 
         mTurnAbsoluteEncoder = new CANcoder(cancoderID);
@@ -51,20 +48,14 @@ public class NEOL1SwerveModule extends SwerveModule{
             DriverStation.reportError("Could not configure CANcoder with ID: " + cancoderID, false);
         }
 
-        mDrivePID.setP(moduleConfiguration().drivingP);
-        mDrivePID.setI(moduleConfiguration().drivingI);
-        mDrivePID.setD(moduleConfiguration().drivingD);
-        mDrivePID.setFF(moduleConfiguration().drivingFF);
-
         mTurnPID.setP(moduleConfiguration().turningP);
         mTurnPID.setI(moduleConfiguration().turningI);
         mTurnPID.setD(moduleConfiguration().turningD);
         mTurnPID.setFF(moduleConfiguration().turningFF);
 
-        mDrivePID.setOutputRange(moduleConfiguration().minDrivingMotorVoltage, moduleConfiguration().maxDrivingMotorVoltage);
         mTurnPID.setOutputRange(moduleConfiguration().minTurningMotorVoltage, moduleConfiguration().maxTurningMotorVoltage);
+        
 
-        mDriveMotor.burnFlash();
         mTurnMotor.burnFlash();
     }
 
@@ -80,17 +71,22 @@ public class NEOL1SwerveModule extends SwerveModule{
     }
 
     public SwerveModuleState getCurrentState() {
-        return new SwerveModuleState(mDriveEncoder.getVelocity(), getAbsoluteAngle());
+        return new SwerveModuleState(getDriveMotorSpeed(), getAbsoluteAngle());
     }
 
     public void setDesiredState(SwerveModuleState desiredState) {
         SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, getAbsoluteAngle());
-        mDrivePID.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
+        
+        VelocityVoltage driveRequest = new VelocityVoltage(desiredState.speedMetersPerSecond);
         mTurnPID.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
-
+        mDriveMotor.setControl(driveRequest);
         mDesiredState = desiredState;
 
         syncRelativeToAbsoluteEncoder();
+    }
+
+    private double getDriveMotorSpeed() {
+        return mDriveMotor.getVelocity().getValueAsDouble() * moduleConfiguration().metersPerRevolution;
     }
 
     void syncRelativeToAbsoluteEncoder() {
@@ -108,8 +104,8 @@ public class NEOL1SwerveModule extends SwerveModule{
     static SwerveModuleConfiguration moduleConfiguration() {
         SwerveModuleConfiguration ret_val = new SwerveModuleConfiguration();
 
-        ret_val.metersPerRevolution = 0.102 * Math.PI * (14.0/50.0) * (25.0/19.0) * (15.0 / 45.0);
-        ret_val.radiansPerRevolution = 2 * Math.PI * (14.0/50.0) * (10.0/60.0);
+        ret_val.metersPerRevolution = 0.10033 * Math.PI * (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0);
+        ret_val.radiansPerRevolution = 2 * Math.PI * (14.0 / 50.0) * (10.0 / 60.0);
         ret_val.velocityConversion = ret_val.metersPerRevolution / 60.0;
         ret_val.radiansPerSecond = ret_val.radiansPerRevolution / 60.0;
 

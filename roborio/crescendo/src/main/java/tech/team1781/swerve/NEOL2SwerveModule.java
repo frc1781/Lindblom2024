@@ -17,8 +17,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import tech.team1781.ConfigMap;
 import tech.team1781.utils.SwerveModuleConfiguration;
 
-public class NEOL1SwerveModule extends SwerveModule{
-    private SwerveModuleState mDesiredState = new SwerveModuleState();
+public class NEOL2SwerveModule extends SwerveModule{
 
     private final CANSparkMax mDriveMotor;
     private final CANSparkMax mTurnMotor;
@@ -29,7 +28,7 @@ public class NEOL1SwerveModule extends SwerveModule{
     private final RelativeEncoder mTurnEncoder;
     private final CANcoder mTurnAbsoluteEncoder;
 
-    public NEOL1SwerveModule(int driveMotorID, int turnMotorID, int cancoderID, double cancoderOffset) {
+    public NEOL2SwerveModule(int driveMotorID, int turnMotorID, int cancoderID, double cancoderOffset) {
         super(driveMotorID, turnMotorID, cancoderID, cancoderOffset);
         mDriveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless);
         mTurnMotor = new CANSparkMax(turnMotorID, MotorType.kBrushless);
@@ -79,6 +78,7 @@ public class NEOL1SwerveModule extends SwerveModule{
         return new Rotation2d(reportedVal * 2 * Math.PI);
     }
 
+    @Override
     public SwerveModuleState getCurrentState() {
         return new SwerveModuleState(mDriveEncoder.getVelocity(), getAbsoluteAngle());
     }
@@ -88,12 +88,11 @@ public class NEOL1SwerveModule extends SwerveModule{
         mDrivePID.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
         mTurnPID.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
 
-        mDesiredState = desiredState;
-
         syncRelativeToAbsoluteEncoder();
     }
 
-    void syncRelativeToAbsoluteEncoder() {
+
+    protected void syncRelativeToAbsoluteEncoder() {
         if(mTurnEncoder.getVelocity() >= 0.5) {
             return;
         }
@@ -108,8 +107,8 @@ public class NEOL1SwerveModule extends SwerveModule{
     static SwerveModuleConfiguration moduleConfiguration() {
         SwerveModuleConfiguration ret_val = new SwerveModuleConfiguration();
 
-        ret_val.metersPerRevolution = 0.102 * Math.PI * (14.0/50.0) * (25.0/19.0) * (15.0 / 45.0);
-        ret_val.radiansPerRevolution = 2 * Math.PI * (14.0/50.0) * (10.0/60.0);
+        ret_val.metersPerRevolution = 0.1016 * Math.PI;
+        ret_val.radiansPerRevolution = 2 * Math.PI * (14.0 / 50.0) * (10.0 / 60.0);
         ret_val.velocityConversion = ret_val.metersPerRevolution / 60.0;
         ret_val.radiansPerSecond = ret_val.radiansPerRevolution / 60.0;
 
@@ -140,4 +139,6 @@ public class NEOL1SwerveModule extends SwerveModule{
 
         return ret_val;
     }
+
+
 }
