@@ -12,6 +12,7 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import tech.team1781.ConfigMap;
@@ -78,10 +79,15 @@ public class NEOL2SwerveModule extends SwerveModule{
         return new Rotation2d(reportedVal * 2 * Math.PI);
     }
 
-    @Override
     public SwerveModuleState getCurrentState() {
         return new SwerveModuleState(mDriveEncoder.getVelocity(), getAbsoluteAngle());
     }
+
+    public SwerveModulePosition getModulePosition() {
+        return new SwerveModulePosition(mDriveEncoder.getPosition(), getAbsoluteAngle());
+    }
+
+
 
     public void setDesiredState(SwerveModuleState desiredState) {
         SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, getAbsoluteAngle());
@@ -107,7 +113,7 @@ public class NEOL2SwerveModule extends SwerveModule{
     static SwerveModuleConfiguration moduleConfiguration() {
         SwerveModuleConfiguration ret_val = new SwerveModuleConfiguration();
 
-        ret_val.metersPerRevolution = 0.1016 * Math.PI;
+        ret_val.metersPerRevolution = 0.10033 * Math.PI * (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0);
         ret_val.radiansPerRevolution = 2 * Math.PI * (14.0 / 50.0) * (10.0 / 60.0);
         ret_val.velocityConversion = ret_val.metersPerRevolution / 60.0;
         ret_val.radiansPerSecond = ret_val.radiansPerRevolution / 60.0;

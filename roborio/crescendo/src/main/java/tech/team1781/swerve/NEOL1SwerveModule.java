@@ -12,6 +12,7 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import tech.team1781.ConfigMap;
@@ -81,6 +82,10 @@ public class NEOL1SwerveModule extends SwerveModule{
 
     public SwerveModuleState getCurrentState() {
         return new SwerveModuleState(mDriveEncoder.getVelocity(), getAbsoluteAngle());
+    }
+
+    public SwerveModulePosition getModulePosition() {
+        return new SwerveModulePosition(mDriveEncoder.getPosition(), getAbsoluteAngle());
     }
 
     public void setDesiredState(SwerveModuleState desiredState) {

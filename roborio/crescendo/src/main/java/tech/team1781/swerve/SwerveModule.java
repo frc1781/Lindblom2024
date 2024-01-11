@@ -4,20 +4,21 @@ package tech.team1781.swerve;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import tech.team1781.utils.SwerveModuleConfiguration;
 
 public abstract class SwerveModule {
 
     public SwerveModule(int driveMotorID, int turnMotorID, int cancoderId, double cancoderOffset) {
-        
+
     }
 
     protected SwerveModuleState desiredState; 
 
     public abstract Rotation2d getAbsoluteAngle();
 
-    public abstract SwerveModuleState getCurrentState();
+    public abstract SwerveModulePosition getModulePosition();
 
     public abstract void setDesiredState(SwerveModuleState sentDesiredState);
 

@@ -1,5 +1,6 @@
 package tech.team1781;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
@@ -11,6 +12,10 @@ public class ConfigMap {
     //Swerve
     public static final double MAX_VELOCITY_METERS_PER_SECOND = 4.0;
 
-    //First Drivebase
-    
+    public static Translation2d FRONT_LEFT_MODULE_POSITION = new Translation2d();
+    public static Translation2d FRONT_RIGHT_MODULE_POSITION = new Translation2d();
+    public static Translation2d BACK_LEFT_MODULE_POSITION = new Translation2d();
+    public static Translation2d BACK_RIGHT_MODULE_POSITION = new Translation2d();
+
+    //First Drivebase 
 }

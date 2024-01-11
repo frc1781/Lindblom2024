@@ -15,6 +15,7 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import tech.team1781.ConfigMap;
@@ -74,6 +75,10 @@ public class KrakenL2SwerveModule extends SwerveModule{
         return new SwerveModuleState(getDriveMotorSpeed(), getAbsoluteAngle());
     }
 
+    public SwerveModulePosition getModulePosition() {
+        return new SwerveModulePosition(getDriveMotorPosition(), getAbsoluteAngle());
+    }
+
     public void setDesiredState(SwerveModuleState desiredState) {
         SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, getAbsoluteAngle());
         
@@ -87,6 +92,10 @@ public class KrakenL2SwerveModule extends SwerveModule{
 
     private double getDriveMotorSpeed() {
         return mDriveMotor.getVelocity().getValueAsDouble() * moduleConfiguration().metersPerRevolution;
+    }
+
+    private double getDriveMotorPosition() {
+        return mDriveMotor.getPosition().getValueAsDouble() * moduleConfiguration().metersPerRevolution;
     }
 
     void syncRelativeToAbsoluteEncoder() {
