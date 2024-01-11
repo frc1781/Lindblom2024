@@ -6,7 +6,7 @@ public abstract class Subsystem {
    protected double currentTime;
    protected OperatingMode currentMode; 
 
-   private SubsystemState mCurrentState;
+   private SubsystemState currentState;
    
    protected Subsystem(String _name) {
     name = _name;
@@ -24,11 +24,11 @@ public abstract class Subsystem {
    }
 
    public final void setDesiredState(SubsystemState desiredState) {
-    mCurrentState = desiredState;
+    currentState = desiredState;
    }
-
+   
    public final SubsystemState getState() {
-    return mCurrentState;
+    return currentState;
    }
 
    public abstract void init();

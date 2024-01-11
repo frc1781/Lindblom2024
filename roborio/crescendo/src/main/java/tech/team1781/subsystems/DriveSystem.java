@@ -3,6 +3,7 @@ package tech.team1781.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -10,10 +11,13 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.SPI;
 import tech.team1781.ConfigMap;
 import tech.team1781.swerve.NEOL1SwerveModule;
 import tech.team1781.swerve.SwerveModule;
+import tech.team1781.utils.EVector;
 
 public class DriveSystem extends Subsystem{
 
@@ -33,10 +37,23 @@ public class DriveSystem extends Subsystem{
     private AHRS mNavX = new AHRS(SPI.Port.kMXP);
 
 
+    //Autonomous positioning 
+    private Trajectory mDesiredTrajectory = null;
+    private EVector mDesiredPosition = null;
+    private boolean mIsManual = true;
+
+    private ProfiledPIDController mXController = new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(0, 0));
+    private ProfiledPIDController mYController = new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(0, 0));
+    private ProfiledPIDController mRotController = new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(0, 0));
+
+
     public DriveSystem() {
         super("Drive System");
 
-        mOdometry = new SwerveDriveOdometry(mKinematics, getRobotAngle(), getModuleStates());
+        mOdometry = new SwerveDriveOdometry(mKinematics, getRobotAngle(), getModulePositions());
+
+        mRotController.enableContinuousInput(0, 2 * Math.PI);
+
     }
 
     public enum DriveSystemState implements Subsystem.SubsystemState {
@@ -47,39 +64,111 @@ public class DriveSystem extends Subsystem{
 
     @Override
     public void getToState() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getToState'");
+        switch((DriveSystemState) getState()) {
+            case DRIVE_SETPOINT:
+                goTo(mDesiredPosition);
+            break;
+            case DRIVE_TRAJECTORY:
+                followTrajectory();
+            break;
+            case DRIVE_MANUAL:
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'getToState' for state 'DRIVE_MANUAL'");
+            default:
+                throw new UnsupportedOperationException("Unimplemented method 'getToState' for state '" + getState() + "'");
+        }
     }
 
     @Override
     public boolean matchesDesiredState() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'matchesDesiredState'");
+
+        switch((DriveSystemState) getState()) {
+            case DRIVE_SETPOINT:
+            return matchesDesiredPosition();
+            case DRIVE_TRAJECTORY:
+            return mDesiredTrajectory.getTotalTimeSeconds() < currentTime;
+            case DRIVE_MANUAL:
+            return mIsManual;
+            default: 
+            return true;
+        }
     }
 
 
     @Override
     public void autonomousPeriodic() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'autonomousPeriodic'");
     }
 
     @Override
     public void teleopPeriodic() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'teleopPeriodic'");
     }
 
     @Override
     public void genericPeriodic() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'genericPeriodic'");
+        updateOdometry();
     }
 
     @Override
     public void init() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'init'");
+        mXController.reset(0);
+        mYController.reset(0);
+        mRotController.reset(0);
+
+        switch(currentMode) {
+            case AUTONOMOUS:
+            break;
+            case TELEOP:
+            break;
+            case DISABLED:
+            break;
+            case SIMULATION:
+            break;
+            case TEST:
+            break;
+            default:
+            break;
+        }
+    }
+
+    public void followTrajectory() {
+        if(mIsManual && mDesiredTrajectory == null) {
+            return;
+        }
+
+        Pose2d sampledPose = mDesiredTrajectory.sample(currentTime).poseMeters;
+        goTo(EVector.fromPose(sampledPose));
+    }
+
+    public void goTo(EVector target) {
+        if(mIsManual && mDesiredPosition == null) {
+            return;
+        }
+        final double DISTANCE_TOLERANCE = 0.1;
+        EVector robotPose = EVector.fromPose(getRobotPose());
+        double diff = target.dist(robotPose);
+        if(diff < DISTANCE_TOLERANCE) {
+            return;
+        }
+
+        double xDutyCycle = mXController.calculate(robotPose.x, target.x);
+        double yDutyCycle = mYController.calculate(robotPose.y, target.y);
+        double rotDutyCycle = mRotController.calculate(robotPose.z, target.z);
+
+        driveRaw(xDutyCycle, yDutyCycle, rotDutyCycle);
+
+
+    }
+
+    public void setTrajectory(Trajectory trajectory) {
+        mDesiredTrajectory = trajectory;
+        mDesiredPosition = null;
+        mIsManual = false;
+    }
+
+    public void setPosition(EVector position) {
+        mDesiredPosition = position;
+        mDesiredTrajectory = null;
+        mIsManual = false;
     }
 
     public void driveRaw(double xSpeed, double ySpeed, double rot) {
@@ -110,7 +199,21 @@ public class DriveSystem extends Subsystem{
         return mOdometry.getPoseMeters();
     }
 
-    private SwerveModulePosition[] getModuleStates() {
+    public boolean matchesDesiredPosition() {
+        if(mIsManual) {
+            return true;
+        }
+        if(mDesiredPosition != null) {
+            return mDesiredPosition.dist(EVector.fromPose(getRobotPose())) < 0.1;
+        }
+        return false;
+    }
+
+    private void updateOdometry() {
+        mOdometry.update(getRobotAngle(), getModulePositions());
+    }
+
+    private SwerveModulePosition[] getModulePositions() {
         return new SwerveModulePosition[]{
             mFrontLeft.getModulePosition(),
             mFrontRight.getModulePosition(),

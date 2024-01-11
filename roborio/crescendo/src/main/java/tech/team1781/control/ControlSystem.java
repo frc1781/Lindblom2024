@@ -42,6 +42,10 @@ public class ControlSystem {
 
     }
 
+    public void setAction(Action desiredAction) {
+        setAutoStep(desiredAction, null, null);
+    }
+
     public void setAutoStep(Action desiredAction, EVector position, Trajectory trajectory) {
         mStepTime.reset();
         mStepTime.start();
@@ -55,10 +59,10 @@ public class ControlSystem {
         }
 
         if (position != null) {
-            // mDriveSystem.setPosition(position);
+            mDriveSystem.setPosition(position);
             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
         } else if (trajectory != null) {
-            // mDriveSystem.setTrajectory(trajectory);
+            mDriveSystem.setTrajectory(trajectory);
             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_TRAJECTORY);
         } else {
             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
@@ -92,6 +96,7 @@ public class ControlSystem {
         for (SubsystemSetting setting : mCurrentSettings) {
             if (!setting.isFinished()) {
                 hasUnfinishedSubsystem = true;
+                break;
             }
         }
 
