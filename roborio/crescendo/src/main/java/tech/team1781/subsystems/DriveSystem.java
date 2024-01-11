@@ -72,10 +72,9 @@ public class DriveSystem extends Subsystem{
                 followTrajectory();
             break;
             case DRIVE_MANUAL:
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'getToState' for state 'DRIVE_MANUAL'");
+            break;
             default:
-                throw new UnsupportedOperationException("Unimplemented method 'getToState' for state '" + getState() + "'");
+            break;
         }
     }
 

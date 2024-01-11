@@ -73,6 +73,7 @@ public class ControlSystem {
     }
 
     public void init(OperatingMode operatingMode) {
+        mCurrentOperatingMode = operatingMode;
         for(Subsystem subsystem : mSubsystems) {
             subsystem.setOperatingMode(operatingMode);
         }
