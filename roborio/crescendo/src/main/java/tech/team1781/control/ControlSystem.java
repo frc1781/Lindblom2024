@@ -3,7 +3,6 @@ package tech.team1781.control;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-//TODO: change to pathplanner trajectory
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
 import tech.team1781.autonomous.AutoStep;
@@ -39,7 +38,6 @@ public class ControlSystem {
         initActions();
 
         mStepTime = new Timer();
-
     }
 
     public void setAction(Action desiredAction) {
