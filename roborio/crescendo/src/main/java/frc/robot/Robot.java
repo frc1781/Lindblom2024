@@ -32,11 +32,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    
-
     mControlSystem = new ControlSystem();
     mAutonomousHandler = new AutonomousHandler(mControlSystem, new ExampleRoutine());
-
+    mControlSystem.init(OperatingMode.DISABLED);
   }
 
   @Override

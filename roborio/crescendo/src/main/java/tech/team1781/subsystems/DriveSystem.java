@@ -15,39 +15,28 @@ public class DriveSystem extends Subsystem{
 
     @Override
     public void getToState() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getToState'");
     }
 
     @Override
     public boolean matchesDesiredState() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'matchesDesiredState'");
+        return false;
     }
 
 
     @Override
     public void autonomousPeriodic() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'autonomousPeriodic'");
     }
 
     @Override
     public void teleopPeriodic() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'teleopPeriodic'");
     }
 
     @Override
     public void genericPeriodic() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'genericPeriodic'");
     }
 
     @Override
     public void init() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'init'");
     }
     
 }
