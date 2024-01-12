@@ -16,6 +16,10 @@ public abstract class SwerveModule {
 
     protected SwerveModuleState desiredState; 
 
+    public void init() {
+        
+    }
+
     public abstract Rotation2d getAbsoluteAngle();
 
     public abstract SwerveModulePosition getModulePosition();

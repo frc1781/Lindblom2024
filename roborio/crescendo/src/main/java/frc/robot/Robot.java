@@ -7,7 +7,8 @@ package frc.robot;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import tech.team1781.Input;
+import tech.team1781.DriverInput;
+import tech.team1781.DriverInput.ControllerSide;
 import tech.team1781.autonomous.AutonomousHandler;
 import tech.team1781.autonomous.RoutineOverException;
 import tech.team1781.autonomous.routines.ExampleRoutine;
@@ -29,11 +30,13 @@ public class Robot extends TimedRobot {
   //control and autonomous
   private ControlSystem mControlSystem;
   private AutonomousHandler mAutonomousHandler;
+  private DriverInput mDriverInput;
 
   @Override
   public void robotInit() {
     mControlSystem = new ControlSystem();
     mAutonomousHandler = new AutonomousHandler(mControlSystem, new ExampleRoutine());
+    mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
   }
 
@@ -66,6 +69,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     mControlSystem.run();
+    mControlSystem.driveChassis(mDriverInput.getControllerJoyAxis(ControllerSide.LEFT, 0), mDriverInput.getControllerJoyAxis(ControllerSide.RIGHT, 0));
   }
 
   @Override

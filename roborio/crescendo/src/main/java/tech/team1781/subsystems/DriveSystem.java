@@ -72,7 +72,6 @@ public class DriveSystem extends Subsystem{
                 followTrajectory();
             break;
             case DRIVE_MANUAL:
-                driveRaw(0, 0.1, 0);
             break;
             default:
             break;
@@ -115,6 +114,11 @@ public class DriveSystem extends Subsystem{
         mXController.reset(0);
         mYController.reset(0);
         mRotController.reset(0);
+
+        mFrontLeft.init();
+        mFrontRight.init();
+        mBackLeft.init();
+        mBackRight.init();
 
         switch(currentMode) {
             case AUTONOMOUS:
@@ -180,6 +184,7 @@ public class DriveSystem extends Subsystem{
 
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
 
+        // System.err.printf("Front Left: %.2f, Front Right %.2f, Back Left: %.2f, Back Right: %.2f \n", moduleStates[0].angle.getRadians(), moduleStates[1].angle.getRadians(), moduleStates[2].angle.getRadians(), moduleStates[3].angle.getRadians());
         mFrontLeft.setDesiredState(moduleStates[0]);
         mFrontRight.setDesiredState(moduleStates[1]);
         mBackLeft.setDesiredState(moduleStates[2]);

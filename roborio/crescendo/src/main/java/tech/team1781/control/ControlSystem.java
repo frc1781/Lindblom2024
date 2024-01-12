@@ -40,6 +40,11 @@ public class ControlSystem {
         mStepTime = new Timer();
     }
 
+    public void driveChassis(EVector translation, EVector rotation) {
+        // mDriveSystem.driveRaw(translation.y, translation.x, rotation.x);
+        mDriveSystem.driveRaw(0.1, 0, 0);
+    }
+
     public void setAction(Action desiredAction) {
         setAutoStep(desiredAction, null, null);
     }

@@ -40,10 +40,10 @@ public class ConfigMap {
     public static Translation2d BACK_LEFT_MODULE_POSITION = new Translation2d(-DRIVETRAIN_TRACKWIDTH / 2, DRIVETRAIN_WHEELBASE / 2);
     public static Translation2d BACK_RIGHT_MODULE_POSITION = new Translation2d(-DRIVETRAIN_TRACKWIDTH / 2, -DRIVETRAIN_WHEELBASE / 2);
 
-    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(285.2050);
-    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(21.4453);
-    public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(219.8144);
-    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(222.0996);
+    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.918701;
+    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.739258;
+    public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.9267;
+    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.271729;
 
     // First Drivebase
 }
