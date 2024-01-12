@@ -11,6 +11,7 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -25,6 +26,7 @@ public class NEOL1SwerveModule extends SwerveModule{
     private final CANSparkMax mTurnMotor;
     private final SparkPIDController mDrivePID;
     private final SparkPIDController mTurnPID;
+    // private final PIDController mTurnPID;
     
     private final RelativeEncoder mDriveEncoder;
     private final RelativeEncoder mTurnEncoder;
@@ -40,11 +42,13 @@ public class NEOL1SwerveModule extends SwerveModule{
 
         mDrivePID = mDriveMotor.getPIDController();
         mTurnPID = mTurnMotor.getPIDController();
+        // mTurnPID = new PIDController(moduleConfiguration().turningP, moduleConfiguration().turningI, moduleConfiguration().turningD);
         mDriveEncoder = mDriveMotor.getEncoder();
         mTurnEncoder = mTurnMotor.getEncoder();
         
         mDrivePID.setFeedbackDevice(mDriveEncoder);
         mTurnPID.setFeedbackDevice(mTurnEncoder);
+
 
         mTurnAbsoluteEncoder = new CANcoder(cancoderID);
         StatusCode statusCode = mTurnAbsoluteEncoder.getConfigurator().apply(absoluteEncoderConfiguration(cancoderOffset));
@@ -60,13 +64,21 @@ public class NEOL1SwerveModule extends SwerveModule{
         mTurnPID.setP(moduleConfiguration().turningP);
         mTurnPID.setI(moduleConfiguration().turningI);
         mTurnPID.setD(moduleConfiguration().turningD);
+
+        mTurnEncoder.setPositionConversionFactor(moduleConfiguration().radiansPerRevolution);
+        mTurnEncoder.setVelocityConversionFactor(moduleConfiguration().radiansPerSecond);
+
+        mDriveEncoder.setPositionConversionFactor(moduleConfiguration().metersPerRevolution);
         mTurnPID.setFF(moduleConfiguration().turningFF);
 
         mDrivePID.setOutputRange(moduleConfiguration().minDrivingMotorVoltage, moduleConfiguration().maxDrivingMotorVoltage);
         mTurnPID.setOutputRange(moduleConfiguration().minTurningMotorVoltage, moduleConfiguration().maxTurningMotorVoltage);
+        // mTurnPID.enableContinuousInput(0, Math.PI * 2);
 
         mDriveMotor.burnFlash();
         mTurnMotor.burnFlash();
+        mTurnEncoder.setPosition(0);
+        mDriveEncoder.setPosition(0);
     }
 
     public Rotation2d getAbsoluteAngle() {
@@ -89,13 +101,21 @@ public class NEOL1SwerveModule extends SwerveModule{
     }
 
     public void setDesiredState(SwerveModuleState desiredState) {
-        SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, getAbsoluteAngle());
-        mDrivePID.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
-        mTurnPID.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
+        SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, new Rotation2d(mTurnEncoder.getPosition()));
+        // mDrivePID.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
+        mTurnPID.setReference(2, ControlType.kPosition);
+        // double turnDutyCycle = mTurnPID.calculate(mTurnEncoder.getPosition(), optimizedState.angle.getRadians());
+        // mTurnMotor.set(turnDutyCycle / (Math.PI * 2));
 
-        mDesiredState = desiredState;
+        // System.out.println(desiredState.angle.getRadians() + " :: " + mTurnAbsoluteEncoder.getPosition());
+        mDesiredState = optimizedState;
 
         syncRelativeToAbsoluteEncoder();
+    }
+
+    public void printDesiredRadians() {
+        System.out.println("desired: " + mDesiredState.angle.getRadians() + " current: " + getAbsoluteAngle().getRadians());
+        // System.out.println("angle: " + mTurnEncoder.getPosition() + " abs encoder: " + getAbsoluteAngle().getRadians());
     }
 
     void syncRelativeToAbsoluteEncoder() {
@@ -123,9 +143,9 @@ public class NEOL1SwerveModule extends SwerveModule{
         ret_val.drivingD = 0.01;
         ret_val.drivingFF = 1.0 / (ConfigMap.MAX_VELOCITY_METERS_PER_SECOND + 0.08);
 
-        ret_val.turningP = 1;
+        ret_val.turningP = 0.01; //0.01
         ret_val.turningI = 0.0;
-        ret_val.turningD = 0.01;
+        ret_val.turningD = 0.0; //0.3
         ret_val.turningFF = 0.0;
 
         ret_val.minDrivingMotorVoltage = -1;

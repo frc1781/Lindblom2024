@@ -8,8 +8,9 @@ public abstract class Subsystem {
 
    private SubsystemState currentState;
    
-   protected Subsystem(String _name) {
+   protected Subsystem(String _name, SubsystemState defaultState) {
     name = _name;
+    currentState = defaultState;
    }
 
    public void setOperatingMode(OperatingMode mode) {

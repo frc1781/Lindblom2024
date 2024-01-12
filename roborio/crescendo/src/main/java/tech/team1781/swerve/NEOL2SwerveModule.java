@@ -125,7 +125,7 @@ public class NEOL2SwerveModule extends SwerveModule{
 
         ret_val.turningP = 1;
         ret_val.turningI = 0.0;
-        ret_val.turningD = 0.01;
+        ret_val.turningD = 0;
         ret_val.turningFF = 0.0;
 
         ret_val.minDrivingMotorVoltage = -1;

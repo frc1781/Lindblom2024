@@ -12,11 +12,6 @@ import tech.team1781.autonomous.AutonomousHandler;
 import tech.team1781.autonomous.RoutineOverException;
 import tech.team1781.autonomous.routines.ExampleRoutine;
 import tech.team1781.control.ControlSystem;
-<<<<<<< HEAD
-import tech.team1781.subsystems.DriveSystem;
-import tech.team1781.subsystems.Subsystem;
-=======
->>>>>>> framework
 import tech.team1781.subsystems.Subsystem.OperatingMode;
 
 /**

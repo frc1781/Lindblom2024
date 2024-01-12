@@ -48,7 +48,7 @@ public class DriveSystem extends Subsystem{
 
 
     public DriveSystem() {
-        super("Drive System");
+        super("Drive System", DriveSystemState.DRIVE_MANUAL);
 
         mOdometry = new SwerveDriveOdometry(mKinematics, getRobotAngle(), getModulePositions());
 
@@ -72,6 +72,7 @@ public class DriveSystem extends Subsystem{
                 followTrajectory();
             break;
             case DRIVE_MANUAL:
+                driveRaw(0, 0.1, 0);
             break;
             default:
             break;
@@ -100,6 +101,8 @@ public class DriveSystem extends Subsystem{
 
     @Override
     public void teleopPeriodic() {
+        var frontRightModule = (NEOL1SwerveModule) mFrontRight;
+        frontRightModule.printDesiredRadians();
     }
 
     @Override
