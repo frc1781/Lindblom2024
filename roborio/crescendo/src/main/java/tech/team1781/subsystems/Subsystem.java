@@ -20,6 +20,10 @@ public abstract class Subsystem {
 
    public abstract void genericPeriodic();
 
+   public final String getName() {
+      return name;
+   }
+
    public final void feedStateTime(double sampledTime) {
     currentTime = sampledTime;
    }
