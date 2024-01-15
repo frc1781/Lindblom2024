@@ -11,9 +11,8 @@ import tech.team1781.utils.EVector;
 public class DriverInput {
 
     private GenericHID[] mControllers = new GenericHID[] {
-        new XboxController(0),
-        new Joystick(0)
-    };
+            new Joystick(0)
+        };
 
     private HashMap<String, Event> mClickEvents = new HashMap<>();
     private HashMap<String, Event> mHoldEvents = new HashMap<>();
@@ -34,7 +33,7 @@ public class DriverInput {
     public EVector getControllerJoyAxis(ControllerSide side, int controllerIndex) {
         var selectedController = (XboxController) mControllers[0];
         EVector ret_val = new EVector();
-        if(side == ControllerSide.LEFT) {
+        if (side == ControllerSide.LEFT) {
             ret_val.x = selectedController.getLeftX();
             ret_val.y = selectedController.getLeftY();
         } else {
@@ -76,7 +75,7 @@ public class DriverInput {
     public void addHoldListener(int joyPort, int button, Event event) {
         String key = createKey(joyPort, button);
 
-        mHoldEvents.put(key, event);        
+        mHoldEvents.put(key, event);
     }
 
     public boolean getButton(int controllerPort, String button) {
@@ -98,13 +97,13 @@ public class DriverInput {
     }
 
     private void checkClickEvents() {
-        for(String key : mClickEvents.keySet()) {
+        for (String key : mClickEvents.keySet()) {
             boolean buttonPressed = mButtonMap.get(key);
 
-            if(buttonPressed && !mPressedButtons.contains(key)) {
+            if (buttonPressed && !mPressedButtons.contains(key)) {
                 mClickEvents.get(key).onPress();
                 mPressedButtons.add(key);
-            } else if(!buttonPressed && mPressedButtons.contains(key)) {
+            } else if (!buttonPressed && mPressedButtons.contains(key)) {
                 mPressedButtons.remove(key);
             }
 
@@ -112,10 +111,10 @@ public class DriverInput {
     }
 
     private void checkHoldEvents() {
-        for(String key : mHoldEvents.keySet()) {
+        for (String key : mHoldEvents.keySet()) {
             boolean buttonPressed = mButtonMap.get(key);
 
-            if(buttonPressed) {
+            if (buttonPressed) {
                 mHoldEvents.get(key).onPress();
             }
         }
@@ -126,15 +125,15 @@ public class DriverInput {
     }
 
     private void updatePressedButtons() {
-        for(int i = 0; i < mControllers.length; i++) {
+        for (int i = 0; i < mControllers.length; i++) {
             GenericHID selectedController = mControllers[i];
 
-            if(selectedController instanceof XboxController) {
+            if (selectedController instanceof XboxController) {
                 updateControllerButtons(i, (XboxController) selectedController);
             } else {
                 updateJoystickButtons(i, (Joystick) selectedController);
             }
-            
+
         }
     }
 
@@ -150,12 +149,12 @@ public class DriverInput {
     }
 
     private void updateJoystickButtons(int index, Joystick joystick) {
-        for(int i = 1; i < 13; i++) {
+        for (int i = 1; i < 13; i++) {
             mButtonMap.put(createKey(index, i), joystick.getRawButton(i));
         }
     }
 
-    //{type}:{port}:{button}
+    // {type}:{port}:{button}
     private String createKey(int controllerPort, String button) {
         StringBuilder builder = new StringBuilder();
 
@@ -166,7 +165,7 @@ public class DriverInput {
         return builder.toString();
     }
 
-    //{type}:{port}:{button}
+    // {type}:{port}:{button}
     private String createKey(int joyPort, int button) {
         StringBuilder builder = new StringBuilder();
 
@@ -176,9 +175,9 @@ public class DriverInput {
 
         return builder.toString();
     }
-    
-}
 
-interface Event {
-    public void onPress();
+    public interface Event {
+        public void onPress();
+    }
+
 }

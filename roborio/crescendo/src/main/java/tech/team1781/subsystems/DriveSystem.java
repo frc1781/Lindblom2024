@@ -66,10 +66,10 @@ public class DriveSystem extends Subsystem{
     public void getToState() {
         switch((DriveSystemState) getState()) {
             case DRIVE_SETPOINT:
-                goTo(mDesiredPosition);
+                // goTo(mDesiredPosition);
             break;
             case DRIVE_TRAJECTORY:
-                followTrajectory();
+                // followTrajectory();
             break;
             case DRIVE_MANUAL:
             break;
@@ -100,8 +100,8 @@ public class DriveSystem extends Subsystem{
 
     @Override
     public void teleopPeriodic() {
-        var frontRightModule = (NEOL1SwerveModule) mFrontRight;
-        frontRightModule.printDesiredRadians();
+        // var frontRightModule = (NEOL1SwerveModule) mFrontRight;
+        // frontRightModule.printDesiredRadians();
     }
 
     @Override
