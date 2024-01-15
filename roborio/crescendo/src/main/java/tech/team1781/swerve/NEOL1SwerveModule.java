@@ -12,7 +12,6 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -101,7 +100,8 @@ public class NEOL1SwerveModule extends SwerveModule{
 
     @Override 
     public void init() {
-        mTurnEncoder.setPosition(getAbsoluteAngle().getRadians());
+        System.out.println("Called init");
+        syncRelativeToAbsoluteEncoder();
     }
 
     public SwerveModuleState getCurrentState() {
@@ -114,26 +114,30 @@ public class NEOL1SwerveModule extends SwerveModule{
 
     public void setDesiredState(SwerveModuleState desiredState) {
         SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, new Rotation2d(mTurnEncoder.getPosition()));
-        // mDrivePID.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
-        // mTurnPID.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
+        mDrivePID.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
+        mTurnPID.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
         // double turnDutyCycle = mTurnPID.calculate(mTurnEncoder.getPosition(), optimizedState.angle.getRadians());
         // mTurnMotor.set(turnDutyCycle / (Math.PI * 2));
 
         // System.out.println(desiredState.angle.getRadians() + " :: " + mTurnAbsoluteEncoder.getPosition());
         mDesiredState = optimizedState;
 
-        syncRelativeToAbsoluteEncoder();
+        // syncRelativeToAbsoluteEncoder();
     }
 
     public void printDesiredRadians() {
         // System.out.println("relative: " + mTurnEncoder.getPosition() + " absolute: " + getAbsoluteAngle().getRadians() + " Desired: " + mDesiredState.angle.getRadians());
         // mDriveMotor.set(0.5);
         // System.out.println(mDriveEncoder.getVelocity());
+        System.out.printf("rel: %.4f abs: %.4f\n", 
+             mTurnEncoder.getPosition(),
+             getAbsoluteAngle().getRadians());
+        syncRelativeToAbsoluteEncoder();
     }
 
-    void syncRelativeToAbsoluteEncoder() {
+    public void syncRelativeToAbsoluteEncoder() {
         double modAbs = getAbsoluteAngle().getRadians() % (Math.PI * 2);
-        double modRel = mTurnAbsoluteEncoder.getPosition().getValueAsDouble() % (Math.PI * 2);
+        double modRel = mTurnEncoder.getPosition() % (Math.PI * 2);
         
         if(modAbs < 0) 
             modAbs += Math.PI * 2;
@@ -141,13 +145,18 @@ public class NEOL1SwerveModule extends SwerveModule{
             modRel += Math.PI * 2;
         
         double diff = modAbs - modRel;
+        System.out.println("mod rel: " + modRel + " mod abs: " + modAbs);
         if(Math.abs(diff) > 0.1) {
-            System.out.printf("Sync abs: %.2f rel: %.2f\n", 
-              mTurnAbsoluteEncoder.getPosition().getValueAsDouble(),
-              getAbsoluteAngle().getRadians()
-            );
+            System.out.println("before Syncing... diff: " + diff + 
+            " abs: " + getAbsoluteAngle().getRadians() + 
+            " rel: " + mTurnEncoder.getPosition());
+            //var error = mTurnEncoder.setPosition(getAbsoluteAngle().getRadians());
+            var error = mTurnEncoder.setPosition(0);
+            System.out.println("sync error: " + (error == REVLibError.kOk));
+            System.out.println("after Syncing... diff: " + diff + 
+            " abs: " + getAbsoluteAngle().getRadians() + 
+            " rel: " + mTurnEncoder.getPosition());
         }
-
     }
 
     static SwerveModuleConfiguration moduleConfiguration() {
@@ -181,7 +190,7 @@ public class NEOL1SwerveModule extends SwerveModule{
 
         ret_val.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Unsigned_0To1;
         ret_val.MagnetSensor.MagnetOffset = magnetOffset;
-        ret_val.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        ret_val.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
 
         return ret_val;
     }
