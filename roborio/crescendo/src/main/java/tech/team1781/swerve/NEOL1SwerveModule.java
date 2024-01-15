@@ -42,6 +42,7 @@ public class NEOL1SwerveModule extends SwerveModule{
         
         mDriveMotor.restoreFactoryDefaults();
         mTurnMotor.restoreFactoryDefaults();
+        mTurnMotor.setInverted(true);
 
         mDrivePID = mDriveMotor.getPIDController();
         mTurnPID = mTurnMotor.getPIDController();
@@ -192,7 +193,7 @@ public class NEOL1SwerveModule extends SwerveModule{
         System.out.println("abs encoder config id: " + mCancoderID + " magOffset: " + magnetOffset);
         ret_val.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Unsigned_0To1;
         ret_val.MagnetSensor.MagnetOffset = magnetOffset;
-        ret_val.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+        ret_val.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
 
         return ret_val;
     }
