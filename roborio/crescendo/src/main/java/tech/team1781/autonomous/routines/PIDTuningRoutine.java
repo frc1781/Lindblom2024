@@ -14,7 +14,8 @@ public class PIDTuningRoutine implements AutoRoutine {
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-            new AutoStep(5, new EVector(1,0,0))
+            new AutoStep(5, new EVector(1,0,0)),
+            new AutoStep(5, new EVector(0,0,0))
         };
     }
     
