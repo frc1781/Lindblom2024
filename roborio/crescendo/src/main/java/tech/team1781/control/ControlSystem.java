@@ -52,8 +52,12 @@ public class ControlSystem {
     }
 
     public void driveChassis(EVector translation, EVector rotation) {
-        // mDriveSystem.driveRaw(translation.y, translation.x, rotation.x);
-        mDriveSystem.driveRaw(0.1, 0, 0);
+        mDriveSystem.drawWithMaxVelo(translation.y, translation.x, rotation.x);
+        //mDriveSystem.driveRaw(0.0, 0, 0);
+    }
+
+    public void zeroNavX() {
+        mDriveSystem.zeroNavX();
     }
 
     public void setAction(Action desiredAction) {

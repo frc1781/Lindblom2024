@@ -32,14 +32,17 @@ public class NEOL1SwerveModule extends SwerveModule{
     private final RelativeEncoder mDriveEncoder;
     private final RelativeEncoder mTurnEncoder;
     private final CANcoder mTurnAbsoluteEncoder;
+    private final int mCancoderID;
 
     public NEOL1SwerveModule(int driveMotorID, int turnMotorID, int cancoderID, double cancoderOffset) {
         super(driveMotorID, turnMotorID, cancoderID, cancoderOffset);
+        mCancoderID = cancoderID;
         mDriveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless);
         mTurnMotor = new CANSparkMax(turnMotorID, MotorType.kBrushless);
         
         mDriveMotor.restoreFactoryDefaults();
         mTurnMotor.restoreFactoryDefaults();
+        mTurnMotor.setInverted(true);
 
         mDrivePID = mDriveMotor.getPIDController();
         mTurnPID = mTurnMotor.getPIDController();
@@ -100,7 +103,8 @@ public class NEOL1SwerveModule extends SwerveModule{
 
     @Override 
     public void init() {
-        mTurnEncoder.setPosition(getAbsoluteAngle().getRadians());
+        System.out.println("Called init");
+        syncRelativeToAbsoluteEncoder();
     }
 
     public SwerveModuleState getCurrentState() {
@@ -113,28 +117,30 @@ public class NEOL1SwerveModule extends SwerveModule{
 
     public void setDesiredState(SwerveModuleState desiredState) {
         SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, new Rotation2d(mTurnEncoder.getPosition()));
-        // mDrivePID.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
-        // mTurnPID.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
+        mDrivePID.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
+        mTurnPID.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
         // double turnDutyCycle = mTurnPID.calculate(mTurnEncoder.getPosition(), optimizedState.angle.getRadians());
         // mTurnMotor.set(turnDutyCycle / (Math.PI * 2));
 
         // System.out.println(desiredState.angle.getRadians() + " :: " + mTurnAbsoluteEncoder.getPosition());
         mDesiredState = optimizedState;
 
-        syncRelativeToAbsoluteEncoder();
+        // syncRelativeToAbsoluteEncoder();
     }
 
     public void printDesiredRadians() {
         // System.out.println("relative: " + mTurnEncoder.getPosition() + " absolute: " + getAbsoluteAngle().getRadians() + " Desired: " + mDesiredState.angle.getRadians());
         // mDriveMotor.set(0.5);
         // System.out.println(mDriveEncoder.getVelocity());
+        //System.out.printf("rel: %.4f abs: %.4f\n", 
+        //     mTurnEncoder.getPosition(),
+        //     getAbsoluteAngle().getRadians());
+        syncRelativeToAbsoluteEncoder();
     }
 
-    void syncRelativeToAbsoluteEncoder() {
-
-
+    public void syncRelativeToAbsoluteEncoder() {
         double modAbs = getAbsoluteAngle().getRadians() % (Math.PI * 2);
-        double modRel = mTurnAbsoluteEncoder.getPosition().getValueAsDouble() % (Math.PI * 2);
+        double modRel = mTurnEncoder.getPosition() % (Math.PI * 2);
         
         if(modAbs < 0) 
             modAbs += Math.PI * 2;
@@ -142,10 +148,18 @@ public class NEOL1SwerveModule extends SwerveModule{
             modRel += Math.PI * 2;
         
         double diff = modAbs - modRel;
+        //System.out.println("mod rel: " + modRel + " mod abs: " + modAbs);
         if(Math.abs(diff) > 0.1) {
-            System.out.println("Syncing... diff: " + diff + " abs: " + mTurnAbsoluteEncoder.getPosition().getValueAsDouble() + " rel: " + getAbsoluteAngle().getRadians());
+            System.out.printf("\n synch before abs: %.2f rel: %.2f \n", 
+              getAbsoluteAngle().getRadians(),
+              mTurnEncoder.getPosition()
+            );
+            mTurnEncoder.setPosition(getAbsoluteAngle().getRadians());
+            System.out.printf("\n synch after abs: %.2f rel: %.2f \n", 
+              getAbsoluteAngle().getRadians(),
+              mTurnEncoder.getPosition()
+            );
         }
-
     }
 
     static SwerveModuleConfiguration moduleConfiguration() {
@@ -174,9 +188,9 @@ public class NEOL1SwerveModule extends SwerveModule{
         return ret_val;
     }
 
-    static CANcoderConfiguration absoluteEncoderConfiguration(double magnetOffset) {
+    private CANcoderConfiguration absoluteEncoderConfiguration(double magnetOffset) {
         CANcoderConfiguration ret_val = new CANcoderConfiguration(); 
-
+        System.out.println("abs encoder config id: " + mCancoderID + " magOffset: " + magnetOffset);
         ret_val.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Unsigned_0To1;
         ret_val.MagnetSensor.MagnetOffset = magnetOffset;
         ret_val.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;

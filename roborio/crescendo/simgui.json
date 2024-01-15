@@ -4,6 +4,16 @@
       "/FMSInfo": "FMSInfo"
     }
   },
+<<<<<<< HEAD
+=======
+  "NetworkTables": {
+    "transitory": {
+      "FMSInfo": {
+        "open": true
+      }
+    }
+  },
+>>>>>>> swerve2024
   "NetworkTables Info": {
     "visible": true
   }

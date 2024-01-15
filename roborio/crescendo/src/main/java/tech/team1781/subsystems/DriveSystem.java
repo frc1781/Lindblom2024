@@ -19,7 +19,7 @@ import tech.team1781.swerve.NEOL1SwerveModule;
 import tech.team1781.swerve.SwerveModule;
 import tech.team1781.utils.EVector;
 
-public class DriveSystem extends Subsystem{
+public class DriveSystem extends Subsystem {
 
     //Swerve Modules
     private final SwerveModule mFrontLeft = new NEOL1SwerveModule(ConfigMap.FRONT_LEFT_MODULE_DRIVE_MOTOR, ConfigMap.FRONT_LEFT_MODULE_STEER_MOTOR, ConfigMap.FRONT_LEFT_MODULE_STEER_ENCODER, ConfigMap.FRONT_LEFT_MODULE_STEER_OFFSET);
@@ -137,6 +137,15 @@ public class DriveSystem extends Subsystem{
         }
     }
 
+    public void setOdometry(Pose2d pose) {
+        mOdometry.resetPosition(getRobotAngle(), getModulePositions(), pose);
+
+    }
+
+    public void zeroNavX() {
+        mNavX.zeroYaw();
+    }
+
     public void followTrajectory() {
         if(mIsManual && mDesiredTrajectory == null) {
             return;
@@ -162,8 +171,6 @@ public class DriveSystem extends Subsystem{
         double rotDutyCycle = mRotController.calculate(robotPose.z, target.z);
 
         driveRaw(xDutyCycle, yDutyCycle, rotDutyCycle);
-
-
     }
 
     public void setTrajectory(Trajectory trajectory) {
@@ -178,6 +185,13 @@ public class DriveSystem extends Subsystem{
         mIsManual = false;
     }
 
+    public void drawWithMaxVelo(double xSpeed, double ySpeed, double rot) {
+        xSpeed *= ConfigMap.MAX_VELOCITY_METERS_PER_SECOND;
+        ySpeed *= ConfigMap.MAX_VELOCITY_METERS_PER_SECOND;
+
+        driveRaw(xSpeed, ySpeed, rot);
+    }
+
     public void driveRaw(double xSpeed, double ySpeed, double rot) {
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(
             new ChassisSpeeds(xSpeed, ySpeed, rot)
@@ -185,7 +199,6 @@ public class DriveSystem extends Subsystem{
 
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
 
-        // System.err.printf("Front Left: %.2f, Front Right %.2f, Back Left: %.2f, Back Right: %.2f \n", moduleStates[0].angle.getRadians(), moduleStates[1].angle.getRadians(), moduleStates[2].angle.getRadians(), moduleStates[3].angle.getRadians());
         mFrontLeft.setDesiredState(moduleStates[0]);
         mFrontRight.setDesiredState(moduleStates[1]);
         mBackLeft.setDesiredState(moduleStates[2]);

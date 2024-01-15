@@ -32,7 +32,7 @@ public abstract class SwerveModule {
         throw new UnsupportedOperationException();
     }
 
-    static CANcoderConfiguration absoluteEncoderConfiguration(double offset) {
+    private CANcoderConfiguration absoluteEncoderConfiguration(double offset) {
         throw new UnsupportedOperationException();
     }
 }
