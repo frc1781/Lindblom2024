@@ -32,9 +32,11 @@ public class NEOL1SwerveModule extends SwerveModule{
     private final RelativeEncoder mDriveEncoder;
     private final RelativeEncoder mTurnEncoder;
     private final CANcoder mTurnAbsoluteEncoder;
+    private final int mCancoderID;
 
     public NEOL1SwerveModule(int driveMotorID, int turnMotorID, int cancoderID, double cancoderOffset) {
         super(driveMotorID, turnMotorID, cancoderID, cancoderOffset);
+        mCancoderID = cancoderID;
         mDriveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless);
         mTurnMotor = new CANSparkMax(turnMotorID, MotorType.kBrushless);
         
@@ -129,9 +131,9 @@ public class NEOL1SwerveModule extends SwerveModule{
         // System.out.println("relative: " + mTurnEncoder.getPosition() + " absolute: " + getAbsoluteAngle().getRadians() + " Desired: " + mDesiredState.angle.getRadians());
         // mDriveMotor.set(0.5);
         // System.out.println(mDriveEncoder.getVelocity());
-        System.out.printf("rel: %.4f abs: %.4f\n", 
-             mTurnEncoder.getPosition(),
-             getAbsoluteAngle().getRadians());
+        //System.out.printf("rel: %.4f abs: %.4f\n", 
+        //     mTurnEncoder.getPosition(),
+        //     getAbsoluteAngle().getRadians());
         syncRelativeToAbsoluteEncoder();
     }
 
@@ -145,7 +147,7 @@ public class NEOL1SwerveModule extends SwerveModule{
             modRel += Math.PI * 2;
         
         double diff = modAbs - modRel;
-        System.out.println("mod rel: " + modRel + " mod abs: " + modAbs);
+        //System.out.println("mod rel: " + modRel + " mod abs: " + modAbs);
         if(Math.abs(diff) > 0.1) {
             System.out.println("before Syncing... diff: " + diff + 
             " abs: " + getAbsoluteAngle().getRadians() + 
@@ -185,9 +187,9 @@ public class NEOL1SwerveModule extends SwerveModule{
         return ret_val;
     }
 
-    static CANcoderConfiguration absoluteEncoderConfiguration(double magnetOffset) {
+    private CANcoderConfiguration absoluteEncoderConfiguration(double magnetOffset) {
         CANcoderConfiguration ret_val = new CANcoderConfiguration(); 
-
+        System.out.println("abs encoder config id: " + mCancoderID + " magOffset: " + magnetOffset);
         ret_val.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Unsigned_0To1;
         ret_val.MagnetSensor.MagnetOffset = magnetOffset;
         ret_val.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;

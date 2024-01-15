@@ -159,10 +159,7 @@ public class DriveSystem extends Subsystem {
         double xDutyCycle = mXController.calculate(robotPose.x, target.x);
         double yDutyCycle = mYController.calculate(robotPose.y, target.y);
         double rotDutyCycle = mRotController.calculate(robotPose.z, target.z);
-
         driveRaw(xDutyCycle, yDutyCycle, rotDutyCycle);
-
-
     }
 
     public void setTrajectory(Trajectory trajectory) {
