@@ -68,6 +68,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
+    mDriverInput.run();
     mControlSystem.run();
     mControlSystem.driveChassis(mDriverInput.getControllerJoyAxis(ControllerSide.LEFT, 0), mDriverInput.getControllerJoyAxis(ControllerSide.RIGHT, 0));
   }
