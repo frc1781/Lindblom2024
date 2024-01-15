@@ -7,6 +7,7 @@ package frc.robot;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput;
 import tech.team1781.DriverInput.ControllerSide;
 import tech.team1781.autonomous.AutonomousHandler;
@@ -38,6 +39,8 @@ public class Robot extends TimedRobot {
     mAutonomousHandler = new AutonomousHandler(mControlSystem, new ExampleRoutine());
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
+
+    mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.RESET_NAVX, mControlSystem::zeroNavX);
   }
 
   @Override
@@ -70,7 +73,7 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     mDriverInput.run();
     mControlSystem.run();
-    mControlSystem.driveChassis(mDriverInput.getControllerJoyAxis(ControllerSide.LEFT, 0), mDriverInput.getControllerJoyAxis(ControllerSide.RIGHT, 0));
+    mControlSystem.driveChassis(mDriverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT), mDriverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
   }
 
   @Override

@@ -100,8 +100,6 @@ public class DriveSystem extends Subsystem {
 
     @Override
     public void teleopPeriodic() {
-        // var frontRightModule = (NEOL1SwerveModule) mFrontRight;
-        // frontRightModule.printDesiredRadians();
     }
 
     @Override
@@ -134,6 +132,15 @@ public class DriveSystem extends Subsystem {
             default:
             break;
         }
+    }
+
+    public void setOdometry(Pose2d pose) {
+        mOdometry.resetPosition(getRobotAngle(), getModulePositions(), pose);
+
+    }
+
+    public void zeroNavX() {
+        mNavX.zeroYaw();
     }
 
     public void followTrajectory() {

@@ -46,4 +46,10 @@ public class ConfigMap {
     public static final double BACK_RIGHT_MODULE_STEER_OFFSET =  -0.272; //-0.735;
 
     // First Drivebase
+
+
+    //Controls 
+    public static final int DRIVER_CONTROLLER_PORT = 0;
+
+    public static final String RESET_NAVX = "X";
 }

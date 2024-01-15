@@ -45,6 +45,10 @@ public class ControlSystem {
         //mDriveSystem.driveRaw(0.0, 0, 0);
     }
 
+    public void zeroNavX() {
+        mDriveSystem.zeroNavX();
+    }
+
     public void setAction(Action desiredAction) {
         setAutoStep(desiredAction, null, null);
     }
