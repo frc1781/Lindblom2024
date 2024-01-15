@@ -20,7 +20,6 @@ public class Climber extends Subsystem{
 
     @Override
     public void getToState() {
-        System.out.println("i'm " + getState().toString());
     }
 
     @Override

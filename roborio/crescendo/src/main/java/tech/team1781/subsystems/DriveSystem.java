@@ -13,6 +13,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.SPI;
 import tech.team1781.ConfigMap;
 import tech.team1781.swerve.NEOL1SwerveModule;
@@ -46,6 +47,11 @@ public class DriveSystem extends Subsystem {
     private ProfiledPIDController mYController = new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(0, 0));
     private ProfiledPIDController mRotController = new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(0, 0));
 
+
+    //TEMP: For PID tuning
+    private GenericEntry mPEntry = ConfigMap.SHUFFLEBOARD_TAB.add("P", 0).getEntry();
+    private GenericEntry mIEntry = ConfigMap.SHUFFLEBOARD_TAB.add("I", 0).getEntry();
+    private GenericEntry mDEntry = ConfigMap.SHUFFLEBOARD_TAB.add("D", 0).getEntry();
 
     public DriveSystem() {
         super("Drive System", DriveSystemState.DRIVE_MANUAL);
@@ -99,6 +105,9 @@ public class DriveSystem extends Subsystem {
 
     @Override
     public void autonomousPeriodic() {
+        mXController.setPID(mPEntry.getDouble(0), mIEntry.getDouble(0), mDEntry.getDouble(0));
+        mYController.setPID(mPEntry.getDouble(0), mIEntry.getDouble(0), mDEntry.getDouble(0));
+
     }
 
     @Override
