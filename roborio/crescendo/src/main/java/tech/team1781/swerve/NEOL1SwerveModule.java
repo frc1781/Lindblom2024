@@ -149,15 +149,15 @@ public class NEOL1SwerveModule extends SwerveModule{
         double diff = modAbs - modRel;
         //System.out.println("mod rel: " + modRel + " mod abs: " + modAbs);
         if(Math.abs(diff) > 0.1) {
-            System.out.println("before Syncing... diff: " + diff + 
-            " abs: " + getAbsoluteAngle().getRadians() + 
-            " rel: " + mTurnEncoder.getPosition());
-            //var error = mTurnEncoder.setPosition(getAbsoluteAngle().getRadians());
-            var error = mTurnEncoder.setPosition(0);
-            System.out.println("sync error: " + (error == REVLibError.kOk));
-            System.out.println("after Syncing... diff: " + diff + 
-            " abs: " + getAbsoluteAngle().getRadians() + 
-            " rel: " + mTurnEncoder.getPosition());
+            System.out.printf("\n synch before abs: %.2f rel: %.2f \n", 
+              getAbsoluteAngle().getRadians(),
+              mTurnEncoder.getPosition()
+            );
+            mTurnEncoder.setPosition(getAbsoluteAngle().getRadians());
+            System.out.printf("\n synch after abs: %.2f rel: %.2f \n", 
+              getAbsoluteAngle().getRadians(),
+              mTurnEncoder.getPosition()
+            );
         }
     }
 
