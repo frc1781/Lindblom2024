@@ -12,6 +12,7 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -131,8 +132,6 @@ public class NEOL1SwerveModule extends SwerveModule{
     }
 
     void syncRelativeToAbsoluteEncoder() {
-
-
         double modAbs = getAbsoluteAngle().getRadians() % (Math.PI * 2);
         double modRel = mTurnAbsoluteEncoder.getPosition().getValueAsDouble() % (Math.PI * 2);
         
@@ -143,7 +142,10 @@ public class NEOL1SwerveModule extends SwerveModule{
         
         double diff = modAbs - modRel;
         if(Math.abs(diff) > 0.1) {
-            System.out.println("Syncing... diff: " + diff + " abs: " + mTurnAbsoluteEncoder.getPosition().getValueAsDouble() + " rel: " + getAbsoluteAngle().getRadians());
+            System.out.printf("Sync abs: %.2f rel: %.2f\n", 
+              mTurnAbsoluteEncoder.getPosition().getValueAsDouble(),
+              getAbsoluteAngle().getRadians()
+            );
         }
 
     }
