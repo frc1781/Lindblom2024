@@ -6,9 +6,11 @@ import java.util.HashMap;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
 import tech.team1781.autonomous.AutoStep;
+import tech.team1781.subsystems.Climber;
 import tech.team1781.subsystems.DriveSystem;
 import tech.team1781.subsystems.Scollector;
 import tech.team1781.subsystems.Subsystem;
+import tech.team1781.subsystems.Climber.ClimberState;
 import tech.team1781.subsystems.DriveSystem.DriveSystemState;
 import tech.team1781.subsystems.Scollector.ScollectorState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
@@ -25,6 +27,7 @@ public class ControlSystem {
     private ArrayList<Subsystem> mSubsystems;
     private DriveSystem mDriveSystem;
     private Scollector mScollector;
+    private Climber mClimber; 
 
     private OperatingMode mCurrentOperatingMode;
 
@@ -36,10 +39,12 @@ public class ControlSystem {
     public ControlSystem() {
         mDriveSystem = new DriveSystem();
         mScollector = new Scollector();
+        mClimber = new Climber();
 
         mSubsystems = new ArrayList<>();
         mSubsystems.add(mDriveSystem);
         mSubsystems.add(mScollector);
+        mSubsystems.add(mClimber);
 
         initActions();
 
@@ -78,6 +83,7 @@ public class ControlSystem {
             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
         }
 
+        System.out.println(mDriveSystem.getName() + " :: " + mDriveSystem.getState().toString() + " || " + mScollector.getName() + " :: " + mScollector.getState().toString() + " || " + mClimber.getName() + " :: " + mClimber.getState().toString());
     }
 
     public boolean stepIsFinished() {
@@ -126,12 +132,12 @@ public class ControlSystem {
     }
 
     private void initActions() {
-        // Example below, this will never be an aciton pretty much
         defineAction(Action.EXAMPLE_ACTION,
                 new SubsystemSetting(mScollector, ScollectorState.COLLECT));
 
         defineAction(Action.TEST_ACTION,
-                new SubsystemSetting(mScollector, ScollectorState.AUTO_AIM_SHOOT));
+                new SubsystemSetting(mScollector, ScollectorState.AUTO_AIM_SHOOT),
+                new SubsystemSetting(mClimber, ClimberState.EXTEND));
     }
 
     private void defineAction(Action action, SubsystemSetting... settings) {
@@ -151,7 +157,6 @@ public class ControlSystem {
                 break;
         }
 
-        System.out.println();
     }
 
 }
