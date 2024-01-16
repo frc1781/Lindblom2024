@@ -27,7 +27,6 @@ public class NEOL1SwerveModule extends SwerveModule{
     private final CANSparkMax mTurnMotor;
     private final SparkPIDController mDrivePID;
     private final SparkPIDController mTurnPID;
-    // private final PIDController mTurnPID;
     
     private final RelativeEncoder mDriveEncoder;
     private final RelativeEncoder mTurnEncoder;
@@ -49,7 +48,6 @@ public class NEOL1SwerveModule extends SwerveModule{
         mTurnPID.setPositionPIDWrappingMaxInput(2 * Math.PI);
         mTurnPID.setPositionPIDWrappingMinInput(0);
         mTurnPID.setPositionPIDWrappingEnabled(true);
-        // mTurnPID = new PIDController(moduleConfiguration().turningP, moduleConfiguration().turningI, moduleConfiguration().turningD);
         mDriveEncoder = mDriveMotor.getEncoder();
         mTurnEncoder = mTurnMotor.getEncoder();
         
@@ -81,7 +79,6 @@ public class NEOL1SwerveModule extends SwerveModule{
 
         mDrivePID.setOutputRange(moduleConfiguration().minDrivingMotorVoltage, moduleConfiguration().maxDrivingMotorVoltage);
         mTurnPID.setOutputRange(moduleConfiguration().minTurningMotorVoltage, moduleConfiguration().maxTurningMotorVoltage);
-        // mTurnPID.enableContinuousInput(0, Math.PI * 2);
 
         mDriveMotor.burnFlash();
         mTurnMotor.burnFlash();
@@ -103,7 +100,6 @@ public class NEOL1SwerveModule extends SwerveModule{
 
     @Override 
     public void init() {
-        System.out.println("Called init");
         syncRelativeToAbsoluteEncoder();
     }
 
@@ -119,23 +115,7 @@ public class NEOL1SwerveModule extends SwerveModule{
         SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, new Rotation2d(mTurnEncoder.getPosition()));
         mDrivePID.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
         mTurnPID.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
-        // double turnDutyCycle = mTurnPID.calculate(mTurnEncoder.getPosition(), optimizedState.angle.getRadians());
-        // mTurnMotor.set(turnDutyCycle / (Math.PI * 2));
 
-        // System.out.println(desiredState.angle.getRadians() + " :: " + mTurnAbsoluteEncoder.getPosition());
-        mDesiredState = optimizedState;
-
-        // syncRelativeToAbsoluteEncoder();
-    }
-
-    public void printDesiredRadians() {
-        // System.out.println("relative: " + mTurnEncoder.getPosition() + " absolute: " + getAbsoluteAngle().getRadians() + " Desired: " + mDesiredState.angle.getRadians());
-        // mDriveMotor.set(0.5);
-        // System.out.println(mDriveEncoder.getVelocity());
-        //System.out.printf("rel: %.4f abs: %.4f\n", 
-        //     mTurnEncoder.getPosition(),
-        //     getAbsoluteAngle().getRadians());
-        syncRelativeToAbsoluteEncoder();
     }
 
     public void syncRelativeToAbsoluteEncoder() {
@@ -148,17 +128,8 @@ public class NEOL1SwerveModule extends SwerveModule{
             modRel += Math.PI * 2;
         
         double diff = modAbs - modRel;
-        //System.out.println("mod rel: " + modRel + " mod abs: " + modAbs);
         if(Math.abs(diff) > 0.1) {
-            System.out.printf("\n synch before abs: %.2f rel: %.2f \n", 
-              getAbsoluteAngle().getRadians(),
-              mTurnEncoder.getPosition()
-            );
             mTurnEncoder.setPosition(getAbsoluteAngle().getRadians());
-            System.out.printf("\n synch after abs: %.2f rel: %.2f \n", 
-              getAbsoluteAngle().getRadians(),
-              mTurnEncoder.getPosition()
-            );
         }
     }
 
@@ -175,9 +146,9 @@ public class NEOL1SwerveModule extends SwerveModule{
         ret_val.drivingD = 0.01;
         ret_val.drivingFF = 1.0 / (ConfigMap.MAX_VELOCITY_METERS_PER_SECOND + 0.08);
 
-        ret_val.turningP = 1; //0.01
+        ret_val.turningP = 1; 
         ret_val.turningI = 0.0;
-        ret_val.turningD = 0.01; //0.3
+        ret_val.turningD = 0.01; 
         ret_val.turningFF = 0.0;
 
         ret_val.minDrivingMotorVoltage = -1;
