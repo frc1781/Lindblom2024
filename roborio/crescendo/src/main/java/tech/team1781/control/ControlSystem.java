@@ -51,7 +51,7 @@ public class ControlSystem {
         mDriveSystem.drawWithMaxVelo(
             mXDriveLimiter.calculate(translation.y), 
             mYDriveLimiter.calculate(translation.x), 
-            mRotDriveLimiter.calculate(rotation.x));
+            mRotDriveLimiter.calculate(rotation.y));
     }
 
     public void zeroNavX() {
