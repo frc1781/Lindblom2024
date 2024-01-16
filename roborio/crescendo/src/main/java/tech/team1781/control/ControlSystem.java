@@ -2,6 +2,7 @@ package tech.team1781.control;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.stream.Collector;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.trajectory.Trajectory;
@@ -24,6 +25,7 @@ public class ControlSystem {
 
     private ArrayList<Subsystem> mSubsystems;
     private DriveSystem mDriveSystem;
+    private Collector mCollector; 
     
     private OperatingMode mCurrentOperatingMode;
 

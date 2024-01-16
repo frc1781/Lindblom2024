@@ -11,6 +11,8 @@ public class ConfigMap {
     public static final String BEST_TEAM_MEMBER = "Vincent";
 
     // CAN IDs
+    //0-19 Core Devices
+    public static final int FIRST_PCM_ID = 1;
 
     // 20-24 Drive train left
     public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 21;
@@ -29,6 +31,16 @@ public class ConfigMap {
     public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 62;
     public static final int BACK_LEFT_MODULE_STEER_ENCODER = 61;
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 59;
+
+    //PWM Channels
+    public static final int COLLECTOR_MOTOR = 0;
+
+    //Solenoid Channels
+
+    public static final int COLLECTOR_LEFT_OPEN = 7;
+    public static final int COLLECTOR_LEFT_CLOSE = 0;
+    public static final int COLLECTOR_RIGHT_OPEN = 6;
+    public static final int COLLECTOR_RIGHT_CLOSE = 1;
 
     // Swerve
     public static final double MAX_VELOCITY_METERS_PER_SECOND = 4.0;
