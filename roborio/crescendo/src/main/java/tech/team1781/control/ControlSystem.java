@@ -48,10 +48,17 @@ public class ControlSystem {
     }
 
     public void driveChassis(EVector translation, EVector rotation) {
-        mDriveSystem.drawWithMaxVelo(
-            -mXDriveLimiter.calculate(translation.y), 
-            mYDriveLimiter.calculate(translation.x), 
-            mRotDriveLimiter.calculate(rotation.x));
+        //forward and backwards
+        double xVelocity = -translation.y;
+        //left and right
+        double yVelocity = -translation.x;
+        //rotation
+        double rotVelocity = rotation.x;
+
+        mDriveSystem.driveRaw(
+            mXDriveLimiter.calculate(xVelocity), 
+            mYDriveLimiter.calculate(yVelocity), 
+            mRotDriveLimiter.calculate(rotVelocity));
     }
 
     public void zeroNavX() {
