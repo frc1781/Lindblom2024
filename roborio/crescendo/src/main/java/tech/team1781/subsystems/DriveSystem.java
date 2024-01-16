@@ -33,6 +33,7 @@ public class DriveSystem extends Subsystem {
             ConfigMap.FRONT_RIGHT_MODULE_POSITION, ConfigMap.BACK_LEFT_MODULE_POSITION, ConfigMap.BACK_RIGHT_MODULE_POSITION);
 
     private SwerveDriveOdometry mOdometry;
+    private boolean mIsFieldOriented = true;
 
     //Sensors
     private AHRS mNavX = new AHRS(SPI.Port.kMXP);
@@ -132,6 +133,7 @@ public class DriveSystem extends Subsystem {
 
         switch(currentMode) {
             case AUTONOMOUS:
+                mIsFieldOriented = true;
             break;
             case TELEOP:
             break;
@@ -203,7 +205,9 @@ public class DriveSystem extends Subsystem {
 
     public void driveRaw(double xSpeed, double ySpeed, double rot) {
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(
-            new ChassisSpeeds(xSpeed, ySpeed, rot)
+            mIsFieldOriented ? 
+                ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(xSpeed, ySpeed, rot), getRobotAngle()) 
+                : new ChassisSpeeds(xSpeed, ySpeed, rot)
         );
 
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);

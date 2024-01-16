@@ -51,5 +51,8 @@ public class ConfigMap {
     //Controls 
     public static final int DRIVER_CONTROLLER_PORT = 0;
 
+    public static final double DRIVER_TRANSLATION_RATE_LIMIT = 1.2;
+    public static final double DRIVER_ROTATION_RATE_LIMIT = 1.2;
+
     public static final String RESET_NAVX = "X";
 }

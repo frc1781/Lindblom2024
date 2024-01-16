@@ -3,8 +3,10 @@ package tech.team1781.control;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
+import tech.team1781.ConfigMap;
 import tech.team1781.autonomous.AutoStep;
 import tech.team1781.subsystems.Climber;
 import tech.team1781.subsystems.DriveSystem;
@@ -31,6 +33,11 @@ public class ControlSystem {
 
     private OperatingMode mCurrentOperatingMode;
 
+    // Slew Rate Limiters for controls
+    private final SlewRateLimiter mXDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
+    private final SlewRateLimiter mYDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
+    private final SlewRateLimiter mRotDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_ROTATION_RATE_LIMIT);
+
     public enum Action {
         EXAMPLE_ACTION,
         TEST_ACTION
@@ -52,8 +59,10 @@ public class ControlSystem {
     }
 
     public void driveChassis(EVector translation, EVector rotation) {
-        mDriveSystem.drawWithMaxVelo(translation.y, translation.x, rotation.x);
-        //mDriveSystem.driveRaw(0.0, 0, 0);
+        mDriveSystem.drawWithMaxVelo(
+            mXDriveLimiter.calculate(translation.y), 
+            mYDriveLimiter.calculate(translation.x), 
+            mRotDriveLimiter.calculate(rotation.x));
     }
 
     public void zeroNavX() {
@@ -98,6 +107,16 @@ public class ControlSystem {
         mCurrentOperatingMode = operatingMode;
         for (Subsystem subsystem : mSubsystems) {
             subsystem.setOperatingMode(operatingMode);
+        }
+
+        switch(operatingMode) {
+            case TELEOP:
+                mXDriveLimiter.reset(0);
+                mYDriveLimiter.reset(0);
+                mRotDriveLimiter.reset(0);
+            break;
+            default:
+            break;
         }
     }
 
