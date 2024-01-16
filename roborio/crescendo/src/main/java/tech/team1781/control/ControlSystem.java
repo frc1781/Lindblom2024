@@ -49,7 +49,7 @@ public class ControlSystem {
 
     public void driveChassis(EVector translation, EVector rotation) {
         mDriveSystem.drawWithMaxVelo(
-            mXDriveLimiter.calculate(translation.y), 
+            -mXDriveLimiter.calculate(translation.y), 
             mYDriveLimiter.calculate(translation.x), 
             mRotDriveLimiter.calculate(rotation.x));
     }
