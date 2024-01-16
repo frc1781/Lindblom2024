@@ -38,7 +38,7 @@ public class DriverInput {
             ret_val.y = selectedController.getLeftY();
         } else {
             ret_val.x = selectedController.getRightX();
-            ret_val.x = selectedController.getRightY();
+            ret_val.y = selectedController.getRightY();
         }
 
         return ret_val;
