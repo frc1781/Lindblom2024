@@ -2,13 +2,12 @@ package tech.team1781.control;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.stream.Collector;
-
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
 import tech.team1781.ConfigMap;
 import tech.team1781.autonomous.AutoStep;
+import tech.team1781.subsystems.Collector;
 import tech.team1781.subsystems.DriveSystem;
 import tech.team1781.subsystems.Subsystem;
 import tech.team1781.subsystems.DriveSystem.DriveSystemState;
@@ -40,9 +39,11 @@ public class ControlSystem {
 
     public ControlSystem() {
         mDriveSystem = new DriveSystem();
+        mCollector = new Collector();
 
         mSubsystems = new ArrayList<>();
         mSubsystems.add(mDriveSystem);
+        mSubsystems.add(mCollector);
 
         initActions();
 
@@ -54,6 +55,12 @@ public class ControlSystem {
             mXDriveLimiter.calculate(translation.y), 
             mYDriveLimiter.calculate(translation.x), 
             mRotDriveLimiter.calculate(rotation.x));
+    }
+
+    public void setCollector(boolean isCollecting) {
+        mCollector.setDesiredState(
+            isCollecting ? Collector.CollectorState.COLLECT : Collector.CollectorState.IDLE
+        );
     }
 
     public void zeroNavX() {

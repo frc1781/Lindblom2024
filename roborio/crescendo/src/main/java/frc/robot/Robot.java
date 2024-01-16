@@ -45,6 +45,10 @@ public class Robot extends TimedRobot {
         mControlSystem.zeroNavX();
       }
     });
+
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT, (isPressed)->{
+      mControlSystem.setCollector(isPressed);
+    });
   }
 
   @Override

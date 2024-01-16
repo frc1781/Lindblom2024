@@ -67,4 +67,5 @@ public class ConfigMap {
     public static final double DRIVER_ROTATION_RATE_LIMIT = 1.2;
 
     public static final String RESET_NAVX = "X";
+    public static final String COLLECT = "RB";
 }
