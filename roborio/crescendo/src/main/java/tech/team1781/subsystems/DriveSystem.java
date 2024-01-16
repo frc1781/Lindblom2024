@@ -187,7 +187,7 @@ public class DriveSystem extends Subsystem {
     public void drawWithMaxVelo(double xSpeed, double ySpeed, double rot) {
         xSpeed *= ConfigMap.MAX_VELOCITY_METERS_PER_SECOND;
         ySpeed *= ConfigMap.MAX_VELOCITY_METERS_PER_SECOND;
-        // rot *= ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND;
+        rot *= ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND;
 
         driveRaw(xSpeed, ySpeed, rot);
     }
