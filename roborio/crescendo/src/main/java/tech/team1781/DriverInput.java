@@ -101,7 +101,7 @@ public class DriverInput {
             boolean buttonPressed = mButtonMap.get(key);
 
             if (buttonPressed && !mPressedButtons.contains(key)) {
-                mClickEvents.get(key).onPress();
+                mClickEvents.get(key).onPress(true);
                 mPressedButtons.add(key);
             } else if (!buttonPressed && mPressedButtons.contains(key)) {
                 mPressedButtons.remove(key);
@@ -114,9 +114,7 @@ public class DriverInput {
         for (String key : mHoldEvents.keySet()) {
             boolean buttonPressed = mButtonMap.get(key);
 
-            if (buttonPressed) {
-                mHoldEvents.get(key).onPress();
-            }
+            mHoldEvents.get(key).onPress(buttonPressed);
         }
     }
 
@@ -177,7 +175,7 @@ public class DriverInput {
     }
 
     public interface Event {
-        public void onPress();
+        public void onPress(boolean isPressed);
     }
 
 }

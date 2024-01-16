@@ -40,7 +40,11 @@ public class Robot extends TimedRobot {
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
 
-    mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.RESET_NAVX, mControlSystem::zeroNavX);
+    mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.RESET_NAVX, (isPressed)->{
+      if(isPressed) {
+        mControlSystem.zeroNavX();
+      }
+    });
   }
 
   @Override
