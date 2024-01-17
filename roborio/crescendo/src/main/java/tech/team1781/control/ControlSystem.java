@@ -3,14 +3,19 @@ package tech.team1781.control;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
+import tech.team1781.ConfigMap;
+import tech.team1781.DriverInput.ControllerSide;
 import tech.team1781.autonomous.AutoStep;
 import tech.team1781.subsystems.DriveSystem;
-import tech.team1781.subsystems.EESubsystem;
+import tech.team1781.subsystems.Subsystem;
 import tech.team1781.subsystems.DriveSystem.DriveSystemState;
-import tech.team1781.subsystems.EESubsystem.SubsystemState;
+import tech.team1781.subsystems.Subsystem.OperatingMode;
+import tech.team1781.subsystems.Subsystem.SubsystemState;
 import tech.team1781.utils.EVector;
+import tech.team1781.DriverInput;
 
 public class ControlSystem {
     private HashMap<Action, SubsystemSetting[]> mActions = new HashMap<Action, SubsystemSetting[]>();
@@ -19,23 +24,51 @@ public class ControlSystem {
     private boolean mIsRunningAction = false;
     private Timer mStepTime;
 
-    private ArrayList<EESubsystem> mSubsystems;
+    private ArrayList<Subsystem> mSubsystems;
     private DriveSystem mDriveSystem;
+    
+    private OperatingMode mCurrentOperatingMode;
+
+    // Slew Rate Limiters for controls
+    private final SlewRateLimiter mXDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
+    private final SlewRateLimiter mYDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
+    private final SlewRateLimiter mRotDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_ROTATION_RATE_LIMIT);
 
     public enum Action {
         EXAMPLE_ACTION
     }
 
-    public ControlSystem(DriveSystem driveSystem) {
-        mDriveSystem = driveSystem;
+    public ControlSystem() {
+        mDriveSystem = new DriveSystem();
 
         mSubsystems = new ArrayList<>();
-        mSubsystems.add(driveSystem);
+        mSubsystems.add(mDriveSystem);
 
         initActions();
 
         mStepTime = new Timer();
+    }
 
+    public void driverDriving(EVector translation, EVector rotation) {
+        //forward and backwards
+        double xVelocity = -translation.y;
+        //left and right
+        double yVelocity = -translation.x;
+        //rotation
+        double rotVelocity = -rotation.x;
+
+        mDriveSystem.driveRaw(
+            mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, 
+            mYDriveLimiter.calculate(yVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, 
+            mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND);
+    }
+
+    public void zeroNavX() {
+        mDriveSystem.zeroNavX();
+    }
+
+    public void setAction(Action desiredAction) {
+        setAutoStep(desiredAction, null, null);
     }
 
     public void setAutoStep(Action desiredAction, EVector position, Trajectory trajectory) {
@@ -51,10 +84,10 @@ public class ControlSystem {
         }
 
         if (position != null) {
-            // mDriveSystem.setPosition(position);
+            mDriveSystem.setPosition(position);
             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
         } else if (trajectory != null) {
-            // mDriveSystem.setTrajectory(trajectory);
+            mDriveSystem.setTrajectory(trajectory);
             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_TRAJECTORY);
         } else {
             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
@@ -66,10 +99,33 @@ public class ControlSystem {
         return !mIsRunningAction; //&& mDriveSystem.matchesDesiredState();
     }
 
-    public void run() {
-        for (EESubsystem subsystem : mSubsystems) {
+    public void init(OperatingMode operatingMode) {
+        mCurrentOperatingMode = operatingMode;
+        for(Subsystem subsystem : mSubsystems) {
+            subsystem.setOperatingMode(operatingMode);
+        }
+
+        switch(operatingMode) {
+            case TELEOP:
+                mXDriveLimiter.reset(0);
+                mYDriveLimiter.reset(0);
+                mRotDriveLimiter.reset(0);
+            break;
+            default:
+            break;
+        }
+    }
+
+    public void run(DriverInput driverInput) {
+        driverDriving(
+            driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT), 
+            driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT)
+        );
+
+        for (Subsystem subsystem : mSubsystems) {
             subsystem.getToState();
             subsystem.feedStateTime(mStepTime.get());
+            runSubsystemPeriodic(subsystem);
         }
 
         if (!mIsRunningAction) {
@@ -81,6 +137,7 @@ public class ControlSystem {
         for (SubsystemSetting setting : mCurrentSettings) {
             if (!setting.isFinished()) {
                 hasUnfinishedSubsystem = true;
+                break;
             }
         }
 
@@ -105,13 +162,28 @@ public class ControlSystem {
         mActions.put(action, settings);
     }
 
+    private void runSubsystemPeriodic(Subsystem subsystem) {
+        subsystem.genericPeriodic();        
+        switch(mCurrentOperatingMode) {
+            case AUTONOMOUS:
+                subsystem.autonomousPeriodic();
+            break;
+            case TELEOP:
+                subsystem.teleopPeriodic();
+            break;
+            default: 
+            break; 
+                
+        }
+    }
+
 }
 
 class SubsystemSetting {
-    private EESubsystem mSubsystem;
+    private Subsystem mSubsystem;
     private SubsystemState mState;
 
-    public SubsystemSetting(EESubsystem subsystem, SubsystemState state) {
+    public SubsystemSetting(Subsystem subsystem, SubsystemState state) {
         mSubsystem = subsystem;
         mState = state;
     }

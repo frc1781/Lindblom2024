@@ -7,13 +7,14 @@ package frc.robot;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import tech.team1781.Input;
+import tech.team1781.ConfigMap;
+import tech.team1781.DriverInput;
+import tech.team1781.DriverInput.ControllerSide;
 import tech.team1781.autonomous.AutonomousHandler;
 import tech.team1781.autonomous.RoutineOverException;
 import tech.team1781.autonomous.routines.ExampleRoutine;
 import tech.team1781.control.ControlSystem;
-import tech.team1781.subsystems.DriveSystem;
-import tech.team1781.subsystems.EESubsystem;
+import tech.team1781.subsystems.Subsystem.OperatingMode;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -27,28 +28,23 @@ public class Robot extends TimedRobot {
    * initialization code.
    */
 
-  private Input mInput;
-
-  //Subsystems go here
-  private DriveSystem mDriveSystem;
-  private ArrayList<EESubsystem> mSubsystems;
-  
   //control and autonomous
   private ControlSystem mControlSystem;
   private AutonomousHandler mAutonomousHandler;
+  private DriverInput mDriverInput;
 
   @Override
   public void robotInit() {
-    mInput = new Input();
-    
-    //initialize subsystems here
-    mDriveSystem = new DriveSystem();
-
-    mSubsystems.add(mDriveSystem);
-
-    mControlSystem = new ControlSystem(mDriveSystem);
+    mControlSystem = new ControlSystem();
     mAutonomousHandler = new AutonomousHandler(mControlSystem, new ExampleRoutine());
+    mDriverInput = new DriverInput();
+    mControlSystem.init(OperatingMode.DISABLED);
 
+    mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.RESET_NAVX, (isPressed)->{
+      if(isPressed) {
+        mControlSystem.zeroNavX();
+      }
+    });
   }
 
   @Override
@@ -57,11 +53,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     mAutonomousHandler.init();
-
-    for(EESubsystem e : mSubsystems) {
-      e.genericInit();
-      e.autonomousInit();
-    }
+    mControlSystem.init(OperatingMode.AUTONOMOUS);
   }
 
   @Override
@@ -72,32 +64,22 @@ public class Robot extends TimedRobot {
       e.printStackTrace();
     }
 
-    mControlSystem.run();
-
-    for(EESubsystem e : mSubsystems) {
-      e.genericPeriodic();
-      e.autonomousPeriodic();
-    }
+    mControlSystem.run(null);
   }
 
   @Override
   public void teleopInit() {
-    for(EESubsystem e : mSubsystems) {
-      e.genericInit();
-      e.teleopInit();
-    }
+    mControlSystem.init(OperatingMode.TELEOP);
   }
 
   @Override
   public void teleopPeriodic() {
-    for(EESubsystem e : mSubsystems) {
-      e.genericPeriodic();
-      e.teleopPeriodic();
-    }
+    mControlSystem.run(mDriverInput.run());  //add copilot input
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+  }
 
   @Override
   public void disabledPeriodic() {}

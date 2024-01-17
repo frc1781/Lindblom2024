@@ -1,47 +1,53 @@
 package tech.team1781.subsystems;
 
 
-public abstract class EESubsystem {
+public abstract class Subsystem {
    protected final String name;
    protected double currentTime;
-   private SubsystemState mCurrentState;
+   protected OperatingMode currentMode; 
+
+   private SubsystemState currentState;
    
-   protected EESubsystem(String _name) {
+   protected Subsystem(String _name, SubsystemState defaultState) {
     name = _name;
+    currentState = defaultState;
    }
 
-   public void genericInit() {
+   public void setOperatingMode(OperatingMode mode) {
+      currentMode = mode;
+      init();
    }
 
-   public void genericPeriodic() {
-   }
+   public abstract void genericPeriodic();
 
    public final void feedStateTime(double sampledTime) {
     currentTime = sampledTime;
    }
 
    public final void setDesiredState(SubsystemState desiredState) {
-    mCurrentState = desiredState;
+    currentState = desiredState;
+   }
+   
+   public final SubsystemState getState() {
+    return currentState;
    }
 
-   public final SubsystemState getState() {
-    return mCurrentState;
-   }
+   public abstract void init();
 
    public abstract void getToState();
 
    public abstract boolean matchesDesiredState();
 
-   public abstract void autonomousInit();
-
    public abstract void autonomousPeriodic();
-
-   public abstract void teleopInit();
 
    public abstract void teleopPeriodic();
 
    public interface SubsystemState {
 
+   }
+
+   public enum OperatingMode {
+      DISABLED, TELEOP, AUTONOMOUS, SIMULATION, TEST
    }
 
 }
