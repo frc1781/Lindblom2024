@@ -24,10 +24,11 @@ public class DriverInput {
         LEFT, RIGHT
     }
 
-    public void run() {
+    public DriverInput run() {
         updatePressedButtons();
         checkClickEvents();
         checkHoldEvents();
+        return this;
     }
 
     public EVector getControllerJoyAxis(ControllerSide side, int controllerIndex) {

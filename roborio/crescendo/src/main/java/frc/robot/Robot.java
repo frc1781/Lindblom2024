@@ -64,8 +64,7 @@ public class Robot extends TimedRobot {
       e.printStackTrace();
     }
 
-    mControlSystem.run();
-
+    mControlSystem.run(null);
   }
 
   @Override
@@ -75,9 +74,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    mDriverInput.run();
-    mControlSystem.run();
-    mControlSystem.driveChassis(mDriverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT), mDriverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
+    mControlSystem.run(mDriverInput.run());  //add copilot input
   }
 
   @Override
