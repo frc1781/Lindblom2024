@@ -131,6 +131,10 @@ public class DriveSystem extends Subsystem {
         mBackLeft.init();
         mBackRight.init();
 
+        mNavX.reset();
+        mNavX.setAngleAdjustment(0);
+        mNavX.zeroYaw();
+
         switch(currentMode) {
             case AUTONOMOUS:
                 mIsFieldOriented = true;
@@ -150,7 +154,6 @@ public class DriveSystem extends Subsystem {
 
     public void setOdometry(Pose2d pose) {
         mOdometry.resetPosition(getRobotAngle(), getModulePositions(), pose);
-
     }
 
     public void zeroNavX() {
@@ -196,13 +199,6 @@ public class DriveSystem extends Subsystem {
         mIsManual = false;
     }
 
-    public void drawWithMaxVelo(double xSpeed, double ySpeed, double rot) {
-        xSpeed *= ConfigMap.MAX_VELOCITY_METERS_PER_SECOND;
-        ySpeed *= ConfigMap.MAX_VELOCITY_METERS_PER_SECOND;
-
-        driveRaw(xSpeed, ySpeed, rot);
-    }
-
     public void driveRaw(double xSpeed, double ySpeed, double rot) {
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(
             mIsFieldOriented ? 
@@ -219,7 +215,7 @@ public class DriveSystem extends Subsystem {
     }
 
     public Rotation2d getRobotAngle() {
-        double reportedVal = mNavX.getAngle()/360 * 2 * Math.PI;
+        double reportedVal = -mNavX.getAngle()/360 * 2 * Math.PI;
 
         reportedVal %= 2 * Math.PI;
         if(reportedVal < 0) {

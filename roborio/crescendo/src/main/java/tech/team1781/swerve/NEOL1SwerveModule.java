@@ -27,7 +27,6 @@ public class NEOL1SwerveModule extends SwerveModule{
     private final CANSparkMax mTurnMotor;
     private final SparkPIDController mDrivePID;
     private final SparkPIDController mTurnPID;
-    
     private final RelativeEncoder mDriveEncoder;
     private final RelativeEncoder mTurnEncoder;
     private final CANcoder mTurnAbsoluteEncoder;
@@ -42,7 +41,7 @@ public class NEOL1SwerveModule extends SwerveModule{
         mDriveMotor.restoreFactoryDefaults();
         mTurnMotor.restoreFactoryDefaults();
         mTurnMotor.setInverted(true);
-
+        mDriveMotor.setInverted(true);
         mDrivePID = mDriveMotor.getPIDController();
         mTurnPID = mTurnMotor.getPIDController();
         mTurnPID.setPositionPIDWrappingMaxInput(2 * Math.PI);
@@ -112,10 +111,10 @@ public class NEOL1SwerveModule extends SwerveModule{
     }
 
     public void setDesiredState(SwerveModuleState desiredState) {
+
         SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, new Rotation2d(mTurnEncoder.getPosition()));
         mDrivePID.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
         mTurnPID.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
-
     }
 
     public void syncRelativeToAbsoluteEncoder() {
