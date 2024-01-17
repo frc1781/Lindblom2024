@@ -14,6 +14,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import tech.team1781.ConfigMap;
 import tech.team1781.swerve.NEOL1SwerveModule;
 import tech.team1781.swerve.SwerveModule;
@@ -52,7 +54,6 @@ public class DriveSystem extends Subsystem {
         super("Drive System", DriveSystemState.DRIVE_MANUAL);
 
         mOdometry = new SwerveDriveOdometry(mKinematics, getRobotAngle(), getModulePositions());
-
         mRotController.enableContinuousInput(0, 2 * Math.PI);
 
     }
@@ -229,6 +230,15 @@ public class DriveSystem extends Subsystem {
 
     private void updateOdometry() {
         mOdometry.update(getRobotAngle(), getModulePositions());
+
+        double xPos = mOdometry.getPoseMeters().getX();
+        double yPos = mOdometry.getPoseMeters().getY();
+        double angle = getRobotAngle().getDegrees();
+
+        System.out.println("Position | X: " + xPos + " Y: " + yPos + " | Rotation: " + angle);
+        SmartDashboard.putNumber("X POS", xPos);
+        SmartDashboard.putNumber("Y POS", yPos);
+        SmartDashboard.putNumber("Rotation", angle);
     }
 
     private SwerveModulePosition[] getModulePositions() {
