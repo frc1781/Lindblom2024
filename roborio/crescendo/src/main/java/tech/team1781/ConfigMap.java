@@ -1,3 +1,4 @@
+
 package tech.team1781;
 
 import edu.wpi.first.math.geometry.Translation2d;
@@ -47,10 +48,10 @@ public class ConfigMap {
     public static Translation2d BACK_RIGHT_MODULE_POSITION = new Translation2d(-DRIVETRAIN_WHEELBASE / 2,
             -DRIVETRAIN_TRACKWIDTH / 2);
 
-    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.919; // -0.075;
-    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.738; // -0.255;
-    public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.927; // -0.077;
-    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.272; // -0.735;
+    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = 0; // -0.919; // -0.075;
+    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = 0; //-0.738; // -0.255;
+    public static final double BACK_LEFT_MODULE_STEER_OFFSET = 0; //-0.927; // -0.077;
+    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = 0; //-0.272; // -0.735;
 
     // First Drivebase
 
