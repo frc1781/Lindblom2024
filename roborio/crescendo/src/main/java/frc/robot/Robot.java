@@ -53,8 +53,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    mAutonomousHandler.init();
     mControlSystem.init(OperatingMode.AUTONOMOUS);
+    mAutonomousHandler.init();
   }
 
   @Override

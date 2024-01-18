@@ -25,13 +25,12 @@ public class ControlSystem {
     private HashMap<Action, SubsystemSetting[]> mActions = new HashMap<Action, SubsystemSetting[]>();
     private SubsystemSetting[] mCurrentSettings;
     private AutoStep mCurrentStep;
-    private boolean mIsRunningAction = true;
     private Timer mStepTime;
 
     private ArrayList<Subsystem> mSubsystems;
     private DriveSystem mDriveSystem;
     private Scollector mScollector;
-    private Climber mClimber; 
+    private Climber mClimber;
 
     private OperatingMode mCurrentOperatingMode;
 
@@ -61,17 +60,17 @@ public class ControlSystem {
     }
 
     public void driverDriving(EVector translation, EVector rotation) {
-        //forward and backwards
+        // forward and backwards
         double xVelocity = -translation.y;
-        //left and right
+        // left and right
         double yVelocity = -translation.x;
-        //rotation
+        // rotation
         double rotVelocity = -rotation.x;
 
         mDriveSystem.driveRaw(
-            mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, 
-            mYDriveLimiter.calculate(yVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, 
-            mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND);
+                mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
+                mYDriveLimiter.calculate(yVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
+                mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND);
     }
 
     public void zeroNavX() {
@@ -88,11 +87,12 @@ public class ControlSystem {
         if (desiredAction != null) {
             System.out.println(desiredAction.toString());
             mCurrentSettings = mActions.get(desiredAction);
-            mIsRunningAction = true;
             for (SubsystemSetting setting : mCurrentSettings) {
                 setting.setState();
             }
 
+        } else {
+            mCurrentSettings = null;
         }
 
         if (position != null) {
@@ -105,11 +105,13 @@ public class ControlSystem {
             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
         }
 
-        System.out.println(mDriveSystem.getName() + " :: " + mDriveSystem.getState().toString() + " || " + mScollector.getName() + " :: " + mScollector.getState().toString() + " || " + mClimber.getName() + " :: " + mClimber.getState().toString());
+        System.out.println(mDriveSystem.getName() + " :: " + mDriveSystem.getState().toString() + " || "
+                + mScollector.getName() + " :: " + mScollector.getState().toString() + " || " + mClimber.getName()
+                + " :: " + mClimber.getState().toString());
     }
 
     public boolean stepIsFinished() {
-        return !mIsRunningAction;
+        return !isRunningAction() && mDriveSystem.matchesDesiredState();
     }
 
     public void init(OperatingMode operatingMode) {
@@ -118,22 +120,33 @@ public class ControlSystem {
             subsystem.setOperatingMode(operatingMode);
         }
 
-        switch(operatingMode) {
+        interruptAction();
+
+        switch (operatingMode) {
             case TELEOP:
                 mXDriveLimiter.reset(0);
                 mYDriveLimiter.reset(0);
                 mRotDriveLimiter.reset(0);
-            break;
+
+                mDriveSystem.setDesiredState(DriveSystem.DriveSystemState.DRIVE_MANUAL);
+                break;
+            case AUTONOMOUS:
+                break;
             default:
-            break;
+                break;
         }
     }
 
     public void run(DriverInput driverInput) {
-        driverDriving(
-            driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT), 
-            driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT)
-        );
+        switch (mCurrentOperatingMode) {
+            case TELEOP:
+                driverDriving(
+                        driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
+                        driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
+                break;
+            default:
+                break;
+        }
 
         for (Subsystem subsystem : mSubsystems) {
             subsystem.getToState();
@@ -141,32 +154,33 @@ public class ControlSystem {
             runSubsystemPeriodic(subsystem);
         }
 
-        checkForRunningAction();
-
     }
 
     public boolean isRunningAction() {
-        return mIsRunningAction;
+        try {
+            boolean hasUnfinishedSubsystem = false;
+            for (SubsystemSetting setting : mCurrentSettings) {
+                if (!setting.isFinished()) {
+                    hasUnfinishedSubsystem = true;
+                }
+            }
+
+            return hasUnfinishedSubsystem;
+        } catch (NullPointerException e) {
+            return false;
+        }
     }
 
     public void interruptAction() {
-        mIsRunningAction = false;
+        System.out.println("aaaaaaaaaaaa");
+        mCurrentSettings = null;
+
+        for(Subsystem s : mSubsystems) {
+            s.restoreDefault();
+        }
     }
 
-    private void checkForRunningAction() {
-        if (!mIsRunningAction) {
-            return;
-        }
-        boolean hasUnfinishedSubsystem = false;
-
-        for (SubsystemSetting setting : mCurrentSettings) {
-            if (!setting.isFinished()) {
-                hasUnfinishedSubsystem = true;
-            }
-        }
-
-        mIsRunningAction = hasUnfinishedSubsystem;
-    }
+    
 
     private void initActions() {
         defineAction(Action.EXAMPLE_ACTION,

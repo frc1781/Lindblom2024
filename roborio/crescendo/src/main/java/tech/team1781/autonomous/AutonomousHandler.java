@@ -31,7 +31,6 @@ public class AutonomousHandler {
         mTimer.start();
         mStepIndex = 0;
         mSelectedRoutine = mAutoChooser.getSelected();
-        mControlSystem.interruptAction();
 
         sampledStep = mSelectedRoutine.getSteps()[0];
         startStep(sampledStep);
@@ -52,7 +51,7 @@ public class AutonomousHandler {
             }
 
         } catch (Exception e) {
-            // e.printStackTrace();
+            mControlSystem.interruptAction();
             throw new RoutineOverException(mSelectedRoutine.getName());
         }
     }

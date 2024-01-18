@@ -108,6 +108,8 @@ public class DriverInput {
                 mPressedButtons.remove(key);
             }
 
+            // System.out.printf("%s :: %b %n", key, buttonPressed);
+
         }
     }
 
@@ -137,14 +139,14 @@ public class DriverInput {
     }
 
     private void updateControllerButtons(int index, XboxController controller) {
-        mButtonMap.put(createKey(index, "LB"), controller.getAButton());
-        mButtonMap.put(createKey(index, "RB"), controller.getBButton());
-        mButtonMap.put(createKey(index, "Y"), controller.getAButton());
-        mButtonMap.put(createKey(index, "X"), controller.getBButton());
-        mButtonMap.put(createKey(index, "B"), controller.getAButton());
-        mButtonMap.put(createKey(index, "A"), controller.getBButton());
-        mButtonMap.put(createKey(index, "START"), controller.getAButton());
-        mButtonMap.put(createKey(index, "BACK"), controller.getBButton());
+        mButtonMap.put(createKey(index, "LB"), controller.getLeftBumper());
+        mButtonMap.put(createKey(index, "RB"), controller.getRightBumper());
+        mButtonMap.put(createKey(index, "Y"), controller.getYButton());
+        mButtonMap.put(createKey(index, "X"), controller.getXButton());
+        mButtonMap.put(createKey(index, "B"), controller.getBButton());
+        mButtonMap.put(createKey(index, "A"), controller.getAButton());
+        mButtonMap.put(createKey(index, "START"), controller.getStartButton());
+        mButtonMap.put(createKey(index, "BACK"), controller.getBackButton());
     }
 
     private void updateJoystickButtons(int index, Joystick joystick) {
