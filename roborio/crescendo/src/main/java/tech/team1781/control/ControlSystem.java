@@ -7,6 +7,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
 import tech.team1781.ConfigMap;
+import tech.team1781.DriverInput.ControllerSide;
 import tech.team1781.autonomous.AutoStep;
 import tech.team1781.subsystems.Climber;
 import tech.team1781.subsystems.DriveSystem;
@@ -18,6 +19,7 @@ import tech.team1781.subsystems.Scollector.ScollectorState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
 import tech.team1781.subsystems.Subsystem.SubsystemState;
 import tech.team1781.utils.EVector;
+import tech.team1781.DriverInput;
 
 public class ControlSystem {
     private HashMap<Action, SubsystemSetting[]> mActions = new HashMap<Action, SubsystemSetting[]>();
@@ -58,11 +60,18 @@ public class ControlSystem {
         mStepTime = new Timer();
     }
 
-    public void driveChassis(EVector translation, EVector rotation) {
-        mDriveSystem.drawWithMaxVelo(
-            mXDriveLimiter.calculate(translation.y), 
-            mYDriveLimiter.calculate(translation.x), 
-            mRotDriveLimiter.calculate(rotation.x));
+    public void driverDriving(EVector translation, EVector rotation) {
+        //forward and backwards
+        double xVelocity = -translation.y;
+        //left and right
+        double yVelocity = -translation.x;
+        //rotation
+        double rotVelocity = -rotation.x;
+
+        mDriveSystem.driveRaw(
+            mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, 
+            mYDriveLimiter.calculate(yVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, 
+            mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND);
     }
 
     public void zeroNavX() {
@@ -122,7 +131,12 @@ public class ControlSystem {
         }
     }
 
-    public void run() {
+    public void run(DriverInput driverInput) {
+        driverDriving(
+            driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT), 
+            driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT)
+        );
+
         for (Subsystem subsystem : mSubsystems) {
             subsystem.getToState();
             subsystem.feedStateTime(mStepTime.get());
