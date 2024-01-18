@@ -23,7 +23,7 @@ public class ControlSystem {
     private HashMap<Action, SubsystemSetting[]> mActions = new HashMap<Action, SubsystemSetting[]>();
     private SubsystemSetting[] mCurrentSettings;
     private AutoStep mCurrentStep;
-    private boolean mIsRunningAction = true;
+    private boolean mIsRunningAction = false;
     private Timer mStepTime;
 
     private ArrayList<Subsystem> mSubsystems;
@@ -108,6 +108,8 @@ public class ControlSystem {
         for (Subsystem subsystem : mSubsystems) {
             subsystem.setOperatingMode(operatingMode);
         }
+
+        interruptAction();
 
         switch(operatingMode) {
             case TELEOP:
