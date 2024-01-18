@@ -15,6 +15,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import tech.team1781.ConfigMap;
 import tech.team1781.swerve.NEOL1SwerveModule;
 import tech.team1781.swerve.SwerveModule;
@@ -31,6 +32,9 @@ public class DriveSystem extends Subsystem {
     //Odometry & Kinematics
     private SwerveDriveKinematics mKinematics = new SwerveDriveKinematics(ConfigMap.FRONT_LEFT_MODULE_POSITION,
             ConfigMap.FRONT_RIGHT_MODULE_POSITION, ConfigMap.BACK_LEFT_MODULE_POSITION, ConfigMap.BACK_RIGHT_MODULE_POSITION);
+    private GenericEntry mXEntry = ConfigMap.SHUFFLEBOARD_TAB.add("X Position", 0).getEntry();
+    private GenericEntry mYEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Y Position", 0).getEntry();
+    private GenericEntry mRotEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Rotate Position", 0).getEntry();
 
     private SwerveDriveOdometry mOdometry;
     private boolean mIsFieldOriented = true;
@@ -245,6 +249,11 @@ public class DriveSystem extends Subsystem {
 
     private void updateOdometry() {
         mOdometry.update(getRobotAngle(), getModulePositions());
+        
+        Pose2d robotPose = getRobotPose();
+        mXEntry.setDouble(robotPose.getX());
+        mYEntry.setDouble(robotPose.getY());
+        mRotEntry.setDouble(robotPose.getRotation().getRadians());
     }
 
     private SwerveModulePosition[] getModulePositions() {
