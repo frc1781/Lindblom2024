@@ -13,6 +13,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -32,6 +33,9 @@ public class DriveSystem extends Subsystem {
     //Odometry & Kinematics
     private SwerveDriveKinematics mKinematics = new SwerveDriveKinematics(ConfigMap.FRONT_LEFT_MODULE_POSITION,
             ConfigMap.FRONT_RIGHT_MODULE_POSITION, ConfigMap.BACK_LEFT_MODULE_POSITION, ConfigMap.BACK_RIGHT_MODULE_POSITION);
+    private GenericEntry mXEntry = ConfigMap.SHUFFLEBOARD_TAB.add("X Position", 0).getEntry();
+    private GenericEntry mYEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Y Position", 0).getEntry();
+    private GenericEntry mRotEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Rotate Position", 0).getEntry();
 
     private SwerveDriveOdometry mOdometry;
     private boolean mIsFieldOriented = true;
@@ -50,10 +54,16 @@ public class DriveSystem extends Subsystem {
     private ProfiledPIDController mRotController = new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(0, 0));
 
 
+    //TEMP: For PID tuning
+    private GenericEntry mPEntry = ConfigMap.SHUFFLEBOARD_TAB.add("P", 0).getEntry();
+    private GenericEntry mIEntry = ConfigMap.SHUFFLEBOARD_TAB.add("I", 0).getEntry();
+    private GenericEntry mDEntry = ConfigMap.SHUFFLEBOARD_TAB.add("D", 0).getEntry();
+
     public DriveSystem() {
         super("Drive System", DriveSystemState.DRIVE_MANUAL);
 
         mOdometry = new SwerveDriveOdometry(mKinematics, getRobotAngle(), getModulePositions());
+
         mRotController.enableContinuousInput(0, 2 * Math.PI);
 
     }
@@ -85,11 +95,14 @@ public class DriveSystem extends Subsystem {
 
         switch((DriveSystemState) getState()) {
             case DRIVE_SETPOINT:
-            return matchesDesiredPosition();
+            // return matchesDesiredPosition();
+            return false;
             case DRIVE_TRAJECTORY:
-            return mDesiredTrajectory.getTotalTimeSeconds() < currentTime;
+            // return mDesiredTrajectory.getTotalTimeSeconds() < currentTime;
+            return false;
             case DRIVE_MANUAL:
-            return mIsManual;
+            return false;
+            // return mIsManual;
             default: 
             return true;
         }
@@ -98,6 +111,9 @@ public class DriveSystem extends Subsystem {
 
     @Override
     public void autonomousPeriodic() {
+        mXController.setPID(mPEntry.getDouble(0), mIEntry.getDouble(0), mDEntry.getDouble(0));
+        mYController.setPID(mPEntry.getDouble(0), mIEntry.getDouble(0), mDEntry.getDouble(0));
+
     }
 
     @Override
@@ -120,10 +136,6 @@ public class DriveSystem extends Subsystem {
         mBackLeft.init();
         mBackRight.init();
 
-        mNavX.reset();
-        mNavX.setAngleAdjustment(0);
-        mNavX.zeroYaw();
-
         switch(currentMode) {
             case AUTONOMOUS:
                 mIsFieldOriented = true;
@@ -143,6 +155,7 @@ public class DriveSystem extends Subsystem {
 
     public void setOdometry(Pose2d pose) {
         mOdometry.resetPosition(getRobotAngle(), getModulePositions(), pose);
+
     }
 
     public void zeroNavX() {
@@ -188,6 +201,13 @@ public class DriveSystem extends Subsystem {
         mIsManual = false;
     }
 
+    public void drawWithMaxVelo(double xSpeed, double ySpeed, double rot) {
+        xSpeed *= ConfigMap.MAX_VELOCITY_METERS_PER_SECOND;
+        ySpeed *= ConfigMap.MAX_VELOCITY_METERS_PER_SECOND;
+
+        driveRaw(xSpeed, ySpeed, rot);
+    }
+
     public void driveRaw(double xSpeed, double ySpeed, double rot) {
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(
             mIsFieldOriented ? 
@@ -231,14 +251,10 @@ public class DriveSystem extends Subsystem {
     private void updateOdometry() {
         mOdometry.update(getRobotAngle(), getModulePositions());
 
-        double xPos = mOdometry.getPoseMeters().getX();
-        double yPos = mOdometry.getPoseMeters().getY();
-        double angle = getRobotAngle().getDegrees();
-
-        System.out.println("Position | X: " + xPos + " Y: " + yPos + " | Rotation: " + angle);
-        SmartDashboard.putNumber("X POS", xPos);
-        SmartDashboard.putNumber("Y POS", yPos);
-        SmartDashboard.putNumber("Rotation", angle);
+        Pose2d robotPose = getRobotPose();
+        mXEntry.setDouble(robotPose.getX());
+        mYEntry.setDouble(robotPose.getY());
+        mRotEntry.setDouble(robotPose.getRotation().getRadians());
     }
 
     private SwerveModulePosition[] getModulePositions() {

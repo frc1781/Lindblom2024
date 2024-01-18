@@ -2,7 +2,9 @@ package tech.team1781.autonomous;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import tech.team1781.ConfigMap;
 import tech.team1781.control.ControlSystem;
+import tech.team1781.subsystems.Subsystem;
 
 public class AutonomousHandler {
     private SendableChooser<AutoRoutine> mAutoChooser = new SendableChooser<>();
@@ -18,6 +20,8 @@ public class AutonomousHandler {
         for (AutoRoutine routine : routines) {
             mAutoChooser.addOption(routine.getName(), routine);
         }
+        
+        ConfigMap.SHUFFLEBOARD_TAB.add(mAutoChooser);
 
         mControlSystem = controlSystem;
     }
@@ -49,7 +53,7 @@ public class AutonomousHandler {
 
         } catch (Exception e) {
             // e.printStackTrace();
-            // throw new RoutineOverException(mSelectedRoutine.getName());
+            throw new RoutineOverException(mSelectedRoutine.getName());
         }
     }
 
