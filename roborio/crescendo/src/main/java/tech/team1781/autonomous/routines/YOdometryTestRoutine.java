@@ -8,7 +8,7 @@ public class YOdometryTestRoutine implements AutonomousHandler.AutoRoutine {
 
     @Override
     public String getName() {
-        return "Y- Odometry Test";
+        return "Y+ Odometry Test";
     }
 
     @Override
