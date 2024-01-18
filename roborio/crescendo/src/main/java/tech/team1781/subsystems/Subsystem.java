@@ -5,11 +5,13 @@ public abstract class Subsystem {
    protected final String name;
    protected double currentTime;
    protected OperatingMode currentMode; 
+   private final SubsystemState defaultState;
 
    private SubsystemState currentState;
    
-   protected Subsystem(String _name, SubsystemState defaultState) {
+   protected Subsystem(String _name, SubsystemState _defaultState) {
     name = _name;
+    defaultState = _defaultState;
     currentState = defaultState;
    }
 
@@ -34,6 +36,10 @@ public abstract class Subsystem {
    
    public final SubsystemState getState() {
     return currentState;
+   }
+
+   public final void restoreDefault() {
+      currentState = defaultState;
    }
 
    public abstract void init();

@@ -48,22 +48,16 @@ public class DriveSystem extends Subsystem {
     private EVector mDesiredPosition = null;
     private boolean mIsManual = true;
 
-    private ProfiledPIDController mXController = new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(0, 0));
-    private ProfiledPIDController mYController = new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(0, 0));
-    private ProfiledPIDController mRotController = new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(0, 0));
-
-
-    //TEMP: For PID tuning
-    private GenericEntry mPEntry = ConfigMap.SHUFFLEBOARD_TAB.add("P", 0).getEntry();
-    private GenericEntry mIEntry = ConfigMap.SHUFFLEBOARD_TAB.add("I", 0).getEntry();
-    private GenericEntry mDEntry = ConfigMap.SHUFFLEBOARD_TAB.add("D", 0).getEntry();
+    private ProfiledPIDController mXController = new ProfiledPIDController(1.1, 0, 0.1, new TrapezoidProfile.Constraints(0, 0));
+    private ProfiledPIDController mYController = new ProfiledPIDController(1.1, 0, 0.1, new TrapezoidProfile.Constraints(0, 0));
+    private ProfiledPIDController mRotController = new ProfiledPIDController(2, 0, 0.1, new TrapezoidProfile.Constraints(0, 0));
 
     public DriveSystem() {
         super("Drive System", DriveSystemState.DRIVE_MANUAL);
 
         mOdometry = new SwerveDriveOdometry(mKinematics, getRobotAngle(), getModulePositions());
 
-        mRotController.enableContinuousInput(0, 2 * Math.PI);
+        mRotController.enableContinuousInput(0, Math.PI * 2);
 
     }
 
@@ -77,12 +71,13 @@ public class DriveSystem extends Subsystem {
     public void getToState() {
         switch((DriveSystemState) getState()) {
             case DRIVE_SETPOINT:
-                // goTo(mDesiredPosition);
+                goTo(mDesiredPosition);
             break;
             case DRIVE_TRAJECTORY:
-                // followTrajectory();
+                followTrajectory();
             break;
             case DRIVE_MANUAL:
+                
             break;
             default:
             break;
@@ -97,8 +92,7 @@ public class DriveSystem extends Subsystem {
             // return matchesDesiredPosition();
             return false;
             case DRIVE_TRAJECTORY:
-            // return mDesiredTrajectory.getTotalTimeSeconds() < currentTime;
-            return false;
+            return mDesiredTrajectory.getTotalTimeSeconds() < currentTime;
             case DRIVE_MANUAL:
             return false;
             // return mIsManual;
@@ -110,9 +104,6 @@ public class DriveSystem extends Subsystem {
 
     @Override
     public void autonomousPeriodic() {
-        mXController.setPID(mPEntry.getDouble(0), mIEntry.getDouble(0), mDEntry.getDouble(0));
-        mYController.setPID(mPEntry.getDouble(0), mIEntry.getDouble(0), mDEntry.getDouble(0));
-
     }
 
     @Override
@@ -141,9 +132,12 @@ public class DriveSystem extends Subsystem {
 
         switch(currentMode) {
             case AUTONOMOUS:
+                zeroNavX();
+                setOdometry(getRobotPose()); 
                 mIsFieldOriented = true;
             break;
             case TELEOP:
+                mIsManual = true;
             break;
             case DISABLED:
             break;
@@ -219,7 +213,7 @@ public class DriveSystem extends Subsystem {
     }
 
     public Rotation2d getRobotAngle() {
-        double reportedVal = -mNavX.getAngle()/360 * 2 * Math.PI;
+        double reportedVal = mNavX.getRotation2d().getRadians();
 
         reportedVal %= 2 * Math.PI;
         if(reportedVal < 0) {
@@ -249,7 +243,7 @@ public class DriveSystem extends Subsystem {
         Pose2d robotPose = getRobotPose();
         mXEntry.setDouble(robotPose.getX());
         mYEntry.setDouble(robotPose.getY());
-        mRotEntry.setDouble(robotPose.getRotation().getRadians());
+        mRotEntry.setDouble(getRobotAngle().getRadians());
     }
 
     private SwerveModulePosition[] getModulePositions() {
