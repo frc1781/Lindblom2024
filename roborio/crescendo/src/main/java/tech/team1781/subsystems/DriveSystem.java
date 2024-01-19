@@ -189,6 +189,7 @@ public class DriveSystem extends Subsystem {
 
     public void setTrajectory(PathPlannerTrajectory trajectory) {
         mDesiredTrajectory = trajectory;
+        setOdometry(trajectory.getInitialTargetHolonomicPose());
         mDesiredPosition = null;
         mIsManual = false;
     }
