@@ -1,7 +1,8 @@
 package tech.team1781.autonomous;
 
-//TODO: Change to pathplanner trajectory
-import edu.wpi.first.math.trajectory.Trajectory;
+
+import com.pathplanner.lib.path.PathPlannerTrajectory;
+
 import tech.team1781.control.ControlSystem.Action;
 import tech.team1781.utils.EVector;
 
@@ -9,7 +10,7 @@ public class AutoStep {
     private double mMaxTime = -1;
     private Action mAction = null;
     private EVector mPosition = null;
-    private Trajectory mTrajectory = null;
+    private PathPlannerTrajectory mTrajectory = null;
 
     public AutoStep(double maxTime, Action action, EVector position) {
         mMaxTime = maxTime;
@@ -17,7 +18,7 @@ public class AutoStep {
         mPosition = position;
     }
 
-    public AutoStep(double maxTime, Action action, Trajectory trajectory) {
+    public AutoStep(double maxTime, Action action, PathPlannerTrajectory trajectory) {
         mMaxTime = maxTime;
         mAction = action;
         mTrajectory = trajectory;
@@ -33,7 +34,7 @@ public class AutoStep {
         mPosition = position;
     }
 
-    public AutoStep(double maxTime, Trajectory trajectory) {
+    public AutoStep(double maxTime, PathPlannerTrajectory trajectory) {
         mMaxTime = maxTime;
         mTrajectory = trajectory;
     }
@@ -50,7 +51,7 @@ public class AutoStep {
         return mPosition;
     }
 
-    public Trajectory getTrajectory() {
+    public PathPlannerTrajectory getTrajectory() {
         return mTrajectory;
     }
 
