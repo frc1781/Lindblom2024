@@ -135,7 +135,6 @@ public class DriveSystem extends Subsystem {
         switch(currentMode) {
             case AUTONOMOUS:
                 zeroNavX();
-                setOdometry(getRobotPose()); 
                 mIsFieldOriented = true;
             break;
             case TELEOP:
@@ -167,7 +166,7 @@ public class DriveSystem extends Subsystem {
 
         Pose2d sampledPose = mDesiredTrajectory.sample(currentTime).getTargetHolonomicPose();
         System.out.println(EVector.fromPose(sampledPose).asString());
-        // goTo(EVector.fromPose(sampledPose));
+        goTo(EVector.fromPose(sampledPose));
     }
 
     public void goTo(EVector target) {
