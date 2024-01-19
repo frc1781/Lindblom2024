@@ -2,6 +2,7 @@ package tech.team1781.subsystems;
 
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.path.PathPlannerTrajectory;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -44,7 +45,7 @@ public class DriveSystem extends Subsystem {
 
 
     //Autonomous positioning 
-    private Trajectory mDesiredTrajectory = null;
+    private PathPlannerTrajectory mDesiredTrajectory = null;
     private EVector mDesiredPosition = null;
     private boolean mIsManual = true;
 
@@ -92,7 +93,8 @@ public class DriveSystem extends Subsystem {
             // return matchesDesiredPosition();
             return false;
             case DRIVE_TRAJECTORY:
-            return mDesiredTrajectory.getTotalTimeSeconds() < currentTime;
+            return false;
+            // return mDesiredTrajectory.getTotalTimeSeconds() < currentTime;
             case DRIVE_MANUAL:
             return false;
             // return mIsManual;
@@ -163,8 +165,9 @@ public class DriveSystem extends Subsystem {
             return;
         }
 
-        Pose2d sampledPose = mDesiredTrajectory.sample(currentTime).poseMeters;
-        goTo(EVector.fromPose(sampledPose));
+        Pose2d sampledPose = mDesiredTrajectory.sample(currentTime).getTargetHolonomicPose();
+        System.out.println(EVector.fromPose(sampledPose).asString());
+        // goTo(EVector.fromPose(sampledPose));
     }
 
     public void goTo(EVector target) {
@@ -185,7 +188,7 @@ public class DriveSystem extends Subsystem {
         driveRaw(xDutyCycle, yDutyCycle, rotDutyCycle);
     }
 
-    public void setTrajectory(Trajectory trajectory) {
+    public void setTrajectory(PathPlannerTrajectory trajectory) {
         mDesiredTrajectory = trajectory;
         mDesiredPosition = null;
         mIsManual = false;

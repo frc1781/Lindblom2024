@@ -34,6 +34,8 @@ public class AutonomousHandler {
 
         sampledStep = mSelectedRoutine.getSteps()[0];
         startStep(sampledStep);
+
+        System.out.println("initing autohandler............");
     }
 
     public void run() throws RoutineOverException {
@@ -42,6 +44,7 @@ public class AutonomousHandler {
             boolean stepFinished = mControlSystem.stepIsFinished() ||
                     mTimer.get() > sampledStep.getMaxTime();
 
+            // System.out.println(mStepIndex + "::" + mControlSystem.stepIsFinished() + " :: " + (mTimer.get() > sampledStep.getMaxTime()));
             if (stepFinished) {
                 mStepIndex++;
                 mTimer.reset();

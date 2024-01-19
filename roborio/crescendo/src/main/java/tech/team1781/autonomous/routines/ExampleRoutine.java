@@ -18,7 +18,6 @@ public class ExampleRoutine implements AutoRoutine {
     public AutoStep[] getSteps() {
         return new AutoStep[]{
             new AutoStep(5, ControlSystem.Action.EXAMPLE_ACTION, EVector.newVector(3,0,0)),
-            new AutoStep(5, ControlSystem.Action.TEST_ACTION, new Trajectory()),
             new AutoStep(5, ControlSystem.Action.EXAMPLE_ACTION)
         };
     }

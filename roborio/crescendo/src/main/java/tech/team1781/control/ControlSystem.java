@@ -3,6 +3,8 @@ package tech.team1781.control;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.pathplanner.lib.path.PathPlannerTrajectory;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
@@ -81,9 +83,10 @@ public class ControlSystem {
         setAutoStep(desiredAction, null, null);
     }
 
-    public void setAutoStep(Action desiredAction, EVector position, Trajectory trajectory) {
+    public void setAutoStep(Action desiredAction, EVector position, PathPlannerTrajectory trajectory) {
         mStepTime.reset();
         mStepTime.start();
+
         if (desiredAction != null) {
             System.out.println(desiredAction.toString());
             mCurrentSettings = mActions.get(desiredAction);
@@ -148,6 +151,7 @@ public class ControlSystem {
                 break;
         }
 
+
         for (Subsystem subsystem : mSubsystems) {
             subsystem.getToState();
             subsystem.feedStateTime(mStepTime.get());
@@ -172,7 +176,6 @@ public class ControlSystem {
     }
 
     public void interruptAction() {
-        System.out.println("aaaaaaaaaaaa");
         mCurrentSettings = null;
 
         for(Subsystem s : mSubsystems) {
