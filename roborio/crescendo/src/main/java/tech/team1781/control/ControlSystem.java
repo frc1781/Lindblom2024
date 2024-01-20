@@ -16,6 +16,12 @@ import tech.team1781.subsystems.Subsystem.OperatingMode;
 import tech.team1781.subsystems.Subsystem.SubsystemState;
 import tech.team1781.utils.EVector;
 import tech.team1781.DriverInput;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.REVLibError;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 
 public class ControlSystem {
     private HashMap<Action, SubsystemSetting[]> mActions = new HashMap<Action, SubsystemSetting[]>();
@@ -23,7 +29,8 @@ public class ControlSystem {
     private AutoStep mCurrentStep;
     private boolean mIsRunningAction = false;
     private Timer mStepTime;
-
+    private final CANSparkMax shooterMotorLeft;
+    private final CANSparkMax shooterMotorRight;
     private ArrayList<Subsystem> mSubsystems;
     private DriveSystem mDriveSystem;
     
@@ -47,6 +54,8 @@ public class ControlSystem {
         initActions();
 
         mStepTime = new Timer();
+        shooterMotorLeft = new CANSparkMax(30, MotorType.kBrushless);
+        shooterMotorRight = new CANSparkMax(5, MotorType.kBrushless);
     }
 
     public void driverDriving(EVector translation, EVector rotation) {
@@ -57,10 +66,13 @@ public class ControlSystem {
         //rotation
         double rotVelocity = -rotation.x;
 
-        mDriveSystem.driveRaw(
-            mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, 
-            mYDriveLimiter.calculate(yVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, 
-            mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND);
+        shooterMotorLeft.set(-translation.y);
+        shooterMotorRight.set(-translation.y);
+        
+//        mDriveSystem.driveRaw(
+//            mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, 
+//            mYDriveLimiter.calculate(yVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, 
+//            mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND);
     }
 
     public void zeroNavX() {
