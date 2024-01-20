@@ -22,6 +22,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.ctre.phoenix6.hardware.TalonFX;
 
 public class ControlSystem {
     private HashMap<Action, SubsystemSetting[]> mActions = new HashMap<Action, SubsystemSetting[]>();
@@ -31,6 +32,7 @@ public class ControlSystem {
     private Timer mStepTime;
     private final CANSparkMax shooterMotorLeft;
     private final CANSparkMax shooterMotorRight;
+    private final TalonFX collectorMotor;
     private ArrayList<Subsystem> mSubsystems;
     private DriveSystem mDriveSystem;
     
@@ -56,6 +58,7 @@ public class ControlSystem {
         mStepTime = new Timer();
         shooterMotorLeft = new CANSparkMax(30, MotorType.kBrushless);
         shooterMotorRight = new CANSparkMax(5, MotorType.kBrushless);
+        collectorMotor = new TalonFX(10);
     }
 
     public void driverDriving(EVector translation, EVector rotation) {
@@ -68,6 +71,7 @@ public class ControlSystem {
 
         shooterMotorLeft.set(-translation.y);
         shooterMotorRight.set(-translation.y);
+        collectorMotor.set(-rotation.y);
         
 //        mDriveSystem.driveRaw(
 //            mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, 
