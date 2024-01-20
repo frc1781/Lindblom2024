@@ -2,8 +2,12 @@ package tech.team1781.subsystems;
 
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
+import com.pathplanner.lib.path.PathPlannerTrajectory.State;
 
+import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -49,9 +53,12 @@ public class DriveSystem extends Subsystem {
     private EVector mDesiredPosition = null;
     private boolean mIsManual = true;
 
-    private ProfiledPIDController mXController = new ProfiledPIDController(1.1, 0, 0.1, new TrapezoidProfile.Constraints(0, 0));
-    private ProfiledPIDController mYController = new ProfiledPIDController(1.1, 0, 0.1, new TrapezoidProfile.Constraints(0, 0));
-    private ProfiledPIDController mRotController = new ProfiledPIDController(2, 0, 0.1, new TrapezoidProfile.Constraints(0, 0));
+    private PIDController mXController = new PIDController(1, 0, 0);
+    private PIDController mYController = new PIDController(1, 0, 0);
+    private ProfiledPIDController mRotController = new ProfiledPIDController(1, 0, 0, 
+    new TrapezoidProfile.Constraints(6.28, 3.14));
+
+    private HolonomicDriveController mTrajectoryController = new HolonomicDriveController(mXController, mYController, mRotController);
 
     public DriveSystem() {
         super("Drive System", DriveSystemState.DRIVE_MANUAL);
@@ -78,7 +85,9 @@ public class DriveSystem extends Subsystem {
                 followTrajectory();
             break;
             case DRIVE_MANUAL:
-                
+                if(super.currentMode == OperatingMode.AUTONOMOUS) {
+                    driveRaw(0, 0, 0);
+                }
             break;
             default:
             break;
@@ -119,8 +128,6 @@ public class DriveSystem extends Subsystem {
 
     @Override
     public void init() {
-        mXController.reset(0);
-        mYController.reset(0);
         mRotController.reset(0);
 
         mFrontLeft.init();
@@ -155,6 +162,11 @@ public class DriveSystem extends Subsystem {
         mOdometry.resetPosition(getRobotAngle(), getModulePositions(), pose);
     }
 
+    public void setNavX(Rotation2d offset) {
+        zeroNavX();
+        mNavX.setAngleAdjustment(offset.getDegrees());
+    } 
+
     public void zeroNavX() {
         mNavX.zeroYaw();
     }
@@ -164,9 +176,18 @@ public class DriveSystem extends Subsystem {
             return;
         }
 
-        Pose2d sampledPose = mDesiredTrajectory.sample(currentTime).getTargetHolonomicPose();
-        System.out.println(EVector.fromPose(sampledPose).asString());
-        goTo(EVector.fromPose(sampledPose));
+        var pathplannerState = mDesiredTrajectory.sample(currentTime);
+        edu.wpi.first.math.trajectory.Trajectory.State wpilibstate = new edu.wpi.first.math.trajectory.Trajectory.State(
+            currentTime, 
+            pathplannerState.velocityMps, 
+            pathplannerState.accelerationMpsSq, 
+            pathplannerState.getTargetHolonomicPose(), 
+            pathplannerState.curvatureRadPerMeter);
+            ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(getRobotPose(), wpilibstate, 
+            pathplannerState.getTargetHolonomicPose().getRotation());
+        driveWithChassisSpeds(desiredChassisSpeeds);
+        System.out.println( EVector.fromPose(pathplannerState.getTargetHolonomicPose()).asString()+"=holonomic pose");
+        // System.out.println("pos dist: " + EVector.fromPose(pathplannerState.getTargetHolonomicPose()).dist(EVector.fromPose(getRobotPose())));
     }
 
     public void goTo(EVector target) {
@@ -194,10 +215,28 @@ public class DriveSystem extends Subsystem {
         mIsManual = false;
     }
 
+    public void setTrajectoryFromPath(PathPlannerPath path) {
+        PathPlannerTrajectory pathTajectory = new PathPlannerTrajectory(path, new ChassisSpeeds(), getRobotAngle());
+        setTrajectory(pathTajectory);
+    }
+
     public void setPosition(EVector position) {
         mDesiredPosition = position;
         mDesiredTrajectory = null;
         mIsManual = false;
+    }
+
+    public void driveWithChassisSpeds(ChassisSpeeds speeds) {
+        if(getState() == DriveSystemState.DRIVE_MANUAL)
+            return;
+        SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(speeds);
+
+        SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
+
+        mFrontLeft.setDesiredState(moduleStates[0]);
+        mFrontRight.setDesiredState(moduleStates[1]);
+        mBackLeft.setDesiredState(moduleStates[2]);
+        mBackRight.setDesiredState(moduleStates[3]);
     }
 
     public void driveRaw(double xSpeed, double ySpeed, double rot) {
@@ -247,6 +286,7 @@ public class DriveSystem extends Subsystem {
         mXEntry.setDouble(robotPose.getX());
         mYEntry.setDouble(robotPose.getY());
         mRotEntry.setDouble(getRobotAngle().getRadians());
+        System.out.println(EVector.fromPose(robotPose).asString());
     }
 
     private SwerveModulePosition[] getModulePositions() {

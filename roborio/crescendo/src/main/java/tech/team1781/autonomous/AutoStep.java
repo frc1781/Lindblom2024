@@ -1,5 +1,6 @@
 package tech.team1781.autonomous;
 
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
 
 import tech.team1781.control.ControlSystem.Action;
@@ -9,7 +10,7 @@ public class AutoStep {
     private double mMaxTime = -1;
     private Action mAction = null;
     private EVector mPosition = null;
-    private PathPlannerTrajectory mTrajectory = null;
+    private PathPlannerPath mPath = null;
 
     public AutoStep(double maxTime, Action action, EVector position) {
         mMaxTime = maxTime;
@@ -17,10 +18,10 @@ public class AutoStep {
         mPosition = position;
     }
 
-    public AutoStep(double maxTime, Action action, PathPlannerTrajectory trajectory) {
+    public AutoStep(double maxTime, Action action, PathPlannerPath path) {
         mMaxTime = maxTime;
         mAction = action;
-        mTrajectory = trajectory;
+        mPath = path;
     }
 
     public AutoStep(double maxTime, Action action) {
@@ -33,9 +34,9 @@ public class AutoStep {
         mPosition = position;
     }
 
-    public AutoStep(double maxTime, PathPlannerTrajectory trajectory) {
+    public AutoStep(double maxTime, PathPlannerPath path) {
         mMaxTime = maxTime;
-        mTrajectory = trajectory;
+        mPath = path;
     }
 
     public double getMaxTime() {
@@ -50,8 +51,8 @@ public class AutoStep {
         return mPosition;
     }
 
-    public PathPlannerTrajectory getTrajectory() {
-        return mTrajectory;
+    public PathPlannerPath getPath() {
+        return mPath;
     }
 
 }

@@ -3,10 +3,10 @@ package tech.team1781.control;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
 import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput.ControllerSide;
@@ -83,7 +83,7 @@ public class ControlSystem {
         setAutoStep(desiredAction, null, null);
     }
 
-    public void setAutoStep(Action desiredAction, EVector position, PathPlannerTrajectory trajectory) {
+    public void setAutoStep(Action desiredAction, EVector position, PathPlannerPath path) {
         mStepTime.reset();
         mStepTime.start();
 
@@ -101,8 +101,8 @@ public class ControlSystem {
         if (position != null) {
             mDriveSystem.setPosition(position);
             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
-        } else if (trajectory != null) {
-            mDriveSystem.setTrajectory(trajectory);
+        } else if (path != null) {
+            mDriveSystem.setTrajectoryFromPath(path);
             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_TRAJECTORY);
         } else {
             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);

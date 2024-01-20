@@ -60,7 +60,7 @@ public class AutonomousHandler {
     }
 
     private void startStep(AutoStep step) {
-        mControlSystem.setAutoStep(step.getAction(), step.getPosition(), step.getTrajectory());
+        mControlSystem.setAutoStep(step.getAction(), step.getPosition(), step.getPath());
     }
 
     public interface AutoRoutine {

@@ -5,6 +5,7 @@ import com.pathplanner.lib.path.PathPlannerTrajectory;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import tech.team1781.Paths;
 import tech.team1781.autonomous.AutoStep;
 import tech.team1781.autonomous.AutonomousHandler.AutoRoutine;
 
@@ -17,11 +18,8 @@ public class PathTestRoutine implements AutoRoutine{
 
     @Override
     public AutoStep[] getSteps() {
-        PathPlannerPath path = PathPlannerPath.fromPathFile("pathplanner");
-        PathPlannerTrajectory trajectory = new PathPlannerTrajectory(path, new ChassisSpeeds(0,0,0), new Rotation2d());
-
         return new AutoStep[] {
-            new AutoStep(10, trajectory),
+            new AutoStep(10, Paths.p2r3Path),
         };
     }
     
