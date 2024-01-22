@@ -43,7 +43,8 @@ public class DriveSystem extends Subsystem {
 
     private SwerveDriveOdometry mOdometry;
     private boolean mIsFieldOriented = true;
-
+    private double mNavXOffset = 0;
+    private boolean mHasNavXOffsetBeenSet = false;
     //Sensors
     private AHRS mNavX = new AHRS(SPI.Port.kMXP);
 
@@ -129,20 +130,17 @@ public class DriveSystem extends Subsystem {
     @Override
     public void init() {
         mRotController.reset(0);
-
         mFrontLeft.init();
         mFrontRight.init();
         mBackLeft.init();
         mBackRight.init();
-
         mNavX.reset();
-        mNavX.setAngleAdjustment(0);
         mNavX.zeroYaw();
 
         switch(currentMode) {
             case AUTONOMOUS:
-                zeroNavX();
                 mIsFieldOriented = true;
+                mHasNavXOffsetBeenSet = false;
             break;
             case TELEOP:
                 mIsManual = true;
@@ -162,12 +160,20 @@ public class DriveSystem extends Subsystem {
         mOdometry.resetPosition(getRobotAngle(), getModulePositions(), pose);
     }
 
-    public void setNavX(Rotation2d offset) {
-        zeroNavX();
-        mNavX.setAngleAdjustment(offset.getDegrees());
+    public void setNavXOffset(Rotation2d offset) {
+        if (mHasNavXOffsetBeenSet) {
+            return;
+        }
+
+        mNavXOffset = offset.getRadians();
+        System.out.printf("navx offset set to %.2f\n", mNavXOffset);
+        mHasNavXOffsetBeenSet = true;
     } 
 
     public void zeroNavX() {
+        mNavX.setAngleAdjustment(0);
+        mNavXOffset = 0.0;
+        mHasNavXOffsetBeenSet = true;
         mNavX.zeroYaw();
     }
 
@@ -186,7 +192,7 @@ public class DriveSystem extends Subsystem {
             ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(getRobotPose(), wpilibstate, 
             pathplannerState.getTargetHolonomicPose().getRotation());
         driveWithChassisSpeds(desiredChassisSpeeds);
-        System.out.println( EVector.fromPose(pathplannerState.getTargetHolonomicPose()).asString()+"=holonomic pose");
+        //System.out.println( EVector.fromPose(pathplannerState.getTargetHolonomicPose()).asString()+"=holonomic pose");
         // System.out.println("pos dist: " + EVector.fromPose(pathplannerState.getTargetHolonomicPose()).dist(EVector.fromPose(getRobotPose())));
     }
 
@@ -209,8 +215,14 @@ public class DriveSystem extends Subsystem {
     }
 
     public void setTrajectory(PathPlannerTrajectory trajectory) {
+        Pose2d initialPose = trajectory.getInitialTargetHolonomicPose();
         mDesiredTrajectory = trajectory;
-        setOdometry(trajectory.getInitialTargetHolonomicPose());
+
+        //this is probably not work
+        //setNavXOffset(initialPose.getRotation());
+        //hard coding 90 degrees to test
+        setNavXOffset(new Rotation2d(0));
+        setOdometry(initialPose);
         mDesiredPosition = null;
         mIsManual = false;
     }
@@ -255,13 +267,14 @@ public class DriveSystem extends Subsystem {
     }
 
     public Rotation2d getRobotAngle() {
-        double reportedVal = mNavX.getRotation2d().getRadians();
+        double reportedVal = mNavX.getRotation2d().getRadians() + mNavXOffset;
 
         reportedVal %= 2 * Math.PI;
         if(reportedVal < 0) {
             reportedVal += 2 * Math.PI;
         }
 
+        System.out.printf("navx reported angle radians: %.2f\n", reportedVal);
         return new Rotation2d(reportedVal);
     }
 
@@ -286,7 +299,7 @@ public class DriveSystem extends Subsystem {
         mXEntry.setDouble(robotPose.getX());
         mYEntry.setDouble(robotPose.getY());
         mRotEntry.setDouble(getRobotAngle().getRadians());
-        System.out.println(EVector.fromPose(robotPose).asString());
+        //System.out.println(EVector.fromPose(robotPose).asString());
     }
 
     private SwerveModulePosition[] getModulePositions() {
