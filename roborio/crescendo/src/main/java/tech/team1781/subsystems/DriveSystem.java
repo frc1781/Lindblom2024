@@ -191,6 +191,12 @@ public class DriveSystem extends Subsystem {
             pathplannerState.curvatureRadPerMeter);
             ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(getRobotPose(), wpilibstate, 
             pathplannerState.getTargetHolonomicPose().getRotation());
+
+        System.out.println("Sampled Time: " + currentTime + 
+            " Desired Pose: " + EVector.fromPose(pathplannerState.getTargetHolonomicPose()).asString()
+            + " Actual Pose: " + EVector.fromPose(getRobotPose()).asString()
+            + " Error: " + EVector.fromPose(pathplannerState.getTargetHolonomicPose()).dist(EVector.fromPose(getRobotPose()))
+        );
         driveWithChassisSpeds(desiredChassisSpeeds);
         //System.out.println( EVector.fromPose(pathplannerState.getTargetHolonomicPose()).asString()+"=holonomic pose");
         // System.out.println("pos dist: " + EVector.fromPose(pathplannerState.getTargetHolonomicPose()).dist(EVector.fromPose(getRobotPose())));
