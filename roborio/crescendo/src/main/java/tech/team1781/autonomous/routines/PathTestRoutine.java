@@ -20,6 +20,8 @@ public class PathTestRoutine implements AutoRoutine{
     public AutoStep[] getSteps() {
         return new AutoStep[] {
             new AutoStep(10, Paths.p2r3Path),
+            new AutoStep(10, Paths.r3r2Path),
+            new AutoStep(10, Paths.r2r1Path)
         };
     }
     

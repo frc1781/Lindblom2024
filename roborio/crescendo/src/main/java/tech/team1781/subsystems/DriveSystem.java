@@ -107,8 +107,7 @@ public class DriveSystem extends Subsystem {
                 // return matchesDesiredPosition();
                 return false;
             case DRIVE_TRAJECTORY:
-                return false;
-            // return mDesiredTrajectory.getTotalTimeSeconds() < currentTime;
+                return matchesPosition(mDesiredTrajectory.getEndState().getTargetHolonomicPose()) && (currentTime >= mDesiredTrajectory.getTotalTimeSeconds()) ;
             case DRIVE_MANUAL:
                 return false;
             // return mIsManual;
@@ -255,6 +254,14 @@ public class DriveSystem extends Subsystem {
         mFrontRight.setDesiredState(moduleStates[1]);
         mBackLeft.setDesiredState(moduleStates[2]);
         mBackRight.setDesiredState(moduleStates[3]);
+    }
+
+    public boolean matchesPosition(Pose2d other) {
+        final double TOLERANCE = 0.2;
+        EVector currentPose = EVector.fromPose(getRobotPose());
+        EVector otherPose = EVector.fromPose(other);
+        return currentPose.dist(otherPose) <= TOLERANCE;
+        
     }
 
     public void driveRaw(double xSpeed, double ySpeed, double rot) {
