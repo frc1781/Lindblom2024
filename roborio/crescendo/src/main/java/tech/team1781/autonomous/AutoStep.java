@@ -39,6 +39,10 @@ public class AutoStep {
         mPath = path;
     }
 
+    public String toString() {
+        return mAction.toString();
+    }
+
     public double getMaxTime() {
         return mMaxTime;
     }

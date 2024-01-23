@@ -35,7 +35,7 @@ public class AutonomousHandler {
         sampledStep = mSelectedRoutine.getSteps()[0];
         startStep(sampledStep);
 
-        System.out.println("initing autohandler............");
+        System.out.println("Starting auto routine " + mSelectedRoutine.getName());
     }
 
     public void run() throws RoutineOverException {
@@ -60,6 +60,7 @@ public class AutonomousHandler {
     }
 
     private void startStep(AutoStep step) {
+        System.out.println("starting step " + step.toString());
         mControlSystem.setAutoStep(step.getAction(), step.getPosition(), step.getPath());
     }
 

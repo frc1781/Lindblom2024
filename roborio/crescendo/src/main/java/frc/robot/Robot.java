@@ -16,6 +16,7 @@ import tech.team1781.autonomous.routines.ExampleRoutine;
 import tech.team1781.autonomous.routines.PIDTuningRoutine;
 import tech.team1781.autonomous.routines.PathTestRoutine;
 import tech.team1781.control.ControlSystem;
+import tech.team1781.utils.Log;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
 
 /**
@@ -41,7 +42,7 @@ public class Robot extends TimedRobot {
     mAutonomousHandler = new AutonomousHandler(mControlSystem, new ExampleRoutine(), new PIDTuningRoutine(), new PathTestRoutine());
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
-
+    Log.startLogging(true);
     mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.RESET_NAVX, (isPressed)->{
       if(isPressed) {
         mControlSystem.zeroNavX();

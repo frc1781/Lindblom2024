@@ -23,6 +23,7 @@ import tech.team1781.ConfigMap;
 import tech.team1781.swerve.NEOL1SwerveModule;
 import tech.team1781.swerve.SwerveModule;
 import tech.team1781.utils.EVector;
+import tech.team1781.utils.Log;
 
 public class DriveSystem extends Subsystem {
 
@@ -269,6 +270,11 @@ public class DriveSystem extends Subsystem {
         mFrontRight.setDesiredState(moduleStates[1]);
         mBackLeft.setDesiredState(moduleStates[2]);
         mBackRight.setDesiredState(moduleStates[3]);
+        Log.logValues("drive",
+          xSpeed,
+          ySpeed,
+          rot
+        );
     }
 
     public Rotation2d getRobotAngle() {
