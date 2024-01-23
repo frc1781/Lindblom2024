@@ -20,7 +20,7 @@ public class Scollector extends Subsystem {
 
     @Override
     public void getToState() {
-        // System.out.println(getState().toString());
+        System.out.println(getState().toString());
     }
 
     @Override
