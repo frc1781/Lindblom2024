@@ -4,7 +4,6 @@ import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
 import com.pathplanner.lib.path.PathPlannerTrajectory.State;
-
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -71,11 +70,8 @@ public class DriveSystem extends Subsystem {
 
     public DriveSystem() {
         super("Drive System", DriveSystemState.DRIVE_MANUAL);
-
         mOdometry = new SwerveDriveOdometry(mKinematics, getRobotAngle(), getModulePositions());
-
         mRotController.enableContinuousInput(0, Math.PI * 2);
-
     }
 
     public enum DriveSystemState implements Subsystem.SubsystemState {
@@ -230,13 +226,15 @@ public class DriveSystem extends Subsystem {
         // this is probably not work
         // setNavXOffset(initialPose.getRotation());
         // hard coding 90 degrees to test
-        setNavXOffset(new Rotation2d(0));
+        setNavXOffset(new Rotation2d(45.0/180.0 * Math.PI));
         setOdometry(initialPose);
         mDesiredPosition = null;
         mIsManual = false;
     }
 
     public void setTrajectoryFromPath(PathPlannerPath path) {
+        setNavXOffset(path.getPreviewStartingHolonomicPose().getRotation());
+        //also use current speed of robot
         PathPlannerTrajectory pathTrajectory = new PathPlannerTrajectory(path, new ChassisSpeeds(), getRobotAngle());
         setTrajectory(pathTrajectory);
     }
@@ -251,9 +249,7 @@ public class DriveSystem extends Subsystem {
         if (getState() == DriveSystemState.DRIVE_MANUAL)
             return;
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(speeds);
-
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
-
 
         mFrontLeft.setDesiredState(moduleStates[0]);
         mFrontRight.setDesiredState(moduleStates[1]);
@@ -306,7 +302,7 @@ public class DriveSystem extends Subsystem {
         Pose2d robotPose = getRobotPose();
         mXEntry.setDouble(robotPose.getX());
         mYEntry.setDouble(robotPose.getY());
-        mRotEntry.setDouble(getRobotAngle().getRadians());
+        mRotEntry.setDouble(getRobotAngle().getDegrees());
     }
 
     private SwerveModulePosition[] getModulePositions() {
