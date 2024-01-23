@@ -7,6 +7,7 @@ package frc.robot;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import org.opencv.dnn.Net;
 import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput;
 import tech.team1781.DriverInput.ControllerSide;
@@ -17,6 +18,7 @@ import tech.team1781.autonomous.routines.PIDTuningRoutine;
 import tech.team1781.autonomous.routines.PathTestRoutine;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
+import tech.team1781.utils.NetworkLogger;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
