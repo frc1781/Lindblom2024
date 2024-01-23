@@ -2,7 +2,9 @@ package tech.team1781.autonomous;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import tech.team1781.ConfigMap;
 import tech.team1781.control.ControlSystem;
+import tech.team1781.subsystems.Subsystem;
 
 public class AutonomousHandler {
     private SendableChooser<AutoRoutine> mAutoChooser = new SendableChooser<>();
@@ -18,6 +20,8 @@ public class AutonomousHandler {
         for (AutoRoutine routine : routines) {
             mAutoChooser.addOption(routine.getName(), routine);
         }
+        
+        ConfigMap.SHUFFLEBOARD_TAB.add(mAutoChooser);
 
         mControlSystem = controlSystem;
     }
@@ -27,10 +31,11 @@ public class AutonomousHandler {
         mTimer.start();
         mStepIndex = 0;
         mSelectedRoutine = mAutoChooser.getSelected();
-        mControlSystem.interruptAction();
 
         sampledStep = mSelectedRoutine.getSteps()[0];
         startStep(sampledStep);
+
+        System.out.println("initing autohandler............");
     }
 
     public void run() throws RoutineOverException {
@@ -39,6 +44,7 @@ public class AutonomousHandler {
             boolean stepFinished = mControlSystem.stepIsFinished() ||
                     mTimer.get() > sampledStep.getMaxTime();
 
+            // System.out.println(mStepIndex + "::" + mControlSystem.stepIsFinished() + " :: " + (mTimer.get() > sampledStep.getMaxTime()));
             if (stepFinished) {
                 mStepIndex++;
                 mTimer.reset();
@@ -48,13 +54,13 @@ public class AutonomousHandler {
             }
 
         } catch (Exception e) {
-            // e.printStackTrace();
-            // throw new RoutineOverException(mSelectedRoutine.getName());
+            mControlSystem.interruptAction();
+            throw new RoutineOverException(mSelectedRoutine.getName());
         }
     }
 
     private void startStep(AutoStep step) {
-        mControlSystem.setAutoStep(step.getAction(), step.getPosition(), step.getTrajectory());
+        mControlSystem.setAutoStep(step.getAction(), step.getPosition(), step.getPath());
     }
 
     public interface AutoRoutine {
