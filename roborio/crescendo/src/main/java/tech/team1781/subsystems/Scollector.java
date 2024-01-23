@@ -1,13 +1,16 @@
 package tech.team1781.subsystems;
+
+import com.playingwithfusion.TimeOfFlight;
+
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.motorcontrol.PWMTalonSRX;
 import tech.team1781.ConfigMap;
 
 //EXAMPLE SUBSYSTEM, NOT FOR ACTUAL BOT
-public class Scollector extends Subsystem{
+public class Scollector extends Subsystem {
 
-    private PWMTalonSRX mCollectorMotor = new PWMTalonSRX(ConfigMap.COLLECTOR_MOTOR);
-
+    private PWMTalonSRX mCollectorMotor = new PWMTalonSRX(0);
+    private TimeOfFlight mTimeOfFlight = new TimeOfFlight(0);
 
     public Scollector() {
         super("Scollector", CollectorState.IDLE);
@@ -26,36 +29,47 @@ public class Scollector extends Subsystem{
     public void init() {
     }
 
+    public boolean hasNote() {
+        if (mTimeOfFlight.getRange() < 10) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     @Override
     public void getToState() {
-        switch((CollectorState) getState()) {
+        switch ((CollectorState) getState()) {
             case IDLE:
                 closeCollector();
                 mCollectorMotor.set(0);
-            break;
+                break;
             case COLLECT:
                 openCollector();
                 mCollectorMotor.set(1);
-            break;
+                if (hasNote() == true) {
+                    mCollectorMotor.set(0);
+                }
+
+                break;
             case SPIT:
                 openCollector();
                 mCollectorMotor.set(-1);
-            break;
+                break;
         }
     }
 
     @Override
     public boolean matchesDesiredState() {
-        switch((CollectorState) getState()) {
+        switch ((CollectorState) getState()) {
             case IDLE:
-                return 
-                    mCollectorMotor.get() == 0;
+                return mCollectorMotor.get() == 0;
             case COLLECT:
-                return 
-                    mCollectorMotor.get() == 1;
+                // to match desire state is when the sensor senses a certain distance less than
+                // the number
+                return mCollectorMotor.get() == 1;
             case SPIT:
-                return 
-                    mCollectorMotor.get() == -1;
+                return mCollectorMotor.get() == -1;
             default:
                 return true;
         }
@@ -74,6 +88,5 @@ public class Scollector extends Subsystem{
 
     private void closeCollector() {
     }
-    
-}
 
+}
