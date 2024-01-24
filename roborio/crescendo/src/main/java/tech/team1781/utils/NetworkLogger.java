@@ -8,8 +8,6 @@ public class NetworkLogger {
     private HashMap<String, GenericEntry> tabMap = new HashMap<String, GenericEntry>();
 
     public void log(String tabName, double data) {
-        System.out.println("hit");
-
         GenericEntry tab = findTab(tabName);
         tab.setString(String.valueOf(data));
     }
