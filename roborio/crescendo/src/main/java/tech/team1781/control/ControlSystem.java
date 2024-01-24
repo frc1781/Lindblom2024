@@ -42,8 +42,8 @@ public class ControlSystem {
     private final SlewRateLimiter mRotDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_ROTATION_RATE_LIMIT);
 
     public enum Action {
-        EXAMPLE_ACTION,
-        TEST_ACTION
+        COLLECT, 
+        AUTO_AIM_SHOOT
     }
 
     public ControlSystem() {
@@ -186,12 +186,11 @@ public class ControlSystem {
     
 
     private void initActions() {
-        defineAction(Action.EXAMPLE_ACTION,
+        defineAction(Action.COLLECT,
                 new SubsystemSetting(mScollector, ScollectorState.COLLECT));
 
-        defineAction(Action.TEST_ACTION,
-                new SubsystemSetting(mScollector, ScollectorState.AUTO_AIM_SHOOT),
-                new SubsystemSetting(mClimber, ClimberState.EXTEND));
+        defineAction(Action.AUTO_AIM_SHOOT,
+                new SubsystemSetting(mScollector, ScollectorState.AUTO_AIM_SHOOT));
     }
 
     private void defineAction(Action action, SubsystemSetting... settings) {

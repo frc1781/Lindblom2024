@@ -12,20 +12,23 @@ import tech.team1781.autonomous.AutoStep;
 import tech.team1781.autonomous.AutonomousHandler.AutoRoutine;
 import tech.team1781.control.ControlSystem;
 
-public class PathTestRoutine implements AutoRoutine{
+public class FourNoteRoutine implements AutoRoutine {
 
     @Override
     public String getName() {
-        return "Path Test Routine";
+        return "4 Note Routine";
     }
 
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-            new AutoStep(10,Paths.p2r3Path),
-            new AutoStep(10,Paths.r3r2Path),
-            new AutoStep(10, Paths.r2r1Path)
+                new AutoStep(10, ControlSystem.Action.COLLECT, Paths.p2r3Path),
+                new AutoStep(5, ControlSystem.Action.AUTO_AIM_SHOOT),
+                new AutoStep(10, ControlSystem.Action.COLLECT, Paths.r3r2Path),
+                new AutoStep(5, ControlSystem.Action.AUTO_AIM_SHOOT),
+                new AutoStep(10, ControlSystem.Action.COLLECT, Paths.r2r1Path),
+                new AutoStep(5, ControlSystem.Action.COLLECT),
         };
     }
-    
+
 }

@@ -30,6 +30,8 @@ public class Scollector extends Subsystem {
             return false;
             case SHOOT: 
             return false; 
+            case AUTO_AIM_SHOOT:
+            return false;
             default: 
             return false;
         }
