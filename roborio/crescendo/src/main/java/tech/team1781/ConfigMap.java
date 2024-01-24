@@ -7,59 +7,78 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 public class ConfigMap {
-    public static final ShuffleboardTab SHUFFLEBOARD_TAB = Shuffleboard.getTab("Electric Eagles");
+        public static final ShuffleboardTab SHUFFLEBOARD_TAB = Shuffleboard.getTab("Electric Eagles");
 
-    public static final String BEST_TEAM_MEMBER = "Vincent";
+        public static final String BEST_TEAM_MEMBER = "Vincent";
 
-    // CAN IDs
+        // CAN IDs
 
-    // 20-24 Drive train left
-    public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 21;
-    public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 20;
-    public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 23;
-    public static final int BACK_LEFT_MODULE_STEER_MOTOR = 22;
+        // 0-19 Core Devices
 
-    // 25-29 Drive train right
-    public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 26;
-    public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 25;
-    public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 28;
-    public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 27;
+        // 20-24 Drive train left
+        public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 21;
+        public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 20;
+        public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 23;
+        public static final int BACK_LEFT_MODULE_STEER_MOTOR = 22;
 
-    // 60-69 Sensors
-    public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 60;
-    public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 62;
-    public static final int BACK_LEFT_MODULE_STEER_ENCODER = 61;
-    public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 59;
+        // 25-29 Drive train right
+        public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 26;
+        public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 25;
+        public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 28;
+        public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 27;
 
-    // Swerve
+        // 30-39 Climber
+        public static final int CLIMBER_LEFT = 30;
+        public static final int CLIMBER_RIGHT = 31;
 
-    public static final double DRIVETRAIN_TRACKWIDTH = Units.inchesToMeters(30);
-    public static final double DRIVETRAIN_WHEELBASE = Units.inchesToMeters(25);
-    public static final double MAX_VELOCITY_METERS_PER_SECOND = 4.0;
-    public static final double MAX_VELOCITY_RADIANS_PER_SECOND = (MAX_VELOCITY_METERS_PER_SECOND / 
-    (Math.hypot(DRIVETRAIN_TRACKWIDTH / 2, DRIVETRAIN_WHEELBASE / 2)));
 
-    public static Translation2d FRONT_LEFT_MODULE_POSITION = new Translation2d(DRIVETRAIN_WHEELBASE / 2,
-            DRIVETRAIN_TRACKWIDTH / 2);
-    public static Translation2d FRONT_RIGHT_MODULE_POSITION = new Translation2d(DRIVETRAIN_WHEELBASE / 2,
-            -DRIVETRAIN_TRACKWIDTH / 2);
-    public static Translation2d BACK_LEFT_MODULE_POSITION = new Translation2d(-DRIVETRAIN_WHEELBASE / 2,
-            DRIVETRAIN_TRACKWIDTH / 2);
-    public static Translation2d BACK_RIGHT_MODULE_POSITION = new Translation2d(-DRIVETRAIN_WHEELBASE / 2,
-            -DRIVETRAIN_TRACKWIDTH / 2);
+        // 40-49 Shooter/Scoring Mechanism
+        public static final int ARM_PIVOT_MAIN = 40;
+        public static final int ARM_PIVOT_FOLLOWER = 41;
+        public static final int SHOOTER_MAIN = 42;
+        public static final int SHOOTER_FOLLOWER = 43;
 
-    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.0454; // -0.919; // -0.075;
-    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.0185; //-0.738; // -0.255;
-    public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.8615; //-0.927; // -0.077;
-    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.8688; //-0.272; // -0.735;
+        // 50-59 Intake
+        public static final int INTAKE_MOTOR = 50;
 
-    // First Drivebase
 
-    // Controls
-    public static final int DRIVER_CONTROLLER_PORT = 0;
 
-    public static final double DRIVER_TRANSLATION_RATE_LIMIT = 1.2;
-    public static final double DRIVER_ROTATION_RATE_LIMIT = 1.2;
+        // 60-69 Sensors
+        public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 60;
+        public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 62;
+        public static final int BACK_LEFT_MODULE_STEER_ENCODER = 61;
+        public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 59;
+        public static final int COLLECTOR_TOF = 58;
 
-    public static final String RESET_NAVX = "X";
+        // Swerve
+
+        public static final double DRIVETRAIN_TRACKWIDTH = Units.inchesToMeters(30);
+        public static final double DRIVETRAIN_WHEELBASE = Units.inchesToMeters(25);
+        public static final double MAX_VELOCITY_METERS_PER_SECOND = 4.0;
+        public static final double MAX_VELOCITY_RADIANS_PER_SECOND = (MAX_VELOCITY_METERS_PER_SECOND /
+                        (Math.hypot(DRIVETRAIN_TRACKWIDTH / 2, DRIVETRAIN_WHEELBASE / 2)));
+
+        public static Translation2d FRONT_LEFT_MODULE_POSITION = new Translation2d(DRIVETRAIN_WHEELBASE / 2,
+                        DRIVETRAIN_TRACKWIDTH / 2);
+        public static Translation2d FRONT_RIGHT_MODULE_POSITION = new Translation2d(DRIVETRAIN_WHEELBASE / 2,
+                        -DRIVETRAIN_TRACKWIDTH / 2);
+        public static Translation2d BACK_LEFT_MODULE_POSITION = new Translation2d(-DRIVETRAIN_WHEELBASE / 2,
+                        DRIVETRAIN_TRACKWIDTH / 2);
+        public static Translation2d BACK_RIGHT_MODULE_POSITION = new Translation2d(-DRIVETRAIN_WHEELBASE / 2,
+                        -DRIVETRAIN_TRACKWIDTH / 2);
+
+        public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.0454; // -0.919; // -0.075;
+        public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.0185; // -0.738; // -0.255;
+        public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.8615; // -0.927; // -0.077;
+        public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.8688; // -0.272; // -0.735;
+
+        // First Drivebase
+
+        // Controls
+        public static final int DRIVER_CONTROLLER_PORT = 0;
+
+        public static final double DRIVER_TRANSLATION_RATE_LIMIT = 1.2;
+        public static final double DRIVER_ROTATION_RATE_LIMIT = 1.2;
+
+        public static final String RESET_NAVX = "X";
 }
