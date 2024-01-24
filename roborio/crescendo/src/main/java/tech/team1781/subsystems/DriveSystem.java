@@ -222,9 +222,6 @@ public class DriveSystem extends Subsystem {
         Pose2d initialPose = trajectory.getInitialTargetHolonomicPose();
         mDesiredTrajectory = trajectory;
 
-        // this is probably not work
-        // setNavXOffset(initialPose.getRotation());
-        // hard coding 90 degrees to test
         setNavXOffset(new Rotation2d(45.0/180.0 * Math.PI));
         setOdometry(initialPose);
         mDesiredPosition = null;
