@@ -25,6 +25,10 @@ import tech.team1781.swerve.SwerveModule;
 import tech.team1781.utils.EVector;
 import tech.team1781.utils.NetworkLogger;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 public class DriveSystem extends Subsystem {
 
     // Swerve Modules
@@ -155,6 +159,16 @@ public class DriveSystem extends Subsystem {
             default:
                 break;
         }
+
+        Runnable OdometryLogging = () ->  {
+            Pose2d robotPose = getRobotPose();
+            super.mNetworkLogger.log("X", robotPose.getX());
+            super.mNetworkLogger.log("Y", robotPose.getY());
+            super.mNetworkLogger.log("Rot", getRobotAngle().getDegrees());
+        };
+
+        ScheduledExecutorService loggingExecutor = Executors.newScheduledThreadPool(1);
+        loggingExecutor.scheduleAtFixedRate(OdometryLogging, 0, 1, TimeUnit.SECONDS);
     }
 
     public void setOdometry(Pose2d pose) {
@@ -296,11 +310,6 @@ public class DriveSystem extends Subsystem {
 
     private void updateOdometry() {
         mOdometry.update(getRobotAngle(), getModulePositions());
-
-        Pose2d robotPose = getRobotPose();
-        super.mNetworkLogger.log("X", robotPose.getX());
-        super.mNetworkLogger.log("Y", robotPose.getY());
-        super.mNetworkLogger.log("Rot", getRobotAngle().getDegrees());
     }
 
     private SwerveModulePosition[] getModulePositions() {

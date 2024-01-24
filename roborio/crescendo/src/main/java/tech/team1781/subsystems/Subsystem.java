@@ -15,7 +15,7 @@ public abstract class Subsystem {
     name = _name;
     defaultState = _defaultState;
     currentState = defaultState;
-    mNetworkLogger.log(getName(), currentTime);
+    mNetworkLogger.log(getName(), currentState.toString());
    }
 
    public void setOperatingMode(OperatingMode mode) {
