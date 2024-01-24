@@ -19,7 +19,6 @@ public class NetworkLogger {
 
     private GenericEntry findTab(String tabName) {
         if (!tabMap.containsKey(tabName)) {
-            System.out.println(tabName);
             tabMap.put(tabName, ConfigMap.SHUFFLEBOARD_TAB.add(tabName, "EMPTY").getEntry());
         }
 
