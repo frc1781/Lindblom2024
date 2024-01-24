@@ -11,8 +11,9 @@ import tech.team1781.ConfigMap;
 public class Scollector extends Subsystem {
     private CANSparkMax mCollectorMotor = new CANSparkMax(ConfigMap.COLLECTOR_MOTOR, CANSparkMax.MotorType.kBrushless);
     private TimeOfFlight mTimeOfFlight = new TimeOfFlight(ConfigMap.COLLECTOR_TOF);
-    private CANSparkMax TOP_SHOOTER_MOTOR = new CANSparkMax(ConfigMap.TOP_SHOOTER_MOTOR, CANSparkMax.MotorType.kBrushless);
-    private CANSparkMax SHOOTER_MOTOR = new CANSparkMax(ConfigMap.SHOOTER_MOTOR, CANSparkMax.MotorType.kBrushless);
+    private CANSparkMax mTopShooterMotor = new CANSparkMax(ConfigMap.TOP_SHOOTER_MOTOR,
+            CANSparkMax.MotorType.kBrushless);
+    private CANSparkMax mShooterMotor = new CANSparkMax(ConfigMap.SHOOTER_MOTOR, CANSparkMax.MotorType.kBrushless);
 
     public Scollector() {
         super("Scollector", CollectorState.IDLE);
@@ -66,9 +67,7 @@ public class Scollector extends Subsystem {
             case IDLE:
                 return mCollectorMotor.get() == 0;
             case COLLECT:
-                // to match desire state is when the sensor senses a certain distance less than
-                // the number
-                return mCollectorMotor.get() == 1;
+                return hasNote();
             case SPIT:
                 return mCollectorMotor.get() == -1;
             default:
