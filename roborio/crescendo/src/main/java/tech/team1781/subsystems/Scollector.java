@@ -1,6 +1,7 @@
 package tech.team1781.subsystems;
 
 import com.playingwithfusion.TimeOfFlight;
+import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.motorcontrol.PWMTalonSRX;
@@ -8,9 +9,10 @@ import tech.team1781.ConfigMap;
 
 //EXAMPLE SUBSYSTEM, NOT FOR ACTUAL BOT
 public class Scollector extends Subsystem {
-
-    private PWMTalonSRX mCollectorMotor = new PWMTalonSRX(0);
-    private TimeOfFlight mTimeOfFlight = new TimeOfFlight(0);
+    private CANSparkMax mCollectorMotor = new CANSparkMax(ConfigMap.COLLECTOR_MOTOR, CANSparkMax.MotorType.kBrushless);
+    private TimeOfFlight mTimeOfFlight = new TimeOfFlight(ConfigMap.COLLECTOR_TOF);
+    private CANSparkMax TOP_SHOOTER_MOTOR = new CANSparkMax(ConfigMap.TOP_SHOOTER_MOTOR, CANSparkMax.MotorType.kBrushless);
+    private CANSparkMax SHOOTER_MOTOR = new CANSparkMax(ConfigMap.SHOOTER_MOTOR, CANSparkMax.MotorType.kBrushless);
 
     public Scollector() {
         super("Scollector", CollectorState.IDLE);
@@ -50,7 +52,6 @@ public class Scollector extends Subsystem {
                 if (hasNote() == true) {
                     mCollectorMotor.set(0);
                 }
-
                 break;
             case SPIT:
                 openCollector();
