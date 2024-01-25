@@ -13,6 +13,8 @@ import tech.team1781.DriverInput.ControllerSide;
 import tech.team1781.autonomous.AutonomousHandler;
 import tech.team1781.autonomous.RoutineOverException;
 import tech.team1781.autonomous.routines.ExampleRoutine;
+import tech.team1781.autonomous.routines.FourNoteRoutine;
+import tech.team1781.autonomous.routines.PIDTuningRoutine;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
 
@@ -36,7 +38,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     mControlSystem = new ControlSystem();
-    mAutonomousHandler = new AutonomousHandler(mControlSystem, new ExampleRoutine());
+    mAutonomousHandler = new AutonomousHandler(mControlSystem, new FourNoteRoutine());
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
 
@@ -52,8 +54,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    mAutonomousHandler.init();
     mControlSystem.init(OperatingMode.AUTONOMOUS);
+    mAutonomousHandler.init();
   }
 
   @Override

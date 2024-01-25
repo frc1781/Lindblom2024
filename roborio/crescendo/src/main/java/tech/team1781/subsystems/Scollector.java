@@ -16,16 +16,15 @@ public class Scollector extends Subsystem {
     private CANSparkMax mShooterMotor = new CANSparkMax(ConfigMap.SHOOTER_MOTOR, CANSparkMax.MotorType.kBrushless);
 
     public Scollector() {
-        super("Scollector", CollectorState.IDLE);
+        super("Scollector", ScollectorState.IDLE);
     }
 
-    public enum CollectorState implements SubsystemState {
+    public enum ScollectorState implements SubsystemState {
         IDLE, COLLECT, SPIT
     }
 
     @Override
     public void genericPeriodic() {
-
     }
 
     @Override
