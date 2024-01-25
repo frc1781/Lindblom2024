@@ -28,6 +28,10 @@ public class Scollector extends Subsystem {
         mCollectorMotor.setIdleMode(IdleMode.kBrake);
         mLeftShooterMotor.setIdleMode(IdleMode.kCoast);
         mRightShooterMotor.setIdleMode(IdleMode.kCoast);
+        mLeftShooterMotor.getEncoder().setPositionConversionFactor(0.100203);
+        mLeftShooterMotor.getEncoder().setVelocityConversionFactor(0.100203);
+        mRightShooterMotor.getEncoder().setPositionConversionFactor(0.100203);
+        mRightShooterMotor.getEncoder().setVelocityConversionFactor(0.100203);
     }
 
     public enum ScollectorState implements SubsystemState {
@@ -98,5 +102,11 @@ public class Scollector extends Subsystem {
     private void shoot() {
         mRightShooterMotor.set(1);
         mLeftShooterMotor.set(1);
+        if (mLeftShooterMotor.getEncoder().getVelocity() > 250 && mRightShooterMotor.getEncoder().getVelocity() > 250) {
+            mCollectorMotor.set(-1);
+        }
+        else {
+            mCollectorMotor.set(0);
+        }
     }
 }
