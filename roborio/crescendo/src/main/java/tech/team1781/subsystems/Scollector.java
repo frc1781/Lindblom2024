@@ -41,7 +41,7 @@ public class Scollector extends Subsystem {
 
     @Override
     public void getToState() {
-        switch ((CollectorState) getState()) {
+        switch ((ScollectorState) getState()) {
             case IDLE:
                 closeCollector();
                 mCollectorMotor.set(0);
@@ -62,7 +62,7 @@ public class Scollector extends Subsystem {
 
     @Override
     public boolean matchesDesiredState() {
-        switch ((CollectorState) getState()) {
+        switch ((ScollectorState) getState()) {
             case IDLE:
                 return mCollectorMotor.get() == 0;
             case COLLECT:
