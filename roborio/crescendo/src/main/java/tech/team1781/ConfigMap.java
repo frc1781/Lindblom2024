@@ -25,6 +25,14 @@ public class ConfigMap {
         public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 28;
         public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 27;
 
+        // 40-41 Arm
+
+        public static final int ARM_PIVOT_LEFT_MOTOR = 40;
+        public static final int ARM_PIVOT_RIGHT_MOTOR = 41;
+
+        public static final double ARM_ANGLE_CONVERSION = (1/125)*(22/56);
+
+
         // 60-69 Sensors
         public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 60;
         public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 62;
