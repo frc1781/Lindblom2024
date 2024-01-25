@@ -19,18 +19,22 @@ import tech.team1781.control.ControlSystem;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
 
 /**
- * The VM is configured to automatically run this class, and to call the functions corresponding to
- * each mode, as described in the TimedRobot documentation. If you change the name of this class or
- * the package after creating this project, you must also update the build.gradle file in the
+ * The VM is configured to automatically run this class, and to call the
+ * functions corresponding to
+ * each mode, as described in the TimedRobot documentation. If you change the
+ * name of this class or
+ * the package after creating this project, you must also update the
+ * build.gradle file in the
  * project.
  */
 public class Robot extends TimedRobot {
   /**
-   * This function is run when the robot is first started up and should be used for any
+   * This function is run when the robot is first started up and should be used
+   * for any
    * initialization code.
    */
 
-  //control and autonomous
+  // control and autonomous
   private ControlSystem mControlSystem;
   private AutonomousHandler mAutonomousHandler;
   private DriverInput mDriverInput;
@@ -42,15 +46,21 @@ public class Robot extends TimedRobot {
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
 
-    mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.RESET_NAVX, (isPressed)->{
-      if(isPressed) {
+    mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.RESET_NAVX, (isPressed) -> {
+      if (isPressed) {
         mControlSystem.zeroNavX();
+      }
+    });
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, "RB", (isPressed) -> {
+      if (isPressed) {
+        mControlSystem.setAction(ControlSystem.Action.COLLECT);
       }
     });
   }
 
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+  }
 
   @Override
   public void autonomousInit() {
@@ -76,7 +86,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    mControlSystem.run(mDriverInput.run());  //add copilot input
+    mControlSystem.run(mDriverInput.run()); // add copilot input
   }
 
   @Override
@@ -84,17 +94,22 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+  }
 
   @Override
-  public void testInit() {}
+  public void testInit() {
+  }
 
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+  }
 
   @Override
-  public void simulationInit() {}
+  public void simulationInit() {
+  }
 
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+  }
 }
