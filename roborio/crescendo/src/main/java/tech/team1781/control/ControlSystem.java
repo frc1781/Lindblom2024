@@ -42,7 +42,7 @@ public class ControlSystem {
     private final SlewRateLimiter mRotDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_ROTATION_RATE_LIMIT);
 
     public enum Action {
-        COLLECT, 
+        COLLECT,
         AUTO_AIM_SHOOT
     }
 
@@ -146,11 +146,19 @@ public class ControlSystem {
                 driverDriving(
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
+                if (driverInput.getButton(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT)) {
+                    mScollector.setDesiredState(ScollectorState.COLLECT);
+                } else if (driverInput.getButton(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.SPIT)) {
+                    mScollector.setDesiredState(ScollectorState.SPIT);
+                } else if (driverInput.getButton(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.SHOOT)) {
+                    mScollector.setDesiredState(ScollectorState.SHOOT);
+                } else {
+                    mScollector.setDesiredState(ScollectorState.IDLE);
+                }
                 break;
             default:
                 break;
         }
-
 
         for (Subsystem subsystem : mSubsystems) {
             subsystem.getToState();
@@ -178,19 +186,18 @@ public class ControlSystem {
     public void interruptAction() {
         mCurrentSettings = null;
 
-        for(Subsystem s : mSubsystems) {
+        for (Subsystem s : mSubsystems) {
             s.restoreDefault();
         }
-    }
 
-    
+    }
 
     private void initActions() {
         defineAction(Action.COLLECT,
                 new SubsystemSetting(mScollector, ScollectorState.COLLECT));
 
-        defineAction(Action.AUTO_AIM_SHOOT,
-                new SubsystemSetting(mScollector, ScollectorState.AUTO_AIM_SHOOT));
+        // defineAction(Action.AUTO_AIM_SHOOT,
+        // new SubsystemSetting(mScollector, ScollectorState.AUTO_AIM_SHOOT));
     }
 
     private void defineAction(Action action, SubsystemSetting... settings) {
