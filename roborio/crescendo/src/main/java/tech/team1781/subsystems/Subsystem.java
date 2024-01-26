@@ -17,6 +17,7 @@ public abstract class Subsystem {
 
    public void setOperatingMode(OperatingMode mode) {
       currentMode = mode;
+   System.out.println(name + " initialized into operating mode " + mode.toString());
       init();
    }
 

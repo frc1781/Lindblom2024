@@ -10,47 +10,64 @@ import tech.team1781.ConfigMap;
 import com.revrobotics.SparkLimitSwitch;
 
 public class Arm extends Subsystem {
-
-    // Right Motor
-    private CANSparkMax mLeaderMotor = new CANSparkMax(ConfigMap.ARM_PIVOT_RIGHT_MOTOR,
-            CANSparkMax.MotorType.kBrushless);
-    // left Motor
-    private CANSparkMax mFollowerMotor = new CANSparkMax(ConfigMap.ARM_PIVOT_LEFT_MOTOR,
-            CANSparkMax.MotorType.kBrushless);
-
-    private ArmState mDesiredArmState = ArmState.IDLE;
+    private CANSparkMax mRightMotor;
+    private CANSparkMax mLeftMotor;
+    private RelativeEncoder mLeftEncoder;
+    private ArmState mDesiredArmState;
 
     public Arm() {
-        super("Arm", ArmState.IDLE);
+        super("Arm", ArmState.START);
+        mRightMotor = new CANSparkMax(
+            ConfigMap.ARM_PIVOT_RIGHT_MOTOR,
+            CANSparkMax.MotorType.kBrushless
+        );
+
+        mLeftMotor = new CANSparkMax(
+            ConfigMap.ARM_PIVOT_LEFT_MOTOR,
+            CANSparkMax.MotorType.kBrushless
+        );
+
+        mLeftEncoder = mLeftMotor.getEncoder();
+        mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360); //will tell us angle in degrees
+        mDesiredArmState = ArmState.START;
     }
 
     public enum ArmState implements Subsystem.SubsystemState {
         // Will probably add set angles
-        IDLE, EXTEND, RETRACT
+        START,
+        SAFE,
+        PODIUM,
+        SUBWOOFER,
+        COLLECT
     }
 
     @Override
     public void genericPeriodic() {
-        mFollowerMotor.follow(mLeaderMotor, true);
-
     }
 
     @Override
     public void init() {
-        mFollowerMotor.follow(mLeaderMotor, true);
-
+        mRightMotor.follow(mLeftMotor, true);
+        System.out.println("initialized arm moters for following...");
     }
 
     @Override
     public void getToState() {
+
         switch ((ArmState) getState()) {
-            case IDLE:
+            case START:
             break;
 
-            case EXTEND:
+            case SAFE:
             break;
 
-            case RETRACT:
+            case PODIUM:
+            break;
+
+            case SUBWOOFER:
+            break;
+
+            case COLLECT:
             break;
         }
     }
@@ -58,35 +75,36 @@ public class Arm extends Subsystem {
     @Override
     public boolean matchesDesiredState() {
         switch ((ArmState) getState()) {
-            case IDLE:
-                return mLeaderMotor.get() == 0;
-            case EXTEND:
-                return mLeaderMotor.get() == .5;
-            case RETRACT:
-                return mLeaderMotor.get() == -.5;
+            case START:
+            break;
+
+            case SAFE:
+            break;
+
+            case PODIUM:
+            break;
+
+            case SUBWOOFER:
+            break;
+
+            case COLLECT:
+            break;
         }
         return false;
     }
 
     @Override
     public void autonomousPeriodic() {
-        mFollowerMotor.follow(mLeaderMotor, true);
+
     }
 
     @Override
     public void teleopPeriodic() {
-        mFollowerMotor.follow(mLeaderMotor, true);
-
+        System.out.printf("arm left encoder %.3f\n", getAngle());
+        mLeftMotor.set(0);  //temp
     }
 
-    public double angle(double r) {
-        double angle = ConfigMap.ARM_ANGLE_CONVERSION * r * 360;
-        return angle;
+    public double getAngle() {
+        return mLeftEncoder.getPosition();
     }
-
-    public double getAngleRot(double angle) {
-        double r = angle/(ConfigMap.ARM_ANGLE_CONVERSION*360);
-        return r;
-    }
-
 }

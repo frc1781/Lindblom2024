@@ -14,6 +14,7 @@ import tech.team1781.autonomous.AutoStep;
 import tech.team1781.subsystems.Climber;
 import tech.team1781.subsystems.DriveSystem;
 import tech.team1781.subsystems.Scollector;
+import tech.team1781.subsystems.Arm;
 import tech.team1781.subsystems.Subsystem;
 import tech.team1781.subsystems.Climber.ClimberState;
 import tech.team1781.subsystems.DriveSystem.DriveSystemState;
@@ -33,6 +34,7 @@ public class ControlSystem {
     private DriveSystem mDriveSystem;
     private Scollector mScollector;
     private Climber mClimber;
+    private Arm mArm;
 
     private OperatingMode mCurrentOperatingMode;
 
@@ -50,11 +52,13 @@ public class ControlSystem {
         mDriveSystem = new DriveSystem();
         mScollector = new Scollector();
         mClimber = new Climber();
+        mArm = new Arm();
 
         mSubsystems = new ArrayList<>();
         mSubsystems.add(mDriveSystem);
         mSubsystems.add(mScollector);
         mSubsystems.add(mClimber);
+        mSubsystems.add(mArm);
 
         initActions();
 
@@ -144,20 +148,18 @@ public class ControlSystem {
         switch (mCurrentOperatingMode) {
             case TELEOP:
                 driverDriving(
-                        driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
-                        driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
+                    driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
+                    driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
                 break;
             default:
                 break;
         }
-
 
         for (Subsystem subsystem : mSubsystems) {
             subsystem.getToState();
             subsystem.feedStateTime(mStepTime.get());
             runSubsystemPeriodic(subsystem);
         }
-
     }
 
     public boolean isRunningAction() {
@@ -182,8 +184,6 @@ public class ControlSystem {
             s.restoreDefault();
         }
     }
-
-    
 
     private void initActions() {
         defineAction(Action.COLLECT,
