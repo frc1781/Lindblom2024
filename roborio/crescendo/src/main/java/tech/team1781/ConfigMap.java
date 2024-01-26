@@ -31,6 +31,10 @@ public class ConfigMap {
         public static final int ARM_PIVOT_RIGHT_MOTOR = 41;
 
         public static final double ARM_GEAR_RATIO = (1.0/125.0)*(18.0/56.0);
+        // 57 Motors
+        public static final int COLLECTOR_MOTOR = 57;
+        public static final int SHOOTER_RIGHT_MOTOR = 42;
+        public static final int SHOOTER_LEFT_MOTOR = 43;
 
         // 60-69 Sensors
         public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 60;
@@ -78,4 +82,7 @@ public class ConfigMap {
         public static final double DRIVER_ROTATION_RATE_LIMIT = 1.2;
 
         public static final String RESET_NAVX = "X";
+        public static final String COLLECT = "RB";
+        public static final String SPIT = "LB";
+        public static final String SHOOT = "Y";
 }
