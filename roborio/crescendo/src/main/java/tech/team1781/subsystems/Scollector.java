@@ -100,12 +100,14 @@ public class Scollector extends Subsystem {
     }
 
     private void shoot() {
+        final int threshold = 500;
         mRightShooterMotor.set(1);
         mLeftShooterMotor.set(1);
-        if (mLeftShooterMotor.getEncoder().getVelocity() > 250 && mRightShooterMotor.getEncoder().getVelocity() > 250) {
+        if (mLeftShooterMotor.getEncoder().getVelocity() > threshold && mRightShooterMotor.getEncoder().getVelocity() > threshold) {
             mCollectorMotor.set(-1);
         }
         else {
+            System.out.println(mLeftShooterMotor.getEncoder().getVelocity());
             mCollectorMotor.set(0);
         }
     }

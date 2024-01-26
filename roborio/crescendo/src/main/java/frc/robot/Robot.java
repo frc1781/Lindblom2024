@@ -16,6 +16,7 @@ import tech.team1781.autonomous.routines.ExampleRoutine;
 import tech.team1781.autonomous.routines.FourNoteRoutine;
 import tech.team1781.autonomous.routines.PIDTuningRoutine;
 import tech.team1781.control.ControlSystem;
+import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
 
 /**
@@ -51,6 +52,19 @@ public class Robot extends TimedRobot {
         mControlSystem.zeroNavX();
       }
     });
+
+    mDriverInput.addClickListener(0, "B", (isPressed) -> {
+      if (isPressed) {
+        mControlSystem.setArmState(ArmState.SUBWOOFER);
+      }
+    });
+
+    mDriverInput.addClickListener(0, "A", (isPressed) -> {
+      if (isPressed) {
+        mControlSystem.setArmState(ArmState.COLLECT);
+      }
+    });
+
   }
 
   @Override

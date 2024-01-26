@@ -16,6 +16,7 @@ import tech.team1781.subsystems.DriveSystem;
 import tech.team1781.subsystems.Scollector;
 import tech.team1781.subsystems.Arm;
 import tech.team1781.subsystems.Subsystem;
+import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.Climber.ClimberState;
 import tech.team1781.subsystems.DriveSystem.DriveSystemState;
 import tech.team1781.subsystems.Scollector.ScollectorState;
@@ -83,6 +84,10 @@ public class ControlSystem {
     public void driverArming(EVector translation, EVector rotation) {
         double armDutyCycle = -translation.y * .3;
         mArm.driveManual(armDutyCycle);
+    }
+
+    public void setArmState(ArmState desiredState) {
+        mArm.setDesiredState(desiredState);
     }
 
     public void zeroNavX() {
@@ -156,6 +161,9 @@ public class ControlSystem {
                 driverDriving(
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
+
+                // mArm.driveManual(driverInput.getTriggerAxis(0).x - driverInput.getTriggerAxis(0).y);
+
                 if (driverInput.getButton(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT)) {
                     mScollector.setDesiredState(ScollectorState.COLLECT);
                 } else if (driverInput.getButton(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.SPIT)) {

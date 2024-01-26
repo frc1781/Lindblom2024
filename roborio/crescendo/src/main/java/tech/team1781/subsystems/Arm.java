@@ -1,5 +1,7 @@
 package tech.team1781.subsystems;
 
+import java.util.HashMap;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -17,7 +19,8 @@ public class Arm extends Subsystem {
     private CANSparkMax mLeftMotor;
     private RelativeEncoder mLeftEncoder;
     private ArmState mDesiredArmState;
-    private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.1, 0, 0, new TrapezoidProfile.Constraints(20, 3));
+    private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.1, 0, 0, new TrapezoidProfile.Constraints(200, 50));
+    private HashMap<ArmState, Double> mPositions = new HashMap<>();
 
     public Arm() {
         super("Arm", ArmState.START);
@@ -34,6 +37,13 @@ public class Arm extends Subsystem {
         mLeftEncoder = mLeftMotor.getEncoder();
         mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2); //will tell us angle in degrees
         mDesiredArmState = ArmState.START;
+
+        mPositions.put(ArmState.START, 71.9);
+        mPositions.put(ArmState.SAFE, 63.0);
+        mPositions.put(ArmState.PODIUM, 43.8);
+        mPositions.put(ArmState.SUBWOOFER, 25.0);
+        mPositions.put(ArmState.COLLECT, 0.0);
+
     }
 
     public enum ArmState implements Subsystem.SubsystemState {
@@ -63,6 +73,9 @@ public class Arm extends Subsystem {
 
     @Override
     public void getToState() {
+        var desiredPosition = mPositions.get((ArmState) getState());
+        var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), desiredPosition);
+        mLeftMotor.set(armDutyCycle);
 
         switch ((ArmState) getState()) {
             case START:
@@ -109,6 +122,7 @@ public class Arm extends Subsystem {
     }
 
     public void driveManual(double armDutyCycle) {
+        armDutyCycle *= 0.5;
         mLeftMotor.set(armDutyCycle);
         System.out.printf("arm duty cycle: %.2f\n", armDutyCycle);
     }
