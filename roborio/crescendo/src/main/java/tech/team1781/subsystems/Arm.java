@@ -6,6 +6,8 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkLimitSwitch.Type;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import tech.team1781.ConfigMap;
 
 import com.revrobotics.SparkLimitSwitch;
@@ -15,6 +17,7 @@ public class Arm extends Subsystem {
     private CANSparkMax mLeftMotor;
     private RelativeEncoder mLeftEncoder;
     private ArmState mDesiredArmState;
+    private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.1, 0, 0, new TrapezoidProfile.Constraints(20, 3));
 
     public Arm() {
         super("Arm", ArmState.START);
@@ -29,7 +32,7 @@ public class Arm extends Subsystem {
         );
 
         mLeftEncoder = mLeftMotor.getEncoder();
-        mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360); //will tell us angle in degrees
+        mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2); //will tell us angle in degrees
         mDesiredArmState = ArmState.START;
     }
 

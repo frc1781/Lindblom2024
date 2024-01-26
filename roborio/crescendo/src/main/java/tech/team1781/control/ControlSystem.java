@@ -81,7 +81,7 @@ public class ControlSystem {
 
     
     public void driverArming(EVector translation, EVector rotation) {
-        double armDutyCycle = -translation.y * 1.0;
+        double armDutyCycle = -translation.y * .3;
         mArm.driveManual(armDutyCycle);
     }
 

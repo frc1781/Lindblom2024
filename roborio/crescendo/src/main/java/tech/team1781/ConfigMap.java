@@ -30,7 +30,7 @@ public class ConfigMap {
         public static final int ARM_PIVOT_LEFT_MOTOR = 40;
         public static final int ARM_PIVOT_RIGHT_MOTOR = 41;
 
-        public static final double ARM_GEAR_RATIO = (1/125)*(22/56);
+        public static final double ARM_GEAR_RATIO = (1.0/125.0)*(18.0/56.0);
 
         // 60-69 Sensors
         public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 60;
