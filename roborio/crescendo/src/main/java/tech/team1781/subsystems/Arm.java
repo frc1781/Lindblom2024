@@ -2,6 +2,7 @@ package tech.team1781.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkLimitSwitch.Type;
 
@@ -47,8 +48,14 @@ public class Arm extends Subsystem {
 
     @Override
     public void init() {
-        mRightMotor.follow(mLeftMotor, true);
-        System.out.println("initialized arm moters for following...");
+        if (currentMode == OperatingMode.DISABLED) {
+            mRightMotor.follow(mLeftMotor, true);
+            mLeftMotor.setIdleMode(IdleMode.kBrake);
+            mRightMotor.setIdleMode(IdleMode.kBrake);
+            System.out.println("initialized arm moters for following...");
+            System.out.println("ENSURE ARM IN ZERO POSITION!!!!! Just set encoder to zero");
+            mLeftEncoder.setPosition(0);
+        }
     }
 
     @Override
@@ -98,10 +105,16 @@ public class Arm extends Subsystem {
 
     }
 
+    public void driveManual(double armDutyCycle) {
+        mLeftMotor.set(armDutyCycle);
+        System.out.printf("arm duty cycle: %.2f\n", armDutyCycle);
+    }
+
     @Override
     public void teleopPeriodic() {
+
         System.out.printf("arm left encoder %.3f\n", getAngle());
-        mLeftMotor.set(0);  //temp
+        //mLeftMotor.set(0);  //temp
     }
 
     public double getAngle() {

@@ -79,6 +79,12 @@ public class ControlSystem {
                 mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND);
     }
 
+    
+    public void driverArming(EVector translation, EVector rotation) {
+        double armDutyCycle = -translation.y * 1.0;
+        mArm.driveManual(armDutyCycle);
+    }
+
     public void zeroNavX() {
         mDriveSystem.zeroNavX();
     }
@@ -147,7 +153,10 @@ public class ControlSystem {
     public void run(DriverInput driverInput) {
         switch (mCurrentOperatingMode) {
             case TELEOP:
-                driverDriving(
+                //driverDriving(
+                //    driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
+                //    driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
+                driverArming(
                     driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
                     driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
                 break;
