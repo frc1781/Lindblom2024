@@ -1,11 +1,12 @@
 package tech.team1781.subsystems;
 
-// import com.playingwithfusion.TimeOfFlight;
+import com.playingwithfusion.TimeOfFlight;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.motorcontrol.PWMTalonSRX;
 import tech.team1781.ConfigMap;
@@ -18,10 +19,12 @@ public class Scollector extends Subsystem {
     private CANSparkMax mLeftShooterMotor = new CANSparkMax(ConfigMap.SHOOTER_LEFT_MOTOR,
             CANSparkMax.MotorType.kBrushless);
 
-    private ProfiledPIDController mLeftShooterPID = new ProfiledPIDController(0.1, 0, 0, new TrapezoidProfile.Constraints(1000, 100));
-    private ProfiledPIDController mRightShooterPID = new ProfiledPIDController(0.1, 0, 0, new TrapezoidProfile.Constraints(1000, 100));
-    // private TimeOfFlight mTimeOfFlight = new
-    // TimeOfFlight(ConfigMap.COLLECTOR_TOF);
+    private GenericEntry mThresholdEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Shooter Threshold", 6).getEntry();
+
+    private ProfiledPIDController mLeftShooterPID = new ProfiledPIDController(2, 0, 0, new TrapezoidProfile.Constraints(10, 2));
+    private ProfiledPIDController mRightShooterPID = new ProfiledPIDController(2, 0, 0, new TrapezoidProfile.Constraints(10, 2));
+
+    private TimeOfFlight mNoteSensor = new TimeOfFlight(ConfigMap.SCOLLECTOR_TOF);
     // private CANSparkMax mTopShooterMotor = new
     // CANSparkMax(ConfigMap.TOP_SHOOTER_MOTOR,
     // CANSparkMax.MotorType.kBrushless);
@@ -104,17 +107,21 @@ public class Scollector extends Subsystem {
     }
 
     private void collect() {
-        mCollectorMotor.set(-1);
+
+        if(mNoteSensor.getRange() <= 5)
+            mCollectorMotor.set(-1);
+        else 
+            mCollectorMotor.set(0);
     }
 
     private void shoot() {
-        final double threshold = 8;
-        System.out.println("Left: " + mLeftShooterMotor.getEncoder().getVelocity());
-        System.out.println("Right: " + mRightShooterMotor.getEncoder().getVelocity());
+        double threshold = mThresholdEntry.getDouble(7);
+        // System.out.println("Left: " + mLeftShooterMotor.getEncoder().getVelocity());
+        // System.out.println("Right: " + mRightShooterMotor.getEncoder().getVelocity());
         System.out.println("Average: " + (mLeftShooterMotor.getEncoder().getVelocity() + mRightShooterMotor.getEncoder().getVelocity()) / 2);
 
-        double leftDutyCycle = mLeftShooterPID.calculate(mLeftShooterMotor.getEncoder().getVelocity(), threshold);
-        double rightDutyCycle = mRightShooterPID.calculate(mRightShooterMotor.getEncoder().getVelocity(), threshold);
+        double leftDutyCycle = 1;//mLeftShooterPID.calculate(mLeftShooterMotor.getEncoder().getVelocity(), threshold);
+        double rightDutyCycle = 1; //mRightShooterPID.calculate(mRightShooterMotor.getEncoder().getVelocity(), threshold);
 
         mLeftShooterMotor.set(leftDutyCycle);
         mRightShooterMotor.set(rightDutyCycle);

@@ -10,6 +10,7 @@ import com.revrobotics.SparkLimitSwitch.Type;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.networktables.GenericEntry;
 import tech.team1781.ConfigMap;
 
 import com.revrobotics.SparkLimitSwitch;
@@ -22,6 +23,9 @@ public class Arm extends Subsystem {
     private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.1, 0, 0,
             new TrapezoidProfile.Constraints(200, 50));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
+
+    private GenericEntry mArmPositionEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Arm Position", -1).getEntry();
+
 
     private double mDesiredPosition = 0;
     private boolean mIsManual = false;
@@ -79,6 +83,9 @@ public class Arm extends Subsystem {
     public void getToState() {
         var desiredPosition = mDesiredPosition; // mPositions.get(mDesiredPosition);
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), desiredPosition);
+
+        // System.out.println("Arm:" + mLeftEncoder.getPosition() );
+        mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
 
         if (mIsManual) {
             // mLeftMotor.set(armDutyCycle);

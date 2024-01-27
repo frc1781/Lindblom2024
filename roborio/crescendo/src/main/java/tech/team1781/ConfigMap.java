@@ -37,6 +37,7 @@ public class ConfigMap {
         public static final int SHOOTER_LEFT_MOTOR = 43;
 
         // 60-69 Sensors
+        public static final int SCOLLECTOR_TOF = 58;
         public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 60;
         public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 62;
         public static final int BACK_LEFT_MODULE_STEER_ENCODER = 61;
