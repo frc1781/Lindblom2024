@@ -19,7 +19,8 @@ public class Arm extends Subsystem {
     private CANSparkMax mLeftMotor;
     private RelativeEncoder mLeftEncoder;
     private ArmState mDesiredArmState;
-    private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.1, 0, 0, new TrapezoidProfile.Constraints(200, 50));
+    private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.1, 0, 0,
+            new TrapezoidProfile.Constraints(200, 50));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
 
     private double mDesiredPosition = 0;
@@ -28,18 +29,24 @@ public class Arm extends Subsystem {
     public Arm() {
         super("Arm", ArmState.START);
         mRightMotor = new CANSparkMax(
-            ConfigMap.ARM_PIVOT_RIGHT_MOTOR,
-            CANSparkMax.MotorType.kBrushless
-        );
+                ConfigMap.ARM_PIVOT_RIGHT_MOTOR,
+                CANSparkMax.MotorType.kBrushless);
 
         mLeftMotor = new CANSparkMax(
-            ConfigMap.ARM_PIVOT_LEFT_MOTOR,
-            CANSparkMax.MotorType.kBrushless
-        );
+                ConfigMap.ARM_PIVOT_LEFT_MOTOR,
+                CANSparkMax.MotorType.kBrushless);
 
         mLeftEncoder = mLeftMotor.getEncoder();
-        mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2); //will tell us angle in degrees
+        mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2); // will tell us angle in
+                                                                                          // degrees
         mDesiredArmState = ArmState.START;
+
+        mRightMotor.follow(mLeftMotor, true);
+        mLeftMotor.setIdleMode(IdleMode.kBrake);
+        mRightMotor.setIdleMode(IdleMode.kBrake);
+        System.out.println("initialized arm moters for following...");
+        System.out.println("ENSURE ARM IN ZERO POSITION!!!!! Just set encoder to zero");
+        mLeftEncoder.setPosition(0);
 
         mPositions.put(ArmState.START, 71.9);
         mPositions.put(ArmState.SAFE, 63.0);
@@ -65,12 +72,6 @@ public class Arm extends Subsystem {
     @Override
     public void init() {
         if (currentMode == OperatingMode.DISABLED) {
-            mRightMotor.follow(mLeftMotor, true);
-            mLeftMotor.setIdleMode(IdleMode.kBrake);
-            mRightMotor.setIdleMode(IdleMode.kBrake);
-            System.out.println("initialized arm moters for following...");
-            System.out.println("ENSURE ARM IN ZERO POSITION!!!!! Just set encoder to zero");
-            mLeftEncoder.setPosition(0);
         }
     }
 
@@ -79,29 +80,29 @@ public class Arm extends Subsystem {
         var desiredPosition = mDesiredPosition; // mPositions.get(mDesiredPosition);
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), desiredPosition);
 
-        if(mIsManual) {
-            mLeftMotor.set(armDutyCycle);
-            System.out.println("manual");
+        if (mIsManual) {
+            // mLeftMotor.set(armDutyCycle);
+            // System.out.println("manual");
         } else {
-            System.out.println("not manual");
-            mDesiredPosition = mPositions.get(getState());
+            // System.out.println("not manual");
+            mLeftMotor.set(armDutyCycle);
         }
 
         switch ((ArmState) getState()) {
             case START:
-            break;
+                break;
 
             case SAFE:
-            break;
+                break;
 
             case PODIUM:
-            break;
+                break;
 
             case SUBWOOFER:
-            break;
+                break;
 
             case COLLECT:
-            break;
+                break;
         }
     }
 
@@ -109,19 +110,19 @@ public class Arm extends Subsystem {
     public boolean matchesDesiredState() {
         switch ((ArmState) getState()) {
             case START:
-            break;
+                break;
 
             case SAFE:
-            break;
+                break;
 
             case PODIUM:
-            break;
+                break;
 
             case SUBWOOFER:
-            break;
+                break;
 
             case COLLECT:
-            break;
+                break;
         }
         return false;
     }
@@ -134,18 +135,20 @@ public class Arm extends Subsystem {
     public void driveManual(double armDutyCycle) {
         armDutyCycle *= 0.5;
 
-        if(Math.abs(armDutyCycle) >=  0.1) {
+        if (Math.abs(armDutyCycle) >= 0.1) {
             mIsManual = true;
             mLeftMotor.set(armDutyCycle);
+            mDesiredPosition = mLeftEncoder.getPosition();
+        } else {
+            mIsManual = false;
         }
-        mLeftMotor.set(armDutyCycle);
     }
 
     @Override
     public void teleopPeriodic() {
 
         // System.out.printf("arm left encoder %.3f\n", getAngle());
-        //mLeftMotor.set(0);  //temp
+        // mLeftMotor.set(0); //temp
     }
 
     @Override
@@ -153,6 +156,7 @@ public class Arm extends Subsystem {
         super.setDesiredState(state);
 
         mIsManual = false;
+        mDesiredPosition = mPositions.get(state);
     }
 
     public double getAngle() {

@@ -108,7 +108,7 @@ public class Scollector extends Subsystem {
     }
 
     private void shoot() {
-        final double threshold = 3e4;
+        final double threshold = 8;
         System.out.println("Left: " + mLeftShooterMotor.getEncoder().getVelocity());
         System.out.println("Right: " + mRightShooterMotor.getEncoder().getVelocity());
         System.out.println("Average: " + (mLeftShooterMotor.getEncoder().getVelocity() + mRightShooterMotor.getEncoder().getVelocity()) / 2);
