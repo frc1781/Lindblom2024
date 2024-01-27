@@ -162,7 +162,7 @@ public class ControlSystem {
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
 
-                // mArm.driveManual(driverInput.getTriggerAxis(0).x - driverInput.getTriggerAxis(0).y);
+                mArm.driveManual(driverInput.getTriggerAxis(0).x - driverInput.getTriggerAxis(0).y);
 
                 if (driverInput.getButton(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT)) {
                     mScollector.setDesiredState(ScollectorState.COLLECT);

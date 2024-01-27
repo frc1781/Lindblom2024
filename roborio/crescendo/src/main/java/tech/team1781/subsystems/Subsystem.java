@@ -31,7 +31,7 @@ public abstract class Subsystem {
     currentTime = sampledTime;
    }
 
-   public final void setDesiredState(SubsystemState desiredState) {
+   public void setDesiredState(SubsystemState desiredState) {
     currentState = desiredState;
    }
    

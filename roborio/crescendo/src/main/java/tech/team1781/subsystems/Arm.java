@@ -22,6 +22,9 @@ public class Arm extends Subsystem {
     private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.1, 0, 0, new TrapezoidProfile.Constraints(200, 50));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
 
+    private double mDesiredPosition = 0;
+    private boolean mIsManual = false;
+
     public Arm() {
         super("Arm", ArmState.START);
         mRightMotor = new CANSparkMax(
@@ -73,9 +76,16 @@ public class Arm extends Subsystem {
 
     @Override
     public void getToState() {
-        var desiredPosition = mPositions.get((ArmState) getState());
+        var desiredPosition = mDesiredPosition; // mPositions.get(mDesiredPosition);
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), desiredPosition);
-        mLeftMotor.set(armDutyCycle);
+
+        if(mIsManual) {
+            mLeftMotor.set(armDutyCycle);
+            System.out.println("manual");
+        } else {
+            System.out.println("not manual");
+            mDesiredPosition = mPositions.get(getState());
+        }
 
         switch ((ArmState) getState()) {
             case START:
@@ -123,15 +133,26 @@ public class Arm extends Subsystem {
 
     public void driveManual(double armDutyCycle) {
         armDutyCycle *= 0.5;
+
+        if(Math.abs(armDutyCycle) >=  0.1) {
+            mIsManual = true;
+            mLeftMotor.set(armDutyCycle);
+        }
         mLeftMotor.set(armDutyCycle);
-        System.out.printf("arm duty cycle: %.2f\n", armDutyCycle);
     }
 
     @Override
     public void teleopPeriodic() {
 
-        System.out.printf("arm left encoder %.3f\n", getAngle());
+        // System.out.printf("arm left encoder %.3f\n", getAngle());
         //mLeftMotor.set(0);  //temp
+    }
+
+    @Override
+    public void setDesiredState(SubsystemState state) {
+        super.setDesiredState(state);
+
+        mIsManual = false;
     }
 
     public double getAngle() {

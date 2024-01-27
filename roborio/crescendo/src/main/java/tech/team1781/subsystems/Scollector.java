@@ -1,9 +1,11 @@
 package tech.team1781.subsystems;
 
-import com.playingwithfusion.TimeOfFlight;
+// import com.playingwithfusion.TimeOfFlight;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkBase.IdleMode;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.motorcontrol.PWMTalonSRX;
 import tech.team1781.ConfigMap;
@@ -15,6 +17,9 @@ public class Scollector extends Subsystem {
             CANSparkMax.MotorType.kBrushless);
     private CANSparkMax mLeftShooterMotor = new CANSparkMax(ConfigMap.SHOOTER_LEFT_MOTOR,
             CANSparkMax.MotorType.kBrushless);
+
+    private ProfiledPIDController mLeftShooterPID = new ProfiledPIDController(0.1, 0, 0, new TrapezoidProfile.Constraints(1000, 100));
+    private ProfiledPIDController mRightShooterPID = new ProfiledPIDController(0.1, 0, 0, new TrapezoidProfile.Constraints(1000, 100));
     // private TimeOfFlight mTimeOfFlight = new
     // TimeOfFlight(ConfigMap.COLLECTOR_TOF);
     // private CANSparkMax mTopShooterMotor = new
@@ -28,10 +33,13 @@ public class Scollector extends Subsystem {
         mCollectorMotor.setIdleMode(IdleMode.kBrake);
         mLeftShooterMotor.setIdleMode(IdleMode.kCoast);
         mRightShooterMotor.setIdleMode(IdleMode.kCoast);
-        mLeftShooterMotor.getEncoder().setPositionConversionFactor(0.100203);
-        mLeftShooterMotor.getEncoder().setVelocityConversionFactor(0.100203);
-        mRightShooterMotor.getEncoder().setPositionConversionFactor(0.100203);
-        mRightShooterMotor.getEncoder().setVelocityConversionFactor(0.100203);
+
+        final double conversionFactor = 0.100203 * 1/60;
+
+        mLeftShooterMotor.getEncoder().setPositionConversionFactor(conversionFactor);
+        mLeftShooterMotor.getEncoder().setVelocityConversionFactor(conversionFactor);
+        mRightShooterMotor.getEncoder().setPositionConversionFactor(conversionFactor);
+        mRightShooterMotor.getEncoder().setVelocityConversionFactor(conversionFactor);
     }
 
     public enum ScollectorState implements SubsystemState {
@@ -100,14 +108,22 @@ public class Scollector extends Subsystem {
     }
 
     private void shoot() {
-        final int threshold = 500;
-        mRightShooterMotor.set(1);
-        mLeftShooterMotor.set(1);
+        final double threshold = 3e4;
+        System.out.println("Left: " + mLeftShooterMotor.getEncoder().getVelocity());
+        System.out.println("Right: " + mRightShooterMotor.getEncoder().getVelocity());
+        System.out.println("Average: " + (mLeftShooterMotor.getEncoder().getVelocity() + mRightShooterMotor.getEncoder().getVelocity()) / 2);
+
+        double leftDutyCycle = mLeftShooterPID.calculate(mLeftShooterMotor.getEncoder().getVelocity(), threshold);
+        double rightDutyCycle = mRightShooterPID.calculate(mRightShooterMotor.getEncoder().getVelocity(), threshold);
+
+        mLeftShooterMotor.set(leftDutyCycle);
+        mRightShooterMotor.set(rightDutyCycle);
+
         if (mLeftShooterMotor.getEncoder().getVelocity() > threshold && mRightShooterMotor.getEncoder().getVelocity() > threshold) {
             mCollectorMotor.set(-1);
         }
         else {
-            System.out.println(mLeftShooterMotor.getEncoder().getVelocity());
+            // System.out.println(mLeftShooterMotor.getEncoder().getVelocity());
             mCollectorMotor.set(0);
         }
     }
