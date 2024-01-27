@@ -67,7 +67,7 @@ public class ControlSystem {
         // left and right
         double yVelocity = -translation.x;
         // rotation
-        double rotVelocity = -rotation.x;
+        double rotVelocity = -rotation.x * 0.5;
 
         mDriveSystem.driveRaw(
                 mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
