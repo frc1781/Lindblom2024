@@ -21,8 +21,10 @@ public class Scollector extends Subsystem {
 
     private GenericEntry mThresholdEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Shooter Threshold", 6).getEntry();
 
-    private ProfiledPIDController mLeftShooterPID = new ProfiledPIDController(2, 0, 0, new TrapezoidProfile.Constraints(10, 2));
-    private ProfiledPIDController mRightShooterPID = new ProfiledPIDController(2, 0, 0, new TrapezoidProfile.Constraints(10, 2));
+    private ProfiledPIDController mLeftShooterPID = new ProfiledPIDController(2, 0, 0,
+            new TrapezoidProfile.Constraints(10, 2));
+    private ProfiledPIDController mRightShooterPID = new ProfiledPIDController(2, 0, 0,
+            new TrapezoidProfile.Constraints(10, 2));
 
     private TimeOfFlight mNoteSensor = new TimeOfFlight(ConfigMap.SCOLLECTOR_TOF);
     // private CANSparkMax mTopShooterMotor = new
@@ -37,7 +39,7 @@ public class Scollector extends Subsystem {
         mLeftShooterMotor.setIdleMode(IdleMode.kCoast);
         mRightShooterMotor.setIdleMode(IdleMode.kCoast);
 
-        final double conversionFactor = 0.100203 * 1/60;
+        final double conversionFactor = 0.100203 * 1 / 60;
 
         mLeftShooterMotor.getEncoder().setPositionConversionFactor(conversionFactor);
         mLeftShooterMotor.getEncoder().setVelocityConversionFactor(conversionFactor);
@@ -107,29 +109,35 @@ public class Scollector extends Subsystem {
     }
 
     private void collect() {
+        System.out.println(mNoteSensor.getRange());
 
-        if(mNoteSensor.getRange() <= 5)
+        if(mNoteSensor.getRange() >= 400){
             mCollectorMotor.set(-1);
-        else 
+        }else {
             mCollectorMotor.set(0);
     }
+}
 
     private void shoot() {
         double threshold = mThresholdEntry.getDouble(7);
         // System.out.println("Left: " + mLeftShooterMotor.getEncoder().getVelocity());
-        // System.out.println("Right: " + mRightShooterMotor.getEncoder().getVelocity());
-        System.out.println("Average: " + (mLeftShooterMotor.getEncoder().getVelocity() + mRightShooterMotor.getEncoder().getVelocity()) / 2);
+        // System.out.println("Right: " +
+        // mRightShooterMotor.getEncoder().getVelocity());
+        System.out.println("Average: "
+                + (mLeftShooterMotor.getEncoder().getVelocity() + mRightShooterMotor.getEncoder().getVelocity()) / 2);
 
-        double leftDutyCycle = 1;//mLeftShooterPID.calculate(mLeftShooterMotor.getEncoder().getVelocity(), threshold);
-        double rightDutyCycle = 1; //mRightShooterPID.calculate(mRightShooterMotor.getEncoder().getVelocity(), threshold);
+        double leftDutyCycle = 1;// mLeftShooterPID.calculate(mLeftShooterMotor.getEncoder().getVelocity(),
+                                 // threshold);
+        double rightDutyCycle = 1; // mRightShooterPID.calculate(mRightShooterMotor.getEncoder().getVelocity(),
+                                   // threshold);
 
         mLeftShooterMotor.set(leftDutyCycle);
         mRightShooterMotor.set(rightDutyCycle);
 
-        if (mLeftShooterMotor.getEncoder().getVelocity() > threshold && mRightShooterMotor.getEncoder().getVelocity() > threshold) {
+        if (mLeftShooterMotor.getEncoder().getVelocity() > threshold
+                && mRightShooterMotor.getEncoder().getVelocity() > threshold) {
             mCollectorMotor.set(-1);
-        }
-        else {
+        } else {
             // System.out.println(mLeftShooterMotor.getEncoder().getVelocity());
             mCollectorMotor.set(0);
         }
