@@ -46,7 +46,7 @@ public class ControlSystem {
 
     public enum Action {
         COLLECT,
-        AUTO_AIM_SHOOT
+        SHOOT
     }
 
     public ControlSystem() {
@@ -211,10 +211,12 @@ public class ControlSystem {
 
     private void initActions() {
         defineAction(Action.COLLECT,
-                new SubsystemSetting(mScollector, ScollectorState.COLLECT));
+                new SubsystemSetting(mScollector, ScollectorState.COLLECT),
+                new SubsystemSetting(mArm, ArmState.COLLECT));
 
-        // defineAction(Action.AUTO_AIM_SHOOT,
-        // new SubsystemSetting(mScollector, ScollectorState.AUTO_AIM_SHOOT));
+        defineAction(Action.SHOOT,
+        new SubsystemSetting(mScollector, ScollectorState.SHOOT),
+        new SubsystemSetting(mArm, ArmState.SUBWOOFER));
     }
 
     private void defineAction(Action action, SubsystemSetting... settings) {

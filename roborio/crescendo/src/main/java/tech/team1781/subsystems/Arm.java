@@ -138,10 +138,10 @@ public class Arm extends Subsystem {
                 break;
 
             case SUBWOOFER:
-                break;
+                return matchesPosition();
 
             case COLLECT:
-                break;
+                return matchesPosition();
         }
         return false;
     }
@@ -203,5 +203,10 @@ public class Arm extends Subsystem {
 
     public double getAngle() {
         return mLeftEncoder.getPosition();
+    }
+
+    private boolean matchesPosition() {
+        var diff = mDesiredPosition - mLeftEncoder.getPosition();
+        return Math.abs(diff) <= 20;
     }
 }
