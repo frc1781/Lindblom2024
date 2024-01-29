@@ -74,7 +74,8 @@ public class Arm extends Subsystem {
         PODIUM,
         SUBWOOFER,
         COLLECT,
-        AUTO_AIM
+        AUTO_AIM,
+        MANUAL
     }
 
     @Override
@@ -102,26 +103,7 @@ public class Arm extends Subsystem {
         if (mIsManual) {
             // mLeftMotor.set(armDutyCycle);
             // System.out.println("manual");
-        } else {
-            // System.out.println("not manual");
             mLeftMotor.set(armDutyCycle);
-        }
-
-        switch ((ArmState) getState()) {
-            case START:
-                break;
-
-            case SAFE:
-                break;
-
-            case PODIUM:
-                break;
-
-            case SUBWOOFER:
-                break;
-
-            case COLLECT:
-                break;
         }
     }
 
@@ -138,10 +120,10 @@ public class Arm extends Subsystem {
                 break;
 
             case SUBWOOFER:
-                return matchesPosition();
+                return atOptimalAngle();
 
             case COLLECT:
-                return matchesPosition();
+                return atOptimalAngle();
         }
         return false;
     }
@@ -179,7 +161,6 @@ public class Arm extends Subsystem {
         // System.out.printf("arm left encoder %.3f\n", getAngle());
         // mLeftMotor.set(0); //temp
     }
-    
 
     @Override
     public void setDesiredState(SubsystemState state) {
@@ -203,10 +184,5 @@ public class Arm extends Subsystem {
 
     public double getAngle() {
         return mLeftEncoder.getPosition();
-    }
-
-    private boolean matchesPosition() {
-        var diff = mDesiredPosition - mLeftEncoder.getPosition();
-        return Math.abs(diff) <= 20;
     }
 }
