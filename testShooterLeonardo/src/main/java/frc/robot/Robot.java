@@ -73,10 +73,11 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     if(controller.getAButtonPressed()){
-      shooterMotorTop.set(ControlMode.PercentOutput, 0.4);
-      shooterMotorBottom.set(ControlMode.PercentOutput, 0.4);
+      shooterMotorTop.set(ControlMode.PercentOutput, -0.4);
+      shooterMotorBottom.set(ControlMode.PercentOutput, -0.4);
 
     }
+    
     if(controller.getAButtonReleased()){
       shooterMotorTop.set(ControlMode.PercentOutput, 0);
       shooterMotorBottom.set(ControlMode.PercentOutput, 0);
