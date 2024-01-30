@@ -7,7 +7,7 @@ public abstract class Subsystem {
    protected OperatingMode currentMode; 
    private final SubsystemState defaultState;
 
-   private SubsystemState currentState;
+   protected SubsystemState currentState;
    
    protected Subsystem(String _name, SubsystemState _defaultState) {
     name = _name;
@@ -28,15 +28,19 @@ public abstract class Subsystem {
    }
 
    public final void feedStateTime(double sampledTime) {
-    currentTime = sampledTime;
+      currentTime = sampledTime;
    }
 
    public void setDesiredState(SubsystemState desiredState) {
-    currentState = desiredState;
+      if (desiredState == currentState) {
+         return;
+      }
+      currentState = desiredState;
+      System.out.println("Changing " + name +  "'s state to " + desiredState);
    }
    
    public final SubsystemState getState() {
-    return currentState;
+      return currentState;
    }
 
    public final void restoreDefault() {

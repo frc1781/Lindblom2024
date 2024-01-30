@@ -80,12 +80,6 @@ public class ControlSystem {
                 mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND);
     }
 
-    
-    public void driverArming(EVector translation, EVector rotation) {
-        double armDutyCycle = -translation.y * .3;
-        mArm.driveManual(armDutyCycle);
-    }
-
     public void setArmState(ArmState desiredState) {
         mArm.setDesiredState(desiredState);
     }
@@ -162,7 +156,12 @@ public class ControlSystem {
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
 
-                mArm.driveManual(driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).x - driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).y);
+                double armInput = driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).x - 
+                                    driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).y;
+                if (Math.abs(armInput) >= 0.1) {
+                    mArm.setDesiredState(ArmState.MANUAL);
+                    mArm.driveManual(armInput);
+                }
 
                 if (driverInput.getButton(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT)) {
                     mScollector.setDesiredState(ScollectorState.COLLECT);
