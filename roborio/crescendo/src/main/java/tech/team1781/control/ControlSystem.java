@@ -44,6 +44,8 @@ public class ControlSystem {
     private final SlewRateLimiter mYDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
     private final SlewRateLimiter mRotDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_ROTATION_RATE_LIMIT);
 
+    private boolean mDriverNoteManipulation = false;
+
     public enum Action {
         COLLECT,
         SHOOT
@@ -80,38 +82,26 @@ public class ControlSystem {
                 mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND);
     }
 
-    
     public void driverArming(EVector translation, EVector rotation) {
         double armDutyCycle = -translation.y * .3;
         mArm.driveManual(armDutyCycle);
     }
 
-    public void setCollecting(boolean isCollecting) {
-        if (isCollecting) {
-            mScollector.setDesiredState(ScollectorState.COLLECT);
-
-            mArm.setDesiredState(mScollector.hasNote() ? ArmState.COLLECT : ArmState.SUBWOOFER);
-        } else {
-            mScollector.setDesiredState(ScollectorState.IDLE);
-        }
+    public void setCollecting() {
+        mScollector.setDesiredState(ScollectorState.COLLECT);
+        mArm.setDesiredState(mScollector.hasNote() ? ArmState.SUBWOOFER : ArmState.COLLECT);
+        mDriverNoteManipulation = true;
     }
 
-    public void setSpit(boolean isSpitting) {
-        if(isSpitting) {
-            mScollector.setDesiredState(ScollectorState.SPIT);
-            mArm.setDesiredState(ArmState.COLLECT);
-        } else {
-            mScollector.setDesiredState(ScollectorState.IDLE);
-        }
+    public void setSpit() {
+        mScollector.setDesiredState(ScollectorState.SPIT);
+        mDriverNoteManipulation = true;
     }
 
-    public void setShooting(boolean isShooting) {
-        if (isShooting) {
-            mScollector.setDesiredState(ScollectorState.SHOOT);
-            mArm.setDesiredState(ArmState.SUBWOOFER);
-        } else {
-            mScollector.setDesiredState(ScollectorState.IDLE);
-        }
+    public void setShooting() {
+        mScollector.setDesiredState(ScollectorState.SHOOT);
+        mArm.setDesiredState(ArmState.SUBWOOFER);
+        mDriverNoteManipulation = true;
     }
 
     public void setArmState(ArmState desiredState) {
@@ -175,6 +165,8 @@ public class ControlSystem {
                 mRotDriveLimiter.reset(0);
 
                 mDriveSystem.setDesiredState(DriveSystem.DriveSystemState.DRIVE_MANUAL);
+
+                mDriverNoteManipulation = false;
                 break;
             case AUTONOMOUS:
                 break;
@@ -190,17 +182,14 @@ public class ControlSystem {
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
 
-                mArm.driveManual(driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).x - driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).y);
+                mArm.driveManual(driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).x
+                        - driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).y);
 
-                if (driverInput.getButton(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT)) {
-                    mScollector.setDesiredState(ScollectorState.COLLECT);
-                } else if (driverInput.getButton(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.SPIT)) {
-                    mScollector.setDesiredState(ScollectorState.SPIT);
-                } else if (driverInput.getButton(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.SHOOT)) {
-                    mScollector.setDesiredState(ScollectorState.SHOOT);
-                } else {
+                if(!mDriverNoteManipulation) {
                     mScollector.setDesiredState(ScollectorState.IDLE);
-                }
+                }  
+
+                mDriverNoteManipulation = false;
                 break;
             default:
                 break;
@@ -243,8 +232,8 @@ public class ControlSystem {
                 new SubsystemSetting(mArm, ArmState.COLLECT));
 
         defineAction(Action.SHOOT,
-        new SubsystemSetting(mScollector, ScollectorState.SHOOT),
-        new SubsystemSetting(mArm, ArmState.SUBWOOFER));
+                new SubsystemSetting(mScollector, ScollectorState.SHOOT),
+                new SubsystemSetting(mArm, ArmState.SUBWOOFER));
     }
 
     private void defineAction(Action action, SubsystemSetting... settings) {

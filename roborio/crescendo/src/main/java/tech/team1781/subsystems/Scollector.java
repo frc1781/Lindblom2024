@@ -93,16 +93,16 @@ public class Scollector extends Subsystem {
 
     @Override
     public void teleopPeriodic() {
-
+        System.out.println(hasNote() + " :: " + mNoteSensor.getRange());
     }
 
     public boolean hasNote() {
-        return mNoteSensor.getRange() >= 400;
+        return mNoteSensor.getRange() < 300;
     }
 
     private void collect() {
-
-        if (hasNote()) {
+               
+        if (!hasNote()) {
             mCollectorMotor.set(-1);
         } else {
             mCollectorMotor.set(0);
@@ -114,8 +114,9 @@ public class Scollector extends Subsystem {
         // System.out.println("Left: " + mLeftShooterMotor.getEncoder().getVelocity());
         // System.out.println("Right: " +
         // mRightShooterMotor.getEncoder().getVelocity());
-        System.out.println("Average: "
-                + (mLeftShooterMotor.getEncoder().getVelocity() + mRightShooterMotor.getEncoder().getVelocity()) / 2);
+        // System.out.println("Average: "
+        // + (mLeftShooterMotor.getEncoder().getVelocity() +
+        // mRightShooterMotor.getEncoder().getVelocity()) / 2);
 
         double leftDutyCycle = 1;// mLeftShooterPID.calculate(mLeftShooterMotor.getEncoder().getVelocity(),
                                  // threshold);
