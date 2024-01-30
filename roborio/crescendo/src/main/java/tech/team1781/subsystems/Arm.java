@@ -102,8 +102,10 @@ public class Arm extends Subsystem {
 
     @Override
     public void getToState() {
+        mDesiredPosition = MathUtil.clamp(mDesiredPosition,0.0,90.0);
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), mDesiredPosition);
         mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
+        System.out.println(getAngle());
         // mLeftMotor.set(armDutyCycle);
     }
 
@@ -137,7 +139,7 @@ public class Arm extends Subsystem {
         if(currentState != ArmState.MANUAL) {
             return;
         }
-        mDesiredPosition += MathUtil.clamp(armDutyCycle * 0.5, 0.0, 82.0);
+        mDesiredPosition += MathUtil.clamp(armDutyCycle * 0.1, 0.0, 82.0);
         System.out.println(mDesiredPosition);
     }
 
@@ -163,10 +165,11 @@ public class Arm extends Subsystem {
         }
     }
 
-    public void setOptimalAngle(double distance) {
+    public void setOptimalAngle(double distance, double viewAngle) {
         // Calculate desired angle
-        // Find desired angle based on distance
-        mDesiredPosition = 25.0;
+        // Find desired angle based on distance & orientation to April Tag
+        mDesiredPosition = 90 - (60-distance);
+        // mDesiredPosition = 25.0;
     }
 
     public boolean atOptimalAngle() {
