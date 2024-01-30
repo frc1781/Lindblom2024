@@ -86,6 +86,34 @@ public class ControlSystem {
         mArm.driveManual(armDutyCycle);
     }
 
+    public void setCollecting(boolean isCollecting) {
+        if (isCollecting) {
+            mScollector.setDesiredState(ScollectorState.COLLECT);
+
+            mArm.setDesiredState(mScollector.hasNote() ? ArmState.COLLECT : ArmState.SUBWOOFER);
+        } else {
+            mScollector.setDesiredState(ScollectorState.IDLE);
+        }
+    }
+
+    public void setSpit(boolean isSpitting) {
+        if(isSpitting) {
+            mScollector.setDesiredState(ScollectorState.SPIT);
+            mArm.setDesiredState(ArmState.COLLECT);
+        } else {
+            mScollector.setDesiredState(ScollectorState.IDLE);
+        }
+    }
+
+    public void setShooting(boolean isShooting) {
+        if (isShooting) {
+            mScollector.setDesiredState(ScollectorState.SHOOT);
+            mArm.setDesiredState(ArmState.SUBWOOFER);
+        } else {
+            mScollector.setDesiredState(ScollectorState.IDLE);
+        }
+    }
+
     public void setArmState(ArmState desiredState) {
         mArm.setDesiredState(desiredState);
     }

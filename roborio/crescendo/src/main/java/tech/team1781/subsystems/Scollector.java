@@ -27,11 +27,6 @@ public class Scollector extends Subsystem {
             new TrapezoidProfile.Constraints(10, 2));
 
     private TimeOfFlight mNoteSensor = new TimeOfFlight(ConfigMap.SCOLLECTOR_TOF);
-    // private CANSparkMax mTopShooterMotor = new
-    // CANSparkMax(ConfigMap.TOP_SHOOTER_MOTOR,
-    // CANSparkMax.MotorType.kBrushless);
-    // private CANSparkMax mShooterMotor = new CANSparkMax(ConfigMap.SHOOTER_MOTOR,
-    // CANSparkMax.MotorType.kBrushless);
 
     public Scollector() {
         super("Scollector", ScollectorState.IDLE);
@@ -58,14 +53,6 @@ public class Scollector extends Subsystem {
     @Override
     public void init() {
     }
-
-    // public boolean hasNote() {
-    // if (mTimeOfFlight.getRange() < 10) {
-    // return true;
-    // } else {
-    // return false;
-    // }
-    // }
 
     @Override
     public void getToState() {
@@ -106,17 +93,21 @@ public class Scollector extends Subsystem {
 
     @Override
     public void teleopPeriodic() {
+
+    }
+
+    public boolean hasNote() {
+        return mNoteSensor.getRange() >= 400;
     }
 
     private void collect() {
-        System.out.println(mNoteSensor.getRange());
 
-        if(mNoteSensor.getRange() >= 400){
+        if (hasNote()) {
             mCollectorMotor.set(-1);
-        }else {
+        } else {
             mCollectorMotor.set(0);
+        }
     }
-}
 
     private void shoot() {
         double threshold = mThresholdEntry.getDouble(7);

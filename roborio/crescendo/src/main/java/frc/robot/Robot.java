@@ -65,6 +65,18 @@ public class Robot extends TimedRobot {
       }
     });
 
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT, (isPressed) -> {
+      mControlSystem.setCollecting(isPressed);
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.SHOOT, (isPressed) -> {
+      mControlSystem.setShooting(isPressed);
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.SPIT, (isPressed) -> {
+      mControlSystem.setSpit(isPressed);
+    });
+
   }
 
   @Override
