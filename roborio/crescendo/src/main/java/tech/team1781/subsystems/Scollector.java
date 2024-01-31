@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.motorcontrol.PWMTalonSRX;
 import tech.team1781.ConfigMap;
+import tech.team1781.utils.EVector;
 
 //EXAMPLE SUBSYSTEM, NOT FOR ACTUAL BOT
 public class Scollector extends Subsystem {
@@ -24,10 +25,13 @@ public class Scollector extends Subsystem {
 
     private GenericEntry mThresholdEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Shooter Threshold", 6).getEntry();
 
-    private ProfiledPIDController mLeftShooterPID = new ProfiledPIDController(2, 0, 0,
-            new TrapezoidProfile.Constraints(10, 2));
-    private ProfiledPIDController mRightShooterPID = new ProfiledPIDController(2, 0, 0,
-            new TrapezoidProfile.Constraints(10, 2));
+
+    private final EVector SHOOTER_PID = EVector.newVector(2.0, 0.0, 0.0);
+    private final TrapezoidProfile.Constraints SHOOTER_CONSTRAINTS = new TrapezoidProfile.Constraints(10, 5);
+    private ProfiledPIDController mLeftShooterPID = new ProfiledPIDController(SHOOTER_PID.x, SHOOTER_PID.y,
+            SHOOTER_PID.z, SHOOTER_CONSTRAINTS); 
+    private ProfiledPIDController mRightShooterPID = new ProfiledPIDController(SHOOTER_PID.x, SHOOTER_PID.y,
+            SHOOTER_PID.z, SHOOTER_CONSTRAINTS);
 
     private TimeOfFlight mNoteSensor = new TimeOfFlight(ConfigMap.SCOLLECTOR_TOF);
 
@@ -138,9 +142,13 @@ public class Scollector extends Subsystem {
     private boolean isSending = false;
 
     private void shoot() {
+        final double desiredSpeed = 7;
+        
+        double leftDutyCycle = mLeftShooterPID.calculate(mLeftShooterMotor.getEncoder().getVelocity(), desiredSpeed);
+        double rightDutyCycle = mRightShooterPID.calculate(mRightShooterMotor.getEncoder().getVelocity(), desiredSpeed);
 
-        mLeftShooterMotor.set(1);
-        mRightShooterMotor.set(1);
+        mLeftShooterMotor.set(leftDutyCycle);
+        mRightShooterMotor.set(rightDutyCycle);
 
         if (shooterAtSpeed()) {
             mShooterTimer.start();
