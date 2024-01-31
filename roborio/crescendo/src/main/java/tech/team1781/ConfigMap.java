@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 public class ConfigMap {
         public static final ShuffleboardTab SHUFFLEBOARD_TAB = Shuffleboard.getTab("Electric Eagles");
 
-        public static final String BEST_TEAM_MEMBER = "Vincent";
+        public static final String BEST_TEAM_MEMBER = "Allison";
 
         // CAN IDs
 
@@ -64,6 +64,9 @@ public class ConfigMap {
 
         // First Drivebase
 
+        //Limelight
+        public static final String LIMELIGHT_NAME = "limelight-three";
+
         // Controls
         public static final int DRIVER_CONTROLLER_PORT = 0;
 
@@ -71,4 +74,8 @@ public class ConfigMap {
         public static final double DRIVER_ROTATION_RATE_LIMIT = 1.2;
 
         public static final String RESET_NAVX = "X";
+
+        // Co-pilot controls
+        public static final int CO_PILOT_PORT = 1;
+        public static final String CENTER_TO_APRIL_TAG = "B";
 }

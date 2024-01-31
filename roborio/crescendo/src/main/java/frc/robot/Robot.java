@@ -1,10 +1,9 @@
-// Copyright (c) FIRST and other WPILib contributors.
+  // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
 
-import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import tech.team1781.ConfigMap;
@@ -46,6 +45,10 @@ public class Robot extends TimedRobot {
       if(isPressed) {
         mControlSystem.zeroNavX();
       }
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CENTER_TO_APRIL_TAG, (isHeld) -> {
+        mControlSystem.centerOnAprilTag(isHeld);
     });
   }
 

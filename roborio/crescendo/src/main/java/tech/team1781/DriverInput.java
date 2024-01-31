@@ -11,7 +11,8 @@ import tech.team1781.utils.EVector;
 public class DriverInput {
 
     private GenericHID[] mControllers = new GenericHID[] {
-            new XboxController(0)
+            new XboxController(0),
+            new XboxController(1)
         };
 
     private HashMap<String, Event> mClickEvents = new HashMap<>();

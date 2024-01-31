@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.path.PathPlannerTrajectory;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
 import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput.ControllerSide;
@@ -15,13 +16,13 @@ import tech.team1781.subsystems.Climber;
 import tech.team1781.subsystems.DriveSystem;
 import tech.team1781.subsystems.Scollector;
 import tech.team1781.subsystems.Subsystem;
-import tech.team1781.subsystems.Climber.ClimberState;
 import tech.team1781.subsystems.DriveSystem.DriveSystemState;
 import tech.team1781.subsystems.Scollector.ScollectorState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
 import tech.team1781.subsystems.Subsystem.SubsystemState;
 import tech.team1781.utils.EVector;
 import tech.team1781.DriverInput;
+import tech.team1781.utils.LimelightHelper;
 
 public class ControlSystem {
     private HashMap<Action, SubsystemSetting[]> mActions = new HashMap<Action, SubsystemSetting[]>();
@@ -40,6 +41,11 @@ public class ControlSystem {
     private final SlewRateLimiter mXDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
     private final SlewRateLimiter mYDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
     private final SlewRateLimiter mRotDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_ROTATION_RATE_LIMIT);
+    private ProfiledPIDController mLimelightAimController = new ProfiledPIDController(0.075, 0, 0, new TrapezoidProfile.Constraints(1, 0.5));
+
+    private boolean mAutoAiming = false;
+    private double aimingAngle = 0.0;
+
 
     public enum Action {
         COLLECT, 
@@ -72,11 +78,25 @@ public class ControlSystem {
         mDriveSystem.driveRaw(
                 mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
                 mYDriveLimiter.calculate(yVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
-                mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND);
+                mAutoAiming ? aimingAngle : (mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND));
     }
 
     public void zeroNavX() {
         mDriveSystem.zeroNavX();
+    }
+
+    public void centerOnAprilTag(boolean isHeld) {
+        if (isHeld) {
+            //double x = LimelightHelper.getTX(ConfigMap.LIMELIGHT_NAME);
+            double x = LimelightHelper.getXOffsetOfPreferredTarget(4);
+            double delta = mLimelightAimController.calculate(x, 0);
+
+            System.out.println("target offset " + x);
+            System.out.println("delta " + delta);
+            aimingAngle = delta;
+        }
+
+        mAutoAiming = isHeld;
     }
 
     public void setAction(Action desiredAction) {
