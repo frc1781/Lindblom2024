@@ -48,7 +48,8 @@ public class ControlSystem {
 
     public enum Action {
         COLLECT,
-        SHOOT
+        SHOOT,
+        COLLECT_RAMP
     }
 
     public ControlSystem() {
@@ -100,7 +101,7 @@ public class ControlSystem {
 
     public void setShooting() {
         mScollector.setDesiredState(ScollectorState.SHOOT);
-        mArm.setDesiredState(ArmState.SUBWOOFER);
+        // mArm.setDesiredState(ArmState.SUBWOOFER);
         mDriverNoteManipulation = true;
     }
 
@@ -176,6 +177,8 @@ public class ControlSystem {
     }
 
     public void run(DriverInput driverInput) {
+        mScollector.setReadyToShoot(mArm.matchesDesiredState());
+
         switch (mCurrentOperatingMode) {
             case TELEOP:
                 driverDriving(
@@ -185,11 +188,21 @@ public class ControlSystem {
                 mArm.driveManual(driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).x
                         - driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).y);
 
-                if(!mDriverNoteManipulation) {
+                if (!mDriverNoteManipulation) {
                     mScollector.setDesiredState(ScollectorState.IDLE);
-                }  
+                }
 
                 mDriverNoteManipulation = false;
+                break;
+            case AUTONOMOUS:
+                System.out.println(mScollector.getState().toString());
+                if (mScollector.getState() == ScollectorState.COLLECT || mScollector.getState() == ScollectorState.COLLECT_RAMP) {
+                    if (mScollector.hasNote()) {
+                        mArm.setDesiredState(ArmState.SUBWOOFER);
+                    } else {
+                        mArm.setDesiredState(ArmState.COLLECT);
+                    }
+                }
                 break;
             default:
                 break;
@@ -234,6 +247,10 @@ public class ControlSystem {
         defineAction(Action.SHOOT,
                 new SubsystemSetting(mScollector, ScollectorState.SHOOT),
                 new SubsystemSetting(mArm, ArmState.SUBWOOFER));
+
+        defineAction(Action.COLLECT_RAMP, 
+                new SubsystemSetting(mScollector, ScollectorState.COLLECT_RAMP),
+                new SubsystemSetting(mArm, ArmState.COLLECT));
     }
 
     private void defineAction(Action action, SubsystemSetting... settings) {
@@ -245,6 +262,7 @@ public class ControlSystem {
         switch (mCurrentOperatingMode) {
             case AUTONOMOUS:
                 subsystem.autonomousPeriodic();
+
                 break;
             case TELEOP:
                 subsystem.teleopPeriodic();

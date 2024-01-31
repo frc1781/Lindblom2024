@@ -21,7 +21,7 @@ public class Arm extends Subsystem {
     private RelativeEncoder mLeftEncoder;
     private ArmState mDesiredArmState;
     private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.1, 0, 0,
-            new TrapezoidProfile.Constraints(200, 50));
+            new TrapezoidProfile.Constraints(200, 100));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
 
     private GenericEntry mArmPositionEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Arm Position", -1).getEntry();
@@ -71,6 +71,7 @@ public class Arm extends Subsystem {
 
     @Override
     public void genericPeriodic() {
+        System.out.println(getAngle());
     }
 
     @Override
@@ -115,23 +116,23 @@ public class Arm extends Subsystem {
 
     @Override
     public boolean matchesDesiredState() {
-        switch ((ArmState) getState()) {
-            case START:
-                break;
+        // switch ((ArmState) getState()) {
+        //     case START:
+        //         break;
 
-            case SAFE:
-                break;
+        //     case SAFE:
+        //         break;
 
-            case PODIUM:
-                break;
+        //     case PODIUM:
+        //         break;
 
-            case SUBWOOFER:
-                return matchesPosition();
+        //     case SUBWOOFER:
+        //         return matchesPosition();
 
-            case COLLECT:
-                return matchesPosition();
-        }
-        return false;
+        //     case COLLECT:
+        //         return matchesPosition();
+        // }
+        return matchesPosition();
     }
 
     @Override
@@ -172,6 +173,6 @@ public class Arm extends Subsystem {
 
     private boolean matchesPosition() {
         var diff = mDesiredPosition - mLeftEncoder.getPosition();
-        return Math.abs(diff) <= 20;
+        return Math.abs(diff) <= 1;
     }
 }
