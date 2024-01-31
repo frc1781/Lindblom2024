@@ -135,6 +135,8 @@ public class Scollector extends Subsystem {
         }
     }
 
+    private boolean isSending = false;
+
     private void shoot() {
 
         mLeftShooterMotor.set(1);
@@ -144,17 +146,26 @@ public class Scollector extends Subsystem {
             mShooterTimer.start();
         }
 
-        if(mArmInPosition)
-            return;
+        // if(mArmInPosition)
+        // return;
+        System.out.println(mRightShooterMotor.getEncoder().getPosition() + "," +
+                mLeftShooterMotor.getEncoder().getPosition() + "," +
+                mRightShooterMotor.getEncoder().getVelocity() + "," +
+                mLeftShooterMotor.getEncoder().getVelocity() + "," +
+                (isSending));
 
         if (mShooterTimer.get() >= 0.5 && mShooterTimer.get() <= 1.5) {
             mCollectorMotor.set(-1);
-        } else if(mShooterTimer.get() > 1.5){
-            mShooterTimer.reset();
+            isSending = true;
+        } else if (mShooterTimer.get() > 1.5) {
             mShooterTimer.stop();
+            mShooterTimer.reset();
             mCollectorMotor.set(0);
-        }   
-        
+            isSending = false;
+        } else {
+            isSending = false;
+        }
+
     }
 
     private boolean shooterAtSpeed() {

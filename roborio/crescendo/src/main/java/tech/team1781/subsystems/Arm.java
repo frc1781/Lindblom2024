@@ -71,7 +71,7 @@ public class Arm extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-        System.out.println(getAngle());
+        // System.out.println(getAngle());
     }
 
     @Override
