@@ -9,6 +9,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.motorcontrol.PWMTalonSRX;
@@ -156,7 +157,8 @@ public class Scollector extends Subsystem {
 
         // if(mArmInPosition)
         // return;
-        System.out.println(mRightShooterMotor.getEncoder().getPosition() + "," +
+        System.out.println(DriverStation.getMatchTime() + "," +
+                mRightShooterMotor.getEncoder().getPosition() + "," +
                 mLeftShooterMotor.getEncoder().getPosition() + "," +
                 mRightShooterMotor.getEncoder().getVelocity() + "," +
                 mLeftShooterMotor.getEncoder().getVelocity() + "," +
