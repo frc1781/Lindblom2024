@@ -5,9 +5,8 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
 
 
 /**
@@ -17,8 +16,8 @@ import edu.wpi.first.wpilibj.XboxController;
  * project.
  */
 public class Robot extends TimedRobot {
-  VictorSPX shooterMotorTop = new VictorSPX(0);
-  VictorSPX shooterMotorBottom = new VictorSPX(1);
+  VictorSP shooterMotorTop = new VictorSP(0);
+  VictorSP shooterMotorBottom = new VictorSP(1);
   XboxController controller = new XboxController(0);
 
 
@@ -65,23 +64,15 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    shooterMotorTop.set(ControlMode.PercentOutput, 0);
-    shooterMotorTop.set(ControlMode.PercentOutput, 0);
+    shooterMotorTop.set(0);
+    shooterMotorTop.set(0);
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    if(controller.getAButtonPressed()){
-      shooterMotorTop.set(ControlMode.PercentOutput, -0.4);
-      shooterMotorBottom.set(ControlMode.PercentOutput, -0.4);
-
-    }
-    
-    if(controller.getAButtonReleased()){
-      shooterMotorTop.set(ControlMode.PercentOutput, 0);
-      shooterMotorBottom.set(ControlMode.PercentOutput, 0);
-    }
+      shooterMotorTop.set(-controller.getLeftY());
+      shooterMotorBottom.set(-controller.getLeftY());
   }
 
   /** This function is called once when the robot is disabled. */
