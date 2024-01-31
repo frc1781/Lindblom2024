@@ -19,7 +19,6 @@ import tech.team1781.subsystems.Scollector;
 import tech.team1781.subsystems.Arm;
 import tech.team1781.subsystems.Subsystem;
 import tech.team1781.subsystems.Arm.ArmState;
-import tech.team1781.subsystems.Climber.ClimberState;
 import tech.team1781.subsystems.DriveSystem.DriveSystemState;
 import tech.team1781.subsystems.Scollector.ScollectorState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
@@ -46,7 +45,7 @@ public class ControlSystem {
     private final SlewRateLimiter mXDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
     private final SlewRateLimiter mYDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
     private final SlewRateLimiter mRotDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_ROTATION_RATE_LIMIT);
-    private ProfiledPIDController mLimelightAimController = new ProfiledPIDController(0.075, 0, 0, new TrapezoidProfile.Constraints(1, 0.5));
+    private final ProfiledPIDController mLimelightAimController = new ProfiledPIDController(0.075, 0, 0, new TrapezoidProfile.Constraints(1, 0.5));
 
     private boolean mAutoAiming = false;
     private double aimingAngle = 0.0;
@@ -98,13 +97,8 @@ public class ControlSystem {
 
     public void centerOnAprilTag(boolean isHeld) {
         if (isHeld) {
-            //double x = LimelightHelper.getTX(ConfigMap.LIMELIGHT_NAME);
             double x = LimelightHelper.getXOffsetOfPreferredTarget(4);
-            double delta = mLimelightAimController.calculate(x, 0);
-
-            System.out.println("target offset " + x);
-            System.out.println("delta " + delta);
-            aimingAngle = delta;
+            aimingAngle = mLimelightAimController.calculate(x, 0);
         }
 
         mAutoAiming = isHeld;
