@@ -32,6 +32,7 @@ public class Scollector extends Subsystem {
     private TimeOfFlight mNoteSensor = new TimeOfFlight(ConfigMap.SCOLLECTOR_TOF);
 
     private boolean mIsReadyToShoot = false;
+    private boolean mArmInPosition = false;
     private Timer mShooterTimer = new Timer();
 
     public Scollector() {
@@ -59,8 +60,9 @@ public class Scollector extends Subsystem {
     @Override
     public void init() {
         mIsReadyToShoot = false;
+        mArmInPosition = false;
         mShooterTimer.reset();
-        mShooterTimer.start();
+        mShooterTimer.stop();
     }
 
     @Override
@@ -120,8 +122,8 @@ public class Scollector extends Subsystem {
         return mNoteSensor.getRange() < 300;
     }
 
-    public void setReadyToShoot(boolean canShoot) {
-        mIsReadyToShoot = canShoot;
+    public void setArmReadyToShoot(boolean armReady) {
+        mArmInPosition = armReady;
     }
 
     private void collect() {
@@ -134,28 +136,25 @@ public class Scollector extends Subsystem {
     }
 
     private void shoot() {
-        double threshold = mThresholdEntry.getDouble(7);
-        // System.out.println("Left: " + mLeftShooterMotor.getEncoder().getVelocity());
-        // System.out.println("Right: " +
-        // mRightShooterMotor.getEncoder().getVelocity());
-        // System.out.println("Average: "
-        // + (mLeftShooterMotor.getEncoder().getVelocity() +
-        // mRightShooterMotor.getEncoder().getVelocity()) / 2);
 
-        double leftDutyCycle = 1;// mLeftShooterPID.calculate(mLeftShooterMotor.getEncoder().getVelocity(),
-                                 // threshold);
-        double rightDutyCycle = 1; // mRightShooterPID.calculate(mRightShooterMotor.getEncoder().getVelocity(),
-                                   // threshold);
+        mLeftShooterMotor.set(1);
+        mRightShooterMotor.set(1);
 
-        mLeftShooterMotor.set(leftDutyCycle);
-        mRightShooterMotor.set(rightDutyCycle);
-
-        if (shooterAtSpeed() && mIsReadyToShoot) {
-            mCollectorMotor.set(-1);
-        } else {
-            // System.out.println(mLeftShooterMotor.getEncoder().getVelocity());
-            mCollectorMotor.set(0);
+        if (shooterAtSpeed()) {
+            mShooterTimer.start();
         }
+
+        if(mArmInPosition)
+            return;
+
+        if (mShooterTimer.get() >= 0.5 && mShooterTimer.get() <= 1.5) {
+            mCollectorMotor.set(-1);
+        } else if(mShooterTimer.get() > 1.5){
+            mShooterTimer.reset();
+            mShooterTimer.stop();
+            mCollectorMotor.set(0);
+        }   
+        
     }
 
     private boolean shooterAtSpeed() {
@@ -164,15 +163,6 @@ public class Scollector extends Subsystem {
 
         double threshold = mThresholdEntry.getDouble(7);
 
-        if (leftSpeed >= threshold && rightSpeed >= threshold) {
-            if (mShooterTimer.get() > 0.5) {
-                mShooterTimer.reset();
-                return true;
-            }
-        } else {
-            mShooterTimer.reset();
-        }
-
-        return false;
+        return leftSpeed >= threshold && rightSpeed >= threshold;
     }
 }

@@ -177,7 +177,7 @@ public class ControlSystem {
     }
 
     public void run(DriverInput driverInput) {
-        mScollector.setReadyToShoot(mArm.matchesDesiredState());
+        mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
 
         switch (mCurrentOperatingMode) {
             case TELEOP:
