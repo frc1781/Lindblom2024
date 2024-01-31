@@ -66,7 +66,8 @@ public class Arm extends Subsystem {
         SAFE,
         PODIUM,
         SUBWOOFER,
-        COLLECT
+        COLLECT,
+        MANUAL
     }
 
     @Override
@@ -85,14 +86,10 @@ public class Arm extends Subsystem {
         var desiredPosition = mDesiredPosition; // mPositions.get(mDesiredPosition);
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), desiredPosition);
 
-        // System.out.println("Arm:" + mLeftEncoder.getPosition() );
         mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
 
-        if (mIsManual) {
-            // mLeftMotor.set(armDutyCycle);
-            // System.out.println("manual");
+        if (getState() == ArmState.MANUAL && mIsManual) {
         } else {
-            // System.out.println("not manual");
             mLeftMotor.set(armDutyCycle);
         }
 
@@ -111,28 +108,20 @@ public class Arm extends Subsystem {
 
             case COLLECT:
                 break;
+            default:
+                break;
         }
     }
 
     @Override
     public boolean matchesDesiredState() {
-        // switch ((ArmState) getState()) {
-        //     case START:
-        //         break;
-
-        //     case SAFE:
-        //         break;
-
-        //     case PODIUM:
-        //         break;
-
-        //     case SUBWOOFER:
-        //         return matchesPosition();
-
-        //     case COLLECT:
-        //         return matchesPosition();
-        // }
-        return matchesPosition();
+        switch ((ArmState) getState()) {
+            case START:
+                return true;
+            default:
+            return matchesPosition();
+   
+        }
     }
 
     @Override
@@ -145,6 +134,7 @@ public class Arm extends Subsystem {
 
         if (Math.abs(armDutyCycle) >= 0.1) {
             mIsManual = true;
+            setDesiredState(ArmState.MANUAL);
             mLeftMotor.set(armDutyCycle);
             mDesiredPosition = mLeftEncoder.getPosition();
         } else {
@@ -163,8 +153,11 @@ public class Arm extends Subsystem {
     public void setDesiredState(SubsystemState state) {
         super.setDesiredState(state);
 
-        mIsManual = false;
-        mDesiredPosition = mPositions.get(state);
+
+        if(state != ArmState.MANUAL) {
+            mDesiredPosition = mPositions.get(state);
+            mIsManual = false;
+        }
     }
 
     public double getAngle() {

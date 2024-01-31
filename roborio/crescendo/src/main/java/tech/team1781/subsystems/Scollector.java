@@ -43,6 +43,8 @@ public class Scollector extends Subsystem {
     private boolean mArmInPosition = false;
     private Timer mShooterTimer = new Timer();
 
+    
+
     public Scollector() {
         super("Scollector", ScollectorState.IDLE);
         mCollectorMotor.setIdleMode(IdleMode.kBrake);
@@ -60,11 +62,12 @@ public class Scollector extends Subsystem {
         mLeftPID = mLeftShooterMotor.getPIDController();
         mRightPID.setFeedbackDevice(mRightShooterMotor.getEncoder());
         mLeftPID.setFeedbackDevice(mLeftShooterMotor.getEncoder());
-        mRightPID.setP(0.3);
+        mRightPID.setP(0.5);
         mRightPID.setI(0);
         mRightPID.setD(0.01);
         mRightPID.setFF(1.0/9.8);
-        mLeftPID.setP(0.3);
+
+        mLeftPID.setP(0.5);
         mLeftPID.setI(0);
         mLeftPID.setD(0.01);
         mLeftPID.setFF(1.0/9.8);
@@ -177,16 +180,14 @@ public class Scollector extends Subsystem {
 
         // if(mArmInPosition)
         // return;
-        System.out.printf("%.4f,%.4f,%.4f,%.4f,%.4f,%d\n",
-            DriverStation.getMatchTime(),
-            mRightShooterMotor.getEncoder().getPosition(),
-            mLeftShooterMotor.getEncoder().getPosition(),
-            mRightShooterMotor.getEncoder().getVelocity(),
-            mLeftShooterMotor.getEncoder().getVelocity(),
-            isSending ? 1 : 0
-        );
+        // System.out.printf("%.4f,%.4f,%d\n",
+        //     mRightShooterMotor.getEncoder().getVelocity(),
+        //     mLeftShooterMotor.getEncoder().getVelocity(),
+        //     isSending ? 1 : 0
+        // );
 
-        if (mShooterTimer.get() >= 0.5 && mShooterTimer.get() <= 1.5) {
+
+        if (mShooterTimer.get() >= 0.1 && mShooterTimer.get() <= 1.5) {
             mCollectorMotor.set(-1);
             isSending = true;
         } else if (mShooterTimer.get() > 1.5) {
@@ -203,9 +204,9 @@ public class Scollector extends Subsystem {
     private boolean shooterAtSpeed() {
         double leftSpeed = mLeftShooterMotor.getEncoder().getVelocity();
         double rightSpeed = mRightShooterMotor.getEncoder().getVelocity();
+        double diff = Math.abs(leftSpeed - rightSpeed);
+        double threshold = 7;
 
-        double threshold = mThresholdEntry.getDouble(7);
-
-        return leftSpeed >= threshold && rightSpeed >= threshold;
+        return leftSpeed >= threshold && rightSpeed >= threshold && diff <= 0.1;
     }
 }
