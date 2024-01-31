@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 public class ConfigMap {
         public static final ShuffleboardTab SHUFFLEBOARD_TAB = Shuffleboard.getTab("Electric Eagles");
 
-        public static final String BEST_TEAM_MEMBER = "Vincent";
 
         // CAN IDs
 
@@ -29,7 +28,7 @@ public class ConfigMap {
 
         public static final int ARM_PIVOT_LEFT_MOTOR = 40;
         public static final int ARM_PIVOT_RIGHT_MOTOR = 41;
-
+        public static final double ARM_POSITION_TOLERANCE = 2.0;
         public static final double ARM_GEAR_RATIO = (1.0/125.0)*(18.0/56.0);
         // 57 Motors
         public static final int COLLECTOR_MOTOR = 57;
@@ -76,6 +75,9 @@ public class ConfigMap {
 
         // First Drivebase
 
+        //Limelight
+        public static final String LIMELIGHT_NAME = "limelight-three";
+
         // Controls
         public static final int DRIVER_CONTROLLER_PORT = 0;
 
@@ -86,4 +88,8 @@ public class ConfigMap {
         public static final String COLLECT = "RB";
         public static final String SPIT = "LB";
         public static final String SHOOT = "Y";
+
+        // Co-pilot controls
+        public static final int CO_PILOT_PORT = 1;
+        public static final String CENTER_TO_APRIL_TAG = "B";
 }

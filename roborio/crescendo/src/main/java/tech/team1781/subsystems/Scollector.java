@@ -43,8 +43,6 @@ public class Scollector extends Subsystem {
     private boolean mArmInPosition = false;
     private Timer mShooterTimer = new Timer();
 
-    
-
     public Scollector() {
         super("Scollector", ScollectorState.IDLE);
         mCollectorMotor.setIdleMode(IdleMode.kBrake);

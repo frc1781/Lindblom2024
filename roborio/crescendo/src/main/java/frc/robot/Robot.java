@@ -4,9 +4,8 @@
 
 package frc.robot;
 
-import java.util.ArrayList;
-
 import edu.wpi.first.wpilibj.TimedRobot;
+import org.opencv.dnn.Net;
 import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput;
 import tech.team1781.DriverInput.ControllerSide;
@@ -18,6 +17,7 @@ import tech.team1781.autonomous.routines.PIDTuningRoutine;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
+import tech.team1781.utils.NetworkLogger;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -47,10 +47,14 @@ public class Robot extends TimedRobot {
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
 
-    mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.RESET_NAVX, (isPressed) -> {
-      if (isPressed) {
+    mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.RESET_NAVX, (isPressed)->{
+      if(isPressed) {
         mControlSystem.zeroNavX();
       }
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CENTER_TO_APRIL_TAG, (isHeld) -> {
+        mControlSystem.centerOnAprilTag(isHeld);
     });
 
     mDriverInput.addClickListener(0, "B", (isPressed) -> {
@@ -85,8 +89,7 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void robotPeriodic() {
-  }
+  public void robotPeriodic() {}
 
   @Override
   public void autonomousInit() {
@@ -120,22 +123,17 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void disabledPeriodic() {
-  }
+  public void disabledPeriodic() {}
 
   @Override
-  public void testInit() {
-  }
+  public void testInit() {}
 
   @Override
-  public void testPeriodic() {
-  }
+  public void testPeriodic() {}
 
   @Override
-  public void simulationInit() {
-  }
+  public void simulationInit() {}
 
   @Override
-  public void simulationPeriodic() {
-  }
+  public void simulationPeriodic() {}
 }

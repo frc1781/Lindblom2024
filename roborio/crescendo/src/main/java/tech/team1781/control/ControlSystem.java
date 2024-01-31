@@ -6,7 +6,9 @@ import java.util.HashMap;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
 import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput.ControllerSide;
@@ -24,6 +26,7 @@ import tech.team1781.subsystems.Subsystem.OperatingMode;
 import tech.team1781.subsystems.Subsystem.SubsystemState;
 import tech.team1781.utils.EVector;
 import tech.team1781.DriverInput;
+import tech.team1781.utils.LimelightHelper;
 
 public class ControlSystem {
     private HashMap<Action, SubsystemSetting[]> mActions = new HashMap<Action, SubsystemSetting[]>();
@@ -43,6 +46,11 @@ public class ControlSystem {
     private final SlewRateLimiter mXDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
     private final SlewRateLimiter mYDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
     private final SlewRateLimiter mRotDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_ROTATION_RATE_LIMIT);
+    private ProfiledPIDController mLimelightAimController = new ProfiledPIDController(0.075, 0, 0,
+            new TrapezoidProfile.Constraints(1, 0.5));
+
+    private boolean mAutoAiming = false;
+    private double aimingAngle = 0.0;
 
     private boolean mDriverNoteManipulation = false;
 
@@ -80,7 +88,8 @@ public class ControlSystem {
         mDriveSystem.driveRaw(
                 mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
                 mYDriveLimiter.calculate(yVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
-                mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND);
+                mAutoAiming ? aimingAngle
+                        : (mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND));
     }
 
     public void driverArming(EVector translation, EVector rotation) {
@@ -111,6 +120,20 @@ public class ControlSystem {
 
     public void zeroNavX() {
         mDriveSystem.zeroNavX();
+    }
+
+    public void centerOnAprilTag(boolean isHeld) {
+        if (isHeld) {
+            // double x = LimelightHelper.getTX(ConfigMap.LIMELIGHT_NAME);
+            double x = LimelightHelper.getXOffsetOfPreferredTarget(4);
+            double delta = mLimelightAimController.calculate(x, 0);
+
+            System.out.println("target offset " + x);
+            System.out.println("delta " + delta);
+            aimingAngle = delta;
+        }
+
+        mAutoAiming = isHeld;
     }
 
     public void setAction(Action desiredAction) {
@@ -196,7 +219,8 @@ public class ControlSystem {
                 break;
             case AUTONOMOUS:
                 System.out.println(mScollector.getState().toString());
-                if (mScollector.getState() == ScollectorState.COLLECT || mScollector.getState() == ScollectorState.COLLECT_RAMP) {
+                if (mScollector.getState() == ScollectorState.COLLECT
+                        || mScollector.getState() == ScollectorState.COLLECT_RAMP) {
                     if (mScollector.hasNote()) {
                         mArm.setDesiredState(ArmState.SUBWOOFER);
                     } else {
@@ -236,7 +260,6 @@ public class ControlSystem {
         for (Subsystem s : mSubsystems) {
             s.restoreDefault();
         }
-
     }
 
     private void initActions() {
@@ -248,7 +271,7 @@ public class ControlSystem {
                 new SubsystemSetting(mScollector, ScollectorState.SHOOT),
                 new SubsystemSetting(mArm, ArmState.SUBWOOFER));
 
-        defineAction(Action.COLLECT_RAMP, 
+        defineAction(Action.COLLECT_RAMP,
                 new SubsystemSetting(mScollector, ScollectorState.COLLECT_RAMP),
                 new SubsystemSetting(mArm, ArmState.COLLECT));
     }

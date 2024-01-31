@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkLimitSwitch.Type;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.GenericEntry;
@@ -19,16 +20,15 @@ public class Arm extends Subsystem {
     private CANSparkMax mRightMotor;
     private CANSparkMax mLeftMotor;
     private RelativeEncoder mLeftEncoder;
-    private ArmState mDesiredArmState;
+    private SparkLimitSwitch mDownLimitSwitch;
+    private SparkLimitSwitch mUpLimitSwitch;
     private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.1, 0, 0,
             new TrapezoidProfile.Constraints(200, 100));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
 
     private GenericEntry mArmPositionEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Arm Position", -1).getEntry();
 
-
     private double mDesiredPosition = 0;
-    private boolean mIsManual = false;
 
     public Arm() {
         super("Arm", ArmState.START);
@@ -43,7 +43,11 @@ public class Arm extends Subsystem {
         mLeftEncoder = mLeftMotor.getEncoder();
         mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2); // will tell us angle in
                                                                                           // degrees
-        mDesiredArmState = ArmState.START;
+
+        mDownLimitSwitch = mLeftMotor.getReverseLimitSwitch(Type.kNormallyOpen);
+        mUpLimitSwitch = mLeftMotor.getForwardLimitSwitch(Type.kNormallyOpen);
+
+        currentState = ArmState.START;
 
         mRightMotor.follow(mLeftMotor, true);
         mLeftMotor.setIdleMode(IdleMode.kBrake);
@@ -52,7 +56,7 @@ public class Arm extends Subsystem {
         System.out.println("ENSURE ARM IN ZERO POSITION!!!!! Just set encoder to zero");
         mLeftEncoder.setPosition(0);
 
-        mPositions.put(ArmState.START, 71.9);
+        mPositions.put(ArmState.START, 0.0);
         mPositions.put(ArmState.SAFE, 63.0);
         mPositions.put(ArmState.PODIUM, 43.8);
         mPositions.put(ArmState.SUBWOOFER, 25.0);
@@ -62,12 +66,23 @@ public class Arm extends Subsystem {
 
     public enum ArmState implements Subsystem.SubsystemState {
         // Will probably add set angles
-        START,
-        SAFE,
-        PODIUM,
-        SUBWOOFER,
-        COLLECT,
-        MANUAL
+        START("Start"),
+        SAFE("Safe"),
+        PODIUM("Podium"),
+        SUBWOOFER("Subwoofer"),
+        COLLECT("Collect"),
+        AUTO_AIM("Auto Aim"),
+        MANUAL("Manual");
+
+        private final String name;
+
+        private ArmState(String _name) {
+             name = _name;
+        }
+
+        public String toString() {
+            return name;
+        } 
     }
 
     @Override
@@ -77,6 +92,13 @@ public class Arm extends Subsystem {
 
     @Override
     public void init() {
+        mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
+        mLeftMotor.setSmartCurrentLimit(30);
+        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 90);
+        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, 0);
+        mLeftMotor.burnFlash();
+        mDesiredPosition = mLeftEncoder.getPosition();
+        setDesiredState(ArmState.START);
         if (currentMode == OperatingMode.DISABLED) {
         }
     }
@@ -129,43 +151,74 @@ public class Arm extends Subsystem {
 
     }
 
-    public void driveManual(double armDutyCycle) {
-        armDutyCycle *= 0.5;
+    public void driveManual(double joyStickInput) {
+        if(currentState != ArmState.MANUAL) {
+            return;
+        }
+        mDesiredPosition = MathUtil.clamp(mDesiredPosition + joyStickInput * .5, 0, 82);
+        System.out.println(mDesiredPosition);
+    }
 
+<<<<<<< HEAD
         if (Math.abs(armDutyCycle) >= 0.1) {
             mIsManual = true;
             setDesiredState(ArmState.MANUAL);
             mLeftMotor.set(armDutyCycle);
             mDesiredPosition = mLeftEncoder.getPosition();
+=======
+    private boolean overExtended() {
+        if (mUpLimitSwitch.isPressed()) {
+            System.out.println("Arm limit switch hit");
+            return true;
+>>>>>>> Arm
         } else {
-            mIsManual = false;
+            return false;
         }
     }
 
     @Override
     public void teleopPeriodic() {
 
-        // System.out.printf("arm left encoder %.3f\n", getAngle());
-        // mLeftMotor.set(0); //temp
     }
 
     @Override
     public void setDesiredState(SubsystemState state) {
         super.setDesiredState(state);
+        if (state != ArmState.AUTO_AIM && state != ArmState.MANUAL) {
+            mDesiredPosition = mPositions.get(state);
+        }
+    }
 
+<<<<<<< HEAD
 
         if(state != ArmState.MANUAL) {
             mDesiredPosition = mPositions.get(state);
             mIsManual = false;
         }
+=======
+    public void setOptimalAngle(double distance, double viewAngle) {
+        // Calculate desired angle
+        // Find desired angle based on distance & orientation to April Tag
+        // Dist in cm
+        // Create threshold for mDesiredPosition to actually change
+        mDesiredPosition = 90 - (60-distance);
+        // mDesiredPosition = 25.0;
+    }
+
+    public boolean atOptimalAngle() {
+        return Math.abs(getAngle() - mDesiredPosition) < ConfigMap.ARM_POSITION_TOLERANCE;
+>>>>>>> Arm
     }
 
     public double getAngle() {
         return mLeftEncoder.getPosition();
     }
+<<<<<<< HEAD
 
     private boolean matchesPosition() {
         var diff = mDesiredPosition - mLeftEncoder.getPosition();
         return Math.abs(diff) <= 1;
     }
+=======
+>>>>>>> Arm
 }

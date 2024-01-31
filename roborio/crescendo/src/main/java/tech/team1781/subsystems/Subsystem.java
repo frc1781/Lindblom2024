@@ -1,18 +1,20 @@
 package tech.team1781.subsystems;
 
+import tech.team1781.utils.NetworkLogger;
 
 public abstract class Subsystem {
    protected final String name;
    protected double currentTime;
    protected OperatingMode currentMode; 
    private final SubsystemState defaultState;
+   protected SubsystemState currentState;
+   protected final NetworkLogger mNetworkLogger = new NetworkLogger();
 
-   private SubsystemState currentState;
-   
    protected Subsystem(String _name, SubsystemState _defaultState) {
     name = _name;
     defaultState = _defaultState;
     currentState = defaultState;
+    mNetworkLogger.log(getName(), currentState.toString());
    }
 
    public void setOperatingMode(OperatingMode mode) {
@@ -28,15 +30,20 @@ public abstract class Subsystem {
    }
 
    public final void feedStateTime(double sampledTime) {
-    currentTime = sampledTime;
+      currentTime = sampledTime;
    }
 
    public void setDesiredState(SubsystemState desiredState) {
-    currentState = desiredState;
+      if (desiredState == currentState) {
+         return;
+      }
+      currentState = desiredState;
+      mNetworkLogger.log(getName(), getState().toString());
+      System.out.println("Changing " + name +  "'s state to " + desiredState);
    }
    
    public final SubsystemState getState() {
-    return currentState;
+      return currentState;
    }
 
    public final void restoreDefault() {
