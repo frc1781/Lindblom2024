@@ -56,7 +56,7 @@ public class Arm extends Subsystem {
         System.out.println("ENSURE ARM IN ZERO POSITION!!!!! Just set encoder to zero");
         mLeftEncoder.setPosition(0);
 
-        mPositions.put(ArmState.START, 71.9);
+        mPositions.put(ArmState.START, 0.0);
         mPositions.put(ArmState.SAFE, 63.0);
         mPositions.put(ArmState.PODIUM, 43.8);
         mPositions.put(ArmState.SUBWOOFER, 25.0);
@@ -96,6 +96,8 @@ public class Arm extends Subsystem {
         mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 90);
         mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, 0);
         mLeftMotor.burnFlash();
+        mDesiredPosition = mLeftEncoder.getPosition();
+        setDesiredState(ArmState.START);
         if (currentMode == OperatingMode.DISABLED) {
         }
     }
@@ -106,7 +108,7 @@ public class Arm extends Subsystem {
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), mDesiredPosition);
         mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
         System.out.println(getAngle());
-        // mLeftMotor.set(armDutyCycle);
+        mLeftMotor.set(armDutyCycle);
     }
 
     @Override
@@ -135,11 +137,11 @@ public class Arm extends Subsystem {
 
     }
 
-    public void driveManual(double armDutyCycle) {
+    public void driveManual(double joyStickInput) {
         if(currentState != ArmState.MANUAL) {
             return;
         }
-        mDesiredPosition += MathUtil.clamp(armDutyCycle * 0.1, 0.0, 82.0);
+        mDesiredPosition = MathUtil.clamp(mDesiredPosition + joyStickInput * .5, 0, 82);
         System.out.println(mDesiredPosition);
     }
 
@@ -168,6 +170,8 @@ public class Arm extends Subsystem {
     public void setOptimalAngle(double distance, double viewAngle) {
         // Calculate desired angle
         // Find desired angle based on distance & orientation to April Tag
+        // Dist in cm
+        // Create threshold for mDesiredPosition to actually change
         mDesiredPosition = 90 - (60-distance);
         // mDesiredPosition = 25.0;
     }
