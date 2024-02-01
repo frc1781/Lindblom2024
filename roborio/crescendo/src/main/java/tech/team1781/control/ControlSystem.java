@@ -4,13 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.path.PathPlannerTrajectory;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput.ControllerSide;
@@ -90,6 +88,8 @@ public class ControlSystem {
                 mYDriveLimiter.calculate(yVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
                 mAutoAiming ? aimingAngle
                         : (mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND));
+
+        odometryUpdate(xVelocity, yVelocity);
     }
 
 
@@ -285,6 +285,20 @@ public class ControlSystem {
                 break;
         }
 
+    }
+
+    private void odometryUpdate(double velocityX, double velocityY) {
+        if (velocityX <= ConfigMap.MAX_VELOCITY_FOR_UPDATE || velocityY <= ConfigMap.MAX_VELOCITY_FOR_UPDATE) {
+            if (LimelightHelper.getLatestResults(ConfigMap.LIMELIGHT_NAME).targetingResults.targets_Fiducials.length >= 2) {
+                localizeOnLimelight();
+            }
+        }
+    }
+
+    private void localizeOnLimelight() {
+        Pose2d currentPose = LimelightHelper.getBotPose2d(ConfigMap.LIMELIGHT_NAME);
+
+        mDriveSystem.setOdometry(currentPose);
     }
 
 }
