@@ -1,6 +1,7 @@
 package tech.team1781.swerve;
 
 import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.compound.Diff_DutyCycleOut_Velocity;
@@ -13,7 +14,10 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import frc.lib.math.Conversions;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -30,13 +34,21 @@ public class KrakenL2SwerveModule extends SwerveModule{
     
     private final RelativeEncoder mTurnEncoder;
     private final CANcoder mTurnAbsoluteEncoder;
+    private final DutyCycleOut driveDutyCycle;
+    private final VelocityVoltage driveVelocity;
+    private final SimpleMotorFeedforward driveFeedForward;
+
 
     public KrakenL2SwerveModule(int driveMotorID, int turnMotorID, int cancoderID, double cancoderOffset) {
         super(driveMotorID, turnMotorID, cancoderID, cancoderOffset);
         mDriveMotor = new TalonFX(driveMotorID);
         mTurnMotor = new CANSparkMax(turnMotorID, MotorType.kBrushless);
         
+        driveDutyCycle = new DutyCycleOut(0);
+        driveVelocity = new VelocityVoltage(0);
         mTurnMotor.restoreFactoryDefaults();
+
+        driveFeedForward = new SimpleMotorFeedforward(0, 0, 0);
 
         mTurnPID = mTurnMotor.getPIDController();
         mTurnEncoder = mTurnMotor.getEncoder();
@@ -89,6 +101,20 @@ public class KrakenL2SwerveModule extends SwerveModule{
 
         syncRelativeToAbsoluteEncoder();
     }
+
+    private void setSpeed(SwerveModuleState desiredState, boolean isOpenLoop){
+        if(isOpenLoop){
+            driveDutyCycle.Output = desiredState.speedMetersPerSecond / ConfigMap.MAX_VELOCITY_METERS_PER_SECOND;
+            mDriveMotor.setControl(driveDutyCycle);
+        }
+        else {
+            // Probably wrong, couldn't get Conversions library to work.
+            driveVelocity.Velocity = desiredState.speedMetersPerSecond / (0.10033 * Math.PI);
+            driveVelocity.FeedForward = driveFeedForward.calculate(desiredState.speedMetersPerSecond);
+            mDriveMotor.setControl(driveVelocity);
+        }
+    }
+    
 
     private double getDriveMotorSpeed() {
         return mDriveMotor.getVelocity().getValueAsDouble() * moduleConfiguration().metersPerRevolution;
