@@ -24,7 +24,7 @@ public class FourNoteRoutine implements AutoRoutine {
     public AutoStep[] getSteps() {
         return new AutoStep[] {
                 new AutoStep(3, Action.SHOOT),
-                new AutoStep(5, Action.COLLECT_RAMP ,Paths.p2r3Path),
+                new AutoStep(5, Action.COLLECT_RAMP ,Paths.p2n3Path),
                 new AutoStep(3, Action.SHOOT),
                 // new AutoStep(2, Paths.r3r2Path),
                 // new AutoStep(2, Paths.r2r1Path),
