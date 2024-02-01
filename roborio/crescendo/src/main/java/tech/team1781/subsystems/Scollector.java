@@ -29,6 +29,7 @@ public class Scollector extends Subsystem {
     private final SparkPIDController mLeftPID;
 
     private GenericEntry mThresholdEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Shooter Threshold", 6).getEntry();
+    private GenericEntry mHasNoteEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Has Note", false).getEntry();
 
     private final EVector SHOOTER_PID = EVector.newVector(0.1, 0.0, 0.0);
     private final TrapezoidProfile.Constraints SHOOTER_CONSTRAINTS = new TrapezoidProfile.Constraints(9.0, 10);
@@ -77,6 +78,7 @@ public class Scollector extends Subsystem {
 
     @Override
     public void genericPeriodic() {
+        mHasNoteEntry.setBoolean(hasNote());
     }
 
     @Override
@@ -176,8 +178,8 @@ public class Scollector extends Subsystem {
             mShooterTimer.start();
         }
 
-        // if(mArmInPosition)
-        // return;
+        if(!mArmInPosition)
+            return;
         // System.out.printf("%.4f,%.4f,%d\n",
         //     mRightShooterMotor.getEncoder().getVelocity(),
         //     mLeftShooterMotor.getEncoder().getVelocity(),
