@@ -1,13 +1,17 @@
 package tech.team1781.control;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.PathPlannerTrajectory;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
 import tech.team1781.ConfigMap;
@@ -54,8 +58,7 @@ public class ControlSystem {
 
     public enum Action {
         COLLECT,
-        SHOOT,
-        COLLECT_RAMP
+        SHOOT
     }
 
     public ControlSystem() {
@@ -122,9 +125,38 @@ public class ControlSystem {
         if (isHeld) {
             double x = LimelightHelper.getXOffsetOfPreferredTarget(4);
             aimingAngle = mLimelightAimController.calculate(x, 0);
+            if (x == 0.0) {
+                //limelight doesn't see anything
+                odometryAlignment();
+            }
         }
 
         mAutoAiming = isHeld;
+    }
+
+    public void odometryAlignment() {
+        Pose2d robotPose = mDriveSystem.getRobotPose();
+        Pose2d targetPose = new Pose2d(8.308467, 1.442593, new Rotation2d()); //coords of apriltag 4
+
+        Transform2d finishingPose = targetPose.minus(robotPose);
+        double angle = Math.atan2(finishingPose.getY(), finishingPose.getX());
+        double deltaAngle = calculateShortestRotationToAngle(robotPose.getRotation().getDegrees(), angle);
+
+        aimingAngle = mLimelightAimController.calculate(deltaAngle, 0);
+    }
+
+    public double calculateShortestRotationToAngle(double startingAngle, double goalAngle) {
+        double ogAngle = startingAngle - goalAngle;
+        double[] angles = {ogAngle, ogAngle - 360, ogAngle + 360};
+        int smallestAngleIndex = -1;
+
+        for (int i = 0; i < angles.length; i++) {
+            if (smallestAngleIndex == -1 || Math.abs(angles[i]) < Math.abs(angles[smallestAngleIndex])) {
+                smallestAngleIndex = i;
+            }
+        }
+
+        return angles[smallestAngleIndex];
     }
 
     public void setAction(Action desiredAction) {
@@ -253,6 +285,8 @@ public class ControlSystem {
         }
     }
 
+
+
     private void initActions() {
         defineAction(Action.COLLECT,
                 new SubsystemSetting(mScollector, ScollectorState.COLLECT),
@@ -276,7 +310,6 @@ public class ControlSystem {
         switch (mCurrentOperatingMode) {
             case AUTONOMOUS:
                 subsystem.autonomousPeriodic();
-
                 break;
             case TELEOP:
                 subsystem.teleopPeriodic();
