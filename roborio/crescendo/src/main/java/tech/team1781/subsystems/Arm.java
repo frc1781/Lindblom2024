@@ -90,7 +90,6 @@ public class Arm extends Subsystem {
         var desiredPosition = mDesiredPosition; // mPositions.get(mDesiredPosition);
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), desiredPosition);
 
-        System.out.println("Arm:" + mLeftEncoder.getPosition());
         mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
 
         if (getState() == ArmState.MANUAL && mIsManual) {
