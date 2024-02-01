@@ -59,7 +59,7 @@ public class Robot extends TimedRobot {
 
     mDriverInput.addClickListener(0, "B", (isPressed) -> {
       if (isPressed) {
-        mControlSystem.setArmState(ArmState.SUBWOOFER);
+        mControlSystem.setArmState(ArmState.AUTO_ANGLE);
       }
     });
 

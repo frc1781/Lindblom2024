@@ -9,6 +9,8 @@ import com.pathplanner.lib.path.PathPlannerTrajectory;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput.ControllerSide;
@@ -92,10 +94,6 @@ public class ControlSystem {
                         : (mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND));
     }
 
-    public void driverArming(EVector translation, EVector rotation) {
-        double armDutyCycle = -translation.y * .3;
-        mArm.driveManual(armDutyCycle);
-    }
 
     public void setCollecting() {
         mScollector.setDesiredState(ScollectorState.COLLECT);
