@@ -13,6 +13,8 @@ import tech.team1781.autonomous.routines.FourNoteRoutine;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
+import tech.team1781.utils.PreferenceHandler;
+import tech.team1781.utils.PreferenceHandler.ValueHolder;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -34,6 +36,7 @@ public class Robot extends TimedRobot {
   private ControlSystem mControlSystem;
   private AutonomousHandler mAutonomousHandler;
   private DriverInput mDriverInput;
+  private PreferenceHandler mPreferenceHandler;
 
   @Override
   public void robotInit() {
@@ -41,6 +44,13 @@ public class Robot extends TimedRobot {
     mAutonomousHandler = new AutonomousHandler(mControlSystem, new FourNoteRoutine());
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
+
+    mPreferenceHandler = new PreferenceHandler(
+      new ValueHolder<Double>("FrontLeftOffset", ConfigMap.FRONT_LEFT_MODULE_STEER_OFFSET),
+      new ValueHolder<Double>("FrontRightOffset", ConfigMap.FRONT_RIGHT_MODULE_STEER_OFFSET),
+      new ValueHolder<Double>("BackLeftOffset", ConfigMap.BACK_LEFT_MODULE_STEER_OFFSET),
+      new ValueHolder<Double>("BackRightOffset", ConfigMap.BACK_RIGHT_MODULE_STEER_OFFSET)
+    );
 
     mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.RESET_NAVX, (isPressed)->{
       if(isPressed) {
@@ -84,7 +94,9 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+    mPreferenceHandler.checkForUpdates();
+  }
 
   @Override
   public void autonomousInit() {
