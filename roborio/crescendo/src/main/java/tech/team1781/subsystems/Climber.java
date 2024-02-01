@@ -1,6 +1,10 @@
 package tech.team1781.subsystems;
 
+import tech.team1781.utils.NetworkLogger;
+
 public class Climber extends Subsystem{
+
+    private NetworkLogger mNetworkLogger= new NetworkLogger();
 
     public Climber() {
         super("Climber", ClimberState.IDLE);
@@ -20,6 +24,7 @@ public class Climber extends Subsystem{
 
     @Override
     public void getToState() {
+
     }
 
     @Override

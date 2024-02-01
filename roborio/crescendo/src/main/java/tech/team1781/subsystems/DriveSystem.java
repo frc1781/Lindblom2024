@@ -23,6 +23,11 @@ import tech.team1781.ConfigMap;
 import tech.team1781.swerve.NEOL1SwerveModule;
 import tech.team1781.swerve.SwerveModule;
 import tech.team1781.utils.EVector;
+import tech.team1781.utils.NetworkLogger;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class DriveSystem extends Subsystem {
 
@@ -44,9 +49,6 @@ public class DriveSystem extends Subsystem {
     private SwerveDriveKinematics mKinematics = new SwerveDriveKinematics(ConfigMap.FRONT_LEFT_MODULE_POSITION,
             ConfigMap.FRONT_RIGHT_MODULE_POSITION, ConfigMap.BACK_LEFT_MODULE_POSITION,
             ConfigMap.BACK_RIGHT_MODULE_POSITION);
-    private GenericEntry mXEntry = ConfigMap.SHUFFLEBOARD_TAB.add("X Position", 0).getEntry();
-    private GenericEntry mYEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Y Position", 0).getEntry();
-    private GenericEntry mRotEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Rotate Position", 0).getEntry();
 
     private SwerveDriveOdometry mOdometry;
     private boolean mIsFieldOriented = true;
@@ -156,6 +158,16 @@ public class DriveSystem extends Subsystem {
             default:
                 break;
         }
+
+        Runnable OdometryLogging = () ->  {
+            Pose2d robotPose = getRobotPose();
+            super.mNetworkLogger.log("X", robotPose.getX());
+            super.mNetworkLogger.log("Y", robotPose.getY());
+            super.mNetworkLogger.log("Rot", getRobotAngle().getDegrees());
+        };
+
+        ScheduledExecutorService loggingExecutor = Executors.newScheduledThreadPool(1);
+        loggingExecutor.scheduleAtFixedRate(OdometryLogging, 0, 1, TimeUnit.SECONDS);
     }
 
     public void setOdometry(Pose2d pose) {
@@ -302,11 +314,6 @@ public class DriveSystem extends Subsystem {
 
     private void updateOdometry() {
         mOdometry.update(getRobotAngle(), getModulePositions());
-
-        Pose2d robotPose = getRobotPose();
-        mXEntry.setDouble(robotPose.getX());
-        mYEntry.setDouble(robotPose.getY());
-        mRotEntry.setDouble(getRobotAngle().getDegrees());
     }
 
     private SwerveModulePosition[] getModulePositions() {

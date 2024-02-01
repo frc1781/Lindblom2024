@@ -6,7 +6,11 @@ import java.util.HashMap;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput.ControllerSide;
@@ -14,14 +18,16 @@ import tech.team1781.autonomous.AutoStep;
 import tech.team1781.subsystems.Climber;
 import tech.team1781.subsystems.DriveSystem;
 import tech.team1781.subsystems.Scollector;
+import tech.team1781.subsystems.Arm;
 import tech.team1781.subsystems.Subsystem;
-import tech.team1781.subsystems.Climber.ClimberState;
+import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.DriveSystem.DriveSystemState;
 import tech.team1781.subsystems.Scollector.ScollectorState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
 import tech.team1781.subsystems.Subsystem.SubsystemState;
 import tech.team1781.utils.EVector;
 import tech.team1781.DriverInput;
+import tech.team1781.utils.LimelightHelper;
 
 public class ControlSystem {
     private HashMap<Action, SubsystemSetting[]> mActions = new HashMap<Action, SubsystemSetting[]>();
@@ -33,6 +39,7 @@ public class ControlSystem {
     private DriveSystem mDriveSystem;
     private Scollector mScollector;
     private Climber mClimber;
+    private Arm mArm;
 
     private OperatingMode mCurrentOperatingMode;
 
@@ -40,21 +47,30 @@ public class ControlSystem {
     private final SlewRateLimiter mXDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
     private final SlewRateLimiter mYDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
     private final SlewRateLimiter mRotDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_ROTATION_RATE_LIMIT);
+    private final ProfiledPIDController mLimelightAimController = new ProfiledPIDController(0.075, 0, 0, new TrapezoidProfile.Constraints(1, 0.5));
+
+    private boolean mAutoAiming = false;
+    private double aimingAngle = 0.0;
+
+    private boolean mDriverNoteManipulation = false;
 
     public enum Action {
-        COLLECT, 
-        AUTO_AIM_SHOOT
+        COLLECT,
+        SHOOT,
+        COLLECT_RAMP
     }
 
     public ControlSystem() {
         mDriveSystem = new DriveSystem();
         mScollector = new Scollector();
         mClimber = new Climber();
+        mArm = new Arm();
 
         mSubsystems = new ArrayList<>();
         mSubsystems.add(mDriveSystem);
         mSubsystems.add(mScollector);
         mSubsystems.add(mClimber);
+        mSubsystems.add(mArm);
 
         initActions();
 
@@ -67,16 +83,48 @@ public class ControlSystem {
         // left and right
         double yVelocity = -translation.x;
         // rotation
-        double rotVelocity = -rotation.x;
+        double rotVelocity = -rotation.x * 0.5;
 
         mDriveSystem.driveRaw(
                 mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
                 mYDriveLimiter.calculate(yVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
-                mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND);
+                mAutoAiming ? aimingAngle
+                        : (mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND));
+    }
+
+
+    public void setCollecting() {
+        mScollector.setDesiredState(ScollectorState.COLLECT);
+        mArm.setDesiredState(mScollector.hasNote() ? ArmState.SUBWOOFER : ArmState.COLLECT);
+        mDriverNoteManipulation = true;
+    }
+
+    public void setSpit() {
+        mScollector.setDesiredState(ScollectorState.SPIT);
+        mDriverNoteManipulation = true;
+    }
+
+    public void setShooting() {
+        mScollector.setDesiredState(ScollectorState.SHOOT);
+        // mArm.setDesiredState(ArmState.SUBWOOFER);
+        mDriverNoteManipulation = true;
+    }
+
+    public void setArmState(ArmState desiredState) {
+        mArm.setDesiredState(desiredState);
     }
 
     public void zeroNavX() {
         mDriveSystem.zeroNavX();
+    }
+
+    public void centerOnAprilTag(boolean isHeld) {
+        if (isHeld) {
+            double x = LimelightHelper.getXOffsetOfPreferredTarget(4);
+            aimingAngle = mLimelightAimController.calculate(x, 0);
+        }
+
+        mAutoAiming = isHeld;
     }
 
     public void setAction(Action desiredAction) {
@@ -132,6 +180,8 @@ public class ControlSystem {
                 mRotDriveLimiter.reset(0);
 
                 mDriveSystem.setDesiredState(DriveSystem.DriveSystemState.DRIVE_MANUAL);
+
+                mDriverNoteManipulation = false;
                 break;
             case AUTONOMOUS:
                 break;
@@ -141,23 +191,43 @@ public class ControlSystem {
     }
 
     public void run(DriverInput driverInput) {
+        mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
+
         switch (mCurrentOperatingMode) {
             case TELEOP:
                 driverDriving(
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
+
+                mArm.driveManual(driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).x
+                        - driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).y);
+
+                if (!mDriverNoteManipulation) {
+                    mScollector.setDesiredState(ScollectorState.IDLE);
+                }
+
+                mDriverNoteManipulation = false;
+                break;
+            case AUTONOMOUS:
+                System.out.println(mScollector.getState().toString());
+                if (mScollector.getState() == ScollectorState.COLLECT
+                        || mScollector.getState() == ScollectorState.COLLECT_RAMP) {
+                    if (mScollector.hasNote()) {
+                        mArm.setDesiredState(ArmState.SUBWOOFER);
+                    } else {
+                        mArm.setDesiredState(ArmState.COLLECT);
+                    }
+                }
                 break;
             default:
                 break;
         }
-
 
         for (Subsystem subsystem : mSubsystems) {
             subsystem.getToState();
             subsystem.feedStateTime(mStepTime.get());
             runSubsystemPeriodic(subsystem);
         }
-
     }
 
     public boolean isRunningAction() {
@@ -178,19 +248,23 @@ public class ControlSystem {
     public void interruptAction() {
         mCurrentSettings = null;
 
-        for(Subsystem s : mSubsystems) {
+        for (Subsystem s : mSubsystems) {
             s.restoreDefault();
         }
     }
 
-    
-
     private void initActions() {
         defineAction(Action.COLLECT,
-                new SubsystemSetting(mScollector, ScollectorState.COLLECT));
+                new SubsystemSetting(mScollector, ScollectorState.COLLECT),
+                new SubsystemSetting(mArm, ArmState.COLLECT));
 
-        defineAction(Action.AUTO_AIM_SHOOT,
-                new SubsystemSetting(mScollector, ScollectorState.AUTO_AIM_SHOOT));
+        defineAction(Action.SHOOT,
+                new SubsystemSetting(mScollector, ScollectorState.SHOOT),
+                new SubsystemSetting(mArm, ArmState.SUBWOOFER));
+
+        defineAction(Action.COLLECT_RAMP,
+                new SubsystemSetting(mScollector, ScollectorState.COLLECT_RAMP),
+                new SubsystemSetting(mArm, ArmState.COLLECT));
     }
 
     private void defineAction(Action action, SubsystemSetting... settings) {
@@ -202,6 +276,7 @@ public class ControlSystem {
         switch (mCurrentOperatingMode) {
             case AUTONOMOUS:
                 subsystem.autonomousPeriodic();
+
                 break;
             case TELEOP:
                 subsystem.teleopPeriodic();

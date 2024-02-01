@@ -99,6 +99,7 @@ public class NEOL1SwerveModule extends SwerveModule{
 
     @Override 
     public void init() {
+        // mTurnEncoder.setPosition(getAbsoluteAngle().getRadians());
         syncRelativeToAbsoluteEncoder();
     }
 
@@ -115,6 +116,8 @@ public class NEOL1SwerveModule extends SwerveModule{
         SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, new Rotation2d(mTurnEncoder.getPosition()));
         mDrivePID.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
         mTurnPID.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
+        
+        // syncRelativeToAbsoluteEncoder();
     }
 
     public void syncRelativeToAbsoluteEncoder() {
@@ -127,7 +130,7 @@ public class NEOL1SwerveModule extends SwerveModule{
             modRel += Math.PI * 2;
         
         double diff = modAbs - modRel;
-        if(Math.abs(diff) > 0.1) {
+        if(Math.abs(diff) > 1) {
             mTurnEncoder.setPosition(getAbsoluteAngle().getRadians());
         }
     }

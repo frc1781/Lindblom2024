@@ -11,6 +11,7 @@ import tech.team1781.Paths;
 import tech.team1781.autonomous.AutoStep;
 import tech.team1781.autonomous.AutonomousHandler.AutoRoutine;
 import tech.team1781.control.ControlSystem;
+import tech.team1781.control.ControlSystem.Action;
 
 public class FourNoteRoutine implements AutoRoutine {
 
@@ -22,13 +23,11 @@ public class FourNoteRoutine implements AutoRoutine {
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-                new AutoStep(2, ControlSystem.Action.AUTO_AIM_SHOOT),
-                new AutoStep(2, ControlSystem.Action.COLLECT, Paths.p2r3Path),
-                new AutoStep(2, ControlSystem.Action.AUTO_AIM_SHOOT),
-                new AutoStep(2, ControlSystem.Action.COLLECT, Paths.r3r2Path),
-                new AutoStep(2, ControlSystem.Action.AUTO_AIM_SHOOT),
-                new AutoStep(2, ControlSystem.Action.COLLECT, Paths.r2r1Path),
-                new AutoStep(2, ControlSystem.Action.AUTO_AIM_SHOOT),
+                new AutoStep(3, Action.SHOOT),
+                new AutoStep(5, Action.COLLECT_RAMP ,Paths.p2r3Path),
+                new AutoStep(3, Action.SHOOT),
+                // new AutoStep(2, Paths.r3r2Path),
+                // new AutoStep(2, Paths.r2r1Path),
         };
     }
 
