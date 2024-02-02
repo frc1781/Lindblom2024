@@ -57,7 +57,8 @@ public class ControlSystem {
     public enum Action {
         COLLECT,
         SHOOT,
-        COLLECT_RAMP
+        COLLECT_RAMP,
+        COLLECT_AUTO_SHOOT
     }
 
     public ControlSystem() {
@@ -211,7 +212,7 @@ public class ControlSystem {
             case AUTONOMOUS:
                 System.out.println(mScollector.getState().toString());
                 if (mScollector.getState() == ScollectorState.COLLECT
-                        || mScollector.getState() == ScollectorState.COLLECT_RAMP) {
+                        || mScollector.getState() == ScollectorState.COLLECT_RAMP || mScollector.getState() == ScollectorState.COLLECT_AUTO_SHOOT) {
                     if (mScollector.hasNote()) {
                         mArm.setDesiredState(ArmState.SUBWOOFER);
                     } else {
@@ -265,6 +266,9 @@ public class ControlSystem {
         defineAction(Action.COLLECT_RAMP,
                 new SubsystemSetting(mScollector, ScollectorState.COLLECT_RAMP),
                 new SubsystemSetting(mArm, ArmState.COLLECT));
+
+        defineAction(Action.COLLECT_AUTO_SHOOT, 
+                new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
     }
 
     private void defineAction(Action action, SubsystemSetting... settings) {
