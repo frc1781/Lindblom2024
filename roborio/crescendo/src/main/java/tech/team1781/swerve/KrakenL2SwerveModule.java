@@ -47,8 +47,7 @@ public class KrakenL2SwerveModule extends SwerveModule{
         driveDutyCycle = new DutyCycleOut(0);
         driveVelocity = new VelocityVoltage(0);
         mTurnMotor.restoreFactoryDefaults();
-
-        driveFeedForward = new SimpleMotorFeedforward(0, 0, 0);
+        driveFeedForward = new SimpleMotorFeedforward(1 / ConfigMap.MAX_VELOCITY_METERS_PER_SECOND , 2, 0); //Placeholders for before we tune
 
         mTurnPID = mTurnMotor.getPIDController();
         mTurnEncoder = mTurnMotor.getEncoder();
@@ -104,12 +103,11 @@ public class KrakenL2SwerveModule extends SwerveModule{
 
     private void setSpeed(SwerveModuleState desiredState, boolean isOpenLoop){
         if(isOpenLoop){
-            driveDutyCycle.Output = desiredState.speedMetersPerSecond / ConfigMap.MAX_VELOCITY_METERS_PER_SECOND;
+            driveDutyCycle.Output = desiredState.speedMetersPerSecond / (ConfigMap.MAX_VELOCITY_METERS_PER_SECOND * moduleConfiguration().metersPerRevolution);
             mDriveMotor.setControl(driveDutyCycle);
         }
         else {
-            // Probably wrong, couldn't get Conversions library to work.
-            driveVelocity.Velocity = desiredState.speedMetersPerSecond / (0.10033 * Math.PI);
+            driveVelocity.Velocity = desiredState.speedMetersPerSecond / (0.10033);
             driveVelocity.FeedForward = driveFeedForward.calculate(desiredState.speedMetersPerSecond);
             mDriveMotor.setControl(driveVelocity);
         }
