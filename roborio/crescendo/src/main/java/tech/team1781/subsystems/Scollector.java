@@ -41,6 +41,7 @@ public class Scollector extends Subsystem {
 
     private boolean mIsReadyToShoot = false;
     private boolean mArmInPosition = false;
+    private boolean mHasShot = false;
     private Timer mShooterTimer = new Timer();
 
     public Scollector() {
@@ -72,7 +73,7 @@ public class Scollector extends Subsystem {
     }
 
     public enum ScollectorState implements SubsystemState {
-        IDLE, COLLECT, SPIT, SHOOT, COLLECT_RAMP, COLLECT_AUTO_SHOOT
+        IDLE, COLLECT, SPIT, SHOOT, COLLECT_RAMP, COLLECT_AUTO_SHOOT, RAMP_SHOOTER, SEND_NOTE_SHOOT
     }
 
     @Override
@@ -121,6 +122,14 @@ public class Scollector extends Subsystem {
 
                 driveMotors();
                 break;
+            case RAMP_SHOOTER:
+                driveMotors();
+                mCollectorMotor.set(0);
+                break;
+            case SEND_NOTE_SHOOT:
+                driveMotors();
+                mCollectorMotor.set(-1);
+                break;
         }
     }
 
@@ -137,6 +146,8 @@ public class Scollector extends Subsystem {
                 return !hasNote();
             case COLLECT_RAMP:
                 return hasNote();
+            case COLLECT_AUTO_SHOOT:
+                return mHasShot;
             default:
                 return false;
         }
@@ -155,6 +166,15 @@ public class Scollector extends Subsystem {
         return mNoteSensor.getRange() < 300;
     }
 
+    public boolean shooterAtSpeed() {
+        double leftSpeed = mLeftShooterMotor.getEncoder().getVelocity();
+        double rightSpeed = mRightShooterMotor.getEncoder().getVelocity();
+        double diff = Math.abs(leftSpeed - rightSpeed);
+        double threshold = 7;
+
+        return leftSpeed >= threshold && rightSpeed >= threshold && diff <= 0.1;
+    }
+
     public void setArmReadyToShoot(boolean armReady) {
         mArmInPosition = armReady;
     }
@@ -169,6 +189,7 @@ public class Scollector extends Subsystem {
             mCollectorMotor.set(-1);
         } else {
             mCollectorMotor.set(0);
+            mHasShot = false;
         }
     }
 
@@ -189,8 +210,8 @@ public class Scollector extends Subsystem {
             mShooterTimer.start();
         }
 
-        if(!mArmInPosition)
-        return;
+        if (!mArmInPosition)
+            return;
         // System.out.printf("%.4f,%.4f,%d\n",
         // mRightShooterMotor.getEncoder().getVelocity(),
         // mLeftShooterMotor.getEncoder().getVelocity(),
@@ -200,23 +221,23 @@ public class Scollector extends Subsystem {
         if (mShooterTimer.get() >= 0.1 && mShooterTimer.get() <= 1.5) {
             mCollectorMotor.set(-1);
             isSending = true;
+            System.out.println("sending " + shooterAtSpeed());
+
+            if (!hasNote()) {
+                mHasShot = false;
+            }
         } else if (mShooterTimer.get() > 1.5) {
             mShooterTimer.stop();
             mShooterTimer.reset();
             mCollectorMotor.set(0);
+            System.out.println(mShooterTimer.get());
             isSending = false;
         } else {
+            System.out.println(mShooterTimer.get());
             isSending = false;
         }
 
+
     }
 
-    private boolean shooterAtSpeed() {
-        double leftSpeed = mLeftShooterMotor.getEncoder().getVelocity();
-        double rightSpeed = mRightShooterMotor.getEncoder().getVelocity();
-        double diff = Math.abs(leftSpeed - rightSpeed);
-        double threshold = 7;
-
-        return leftSpeed >= threshold && rightSpeed >= threshold && diff <= 0.1;
-    }
 }

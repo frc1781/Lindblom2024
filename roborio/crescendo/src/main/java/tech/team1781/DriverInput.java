@@ -2,6 +2,7 @@ package tech.team1781;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
@@ -15,8 +16,8 @@ public class DriverInput {
             new XboxController(1)
         };
 
-    private HashMap<String, Event> mClickEvents = new HashMap<>();
-    private HashMap<String, Event> mHoldEvents = new HashMap<>();
+    private LinkedHashMap<String, Event> mClickEvents = new LinkedHashMap<>();
+    private LinkedHashMap<String, Event> mHoldEvents = new LinkedHashMap<>();
 
     private HashMap<String, Boolean> mButtonMap = new HashMap<>();
     private HashSet<String> mPressedButtons = new HashSet<>();
