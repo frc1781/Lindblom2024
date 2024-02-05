@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkLimitSwitch.Type;
@@ -55,7 +56,7 @@ public class Arm extends Subsystem {
         System.out.println("ENSURE ARM IN ZERO POSITION!!!!! Just set encoder to zero");
         mLeftEncoder.setPosition(0);
 
-        mPositions.put(ArmState.START, 71.9);
+        mPositions.put(ArmState.START, 0.0); // Temporary, used to be 71.9
         mPositions.put(ArmState.SAFE, 63.0);
         mPositions.put(ArmState.PODIUM, 43.8);
         mPositions.put(ArmState.SUBWOOFER, 40.0);
@@ -64,7 +65,6 @@ public class Arm extends Subsystem {
     }
 
     public enum ArmState implements Subsystem.SubsystemState {
-        // Will probably add set angles
         START,
         SAFE,
         PODIUM,
@@ -72,7 +72,7 @@ public class Arm extends Subsystem {
         COLLECT,
         MANUAL,
         AUTO_ANGLE,
-        MOVETOSHOOT
+        MOVETOSHOOT // Seems like it would do the same thing as AUTO_ANGLE
     }
 
     @Override
@@ -83,6 +83,14 @@ public class Arm extends Subsystem {
     @Override
     public void init() {
         mAngleFromDistance = 0;
+        mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
+        mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
+        mLeftMotor.setSmartCurrentLimit(30);
+        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 90);
+        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, 0);
+        mLeftMotor.burnFlash();
+        mDesiredPosition = mLeftEncoder.getPosition();
+        setDesiredState(ArmState.START);
         if (currentMode == OperatingMode.DISABLED) {
         }
     }
@@ -119,7 +127,6 @@ public class Arm extends Subsystem {
                 mDesiredPosition = mAngleFromDistance;
                 break;
             case MOVETOSHOOT:
-                mDesiredPosition = setDistanceToTarget(0); //Placeholder
                 break;
             default:
                 break;
@@ -188,8 +195,9 @@ public class Arm extends Subsystem {
         mAngleFromDistance = start + (dist * coefficient);
     }
 
-    public double setDistanceToTarget(double d) { // Might make void and create var distanceToTarget
-        return d;
+    public void manualControl(double d) {
+        setDesiredState(ArmState.MANUAL);
+        mDesiredPosition += d;
     }
 
     private boolean matchesPosition() {
