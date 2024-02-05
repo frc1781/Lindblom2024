@@ -161,6 +161,7 @@ public class ControlSystem {
 
     public void centerOnAprilTag(boolean isHeld) {
         if (isHeld) {
+            LimelightHelper.getDistanceOfApriltag(4);
             double x = LimelightHelper.getXOffsetOfPreferredTarget(4);
             aimingAngle = mLimelightAimController.calculate(x, 0);
             if (x == 0.0) {
