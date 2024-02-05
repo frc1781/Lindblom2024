@@ -172,6 +172,8 @@ public class Scollector extends Subsystem {
         double diff = Math.abs(leftSpeed - rightSpeed);
         double threshold = 7;
 
+        System.out.println(leftSpeed + " :: " + rightSpeed);
+
         return leftSpeed >= threshold && rightSpeed >= threshold && diff <= 0.1;
     }
 
@@ -198,13 +200,13 @@ public class Scollector extends Subsystem {
     private void shoot() {
         final double desiredSpeed = 7.4;
 
-        double leftDutyCycle = mLeftShooterPID.calculate(mLeftShooterMotor.getEncoder().getVelocity(), desiredSpeed);
-        double rightDutyCycle = mRightShooterPID.calculate(mRightShooterMotor.getEncoder().getVelocity(), desiredSpeed);
+        double leftDutyCycle = 1; //mLeftShooterPID.calculate(mLeftShooterMotor.getEncoder().getVelocity(), desiredSpeed);
+        double rightDutyCycle = 1; //mRightShooterPID.calculate(mRightShooterMotor.getEncoder().getVelocity(), desiredSpeed);
 
-        // mLeftShooterMotor.set(leftDutyCycle);
-        // mRightShooterMotor.set(rightDutyCycle);
-        mRightPID.setReference(desiredSpeed, ControlType.kVelocity);
-        mLeftPID.setReference(desiredSpeed, ControlType.kVelocity);
+        mLeftShooterMotor.set(leftDutyCycle);
+        mRightShooterMotor.set(rightDutyCycle);
+        // mRightPID.setReference(desiredSpeed, ControlType.kVelocity);
+        // mLeftPID.setReference(desiredSpeed, ControlType.kVelocity);
 
         if (shooterAtSpeed()) {
             mShooterTimer.start();
@@ -230,10 +232,8 @@ public class Scollector extends Subsystem {
             mShooterTimer.stop();
             mShooterTimer.reset();
             mCollectorMotor.set(0);
-            System.out.println(mShooterTimer.get());
             isSending = false;
         } else {
-            System.out.println(mShooterTimer.get());
             isSending = false;
         }
 

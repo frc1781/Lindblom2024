@@ -54,6 +54,7 @@ public class DriveSystem extends Subsystem {
     private boolean mIsFieldOriented = true;
     private double mNavXOffset = 0;
     private boolean mHasNavXOffsetBeenSet = false;
+    private boolean mOdometryBeenSet = false;
     // Sensors
     private AHRS mNavX = new AHRS(SPI.Port.kMXP);
 
@@ -109,7 +110,8 @@ public class DriveSystem extends Subsystem {
                 // return matchesDesiredPosition();
                 return false;
             case DRIVE_TRAJECTORY:
-                return matchesPosition(mDesiredTrajectory.getEndState().getTargetHolonomicPose()) && (currentTime >= mDesiredTrajectory.getTotalTimeSeconds()) ;
+                return matchesPosition(mDesiredTrajectory.getEndState().getTargetHolonomicPose())
+                        && (currentTime >= mDesiredTrajectory.getTotalTimeSeconds());
             case DRIVE_MANUAL:
                 return false;
             // return mIsManual;
@@ -145,6 +147,7 @@ public class DriveSystem extends Subsystem {
             case AUTONOMOUS:
                 mIsFieldOriented = true;
                 mHasNavXOffsetBeenSet = false;
+                mOdometryBeenSet = false;
                 break;
             case TELEOP:
                 mIsManual = true;
@@ -159,7 +162,7 @@ public class DriveSystem extends Subsystem {
                 break;
         }
 
-        Runnable OdometryLogging = () ->  {
+        Runnable OdometryLogging = () -> {
             Pose2d robotPose = getRobotPose();
             super.mNetworkLogger.log("X", robotPose.getX());
             super.mNetworkLogger.log("Y", robotPose.getY());
@@ -234,15 +237,18 @@ public class DriveSystem extends Subsystem {
         Pose2d initialPose = trajectory.getInitialTargetHolonomicPose();
         mDesiredTrajectory = trajectory;
 
-        setNavXOffset(new Rotation2d(45.0/180.0 * Math.PI));
-        setOdometry(initialPose);
+        if (!mOdometryBeenSet) {
+            setNavXOffset(new Rotation2d(45.0 / 180.0 * Math.PI));
+            setOdometry(initialPose);
+            mOdometryBeenSet = true;
+        }
         mDesiredPosition = null;
         mIsManual = false;
     }
 
     public void setTrajectoryFromPath(PathPlannerPath path) {
         setNavXOffset(path.getPreviewStartingHolonomicPose().getRotation());
-        //also use current speed of robot
+        // also use current speed of robot
         PathPlannerTrajectory pathTrajectory = new PathPlannerTrajectory(path, new ChassisSpeeds(), getRobotAngle());
         setTrajectory(pathTrajectory);
     }
@@ -270,7 +276,7 @@ public class DriveSystem extends Subsystem {
         EVector currentPose = EVector.fromPose(getRobotPose());
         EVector otherPose = EVector.fromPose(other);
         return currentPose.dist(otherPose) <= TOLERANCE;
-        
+
     }
 
     public void driveRaw(double xSpeed, double ySpeed, double rot) {
