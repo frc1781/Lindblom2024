@@ -195,18 +195,17 @@ public class Scollector extends Subsystem {
         }
     }
 
-    private boolean isSending = false;
 
     private void shoot() {
         final double desiredSpeed = 7.4;
 
-        double leftDutyCycle = 1; //mLeftShooterPID.calculate(mLeftShooterMotor.getEncoder().getVelocity(), desiredSpeed);
-        double rightDutyCycle = 1; //mRightShooterPID.calculate(mRightShooterMotor.getEncoder().getVelocity(), desiredSpeed);
+        // double leftDutyCycle = 1; //mLeftShooterPID.calculate(mLeftShooterMotor.getEncoder().getVelocity(), desiredSpeed);
+        // double rightDutyCycle = 1; //mRightShooterPID.calculate(mRightShooterMotor.getEncoder().getVelocity(), desiredSpeed);
 
-        mLeftShooterMotor.set(leftDutyCycle);
-        mRightShooterMotor.set(rightDutyCycle);
-        // mRightPID.setReference(desiredSpeed, ControlType.kVelocity);
-        // mLeftPID.setReference(desiredSpeed, ControlType.kVelocity);
+        // mLeftShooterMotor.set(leftDutyCycle);
+        // mRightShooterMotor.set(rightDutyCycle);
+        mRightPID.setReference(desiredSpeed, ControlType.kVelocity);
+        mLeftPID.setReference(desiredSpeed, ControlType.kVelocity);
 
         if (shooterAtSpeed()) {
             mShooterTimer.start();
@@ -214,16 +213,8 @@ public class Scollector extends Subsystem {
 
         if (!mArmInPosition)
             return;
-        // System.out.printf("%.4f,%.4f,%d\n",
-        // mRightShooterMotor.getEncoder().getVelocity(),
-        // mLeftShooterMotor.getEncoder().getVelocity(),
-        // isSending ? 1 : 0
-        // );
 
         if (mShooterTimer.get() >= 0.1 && mShooterTimer.get() <= 1.5) {
-            mCollectorMotor.set(-1);
-            isSending = true;
-            System.out.println("sending " + shooterAtSpeed());
 
             if (!hasNote()) {
                 mHasShot = false;
@@ -232,9 +223,7 @@ public class Scollector extends Subsystem {
             mShooterTimer.stop();
             mShooterTimer.reset();
             mCollectorMotor.set(0);
-            isSending = false;
         } else {
-            isSending = false;
         }
 
 
