@@ -70,7 +70,8 @@ public class Arm extends Subsystem {
         SUBWOOFER,
         COLLECT,
         MANUAL,
-        AUTO_ANGLE
+        AUTO_ANGLE,
+        MOVETOSHOOT
     }
 
     @Override
@@ -115,6 +116,9 @@ public class Arm extends Subsystem {
             case AUTO_ANGLE:
                 calculateAngleFromDistance(mSpeakerDistanceEntry.getDouble(-1));
                 mDesiredPosition = mAngleFromDistance;
+                break;
+            case MOVETOSHOOT:
+                mDesiredPosition = setDistanceToTarget(0); //Placeholder
                 break;
             default:
                 break;
@@ -181,6 +185,10 @@ public class Arm extends Subsystem {
         
 
         mAngleFromDistance = start + (dist * coefficient);
+    }
+
+    public double setDistanceToTarget(double d) { // Might make void and create var distanceToTarget
+        return d;
     }
 
     private boolean matchesPosition() {

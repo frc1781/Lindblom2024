@@ -40,7 +40,6 @@ public class Scollector extends Subsystem {
     private TimeOfFlight mNoteSensor = new TimeOfFlight(ConfigMap.SCOLLECTOR_TOF);
 
     private boolean mIsReadyToShoot = false;
-    private boolean mArmInPosition = false;
     private Timer mShooterTimer = new Timer();
 
     public Scollector() {
@@ -82,7 +81,6 @@ public class Scollector extends Subsystem {
     @Override
     public void init() {
         mIsReadyToShoot = false;
-        mArmInPosition = false;
         mShooterTimer.reset();
         mShooterTimer.stop();
     }
@@ -147,8 +145,8 @@ public class Scollector extends Subsystem {
         return mNoteSensor.getRange() < 300;
     }
 
-    public void setArmReadyToShoot(boolean armReady) {
-        mArmInPosition = armReady;
+    public boolean setArmReadyToShoot(boolean armReady) {
+        return armReady;
     }
 
     private void collect() {

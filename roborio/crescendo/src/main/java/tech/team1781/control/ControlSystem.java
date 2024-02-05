@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
+import com.revrobotics.CANSparkLowLevel.FollowConfig.Config;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -199,8 +200,12 @@ public class ControlSystem {
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
 
-                mArm.driveManual(driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).x
-                        - driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).y);
+                if (Math.abs(driverInput.getTriggerAxis(ConfigMap.CO_PILOT_PORT).x -
+                  - driverInput.getTriggerAxis(ConfigMap.CO_PILOT_PORT).y) > 0.2) {
+                mArm.driveManual(driverInput.getTriggerAxis(ConfigMap.CO_PILOT_PORT).x
+                        - driverInput.getTriggerAxis(ConfigMap.CO_PILOT_PORT).y);
+                }
+
 
                 if (!mDriverNoteManipulation) {
                     mScollector.setDesiredState(ScollectorState.IDLE);
