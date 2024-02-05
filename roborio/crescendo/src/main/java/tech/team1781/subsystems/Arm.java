@@ -25,7 +25,8 @@ public class Arm extends Subsystem {
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
 
     private GenericEntry mArmPositionEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Arm Position", -1).getEntry();
-    private GenericEntry mSpeakerDistanceEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Distance", -1).getEntry();
+    private GenericEntry mSpeakerDistanceEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Distance", 1).getEntry();
+
 
     private double mDesiredPosition = 0;
     private boolean mIsManual = false;
@@ -57,7 +58,7 @@ public class Arm extends Subsystem {
         mPositions.put(ArmState.START, 71.9);
         mPositions.put(ArmState.SAFE, 63.0);
         mPositions.put(ArmState.PODIUM, 43.8);
-        mPositions.put(ArmState.SUBWOOFER, 25.0);
+        mPositions.put(ArmState.SUBWOOFER, 40.0);
         mPositions.put(ArmState.COLLECT, 0.0);
 
     }
@@ -70,7 +71,7 @@ public class Arm extends Subsystem {
         SUBWOOFER,
         COLLECT,
         MANUAL,
-        AUTO_ANGLE
+        AUTO_ANGLE,
     }
 
     @Override
@@ -116,6 +117,7 @@ public class Arm extends Subsystem {
                 calculateAngleFromDistance(mSpeakerDistanceEntry.getDouble(-1));
                 mDesiredPosition = mAngleFromDistance;
                 break;
+            
             default:
                 break;
         }
