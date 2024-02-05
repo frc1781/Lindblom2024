@@ -147,7 +147,7 @@ public class Scollector extends Subsystem {
             case COLLECT_RAMP:
                 return hasNote();
             case COLLECT_AUTO_SHOOT:
-                return mHasShot;
+                return false;
             default:
                 return false;
         }
@@ -197,7 +197,7 @@ public class Scollector extends Subsystem {
 
 
     private void shoot() {
-        final double desiredSpeed = 7.4;
+        final double desiredSpeed = 7;
 
         // double leftDutyCycle = 1; //mLeftShooterPID.calculate(mLeftShooterMotor.getEncoder().getVelocity(), desiredSpeed);
         // double rightDutyCycle = 1; //mRightShooterPID.calculate(mRightShooterMotor.getEncoder().getVelocity(), desiredSpeed);
@@ -211,11 +211,12 @@ public class Scollector extends Subsystem {
             mShooterTimer.start();
         }
 
+
         if (!mArmInPosition)
             return;
 
         if (mShooterTimer.get() >= 0.1 && mShooterTimer.get() <= 1.5) {
-
+            mCollectorMotor.set(-1);
             if (!hasNote()) {
                 mHasShot = false;
             }
