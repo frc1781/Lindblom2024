@@ -48,17 +48,20 @@ public class ControlSystem {
     private final SlewRateLimiter mXDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
     private final SlewRateLimiter mYDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
     private final SlewRateLimiter mRotDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_ROTATION_RATE_LIMIT);
-    private final ProfiledPIDController mLimelightAimController = new ProfiledPIDController(0.075, 0, 0, new TrapezoidProfile.Constraints(1, 0.5));
+    private final ProfiledPIDController mLimelightAimController = new ProfiledPIDController(0.075, 0, 0,
+            new TrapezoidProfile.Constraints(1, 0.5));
 
     private boolean mAutoAiming = false;
     private double aimingAngle = 0.0;
 
     private boolean mDriverNoteManipulation = false;
+    private boolean mKeepArmInSafe = true;
 
     public enum Action {
         COLLECT,
         SHOOT,
-        COLLECT_RAMP
+        COLLECT_RAMP,
+        COLLECT_AUTO_SHOOT
     }
 
     public ControlSystem() {
@@ -93,22 +96,54 @@ public class ControlSystem {
                         : (mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND));
     }
 
-
-    public void setCollecting() {
-        mScollector.setDesiredState(ScollectorState.COLLECT);
-        mArm.setDesiredState(mScollector.hasNote() ? ArmState.SUBWOOFER : ArmState.COLLECT);
-        mDriverNoteManipulation = true;
+    public void keepArmDown(boolean isDown) {
+        mKeepArmInSafe = !isDown;
+        if (isDown) {
+            mArm.setDesiredState(ArmState.COLLECT);
+        }
     }
 
-    public void setSpit() {
-        mScollector.setDesiredState(ScollectorState.SPIT);
-        mDriverNoteManipulation = true;
+    public void setCollecting(boolean isCollecting) {
+        if (isCollecting) {
+            mScollector.setDesiredState(ScollectorState.COLLECT);
+            mArm.setDesiredState(ArmState.COLLECT);
+            mKeepArmInSafe = false;
+            mDriverNoteManipulation = true;
+        }
     }
 
-    public void setShooting() {
-        mScollector.setDesiredState(ScollectorState.SHOOT);
-        // mArm.setDesiredState(ArmState.SUBWOOFER);
-        mDriverNoteManipulation = true;
+    public void setSpit(boolean isSpitting) {
+        if (isSpitting) {
+            mScollector.setDesiredState(ScollectorState.SPIT);
+            mDriverNoteManipulation = true;
+        }
+        // else
+        // mScollector.setDesiredState(ScollectorState.IDLE);k
+    }
+
+    public void setShooting(boolean isShooting) {
+        if (isShooting) {
+            mScollector.setDesiredState(ScollectorState.SHOOT);
+            if(mArm.getState() != ArmState.MANUAL)
+                mArm.setDesiredState(ArmState.SUBWOOFER);
+            mDriverNoteManipulation = true;
+            mKeepArmInSafe = false;
+        } else {
+        }
+    }
+
+    public void setRampShooter(boolean isRamping) {
+        if(isRamping) {
+            mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
+            mDriverNoteManipulation = true;
+        }
+    }
+
+    public void setManualNoteSend(boolean isSending) {
+        if(isSending) {
+            mScollector.setDesiredState(ScollectorState.SEND_NOTE_SHOOT);
+            mDriverNoteManipulation = true;
+        }
     }
 
     public void setArmState(ArmState desiredState) {
@@ -207,16 +242,27 @@ public class ControlSystem {
                 }
 
 
+                if(mArm.getState() == ArmState.MANUAL) {
+                    mKeepArmInSafe = false;
+                }
+
+                if (mKeepArmInSafe) {
+                    mArm.setDesiredState(ArmState.SAFE);
+                }
+
                 if (!mDriverNoteManipulation) {
                     mScollector.setDesiredState(ScollectorState.IDLE);
                 }
 
+
                 mDriverNoteManipulation = false;
+                mKeepArmInSafe = true;
                 break;
             case AUTONOMOUS:
                 System.out.println(mScollector.getState().toString());
                 if (mScollector.getState() == ScollectorState.COLLECT
-                        || mScollector.getState() == ScollectorState.COLLECT_RAMP) {
+                        || mScollector.getState() == ScollectorState.COLLECT_RAMP
+                        || mScollector.getState() == ScollectorState.COLLECT_AUTO_SHOOT) {
                     if (mScollector.hasNote()) {
                         mArm.setDesiredState(ArmState.SUBWOOFER);
                     } else {
@@ -270,6 +316,9 @@ public class ControlSystem {
         defineAction(Action.COLLECT_RAMP,
                 new SubsystemSetting(mScollector, ScollectorState.COLLECT_RAMP),
                 new SubsystemSetting(mArm, ArmState.COLLECT));
+
+        defineAction(Action.COLLECT_AUTO_SHOOT,
+                new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
     }
 
     private void defineAction(Action action, SubsystemSetting... settings) {
