@@ -804,6 +804,7 @@ public class LimelightHelper {
         for (LimelightTarget_Fiducial targetsFiducial : limelightTargetFiducials) {
             if (targetsFiducial.fiducialID == id) {
                 Pose2d pose = targetsFiducial.getTargetPose_CameraSpace2D();
+                System.out.printf("%.2f,%.2f\n", pose.getX(), pose.getY());
                 x = Math.sqrt(Math.pow(pose.getX(), 2) + Math.pow(pose.getY(), 2));
 
                 new NetworkLogger().log("Distance", x);
