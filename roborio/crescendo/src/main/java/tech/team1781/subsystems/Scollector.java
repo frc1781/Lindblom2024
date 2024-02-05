@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj.motorcontrol.PWMTalonSRX;
 import tech.team1781.ConfigMap;
 import tech.team1781.utils.EVector;
 
-//EXAMPLE SUBSYSTEM, NOT FOR ACTUAL BOT
 public class Scollector extends Subsystem {
     private CANSparkMax mCollectorMotor = new CANSparkMax(ConfigMap.COLLECTOR_MOTOR, CANSparkMax.MotorType.kBrushless);
     private CANSparkMax mRightShooterMotor = new CANSparkMax(ConfigMap.SHOOTER_RIGHT_MOTOR,
@@ -33,7 +32,7 @@ public class Scollector extends Subsystem {
     private final EVector SHOOTER_PID = EVector.newVector(0.1, 0.0, 0.0);
     private final TrapezoidProfile.Constraints SHOOTER_CONSTRAINTS = new TrapezoidProfile.Constraints(9.0, 10);
     private ProfiledPIDController mLeftShooterPID = new ProfiledPIDController(SHOOTER_PID.x, SHOOTER_PID.y,
-            SHOOTER_PID.z, SHOOTER_CONSTRAINTS); 
+            SHOOTER_PID.z, SHOOTER_CONSTRAINTS);
     private ProfiledPIDController mRightShooterPID = new ProfiledPIDController(SHOOTER_PID.x, SHOOTER_PID.y,
             SHOOTER_PID.z, SHOOTER_CONSTRAINTS);
 
@@ -63,12 +62,12 @@ public class Scollector extends Subsystem {
         mRightPID.setP(0.5);
         mRightPID.setI(0);
         mRightPID.setD(0.01);
-        mRightPID.setFF(1.0/9.8);
+        mRightPID.setFF(1.0 / 9.8);
 
         mLeftPID.setP(0.5);
         mLeftPID.setI(0);
         mLeftPID.setD(0.01);
-        mLeftPID.setFF(1.0/9.8);
+        mLeftPID.setFF(1.0 / 9.8);
     }
 
     public enum ScollectorState implements SubsystemState {
@@ -102,8 +101,8 @@ public class Scollector extends Subsystem {
                 break;
             case COLLECT_RAMP:
                 collect();
-                //mLeftShooterMotor.set(1);
-                //mRightShooterMotor.set(1);
+                // mLeftShooterMotor.set(1);
+                // mRightShooterMotor.set(1);
                 mRightPID.setReference(7.4, ControlType.kVelocity);
                 mLeftPID.setReference(7.4, ControlType.kVelocity);
                 break;
@@ -163,12 +162,12 @@ public class Scollector extends Subsystem {
 
     private void shoot() {
         final double desiredSpeed = 7.4;
-        
+
         double leftDutyCycle = mLeftShooterPID.calculate(mLeftShooterMotor.getEncoder().getVelocity(), desiredSpeed);
         double rightDutyCycle = mRightShooterPID.calculate(mRightShooterMotor.getEncoder().getVelocity(), desiredSpeed);
 
-        //mLeftShooterMotor.set(leftDutyCycle);
-        //mRightShooterMotor.set(rightDutyCycle);
+        // mLeftShooterMotor.set(leftDutyCycle);
+        // mRightShooterMotor.set(rightDutyCycle);
         mRightPID.setReference(desiredSpeed, ControlType.kVelocity);
         mLeftPID.setReference(desiredSpeed, ControlType.kVelocity);
 
@@ -179,11 +178,10 @@ public class Scollector extends Subsystem {
         // if(mArmInPosition)
         // return;
         // System.out.printf("%.4f,%.4f,%d\n",
-        //     mRightShooterMotor.getEncoder().getVelocity(),
-        //     mLeftShooterMotor.getEncoder().getVelocity(),
-        //     isSending ? 1 : 0
+        // mRightShooterMotor.getEncoder().getVelocity(),
+        // mLeftShooterMotor.getEncoder().getVelocity(),
+        // isSending ? 1 : 0
         // );
-
 
         if (mShooterTimer.get() >= 0.1 && mShooterTimer.get() <= 1.5) {
             mCollectorMotor.set(-1);

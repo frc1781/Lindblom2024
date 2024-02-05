@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 public class ConfigMap {
         public static final ShuffleboardTab SHUFFLEBOARD_TAB = Shuffleboard.getTab("Electric Eagles");
 
-
         // CAN IDs
 
         // 20-24 Drive train left
@@ -25,15 +24,17 @@ public class ConfigMap {
         public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 27;
 
         // 40-41 Arm
-
         public static final int ARM_PIVOT_LEFT_MOTOR = 40;
         public static final int ARM_PIVOT_RIGHT_MOTOR = 41;
         public static final double ARM_POSITION_TOLERANCE = 2.0;
-        public static final double ARM_GEAR_RATIO = (1.0/125.0)*(18.0/56.0);
-        // 57 Motors
+        public static final double ARM_GEAR_RATIO = (1.0 / 125.0) * (18.0 / 56.0);
+
+        // 42-57 Motors
         public static final int COLLECTOR_MOTOR = 57;
         public static final int SHOOTER_RIGHT_MOTOR = 42;
         public static final int SHOOTER_LEFT_MOTOR = 43;
+        public static final int LEFT_CLIMBER_MOTOR = 50;
+        public static final int RIGHT_CLIMBER_MOTOR = 51;
 
         // 60-69 Sensors
         public static final int SCOLLECTOR_TOF = 58;
@@ -43,7 +44,6 @@ public class ConfigMap {
         public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 59;
 
         // Swerve
-
         public static final double DRIVETRAIN_TRACKWIDTH = Units.inchesToMeters(30);
         public static final double DRIVETRAIN_WHEELBASE = Units.inchesToMeters(25);
         public static final double MAX_VELOCITY_METERS_PER_SECOND = 4.0;
@@ -75,7 +75,7 @@ public class ConfigMap {
 
         // First Drivebase
 
-        //Limelight
+        // Limelight
         public static final String LIMELIGHT_NAME = "limelight-three";
 
         // Controls
