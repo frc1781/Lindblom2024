@@ -48,38 +48,58 @@ public class Robot extends TimedRobot {
       }
     });
 
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CENTER_TO_APRIL_TAG, (isHeld) -> {
-        mControlSystem.centerOnAprilTag(isHeld);
-    });
-
-    mDriverInput.addClickListener(0, "B", (isPressed) -> {
-      if (isPressed) {
-        mControlSystem.setArmState(ArmState.AUTO_ANGLE);
-      }
-    });
-
-    mDriverInput.addClickListener(0, "A", (isPressed) -> {
-      if (isPressed) {
-        mControlSystem.setArmState(ArmState.COLLECT);
-      }
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.KEEP_DOWN, (isPressed) -> {
+      mControlSystem.keepArmDown(isPressed);
     });
 
     mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT, (isPressed) -> {
-      if(isPressed) {
-        mControlSystem.setCollecting();
-      }
+      mControlSystem.setCollecting(isPressed);
     });
 
-    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.SHOOT, (isPressed) -> {
-      if(isPressed) {
-        mControlSystem.setShooting();
-      }
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SPIT, (isPressed) -> {
+      mControlSystem.setSpit(isPressed);
     });
 
-    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.SPIT, (isPressed) -> {
-      if(isPressed)
-        mControlSystem.setSpit();
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SHOOT, (isPressed) -> {
+      mControlSystem.setShooting(isPressed);
     });
+
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SEND_NOTE_RAMP, (isPressed) -> {
+      mControlSystem.setManualNoteSend(isPressed);
+    });
+
+    // mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CENTER_TO_APRIL_TAG, (isHeld) -> {
+    //     mControlSystem.centerOnAprilTag(isHeld);
+    // });
+
+    // // mDriverInput.addClickListener(0, "B", (isPressed) -> {
+    // //   if (isPressed) {
+    // //     mControlSystem.setArmState(ArmState.AUTO_ANGLE);
+    // //   }
+    // // });
+
+    // // mDriverInput.addClickListener(0, "A", (isPressed) -> {
+    // //   if (isPressed) {
+    // //     mControlSystem.setArmState(ArmState.COLLECT);
+    // //   }
+    // // });
+
+    // mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT, (isPressed) -> {
+    //   if(isPressed) {
+    //     mControlSystem.setCollecting();
+    //   }
+    // });
+
+    // mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.SHOOT, (isPressed) -> {
+    //   if(isPressed) {
+    //     mControlSystem.setShooting();
+    //   }
+    // });
+
+    // mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.SPIT, (isPressed) -> {
+    //   if(isPressed)
+    //     mControlSystem.setSpit();
+    // });
 
   }
 
