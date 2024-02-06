@@ -171,9 +171,6 @@ public class Scollector extends Subsystem {
         double rightSpeed = mRightShooterMotor.getEncoder().getVelocity();
         double diff = Math.abs(leftSpeed - rightSpeed);
         double threshold = 7;
-
-        System.out.println(leftSpeed + " :: " + rightSpeed);
-
         return leftSpeed >= threshold && rightSpeed >= threshold && diff <= 0.1;
     }
 

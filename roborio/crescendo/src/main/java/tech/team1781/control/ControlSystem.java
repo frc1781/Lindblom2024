@@ -56,8 +56,9 @@ public class ControlSystem {
     //CURRENT STATE OF INPUT for HOLD DOWN BUTTONS
     private boolean mDriverNoteManipulation = false;
     private boolean mKeepArmInSafe = true;
-    private boolean mKeepArmDown = false;
+    private boolean mKeepArmDownButton = false;
     private boolean mCollectingButton = false;
+    private boolean mPrepareToShootButton = false;
     private boolean mShootButton = false;
     private boolean mSpitButton = false;
 
@@ -100,18 +101,20 @@ public class ControlSystem {
                         : (mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND));
     }
 
-    public void keepArmDown(boolean keepDown) {
-        if (mKeepArmDown == keepDown) {
+    public void keepArmDown(boolean pushingKeepDown) {
+        if (mKeepArmDownButton == pushingKeepDown) {
             return; //already set, do nothing
         }
 
-        mKeepArmDown = keepDown;
-        if (mKeepArmDown) { 
+        mKeepArmDownButton = pushingKeepDown;
+        if (mKeepArmDownButton) { 
             mArm.setDesiredState(ArmState.COLLECT);
             mKeepArmInSafe = false;
         }
         else {
-            mKeepArmInSafe = true;
+            if (!mPrepareToShootButton && !mCollectingButton) {
+                mArm.setDesiredState(ArmState.SAFE);
+            }
         }
     }
 
@@ -128,8 +131,11 @@ public class ControlSystem {
             mDriverNoteManipulation = true;
         }
         else {
-            if (!mKeepArmDown) {
+            if (!mKeepArmDownButton && !mPrepareToShootButton) {
               mArm.setDesiredState(ArmState.SAFE);
+            }
+            if (!mPrepareToShootButton) {
+              mScollector.setDesiredState(ScollectorState.IDLE); // What if preparing to shoot & collecting at the same time?
             }
         }
     }
@@ -166,17 +172,22 @@ public class ControlSystem {
         }
     }
 
-    public void setRampShooter(boolean isRamping) {
-        if(isRamping) {
-            mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
-            mDriverNoteManipulation = true;
+    public void setPrepareToShoot(boolean pushingPrepare) {
+        if (mPrepareToShootButton == pushingPrepare) {
+            return; //no change in state
         }
-    }
-
-    public void setManualNoteSend(boolean isSending) {
-        if(isSending) {
-            mScollector.setDesiredState(ScollectorState.SEND_NOTE_SHOOT);
+        mPrepareToShootButton = pushingPrepare;
+        if (mPrepareToShootButton) {
+            mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER); //?
+            // mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
+            mArm.setDesiredState(ArmState.SUBWOOFER); //change to aiming later
             mDriverNoteManipulation = true;
+            mKeepArmInSafe = false;
+        } else {
+            mArm.setDesiredState(ArmState.SAFE);
+            mScollector.setDesiredState(ScollectorState.IDLE);
+            mDriverNoteManipulation = false;
+            mKeepArmInSafe = true;
         }
     }
 
@@ -269,14 +280,9 @@ public class ControlSystem {
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
 
-                //mArm.driveManual(driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).x
-                //        - driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).y);
-                //if (mKeepArmInSafe && !mKeepArmDown)
-                //    mArm.setDesiredState(ArmState.SAFE);
-                //}
-
-                if (!mDriverNoteManipulation) {
-                    mScollector.setDesiredState(ScollectorState.IDLE);
+                int pov = driverInput.getPOV(ConfigMap.CO_PILOT_PORT);
+                if (pov != -1) {
+                    // System.out.println("Receiving POV Input " + pov);
                 }
 
                 mDriverNoteManipulation = false;
