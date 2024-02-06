@@ -62,8 +62,7 @@ public class ControlSystem {
         COLLECT,
         SHOOT,
         COLLECT_RAMP,
-        COLLECT_AUTO_SHOOT,
-        MANUAL_ADJUST 
+        COLLECT_AUTO_SHOOT
     }
 
     public ControlSystem() {
@@ -231,7 +230,7 @@ public class ControlSystem {
                 mXDriveLimiter.reset(0);
                 mYDriveLimiter.reset(0);
                 mRotDriveLimiter.reset(0);
-
+                mArm.setDesiredState(ArmState.SAFE);
                 mDriveSystem.setDesiredState(DriveSystem.DriveSystemState.DRIVE_MANUAL);
 
                 mDriverNoteManipulation = false;
@@ -254,14 +253,9 @@ public class ControlSystem {
 
                 //mArm.driveManual(driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).x
                 //        - driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).y);
-
-                if(mArm.getState() == ArmState.MANUAL) {
-                    mKeepArmInSafe = false;
-                }
-
-                if (mKeepArmInSafe && !mKeepArmDown) {
-                    mArm.setDesiredState(ArmState.SAFE);
-                }
+                //if (mKeepArmInSafe && !mKeepArmDown)
+                //    mArm.setDesiredState(ArmState.SAFE);
+                //}
 
                 if (!mDriverNoteManipulation) {
                     mScollector.setDesiredState(ScollectorState.IDLE);
