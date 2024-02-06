@@ -161,13 +161,13 @@ public class ControlSystem {
 
     public void centerOnAprilTag(boolean isHeld) {
         if (isHeld) {
-            LimelightHelper.getDistanceOfApriltag(4);
             double x = LimelightHelper.getXOffsetOfPreferredTarget(4);
-            aimingAngle = mLimelightAimController.calculate(x, 0);
             if (x == 0.0) {
-                //limelight doesn't see anything
                 odometryAlignment();
+                return;
             }
+            //LimelightHelper.getDistanceOfApriltag(4);
+            aimingAngle = mLimelightAimController.calculate(x, 0);
         }
 
         mAutoAiming = isHeld;
@@ -382,7 +382,7 @@ public class ControlSystem {
 
     private void localizeOnLimelight() {
         Pose2d currentPose = LimelightHelper.getBotPose2d(ConfigMap.LIMELIGHT_NAME);
-
+        System.out.println("updated");
         mDriveSystem.setOdometry(currentPose);
     }
 
