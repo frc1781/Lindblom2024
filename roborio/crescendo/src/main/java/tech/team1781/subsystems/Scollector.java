@@ -114,10 +114,13 @@ public class Scollector extends Subsystem {
             case SHOOT:
                 shoot();
             case COLLECT_AUTO_SHOOT:
+            
                 if (!hasNote()) {
                     collect();
-                } else {
+                } else if(mArmInPosition){
                     shoot();
+                } else {
+                    mCollectorMotor.set(0);
                 }
 
                 driveMotors();
@@ -214,6 +217,8 @@ public class Scollector extends Subsystem {
 
         if (!mArmInPosition)
             return;
+        
+        System.out.println("aaaaaaaaaaaa: " + mArmInPosition);
 
         if (mShooterTimer.get() >= 0.1 && mShooterTimer.get() <= 1.5) {
             mCollectorMotor.set(-1);
