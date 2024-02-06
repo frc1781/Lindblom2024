@@ -282,6 +282,15 @@ public class ControlSystem {
 
                 int pov = driverInput.getPOV(ConfigMap.CO_PILOT_PORT);
                 if (pov != -1) {
+                    switch(pov) {
+                        case 90:
+                        mArm.manualControlAngle(3.0);
+                        break;
+                        case 270:
+                        mArm.manualControlAngle(-3.0);
+                        break;
+                    }
+
                     // System.out.println("Receiving POV Input " + pov);
                 }
 
