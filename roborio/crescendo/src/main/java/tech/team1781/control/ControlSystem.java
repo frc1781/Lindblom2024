@@ -53,10 +53,13 @@ public class ControlSystem {
     private boolean mAutoAiming = false;
     private double aimingAngle = 0.0;
 
+    //CURRENT STATE OF INPUT for HOLD DOWN BUTTONS
     private boolean mDriverNoteManipulation = false;
     private boolean mKeepArmInSafe = true;
     private boolean mKeepArmDown = false;
     private boolean mCollectingButton = false;
+    private boolean mShootButton = false;
+    private boolean mSpitButton = false;
 
     public enum Action {
         COLLECT,
@@ -112,12 +115,12 @@ public class ControlSystem {
         }
     }
 
-    public void setCollecting(boolean pushedCollecting) {
-        if (mCollectingButton == pushedCollecting) {
+    public void setCollecting(boolean pushingCollect) {
+        if (mCollectingButton == pushingCollect) {
             return; //no change in state
         }
 
-        mCollectingButton = pushedCollecting;
+        mCollectingButton = pushingCollect;
         if (mCollectingButton) {
             mScollector.setDesiredState(ScollectorState.COLLECT);
             mArm.setDesiredState(ArmState.COLLECT);
@@ -125,26 +128,41 @@ public class ControlSystem {
             mDriverNoteManipulation = true;
         }
         else {
-          mKeepArmInSafe = true;
+            if (!mKeepArmDown) {
+              mArm.setDesiredState(ArmState.SAFE);
+            }
         }
     }
 
-    public void setSpit(boolean isSpitting) {
-        if (isSpitting) {
+    public void setSpit(boolean pushingSpit) {
+        if (mSpitButton == pushingSpit) {
+            return; //no change in state
+        }
+
+        mSpitButton = pushingSpit;
+        if (mSpitButton) {
             mScollector.setDesiredState(ScollectorState.SPIT);
             mDriverNoteManipulation = true;
         }
-        // else
-        // mScollector.setDesiredState(ScollectorState.IDLE);k
+        else {
+            mScollector.setDesiredState(ScollectorState.IDLE);
+        }
     }
 
-    public void setShooting(boolean isShooting) {
-        if (isShooting) {
+    public void setShooting(boolean pushingShoot) {
+        if (mShootButton == pushingShoot) {
+            return; //no change in state
+        }
+
+        mShootButton = pushingShoot;
+        if (mShootButton) {
             mScollector.setDesiredState(ScollectorState.SHOOT);
-            mArm.setDesiredState(ArmState.SUBWOOFER);
+            mArm.setDesiredState(ArmState.SUBWOOFER); //change to aiming later
             mDriverNoteManipulation = true;
             mKeepArmInSafe = false;
         } else {
+            mArm.setDesiredState(ArmState.SAFE);
+            mScollector.setDesiredState(ScollectorState.IDLE);
         }
     }
 
