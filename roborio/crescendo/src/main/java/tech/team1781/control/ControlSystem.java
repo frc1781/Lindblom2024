@@ -55,12 +55,15 @@ public class ControlSystem {
 
     private boolean mDriverNoteManipulation = false;
     private boolean mKeepArmInSafe = true;
+    private boolean mKeepArmDown = false;
+    private boolean mCollectingButton = false;
 
     public enum Action {
         COLLECT,
         SHOOT,
         COLLECT_RAMP,
-        COLLECT_AUTO_SHOOT
+        COLLECT_AUTO_SHOOT,
+        MANUAL_ADJUST 
     }
 
     public ControlSystem() {
@@ -95,19 +98,35 @@ public class ControlSystem {
                         : (mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND));
     }
 
-    public void keepArmDown(boolean isDown) {
-        mKeepArmInSafe = !isDown;
-        if (isDown) {
+    public void keepArmDown(boolean keepDown) {
+        if (mKeepArmDown == keepDown) {
+            return; //already set, do nothing
+        }
+
+        mKeepArmDown = keepDown;
+        if (mKeepArmDown) { 
             mArm.setDesiredState(ArmState.COLLECT);
+            mKeepArmInSafe = false;
+        }
+        else {
+            mKeepArmInSafe = true;
         }
     }
 
-    public void setCollecting(boolean isCollecting) {
-        if (isCollecting) {
+    public void setCollecting(boolean pushedCollecting) {
+        if (mCollectingButton == pushedCollecting) {
+            return; //no change in state
+        }
+
+        mCollectingButton = pushedCollecting;
+        if (mCollectingButton) {
             mScollector.setDesiredState(ScollectorState.COLLECT);
             mArm.setDesiredState(ArmState.COLLECT);
             mKeepArmInSafe = false;
             mDriverNoteManipulation = true;
+        }
+        else {
+          mKeepArmInSafe = true;
         }
     }
 
@@ -123,8 +142,7 @@ public class ControlSystem {
     public void setShooting(boolean isShooting) {
         if (isShooting) {
             mScollector.setDesiredState(ScollectorState.SHOOT);
-            if(mArm.getState() != ArmState.MANUAL)
-                mArm.setDesiredState(ArmState.SUBWOOFER);
+            mArm.setDesiredState(ArmState.SUBWOOFER);
             mDriverNoteManipulation = true;
             mKeepArmInSafe = false;
         } else {
@@ -234,14 +252,14 @@ public class ControlSystem {
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
 
-                mArm.driveManual(driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).x
-                        - driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).y);
+                //mArm.driveManual(driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).x
+                //        - driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).y);
 
                 if(mArm.getState() == ArmState.MANUAL) {
                     mKeepArmInSafe = false;
                 }
 
-                if (mKeepArmInSafe) {
+                if (mKeepArmInSafe && !mKeepArmDown) {
                     mArm.setDesiredState(ArmState.SAFE);
                 }
 
@@ -249,9 +267,7 @@ public class ControlSystem {
                     mScollector.setDesiredState(ScollectorState.IDLE);
                 }
 
-
                 mDriverNoteManipulation = false;
-                mKeepArmInSafe = true;
                 break;
             case AUTONOMOUS:
                 System.out.println(mScollector.getState().toString());

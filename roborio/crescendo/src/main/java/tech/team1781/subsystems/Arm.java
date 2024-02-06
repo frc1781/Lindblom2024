@@ -29,7 +29,6 @@ public class Arm extends Subsystem {
 
 
     private double mDesiredPosition = 0;
-    private boolean mIsManual = false;
     private boolean mHasAutoAngled = false;
     private double mAngleFromDistance = 0;
 
@@ -70,8 +69,8 @@ public class Arm extends Subsystem {
         PODIUM,
         SUBWOOFER,
         COLLECT,
-        MANUAL,
         AUTO_ANGLE,
+        MANUAL_ADJUST
     }
 
     @Override
@@ -88,15 +87,11 @@ public class Arm extends Subsystem {
 
     @Override
     public void getToState() {
-        var desiredPosition = mDesiredPosition; // mPositions.get(mDesiredPosition);
+        var desiredPosition = mDesiredPosition; 
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), desiredPosition);
-
+        System.out.println("arm dc: " + armDutyCycle);
         mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
-
-        if (getState() == ArmState.MANUAL && mIsManual) {
-        } else {
-            mLeftMotor.set(armDutyCycle);
-        }
+        mLeftMotor.set(armDutyCycle);
 
         switch ((ArmState) getState()) {
             case START:
@@ -136,38 +131,33 @@ public class Arm extends Subsystem {
 
     @Override
     public void autonomousPeriodic() {
-
     }
 
-    public void driveManual(double armDutyCycle) {
-        armDutyCycle *= 0.5;
+    // public void driveManual(double armDutyCycle) {
+    //     armDutyCycle *= 0.5;
 
-        if (Math.abs(armDutyCycle) >= 0.1) {
-            mIsManual = true;
-            setDesiredState(ArmState.MANUAL);
-            mLeftMotor.set(armDutyCycle);
-            mDesiredPosition = mLeftEncoder.getPosition();
-        } else {
-            mIsManual = false;
-        }
-    }
+    //     if (Math.abs(armDutyCycle) >= 0.1) {
+    //         mIsManual = true;
+    //         setDesiredState(ArmState.MANUAL);
+    //         mLeftMotor.set(armDutyCycle);
+    //         mDesiredPosition = mLeftEncoder.getPosition();
+    //     } else {
+    //         mIsManual = false;
+    //     }
+    // }
 
     @Override
     public void teleopPeriodic() {
-
-        // System.out.printf("arm left encoder %.3f\n", getAngle());
-        // mLeftMotor.set(0); //temp
     }
 
     @Override
     public void setDesiredState(SubsystemState state) {
         super.setDesiredState(state);
 
-        if (state != ArmState.MANUAL && state != ArmState.AUTO_ANGLE) {
+        if (state != ArmState.AUTO_ANGLE) {
             mDesiredPosition = mPositions.get(state);
-            mIsManual = false;
         } else if (state == ArmState.AUTO_ANGLE) {
-
+            //will add code to set angle by distance to april tag
         }
     }
 
@@ -180,8 +170,6 @@ public class Arm extends Subsystem {
         final double coefficient = 16.8;
 
         dist = Math.log(dist);
-        
-
         mAngleFromDistance = start + (dist * coefficient);
     }
 
