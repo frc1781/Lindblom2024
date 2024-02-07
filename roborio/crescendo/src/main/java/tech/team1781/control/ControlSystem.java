@@ -1,11 +1,9 @@
 package tech.team1781.control;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.path.PathPlannerTrajectory;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -13,8 +11,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput.ControllerSide;
@@ -162,12 +158,12 @@ public class ControlSystem {
     public void centerOnAprilTag(boolean isHeld) {
         if (isHeld) {
             double x = LimelightHelper.getXOffsetOfPreferredTarget(4);
-            if (x == 0.0) {
+            if (x != 0.0) {
+                aimingAngle = mLimelightAimController.calculate(x, 0);
+            } else {
                 odometryAlignment();
-                return;
             }
             //LimelightHelper.getDistanceOfApriltag(4);
-            aimingAngle = mLimelightAimController.calculate(x, 0);
         }
 
         mAutoAiming = isHeld;
@@ -175,7 +171,7 @@ public class ControlSystem {
 
     public void odometryAlignment() {
         Pose2d robotPose = mDriveSystem.getRobotPose();
-        Pose2d targetPose = new Pose2d(8.308467, 1.442593, new Rotation2d()); //coords of apriltag 4
+        Pose2d targetPose = new Pose2d(16.578467,5.547593, new Rotation2d()); //coords of apriltag 4
 
         Transform2d finishingPose = targetPose.minus(robotPose);
         double angle = Math.atan2(finishingPose.getY(), finishingPose.getX());
@@ -382,7 +378,6 @@ public class ControlSystem {
 
     private void localizeOnLimelight() {
         Pose2d currentPose = LimelightHelper.getBotPose2d(ConfigMap.LIMELIGHT_NAME);
-        System.out.println("updated");
         mDriveSystem.setOdometry(currentPose);
     }
 
