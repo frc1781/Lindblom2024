@@ -95,5 +95,5 @@ public class ConfigMap {
         public static final String CENTER_TO_APRIL_TAG = "B";
         public static final String SPIT = "LB";
         public static final String SHOOT = "RB";
-        public static final String SEND_NOTE_RAMP = "X";
+        public static final String PREPARE_TO_SHOOT = "X";
 }
