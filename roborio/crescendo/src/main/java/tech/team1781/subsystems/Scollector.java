@@ -103,9 +103,7 @@ public class Scollector extends Subsystem {
                 break;
             case COLLECT_RAMP:
                 collect();
-                // mLeftShooterMotor.set(1);
-                // mRightShooterMotor.set(1);
-
+                driveMotors();
                 break;
             case SPIT:
                 mCollectorMotor.set(1);

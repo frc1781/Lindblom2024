@@ -112,6 +112,10 @@ public class ControlSystem {
             if (!mPrepareToShootButton && !mCollectingButton) {
                 mArm.setDesiredState(ArmState.SAFE);
             }
+            if (mPrepareToShootButton) {
+                mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
+                mArm.setDesiredState(ArmState.AUTO_ANGLE);
+            }
         }
     }
 
@@ -127,10 +131,14 @@ public class ControlSystem {
         }
         else {
             if (!mKeepArmDownButton && !mPrepareToShootButton) {
-              mArm.setDesiredState(ArmState.SAFE);
+                mArm.setDesiredState(ArmState.SAFE);
             }
-            if (!mPrepareToShootButton) {
-              mScollector.setDesiredState(ScollectorState.IDLE); // What if preparing to shoot & collecting at the same time?
+            if (mPrepareToShootButton) {
+                mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
+                mArm.setDesiredState(ArmState.AUTO_ANGLE); 
+            }
+            else {
+                mScollector.setDesiredState(ScollectorState.IDLE); 
             }
         }
     }
@@ -157,7 +165,6 @@ public class ControlSystem {
         mShootButton = pushingShoot;
         if (mShootButton) {
             mScollector.setDesiredState(ScollectorState.SHOOT);
-            mArm.setDesiredState(ArmState.SUBWOOFER); //change to aiming later
         } else {
             mArm.setDesiredState(ArmState.SAFE);
             mScollector.setDesiredState(ScollectorState.IDLE);
@@ -170,10 +177,14 @@ public class ControlSystem {
         }
         mPrepareToShootButton = pushingPrepare;
         if (mPrepareToShootButton) {
-            mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER); //?
-            // mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
-            mArm.setDesiredState(ArmState.SUBWOOFER); //change to aiming later
-        } else {
+            if (mCollectingButton || mKeepArmDownButton) {
+                mScollector.setDesiredState(ScollectorState.COLLECT_RAMP); 
+            }
+            else {
+                mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER); 
+                mArm.setDesiredState(ArmState.AUTO_ANGLE); 
+            }
+        } else if (!mCollectingButton && !mKeepArmDownButton) {
             mArm.setDesiredState(ArmState.SAFE);
             mScollector.setDesiredState(ScollectorState.IDLE);
         }

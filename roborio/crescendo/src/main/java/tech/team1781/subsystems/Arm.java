@@ -22,9 +22,8 @@ public class Arm extends Subsystem {
             new TrapezoidProfile.Constraints(80, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
     private GenericEntry mArmPositionEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Arm Position", -1).getEntry();
-    private GenericEntry mSpeakerDistanceEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Distance", 1).getEntry();
+    //private GenericEntry mSpeakerDistanceEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Distance", 1).getEntry();
     private double mDesiredPosition = 0;
-    private double mAngleFromDistance = 0;
 
     public Arm() {
         super("Arm", ArmState.START);
@@ -69,7 +68,6 @@ public class Arm extends Subsystem {
 
     @Override
     public void init() {
-        mAngleFromDistance = 0;
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
         mLeftMotor.setSmartCurrentLimit(30);
@@ -84,8 +82,12 @@ public class Arm extends Subsystem {
 
     @Override
     public void getToState() {
-        var desiredPosition = mDesiredPosition; // mPositions.get(mDesiredPosition);
-        var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), desiredPosition);
+        if (getState() == ArmState.AUTO_ANGLE) {
+            mDesiredPosition = calculateAngleFromDistance();
+        }
+        var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), mDesiredPosition);
+        mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
+        mLeftMotor.set(armDutyCycle);
         // System.out.printf("%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\n",
         //   (currentTime-startTime)/1000000000.0,
         //   mDesiredPosition,
@@ -94,31 +96,6 @@ public class Arm extends Subsystem {
         //   mLeftEncoder.getVelocity(),
         //   mLeftMotor.getAppliedOutput()
         // );
-        mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
-        mLeftMotor.set(armDutyCycle);
-
-        switch ((ArmState) getState()) {
-            case START:
-                break;
-
-            case SAFE:
-                break;
-
-            case PODIUM:
-                break;
-
-            case SUBWOOFER:
-                break;
-
-            case COLLECT:
-                break;
-            case AUTO_ANGLE:
-                calculateAngleFromDistance(mSpeakerDistanceEntry.getDouble(-1));
-                mDesiredPosition = mAngleFromDistance;
-                break;
-            default:
-                break;
-        }
     }
 
     @Override
@@ -149,7 +126,7 @@ public class Arm extends Subsystem {
         if (state != ArmState.MANUAL && state != ArmState.AUTO_ANGLE) {
             mDesiredPosition = mPositions.get(state);
         } else if (state == ArmState.AUTO_ANGLE) {
-
+            mDesiredPosition = calculateAngleFromDistance();
         }
     }
 
@@ -157,12 +134,13 @@ public class Arm extends Subsystem {
         return mLeftEncoder.getPosition();
     }
 
-    public void calculateAngleFromDistance(double dist) {
+    private double calculateAngleFromDistance() {
         final double start = 26.2;
         final double coefficient = 16.8;
-
+        double dist = 2.0;  //temporary, need to get distance from somewhere
         dist = Math.log(dist);
-        mAngleFromDistance = start + (dist * coefficient);
+        //return start + (dist * coefficient);
+        return 45.0;  //temporary
     }
 
     public void manualControlAngle(double d) {
