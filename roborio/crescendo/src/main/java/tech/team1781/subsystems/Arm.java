@@ -21,12 +21,9 @@ public class Arm extends Subsystem {
     private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.05, 0, 0,
             new TrapezoidProfile.Constraints(80, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
-
     private GenericEntry mArmPositionEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Arm Position", -1).getEntry();
     private GenericEntry mSpeakerDistanceEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Distance", 1).getEntry();
-
     private double mDesiredPosition = 0;
-    private boolean mIsManual = false;
     private double mAngleFromDistance = 0;
 
     public Arm() {
@@ -62,8 +59,7 @@ public class Arm extends Subsystem {
         SUBWOOFER,
         COLLECT,
         MANUAL,
-        AUTO_ANGLE,
-        MOVETOSHOOT // Seems like it would do the same thing as AUTO_ANGLE
+        AUTO_ANGLE
     }
 
     @Override
@@ -99,11 +95,7 @@ public class Arm extends Subsystem {
         //   mLeftMotor.getAppliedOutput()
         // );
         mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
-
-        if (getState() == ArmState.MANUAL && mIsManual) {
-        } else {
-            mLeftMotor.set(armDutyCycle);
-        }
+        mLeftMotor.set(armDutyCycle);
 
         switch ((ArmState) getState()) {
             case START:
@@ -123,8 +115,6 @@ public class Arm extends Subsystem {
             case AUTO_ANGLE:
                 calculateAngleFromDistance(mSpeakerDistanceEntry.getDouble(-1));
                 mDesiredPosition = mAngleFromDistance;
-                break;
-            case MOVETOSHOOT:
                 break;
             default:
                 break;
@@ -146,22 +136,8 @@ public class Arm extends Subsystem {
 
     }
 
-    public void driveManual(double armDutyCycle) {
-        armDutyCycle *= 0.5;
-
-        if (Math.abs(armDutyCycle) >= 0.1) {
-            mIsManual = true;
-            setDesiredState(ArmState.MANUAL);
-            mLeftMotor.set(armDutyCycle);
-            mDesiredPosition = mLeftEncoder.getPosition();
-        } else {
-            mIsManual = false;
-        }
-    }
-
     @Override
     public void teleopPeriodic() {
-
         // System.out.printf("arm left encoder %.3f\n", getAngle());
         // mLeftMotor.set(0); //temp
     }
@@ -172,7 +148,6 @@ public class Arm extends Subsystem {
 
         if (state != ArmState.MANUAL && state != ArmState.AUTO_ANGLE) {
             mDesiredPosition = mPositions.get(state);
-            mIsManual = false;
         } else if (state == ArmState.AUTO_ANGLE) {
 
         }
@@ -187,8 +162,6 @@ public class Arm extends Subsystem {
         final double coefficient = 16.8;
 
         dist = Math.log(dist);
-        
-
         mAngleFromDistance = start + (dist * coefficient);
     }
 
