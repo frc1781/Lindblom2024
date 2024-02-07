@@ -150,7 +150,6 @@ public class Arm extends Subsystem {
 
     private boolean matchesPosition() {
         var diff = mDesiredPosition - mLeftEncoder.getPosition();
-        return true;
-        //return Math.abs(diff) <= 1;
+        return Math.abs(diff) <= 1;
     }
 }
