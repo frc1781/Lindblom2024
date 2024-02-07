@@ -23,6 +23,11 @@ import tech.team1781.ConfigMap;
 import tech.team1781.swerve.NEOL1SwerveModule;
 import tech.team1781.swerve.SwerveModule;
 import tech.team1781.utils.EVector;
+import tech.team1781.utils.NetworkLogger;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class DriveSystem extends Subsystem {
 
@@ -44,14 +49,12 @@ public class DriveSystem extends Subsystem {
     private SwerveDriveKinematics mKinematics = new SwerveDriveKinematics(ConfigMap.FRONT_LEFT_MODULE_POSITION,
             ConfigMap.FRONT_RIGHT_MODULE_POSITION, ConfigMap.BACK_LEFT_MODULE_POSITION,
             ConfigMap.BACK_RIGHT_MODULE_POSITION);
-    private GenericEntry mXEntry = ConfigMap.SHUFFLEBOARD_TAB.add("X Position", 0).getEntry();
-    private GenericEntry mYEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Y Position", 0).getEntry();
-    private GenericEntry mRotEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Rotate Position", 0).getEntry();
 
     private SwerveDriveOdometry mOdometry;
     private boolean mIsFieldOriented = true;
     private double mNavXOffset = 0;
     private boolean mHasNavXOffsetBeenSet = false;
+    private boolean mOdometryBeenSet = false;
     // Sensors
     private AHRS mNavX = new AHRS(SPI.Port.kMXP);
 
@@ -107,7 +110,8 @@ public class DriveSystem extends Subsystem {
                 // return matchesDesiredPosition();
                 return false;
             case DRIVE_TRAJECTORY:
-                return matchesPosition(mDesiredTrajectory.getEndState().getTargetHolonomicPose()) && (currentTime >= mDesiredTrajectory.getTotalTimeSeconds()) ;
+                return matchesPosition(mDesiredTrajectory.getEndState().getTargetHolonomicPose())
+                        && (currentTime >= mDesiredTrajectory.getTotalTimeSeconds());
             case DRIVE_MANUAL:
                 return false;
             // return mIsManual;
@@ -143,6 +147,7 @@ public class DriveSystem extends Subsystem {
             case AUTONOMOUS:
                 mIsFieldOriented = true;
                 mHasNavXOffsetBeenSet = false;
+                mOdometryBeenSet = false;
                 break;
             case TELEOP:
                 mIsManual = true;
@@ -156,6 +161,16 @@ public class DriveSystem extends Subsystem {
             default:
                 break;
         }
+
+        Runnable OdometryLogging = () -> {
+            Pose2d robotPose = getRobotPose();
+            super.mNetworkLogger.log("X", robotPose.getX());
+            super.mNetworkLogger.log("Y", robotPose.getY());
+            super.mNetworkLogger.log("Rot", getRobotAngle().getDegrees());
+        };
+
+        ScheduledExecutorService loggingExecutor = Executors.newScheduledThreadPool(1);
+        loggingExecutor.scheduleAtFixedRate(OdometryLogging, 0, 1, TimeUnit.SECONDS);
     }
 
     public void setOdometry(Pose2d pose) {
@@ -222,15 +237,18 @@ public class DriveSystem extends Subsystem {
         Pose2d initialPose = trajectory.getInitialTargetHolonomicPose();
         mDesiredTrajectory = trajectory;
 
-        setNavXOffset(new Rotation2d(45.0/180.0 * Math.PI));
-        setOdometry(initialPose);
+        if (!mOdometryBeenSet) {
+            setNavXOffset(new Rotation2d(45.0 / 180.0 * Math.PI));
+            setOdometry(initialPose);
+            mOdometryBeenSet = true;
+        }
         mDesiredPosition = null;
         mIsManual = false;
     }
 
     public void setTrajectoryFromPath(PathPlannerPath path) {
         setNavXOffset(path.getPreviewStartingHolonomicPose().getRotation());
-        //also use current speed of robot
+        // also use current speed of robot
         PathPlannerTrajectory pathTrajectory = new PathPlannerTrajectory(path, new ChassisSpeeds(), getRobotAngle());
         setTrajectory(pathTrajectory);
     }
@@ -258,7 +276,7 @@ public class DriveSystem extends Subsystem {
         EVector currentPose = EVector.fromPose(getRobotPose());
         EVector otherPose = EVector.fromPose(other);
         return currentPose.dist(otherPose) <= TOLERANCE;
-        
+
     }
 
     public void driveRaw(double xSpeed, double ySpeed, double rot) {
@@ -302,11 +320,6 @@ public class DriveSystem extends Subsystem {
 
     private void updateOdometry() {
         mOdometry.update(getRobotAngle(), getModulePositions());
-
-        Pose2d robotPose = getRobotPose();
-        mXEntry.setDouble(robotPose.getX());
-        mYEntry.setDouble(robotPose.getY());
-        mRotEntry.setDouble(getRobotAngle().getDegrees());
     }
 
     private SwerveModulePosition[] getModulePositions() {

@@ -11,6 +11,7 @@ import tech.team1781.Paths;
 import tech.team1781.autonomous.AutoStep;
 import tech.team1781.autonomous.AutonomousHandler.AutoRoutine;
 import tech.team1781.control.ControlSystem;
+import tech.team1781.control.ControlSystem.Action;
 
 public class FourNoteRoutine implements AutoRoutine {
 

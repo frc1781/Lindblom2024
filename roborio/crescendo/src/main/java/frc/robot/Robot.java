@@ -4,33 +4,33 @@
 
 package frc.robot;
 
-import java.util.ArrayList;
-
 import edu.wpi.first.wpilibj.TimedRobot;
 import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput;
-import tech.team1781.DriverInput.ControllerSide;
 import tech.team1781.autonomous.AutonomousHandler;
 import tech.team1781.autonomous.RoutineOverException;
-import tech.team1781.autonomous.routines.ExampleRoutine;
 import tech.team1781.autonomous.routines.FourNoteRoutine;
-import tech.team1781.autonomous.routines.PIDTuningRoutine;
 import tech.team1781.control.ControlSystem;
+import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
 
 /**
- * The VM is configured to automatically run this class, and to call the functions corresponding to
- * each mode, as described in the TimedRobot documentation. If you change the name of this class or
- * the package after creating this project, you must also update the build.gradle file in the
+ * The VM is configured to automatically run this class, and to call the
+ * functions corresponding to
+ * each mode, as described in the TimedRobot documentation. If you change the
+ * name of this class or
+ * the package after creating this project, you must also update the
+ * build.gradle file in the
  * project.
  */
 public class Robot extends TimedRobot {
   /**
-   * This function is run when the robot is first started up and should be used for any
+   * This function is run when the robot is first started up and should be used
+   * for any
    * initialization code.
    */
 
-  //control and autonomous
+  // control and autonomous
   private ControlSystem mControlSystem;
   private AutonomousHandler mAutonomousHandler;
   private DriverInput mDriverInput;
@@ -47,6 +47,60 @@ public class Robot extends TimedRobot {
         mControlSystem.zeroNavX();
       }
     });
+
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.KEEP_DOWN, (isPressed) -> {
+      mControlSystem.keepArmDown(isPressed);
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT, (isPressed) -> {
+      mControlSystem.setCollecting(isPressed);
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SPIT, (isPressed) -> {
+      mControlSystem.setSpit(isPressed);
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SHOOT, (isPressed) -> {
+      mControlSystem.setShooting(isPressed);
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SEND_NOTE_RAMP, (isPressed) -> {
+      mControlSystem.setManualNoteSend(isPressed);
+    });
+
+    // mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CENTER_TO_APRIL_TAG, (isHeld) -> {
+    //     mControlSystem.centerOnAprilTag(isHeld);
+    // });
+
+    // // mDriverInput.addClickListener(0, "B", (isPressed) -> {
+    // //   if (isPressed) {
+    // //     mControlSystem.setArmState(ArmState.AUTO_ANGLE);
+    // //   }
+    // // });
+
+    // // mDriverInput.addClickListener(0, "A", (isPressed) -> {
+    // //   if (isPressed) {
+    // //     mControlSystem.setArmState(ArmState.COLLECT);
+    // //   }
+    // // });
+
+    // mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT, (isPressed) -> {
+    //   if(isPressed) {
+    //     mControlSystem.setCollecting();
+    //   }
+    // });
+
+    // mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.SHOOT, (isPressed) -> {
+    //   if(isPressed) {
+    //     mControlSystem.setShooting();
+    //   }
+    // });
+
+    // mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.SPIT, (isPressed) -> {
+    //   if(isPressed)
+    //     mControlSystem.setSpit();
+    // });
+
   }
 
   @Override
@@ -76,7 +130,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    mControlSystem.run(mDriverInput.run());  //add copilot input
+    mControlSystem.run(mDriverInput.run()); // add copilot input
   }
 
   @Override

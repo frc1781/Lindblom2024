@@ -3,7 +3,6 @@ package tech.team1781;
 import java.util.HashMap;
 
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.path.PathPlannerTrajectory;
 
 public class Paths {
 
