@@ -67,7 +67,6 @@ public class Arm extends Subsystem {
         mPositions.put(ArmState.PODIUM, 43.8);
         mPositions.put(ArmState.SUBWOOFER, 40.0);
         mPositions.put(ArmState.COLLECT, 0.0);
-
     }
 
     public enum ArmState implements Subsystem.SubsystemState {
@@ -108,14 +107,14 @@ public class Arm extends Subsystem {
         var desiredPosition = mDesiredPosition; // mPositions.get(mDesiredPosition);
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), desiredPosition);
         currentTime = System.nanoTime();
-        System.out.printf("%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\n",
-          (currentTime-startTime)/1000000000.0,
-          mDesiredPosition,
-          armDutyCycle,
-          getAngle(),
-          mLeftEncoder.getVelocity(),
-          mLeftMotor.getAppliedOutput()
-        );
+        // System.out.printf("%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\n",
+        //   (currentTime-startTime)/1000000000.0,
+        //   mDesiredPosition,
+        //   armDutyCycle,
+        //   getAngle(),
+        //   mLeftEncoder.getVelocity(),
+        //   mLeftMotor.getAppliedOutput()
+        // );
         mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
 
         if (getState() == ArmState.MANUAL && mIsManual) {
