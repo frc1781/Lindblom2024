@@ -54,8 +54,6 @@ public class ControlSystem {
     private double aimingAngle = 0.0;
 
     //CURRENT STATE OF INPUT for HOLD DOWN BUTTONS
-    private boolean mDriverNoteManipulation = false;
-    private boolean mKeepArmInSafe = true;
     private boolean mKeepArmDownButton = false;
     private boolean mCollectingButton = false;
     private boolean mPrepareToShootButton = false;
@@ -109,7 +107,6 @@ public class ControlSystem {
         mKeepArmDownButton = pushingKeepDown;
         if (mKeepArmDownButton) { 
             mArm.setDesiredState(ArmState.COLLECT);
-            mKeepArmInSafe = false;
         }
         else {
             if (!mPrepareToShootButton && !mCollectingButton) {
@@ -127,8 +124,6 @@ public class ControlSystem {
         if (mCollectingButton) {
             mScollector.setDesiredState(ScollectorState.COLLECT);
             mArm.setDesiredState(ArmState.COLLECT);
-            mKeepArmInSafe = false;
-            mDriverNoteManipulation = true;
         }
         else {
             if (!mKeepArmDownButton && !mPrepareToShootButton) {
@@ -148,7 +143,6 @@ public class ControlSystem {
         mSpitButton = pushingSpit;
         if (mSpitButton) {
             mScollector.setDesiredState(ScollectorState.SPIT);
-            mDriverNoteManipulation = true;
         }
         else {
             mScollector.setDesiredState(ScollectorState.IDLE);
@@ -164,8 +158,6 @@ public class ControlSystem {
         if (mShootButton) {
             mScollector.setDesiredState(ScollectorState.SHOOT);
             mArm.setDesiredState(ArmState.SUBWOOFER); //change to aiming later
-            mDriverNoteManipulation = true;
-            mKeepArmInSafe = false;
         } else {
             mArm.setDesiredState(ArmState.SAFE);
             mScollector.setDesiredState(ScollectorState.IDLE);
@@ -181,13 +173,9 @@ public class ControlSystem {
             mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER); //?
             // mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
             mArm.setDesiredState(ArmState.SUBWOOFER); //change to aiming later
-            mDriverNoteManipulation = true;
-            mKeepArmInSafe = false;
         } else {
             mArm.setDesiredState(ArmState.SAFE);
             mScollector.setDesiredState(ScollectorState.IDLE);
-            mDriverNoteManipulation = false;
-            mKeepArmInSafe = true;
         }
     }
 
@@ -204,7 +192,6 @@ public class ControlSystem {
             double x = LimelightHelper.getXOffsetOfPreferredTarget(4);
             aimingAngle = mLimelightAimController.calculate(x, 0);
         }
-
         mAutoAiming = isHeld;
     }
 
@@ -222,7 +209,6 @@ public class ControlSystem {
             for (SubsystemSetting setting : mCurrentSettings) {
                 setting.setState();
             }
-
         } else {
             mCurrentSettings = null;
         }
@@ -261,8 +247,6 @@ public class ControlSystem {
                 mRotDriveLimiter.reset(0);
                 mArm.setDesiredState(ArmState.SAFE);
                 mDriveSystem.setDesiredState(DriveSystem.DriveSystemState.DRIVE_MANUAL);
-
-                mDriverNoteManipulation = false;
                 break;
             case AUTONOMOUS:
                 break;
@@ -291,8 +275,6 @@ public class ControlSystem {
                         break;
                     }
                 }
-
-                mDriverNoteManipulation = false;
                 break;
             case AUTONOMOUS:
                 System.out.println(mScollector.getState().toString());
@@ -374,9 +356,7 @@ public class ControlSystem {
             default:
                 break;
         }
-
     }
-
 }
 
 class SubsystemSetting {
