@@ -1,28 +1,23 @@
 package tech.team1781.subsystems;
-
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
-
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkLimitSwitch.Type;
-
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import tech.team1781.ConfigMap;
-
 import com.revrobotics.SparkLimitSwitch;
 
 public class Arm extends Subsystem {
     private CANSparkMax mRightMotor;
     private CANSparkMax mLeftMotor;
     private RelativeEncoder mLeftEncoder;
-    private ArmState mDesiredArmState;
     private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.05, 0, 0,
             new TrapezoidProfile.Constraints(80, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
@@ -30,13 +25,8 @@ public class Arm extends Subsystem {
     private GenericEntry mArmPositionEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Arm Position", -1).getEntry();
     private GenericEntry mSpeakerDistanceEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Distance", 1).getEntry();
 
-    private long startTime;
-    private long currentTime;
-
-
     private double mDesiredPosition = 0;
     private boolean mIsManual = false;
-    private boolean mHasAutoAngled = false;
     private double mAngleFromDistance = 0;
 
     public Arm() {
@@ -51,17 +41,13 @@ public class Arm extends Subsystem {
 
         mLeftEncoder = mLeftMotor.getEncoder();
         mLeftEncoder.setVelocityConversionFactor((ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2)/60);
-        mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2); // will tell us angle in
-                                                                                          // degrees
-        mDesiredArmState = ArmState.START;
-
+        mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2); // will tell us angle in degrees
         mRightMotor.follow(mLeftMotor, true);
         mLeftMotor.setIdleMode(IdleMode.kBrake);
         mRightMotor.setIdleMode(IdleMode.kBrake);
         System.out.println("initialized arm moters for following...");
         System.out.println("ENSURE ARM IN ZERO POSITION!!!!! Just set encoder to zero");
         mLeftEncoder.setPosition(0);
-
         mPositions.put(ArmState.START, 0.0); // Temporary, used to be 71.9
         mPositions.put(ArmState.SAFE, 63.0);
         mPositions.put(ArmState.PODIUM, 43.8);
@@ -87,8 +73,6 @@ public class Arm extends Subsystem {
 
     @Override
     public void init() {
-        startTime = System.nanoTime();
-        currentTime = System.nanoTime();
         mAngleFromDistance = 0;
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
@@ -106,7 +90,6 @@ public class Arm extends Subsystem {
     public void getToState() {
         var desiredPosition = mDesiredPosition; // mPositions.get(mDesiredPosition);
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), desiredPosition);
-        currentTime = System.nanoTime();
         // System.out.printf("%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\n",
         //   (currentTime-startTime)/1000000000.0,
         //   mDesiredPosition,
@@ -155,7 +138,6 @@ public class Arm extends Subsystem {
                 return true;
             default:
                 return matchesPosition();
-
         }
     }
 

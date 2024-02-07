@@ -73,7 +73,7 @@ public class Scollector extends Subsystem {
     }
 
     public enum ScollectorState implements SubsystemState {
-        IDLE, COLLECT, SPIT, SHOOT, COLLECT_RAMP, COLLECT_AUTO_SHOOT, RAMP_SHOOTER, SEND_NOTE_SHOOT
+        IDLE, COLLECT, SPIT, SHOOT, COLLECT_RAMP, COLLECT_AUTO_SHOOT, RAMP_SHOOTER
     }
 
     @Override
@@ -114,10 +114,9 @@ public class Scollector extends Subsystem {
             case SHOOT:
                 shoot();
             case COLLECT_AUTO_SHOOT:
-            
                 if (!hasNote()) {
                     collect();
-                } else if(mArmInPosition){
+                } else if(mArmInPosition) {
                     shoot();
                 } else {
                     mCollectorMotor.set(0);
@@ -128,10 +127,6 @@ public class Scollector extends Subsystem {
             case RAMP_SHOOTER:
                 driveMotors();
                 mCollectorMotor.set(0);
-                break;
-            case SEND_NOTE_SHOOT:
-                driveMotors();
-                mCollectorMotor.set(-1);
                 break;
         }
     }
@@ -195,15 +190,9 @@ public class Scollector extends Subsystem {
         }
     }
 
-
     private void shoot() {
         final double desiredSpeed = 7;
 
-        // double leftDutyCycle = 1; //mLeftShooterPID.calculate(mLeftShooterMotor.getEncoder().getVelocity(), desiredSpeed);
-        // double rightDutyCycle = 1; //mRightShooterPID.calculate(mRightShooterMotor.getEncoder().getVelocity(), desiredSpeed);
-
-        // mLeftShooterMotor.set(leftDutyCycle);
-        // mRightShooterMotor.set(rightDutyCycle);
         mRightPID.setReference(desiredSpeed, ControlType.kVelocity);
         mLeftPID.setReference(desiredSpeed, ControlType.kVelocity);
 
@@ -211,12 +200,9 @@ public class Scollector extends Subsystem {
             mShooterTimer.start();
         }
 
-
         if (!mArmInPosition)
             return;
         
-        System.out.println("aaaaaaaaaaaa: " + mArmInPosition);
-
         if (mShooterTimer.get() >= 0.1 && mShooterTimer.get() <= 1.5) {
             mCollectorMotor.set(-1);
             if (!hasNote()) {
@@ -228,8 +214,6 @@ public class Scollector extends Subsystem {
             mCollectorMotor.set(0);
         } else {
         }
-
-
     }
 
 }
