@@ -64,8 +64,8 @@ public class Robot extends TimedRobot {
       mControlSystem.setShooting(isPressed);
     });
 
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SEND_NOTE_RAMP, (isPressed) -> {
-      mControlSystem.setManualNoteSend(isPressed);
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.PREPARE_TO_SHOOT, (isPressed) -> {
+      mControlSystem.setPrepareToShoot(isPressed);
     });
 
     // mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CENTER_TO_APRIL_TAG, (isHeld) -> {
