@@ -184,9 +184,15 @@ public class ControlSystem {
                 mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER); 
                 mArm.setDesiredState(ArmState.AUTO_ANGLE); 
             }
-        } else if (!mCollectingButton && !mKeepArmDownButton) {
-            mArm.setDesiredState(ArmState.SAFE);
-            mScollector.setDesiredState(ScollectorState.IDLE);
+        } else  {
+            if (!mCollectingButton && !mKeepArmDownButton) {
+                mArm.setDesiredState(ArmState.SAFE);
+            }
+            if (mCollectingButton) {
+                mScollector.setDesiredState(ScollectorState.COLLECT);
+            } else {
+                mScollector.setDesiredState(ScollectorState.IDLE);
+            }
         }
     }
 
