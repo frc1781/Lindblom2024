@@ -71,7 +71,7 @@ public class ControlSystem {
        // mSubsystems.add(mDriveSystem);
         //mSubsystems.add(mScollector);
         mSubsystems.add(mClimber);
-       mSubsystems.add(mArm);
+        mSubsystems.add(mArm);
 
         initActions();
 
@@ -208,8 +208,8 @@ public class ControlSystem {
                         //driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         //driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
 
-                mArm.driveManual(driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).x
-                       - driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).y);
+                //mArm.driveManual(driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).x
+                //       - driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).y);
 
                 if (!mDriverNoteManipulation) {
                 //    mScollector.setDesiredState(ScollectorState.IDLE);

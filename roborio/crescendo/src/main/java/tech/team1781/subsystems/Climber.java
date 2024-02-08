@@ -35,21 +35,30 @@ public class Climber extends Subsystem {
 
     @Override
     public void getToState() {
+        double leftDC = 0;
+        double rightDC = 0;
+
         switch ((ClimberState) getState()) {
             case IDLE:
-                mLeftClimberMotor.set(0);
-                mRightClimberMotor.set(0);
+                leftDC = 0;
+                rightDC = 0;
                 break;
             case EXTEND:
-                mLeftClimberMotor.set(1);
-                mRightClimberMotor.set(1);
-                // mRightClimberMotor.follow(mRightClimberMotor);
+                leftDC = 0.2;
+                rightDC = 0.2;
                 break;
             case RETRACT:
-                mLeftClimberMotor.set(-1);
-                mRightClimberMotor.set(-1);
+                leftDC = -0.2;
+                rightDC = -0.2;
                 break;
         }
+
+        System.out.printf("left dc: %.2f right dc: %.2f\n",
+            leftDC,
+            rightDC
+        );       
+        //mLeftClimberMotor.set(leftDC);
+        //mRightClimberMotor.set(rightDC);     
     }
 
     @Override
