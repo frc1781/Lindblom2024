@@ -111,6 +111,7 @@ public class Scollector extends Subsystem {
                 break;
             case SHOOT:
                 shoot();
+                break;
             case COLLECT_AUTO_SHOOT:
                 if (!hasNote()) {
                     collect();
