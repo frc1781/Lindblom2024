@@ -3,6 +3,7 @@ package tech.team1781.subsystems;
 import java.util.ArrayList;
 
 import com.playingwithfusion.TimeOfFlight;
+import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.SparkPIDController;
@@ -19,22 +20,22 @@ import tech.team1781.utils.EVector;
 
 //EXAMPLE SUBSYSTEM, NOT FOR ACTUAL BOT
 public class Scollector extends Subsystem {
-    private CANSparkMax mCollectorMotor = new CANSparkMax(ConfigMap.COLLECTOR_MOTOR, CANSparkMax.MotorType.kBrushless);
-    private CANSparkMax mRightShooterMotor = new CANSparkMax(ConfigMap.SHOOTER_RIGHT_MOTOR,
-            CANSparkMax.MotorType.kBrushless);
-    private CANSparkMax mLeftShooterMotor = new CANSparkMax(ConfigMap.SHOOTER_LEFT_MOTOR,
-            CANSparkMax.MotorType.kBrushless);
+    private CANSparkMax mCollectorMotor = new CANSparkMax(30, CANSparkMax.MotorType.kBrushless);
+    private CANSparkFlex mTopShooterMotor = new CANSparkFlex(ConfigMap.SHOOTER_TOP_MOTOR,
+            CANSparkFlex.MotorType.kBrushless);
+    private CANSparkFlex mBottomShooterMotor = new CANSparkFlex(ConfigMap.SHOOTER_BOTTOM_MOTOR,
+            CANSparkFlex.MotorType.kBrushless);
 
-    private final SparkPIDController mRightPID;
-    private final SparkPIDController mLeftPID;
+    private final SparkPIDController mTopPID;
+    private final SparkPIDController mBottomPID;
 
     private GenericEntry mThresholdEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Shooter Threshold", 6).getEntry();
 
     private final EVector SHOOTER_PID = EVector.newVector(0.1, 0.0, 0.0);
     private final TrapezoidProfile.Constraints SHOOTER_CONSTRAINTS = new TrapezoidProfile.Constraints(9.0, 10);
-    private ProfiledPIDController mLeftShooterPID = new ProfiledPIDController(SHOOTER_PID.x, SHOOTER_PID.y,
+    private ProfiledPIDController mBottomShooterPID = new ProfiledPIDController(SHOOTER_PID.x, SHOOTER_PID.y,
             SHOOTER_PID.z, SHOOTER_CONSTRAINTS);
-    private ProfiledPIDController mRightShooterPID = new ProfiledPIDController(SHOOTER_PID.x, SHOOTER_PID.y,
+    private ProfiledPIDController mTopShooterPID = new ProfiledPIDController(SHOOTER_PID.x, SHOOTER_PID.y,
             SHOOTER_PID.z, SHOOTER_CONSTRAINTS);
 
     private TimeOfFlight mNoteSensor = new TimeOfFlight(ConfigMap.SCOLLECTOR_TOF);
@@ -47,29 +48,31 @@ public class Scollector extends Subsystem {
     public Scollector() {
         super("Scollector", ScollectorState.IDLE);
         mCollectorMotor.setIdleMode(IdleMode.kBrake);
-        mLeftShooterMotor.setIdleMode(IdleMode.kCoast);
-        mRightShooterMotor.setIdleMode(IdleMode.kCoast);
+        mBottomShooterMotor.setIdleMode(IdleMode.kCoast);
+        mTopShooterMotor.setIdleMode(IdleMode.kCoast);
+        mTopShooterMotor.setInverted(false);
+        mBottomShooterMotor.setInverted(true);
 
         final double conversionFactor = 0.100203 * 1 / 60;
 
-        mLeftShooterMotor.getEncoder().setPositionConversionFactor(conversionFactor);
-        mLeftShooterMotor.getEncoder().setVelocityConversionFactor(conversionFactor);
-        mRightShooterMotor.getEncoder().setPositionConversionFactor(conversionFactor);
-        mRightShooterMotor.getEncoder().setVelocityConversionFactor(conversionFactor);
+        mBottomShooterMotor.getEncoder().setPositionConversionFactor(conversionFactor);
+        mBottomShooterMotor.getEncoder().setVelocityConversionFactor(conversionFactor);
+        mTopShooterMotor.getEncoder().setPositionConversionFactor(conversionFactor);
+        mTopShooterMotor.getEncoder().setVelocityConversionFactor(conversionFactor);
 
-        mRightPID = mRightShooterMotor.getPIDController();
-        mLeftPID = mLeftShooterMotor.getPIDController();
-        mRightPID.setFeedbackDevice(mRightShooterMotor.getEncoder());
-        mLeftPID.setFeedbackDevice(mLeftShooterMotor.getEncoder());
-        mRightPID.setP(0.5);
-        mRightPID.setI(0);
-        mRightPID.setD(0.01);
-        mRightPID.setFF(1.0 / 9.8);
+        mTopPID = mTopShooterMotor.getPIDController();
+        mBottomPID = mBottomShooterMotor.getPIDController();
+        mTopPID.setFeedbackDevice(mTopShooterMotor.getEncoder());
+        mBottomPID.setFeedbackDevice(mBottomShooterMotor.getEncoder());
+        mTopPID.setP(0.5);
+        mTopPID.setI(0);
+        mTopPID.setD(0.01);
+        mTopPID.setFF(1.0 / 9.8);
 
-        mLeftPID.setP(0.5);
-        mLeftPID.setI(0);
-        mLeftPID.setD(0.01);
-        mLeftPID.setFF(1.0 / 9.8);
+        mBottomPID.setP(0.5);
+        mBottomPID.setI(0);
+        mBottomPID.setD(0.01);
+        mBottomPID.setFF(1.0 / 9.8);
     }
 
     public enum ScollectorState implements SubsystemState {
@@ -93,13 +96,13 @@ public class Scollector extends Subsystem {
         switch ((ScollectorState) getState()) {
             case IDLE:
                 mCollectorMotor.set(0);
-                mRightShooterMotor.set(0);
-                mLeftShooterMotor.set(0);
+                mTopShooterMotor.set(0);
+                mBottomShooterMotor.set(0);
                 break;
             case COLLECT:
                 collect();
-                mLeftShooterMotor.set(0);
-                mRightShooterMotor.set(0);
+                mBottomShooterMotor.set(0);
+                mTopShooterMotor.set(0);
                 break;
             case COLLECT_RAMP:
                 collect();
@@ -107,10 +110,11 @@ public class Scollector extends Subsystem {
                 break;
             case SPIT:
                 mCollectorMotor.set(1);
-                mRightPID.setReference(0, ControlType.kVelocity);
+                mTopPID.setReference(0, ControlType.kVelocity);
                 break;
             case SHOOT:
                 shoot();
+                break;
             case COLLECT_AUTO_SHOOT:
                 if (!hasNote()) {
                     collect();
@@ -159,12 +163,13 @@ public class Scollector extends Subsystem {
     }
 
     public boolean hasNote() {
-        return mNoteSensor.getRange() < 300;
+        return false;
+        // return mNoteSensor.getRange() < 300;
     }
 
     public boolean shooterAtSpeed() {
-        double leftSpeed = mLeftShooterMotor.getEncoder().getVelocity();
-        double rightSpeed = mRightShooterMotor.getEncoder().getVelocity();
+        double leftSpeed = mBottomShooterMotor.getEncoder().getVelocity();
+        double rightSpeed = mTopShooterMotor.getEncoder().getVelocity();
         double diff = Math.abs(leftSpeed - rightSpeed);
         double threshold = 7;
         return leftSpeed >= threshold && rightSpeed >= threshold && diff <= 0.1;
@@ -175,13 +180,14 @@ public class Scollector extends Subsystem {
     }
 
     private void driveMotors() {
-        mRightPID.setReference(7.4, ControlType.kVelocity);
-        mLeftPID.setReference(7.4, ControlType.kVelocity);
+        mTopPID.setReference(7.4, ControlType.kVelocity);
+        mBottomPID.setReference(7.4, ControlType.kVelocity);
     }
 
     private void collect() {
         if (!hasNote()) {
             mCollectorMotor.set(-1);
+            System.out.println("aaaaaaaaaaaaaaaa");
         } else {
             mCollectorMotor.set(0);
             mHasShot = false;
@@ -191,8 +197,8 @@ public class Scollector extends Subsystem {
     private void shoot() {
         final double desiredSpeed = 7;
 
-        mRightPID.setReference(desiredSpeed, ControlType.kVelocity);
-        mLeftPID.setReference(desiredSpeed, ControlType.kVelocity);
+        mTopPID.setReference(desiredSpeed, ControlType.kVelocity);
+        mBottomPID.setReference(desiredSpeed, ControlType.kVelocity);
 
         if (shooterAtSpeed()) {
             mShooterTimer.start();
