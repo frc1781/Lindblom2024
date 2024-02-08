@@ -46,12 +46,12 @@ public class Climber extends Subsystem {
                 rightDC = 0;
                 break;
             case EXTEND:
-                leftDC = 0.1;
-                rightDC = 0.1;
+                leftDC = 0.3;
+                rightDC = 0.3;
                 break;
             case RETRACT:
-                leftDC = -0.1;
-                rightDC = -0.1;
+                leftDC = -0.3;
+                rightDC = -0.3;
                 break;
         }
 
