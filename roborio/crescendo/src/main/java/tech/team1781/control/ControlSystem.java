@@ -40,7 +40,7 @@ public class ControlSystem {
     //private DriveSystem mDriveSystem;
     //private Scollector mScollector;
     private Climber mClimber;
-   // private Arm mArm;
+   private Arm mArm;
 
     private OperatingMode mCurrentOperatingMode;
 
@@ -162,9 +162,9 @@ public class ControlSystem {
                // + " :: " + mClimber.getState().toString());
     }
 
-    //public boolean stepIsFinished() {
-        //return !isRunningAction() && mDriveSystem.matchesDesiredState();
-   // }
+    public boolean stepIsFinished() {
+        return !isRunningAction(); // && mDriveSystem.matchesDesiredState();
+   }
 
     public void init(OperatingMode operatingMode) {
         mCurrentOperatingMode = operatingMode;
