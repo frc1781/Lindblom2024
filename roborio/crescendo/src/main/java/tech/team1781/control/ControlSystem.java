@@ -65,13 +65,13 @@ public class ControlSystem {
         //mDriveSystem = new DriveSystem();
         //mScollector = new Scollector();
         mClimber = new Climber();
-        //mArm = new Arm();
+        mArm = new Arm();
 
         mSubsystems = new ArrayList<>();
        // mSubsystems.add(mDriveSystem);
         //mSubsystems.add(mScollector);
         mSubsystems.add(mClimber);
-       // mSubsystems.add(mArm);
+       mSubsystems.add(mArm);
 
         initActions();
 
@@ -96,12 +96,12 @@ public class ControlSystem {
 
     public void setCollecting() {
         //mScollector.setDesiredState(ScollectorState.COLLECT);
-       // mArm.setDesiredState(mScollector.hasNote() ? ArmState.SUBWOOFER : ArmState.COLLECT);
+    //    mArm.setDesiredState(ArmState.COLLECT);
         mDriverNoteManipulation = true;
     }
 
     public void setSpit() {
-       // mScollector.setDesiredState(ScollectorState.SPIT);
+    //    mScollector.setDesiredState(ScollectorState.SPIT);
         mDriverNoteManipulation = true;
     }
 
@@ -112,7 +112,7 @@ public class ControlSystem {
     }
 
     public void setArmState(ArmState desiredState) {
-        //mArm.setDesiredState(desiredState);
+        // mArm.setDesiredState(desiredState);
     }
 
     public void zeroNavX() {
@@ -208,11 +208,11 @@ public class ControlSystem {
                         //driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         //driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
 
-                //mArm.driveManual(driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).x
-                       // - driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).y);
+                mArm.driveManual(driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).x
+                       - driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT).y);
 
                 if (!mDriverNoteManipulation) {
-                   // mScollector.setDesiredState(ScollectorState.IDLE);
+                //    mScollector.setDesiredState(ScollectorState.IDLE);
                 }
 
                 mDriverNoteManipulation = false;
