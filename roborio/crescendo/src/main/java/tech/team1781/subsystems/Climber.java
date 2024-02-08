@@ -19,6 +19,8 @@ public class Climber extends Subsystem {
 
     public Climber() {
         super("Climber", ClimberState.IDLE);
+        mLeftClimberMotor.setInverted(true);
+        mRightClimberMotor.setInverted(false);
     }
 
     public enum ClimberState implements Subsystem.SubsystemState {
@@ -44,12 +46,12 @@ public class Climber extends Subsystem {
                 rightDC = 0;
                 break;
             case EXTEND:
-                leftDC = 0.2;
-                rightDC = 0.2;
+                leftDC = 0.1;
+                rightDC = 0.1;
                 break;
             case RETRACT:
-                leftDC = -0.2;
-                rightDC = -0.2;
+                leftDC = -0.1;
+                rightDC = -0.1;
                 break;
         }
 
@@ -57,8 +59,8 @@ public class Climber extends Subsystem {
             leftDC,
             rightDC
         );       
-        //mLeftClimberMotor.set(leftDC);
-        //mRightClimberMotor.set(rightDC);     
+        mLeftClimberMotor.set(leftDC);
+        mRightClimberMotor.set(rightDC);     
     }
 
     @Override
