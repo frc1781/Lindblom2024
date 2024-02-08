@@ -3,6 +3,8 @@ package tech.team1781.autonomous;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import tech.team1781.ConfigMap;
+import tech.team1781.autonomous.routines.FourNoteRoutine;
+import tech.team1781.autonomous.routines.PIDTuningRoutine;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.subsystems.Subsystem;
 
@@ -30,7 +32,10 @@ public class AutonomousHandler {
         mTimer.reset();
         mTimer.start();
         mStepIndex = 0;
-        mSelectedRoutine = mAutoChooser.getSelected();
+        // mSelectedRoutine = mAutoChooser.getSelected();
+        mSelectedRoutine = new PIDTuningRoutine();
+
+        AutonomousBuilder.buildFromString("p1,n2,n3");
 
         sampledStep = mSelectedRoutine.getSteps()[0];
         startStep(sampledStep);

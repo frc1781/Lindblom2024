@@ -294,7 +294,6 @@ public class ControlSystem {
                 }
                 break;
             case AUTONOMOUS:
-                System.out.println(mScollector.getState().toString());
                 if (mScollector.getState() == ScollectorState.COLLECT
                         || mScollector.getState() == ScollectorState.COLLECT_RAMP
                         || mScollector.getState() == ScollectorState.COLLECT_AUTO_SHOOT) {
