@@ -141,9 +141,15 @@ public class Arm extends Subsystem {
         final double start = 33;
         final double coefficient = 19.7;
         double dist = LimelightHelper.getDistanceOfApriltag(4);
-        System.out.println(dist); 
-        dist = Math.log(dist);
-        return start + (dist * coefficient);
+        double angle = 32.0;
+        if (dist < 0.5) {//can not see april tag
+            angle = 32.0;
+        } else {
+            angle = Math.log(dist) * coefficient + start;
+        }
+        
+        System.out.printf("dist %.2f, angle %.2f\n", dist, angle); 
+        return angle;
     }
 
     public void manualAdjustAngle(double d) {
