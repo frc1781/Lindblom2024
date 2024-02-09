@@ -7,6 +7,8 @@ import tech.team1781.Paths;
 public class AutonomousBuilder {
 
     public static AutoStep[] buildFromString(String s) {
+        s = "p1,n2,n3,n1";
+        s = s.trim();
         String[] steps = s.split(",");
         if(steps.length == 0 || steps.length == 1) {
             throw new IllegalArgumentException("Invalid string format");
@@ -29,9 +31,9 @@ public class AutonomousBuilder {
            AutoStep currentStep;
            Paths.AutonomousPosition prevPosition = Paths.getPosition(previous);
            Paths.AutonomousPosition nextPosition = Paths.getPosition(current);
-           System.out.println(prevPosition.toString() + " :: " + nextPosition.toString());
 
            PathPlannerPath path = Paths.getPath(prevPosition, nextPosition);
+           System.out.println("Path: " + path.toString());
 
            currentStep = new AutoStep(5, path);
            autonomousSteps[i] = currentStep;

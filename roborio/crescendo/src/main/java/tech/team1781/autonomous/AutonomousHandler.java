@@ -32,7 +32,9 @@ public class AutonomousHandler {
         mTimer.reset();
         mTimer.start();
         mStepIndex = 0;
-        mSelectedRoutine = mAutoChooser.getSelected();
+        mSelectedRoutine = new PIDTuningRoutine();
+
+        AutonomousBuilder.buildFromString("aljdad");
 
 
         sampledStep = mSelectedRoutine.getSteps()[0];

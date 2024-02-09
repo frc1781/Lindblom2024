@@ -32,7 +32,31 @@ public class Paths {
     private static final PathPlannerPath position3ToCenter3 = PathPlannerPath.fromPathFile("p3;c3");
     private static final PathPlannerPath position3ToCenter4 = PathPlannerPath.fromPathFile("p3;c4");
     private static final PathPlannerPath position3ToCenter5 = PathPlannerPath.fromPathFile("p3;c5");
+
+    private static final PathPlannerPath note1ToNote2 = PathPlannerPath.fromPathFile("n1;n2");
+    private static final PathPlannerPath note1ToNote3 = PathPlannerPath.fromPathFile("n1;n3");
+    private static final PathPlannerPath note1ToCenter1 = PathPlannerPath.fromPathFile("n1;c2");
+    private static final PathPlannerPath note1ToCenter2 = PathPlannerPath.fromPathFile("n1;c2");
+    private static final PathPlannerPath note1ToCenter3 = PathPlannerPath.fromPathFile("n1;c3");
+    private static final PathPlannerPath note1ToCenter4 = PathPlannerPath.fromPathFile("n1;c4");
+    private static final PathPlannerPath note1ToCenter5 = PathPlannerPath.fromPathFile("n1;c5");
+
+    private static final PathPlannerPath note2ToNote1 = PathPlannerPath.fromPathFile("n2;n1");
+    private static final PathPlannerPath note2ToNote3 = PathPlannerPath.fromPathFile("n2;n3");
+    private static final PathPlannerPath note2ToCenter1 = PathPlannerPath.fromPathFile("n2;c1");
+    private static final PathPlannerPath note2ToCenter2 = PathPlannerPath.fromPathFile("n2;c2");
+    private static final PathPlannerPath note2ToCenter3 = PathPlannerPath.fromPathFile("n2;c3");
+    private static final PathPlannerPath note2ToCenter4 = PathPlannerPath.fromPathFile("n2;c4");
+    private static final PathPlannerPath note2ToCenter5 = PathPlannerPath.fromPathFile("n2;c5");
     
+    private static final PathPlannerPath note3ToNote1 = PathPlannerPath.fromPathFile("n3;n1");
+    private static final PathPlannerPath note3ToNote2 = PathPlannerPath.fromPathFile("n3;n2");
+    private static final PathPlannerPath note3ToCenter1 = PathPlannerPath.fromPathFile("n3;c1");
+    private static final PathPlannerPath note3ToCenter2 = PathPlannerPath.fromPathFile("n3;c2");
+    private static final PathPlannerPath note3ToCenter3 = PathPlannerPath.fromPathFile("n3;c3");
+    private static final PathPlannerPath note3ToCenter4 = PathPlannerPath.fromPathFile("n3;c4");
+    private static final PathPlannerPath note3ToCenter5 = PathPlannerPath.fromPathFile("n3;c5");
+
 
 
     private static final HashMap<AutonomousPosition, HashMap<AutonomousPosition, Junction>> junctions = new HashMap<>();
@@ -77,6 +101,30 @@ public class Paths {
         addJunction(AutonomousPosition.POSITION_3, AutonomousPosition.CENTER_3, position3ToCenter3);
         addJunction(AutonomousPosition.POSITION_3, AutonomousPosition.CENTER_4, position3ToCenter4);
         addJunction(AutonomousPosition.POSITION_3, AutonomousPosition.CENTER_5, position3ToCenter5);
+
+        addJunction(AutonomousPosition.NOTE_1, AutonomousPosition.NOTE_2, note1ToNote2);
+        addJunction(AutonomousPosition.NOTE_1, AutonomousPosition.NOTE_3, note1ToNote3);
+        addJunction(AutonomousPosition.NOTE_1, AutonomousPosition.CENTER_1, note1ToCenter1);
+        addJunction(AutonomousPosition.NOTE_1, AutonomousPosition.CENTER_2, note1ToCenter2);
+        addJunction(AutonomousPosition.NOTE_1, AutonomousPosition.CENTER_3, note1ToCenter3);
+        addJunction(AutonomousPosition.NOTE_1, AutonomousPosition.CENTER_4, note1ToCenter4);
+        addJunction(AutonomousPosition.NOTE_1, AutonomousPosition.CENTER_5, note1ToCenter5);
+
+        addJunction(AutonomousPosition.NOTE_2, AutonomousPosition.NOTE_1, note2ToNote1);
+        addJunction(AutonomousPosition.NOTE_2, AutonomousPosition.NOTE_3, note2ToNote3);
+        addJunction(AutonomousPosition.NOTE_2, AutonomousPosition.CENTER_1, note2ToCenter1);
+        addJunction(AutonomousPosition.NOTE_2, AutonomousPosition.CENTER_2, note2ToCenter2);
+        addJunction(AutonomousPosition.NOTE_2, AutonomousPosition.CENTER_3, note2ToCenter3);
+        addJunction(AutonomousPosition.NOTE_2, AutonomousPosition.CENTER_4, note2ToCenter4);
+        addJunction(AutonomousPosition.NOTE_2, AutonomousPosition.CENTER_5, note2ToCenter5);
+
+        addJunction(AutonomousPosition.NOTE_3, AutonomousPosition.NOTE_1, note3ToNote1);
+        addJunction(AutonomousPosition.NOTE_3, AutonomousPosition.NOTE_2, note3ToNote2);
+        addJunction(AutonomousPosition.NOTE_3, AutonomousPosition.CENTER_1, note3ToCenter1);
+        addJunction(AutonomousPosition.NOTE_3, AutonomousPosition.CENTER_2, note3ToCenter2);
+        addJunction(AutonomousPosition.NOTE_3, AutonomousPosition.CENTER_3, note3ToCenter3);
+        addJunction(AutonomousPosition.NOTE_3, AutonomousPosition.CENTER_4, note3ToCenter4);
+        addJunction(AutonomousPosition.NOTE_3, AutonomousPosition.CENTER_5, note3ToCenter5);
 
         positionMap.put("p1", AutonomousPosition.POSITION_1);
         positionMap.put("p2", AutonomousPosition.POSITION_2);
