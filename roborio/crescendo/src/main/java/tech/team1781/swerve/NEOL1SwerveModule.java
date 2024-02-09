@@ -31,10 +31,12 @@ public class NEOL1SwerveModule extends SwerveModule{
     private final RelativeEncoder mTurnEncoder;
     private final CANcoder mTurnAbsoluteEncoder;
     private final int mCancoderID;
+    private final double mCancoderOffset;
 
     public NEOL1SwerveModule(int driveMotorID, int turnMotorID, int cancoderID, double cancoderOffset) {
         super(driveMotorID, turnMotorID, cancoderID, cancoderOffset);
         mCancoderID = cancoderID;
+        mCancoderOffset = cancoderOffset;
         mDriveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless);
         mTurnMotor = new CANSparkMax(turnMotorID, MotorType.kBrushless);
         
@@ -87,8 +89,7 @@ public class NEOL1SwerveModule extends SwerveModule{
 
     public Rotation2d getAbsoluteAngle() {
         double reportedVal = mTurnAbsoluteEncoder.getAbsolutePosition().getValueAsDouble();
-        
-
+        reportedVal += mCancoderOffset; //add offset instead of setting in code
         reportedVal = reportedVal % 1.0;
         if(reportedVal < 0) {
             reportedVal += 1.0;
@@ -165,7 +166,7 @@ public class NEOL1SwerveModule extends SwerveModule{
         CANcoderConfiguration ret_val = new CANcoderConfiguration(); 
         System.out.println("abs encoder config id: " + mCancoderID + " magOffset: " + magnetOffset);
         ret_val.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Unsigned_0To1;
-        ret_val.MagnetSensor.MagnetOffset = magnetOffset;
+        ret_val.MagnetSensor.MagnetOffset = 0.0; //magnetOffset;
         ret_val.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
 
         return ret_val;
