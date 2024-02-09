@@ -198,29 +198,31 @@ public class Scollector extends Subsystem {
     }
 
     private void shoot() {
-        final double desiredSpeed = 9;
+        // final double desiredSpeed = 9;
 
-        mTopPID.setReference(desiredSpeed, ControlType.kVelocity);
-        mBottomPID.setReference(desiredSpeed, ControlType.kVelocity);
+        //mTopPID.setReference(desiredSpeed, ControlType.kVelocity);
+        //mBottomPID.setReference(desiredSpeed, ControlType.kVelocity);
 
-        if (shooterAtSpeed()) {
-            mShooterTimer.start();
-        }
+        driveMotors();
+        // if (shooterAtSpeed()) {
+        //     mShooterTimer.start();
+        // }
 
-        if (!mArmInPosition)
-            return;
+        // if (!mArmInPosition)
+        //     return;
 
-        if (mShooterTimer.get() >= 0.1 && mShooterTimer.get() <= 1.5) {
+        // if (mShooterTimer.get() >= 0.1 && mShooterTimer.get() <= 1.5) {
             mCollectorMotor.set(-1);
-            if (!hasNote()) {
-                mHasShot = false;
-            }
-        } else if (mShooterTimer.get() > 1.5) {
-            mShooterTimer.stop();
-            mShooterTimer.reset();
-            mCollectorMotor.set(0);
-        } else {
-        }
+    //         if (!hasNote()) {
+    //             mHasShot = false;
+    //         }
+    //     } else if (mShooterTimer.get() > 1.5) {
+    //         mShooterTimer.stop();
+    //         mShooterTimer.reset();
+    //         mCollectorMotor.set(0);
+    //     } else {
+    //     }
+    // }
     }
 
 }

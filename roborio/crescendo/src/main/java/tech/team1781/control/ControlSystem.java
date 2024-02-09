@@ -171,6 +171,10 @@ public class ControlSystem {
         }
     }
 
+    public void moveArm(double diff) {
+        mArm.manualControlAngle(diff);
+    }
+
     public void setPrepareToShoot(boolean pushingPrepare) {
         if (mPrepareToShootButton == pushingPrepare) {
             return; //no change in state
@@ -281,17 +285,17 @@ public class ControlSystem {
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
 
-                int pov = driverInput.getPOV(ConfigMap.CO_PILOT_PORT);
-                if (pov != -1) {
-                    switch(pov) {
-                        case 90:
-                            mArm.manualControlAngle(3.0);
-                        break;
-                        case 270:
-                            mArm.manualControlAngle(-3.0);
-                        break;
-                    }
-                }
+                // int pov = driverInput.getPOV(ConfigMap.CO_PILOT_PORT);
+                // if (pov != -1) {
+                //     switch(pov) {
+                //         case 90:
+                //             mArm.manualControlAngle(3.0);
+                //         break;
+                //         case 270:
+                //             mArm.manualControlAngle(-3.0);
+                //         break;
+                //     }
+                // }
                 break;
             case AUTONOMOUS:
                 System.out.println(mScollector.getState().toString());
