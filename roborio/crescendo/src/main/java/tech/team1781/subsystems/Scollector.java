@@ -20,7 +20,7 @@ import tech.team1781.utils.EVector;
 
 //EXAMPLE SUBSYSTEM, NOT FOR ACTUAL BOT
 public class Scollector extends Subsystem {
-    private CANSparkMax mCollectorMotor = new CANSparkMax(30, CANSparkMax.MotorType.kBrushless);
+    private CANSparkMax mCollectorMotor = new CANSparkMax(ConfigMap.COLLECTOR_MOTOR, CANSparkMax.MotorType.kBrushless);
     private CANSparkFlex mTopShooterMotor = new CANSparkFlex(ConfigMap.SHOOTER_TOP_MOTOR,
             CANSparkFlex.MotorType.kBrushless);
     private CANSparkFlex mBottomShooterMotor = new CANSparkFlex(ConfigMap.SHOOTER_BOTTOM_MOTOR,
@@ -45,13 +45,16 @@ public class Scollector extends Subsystem {
     private boolean mHasShot = false;
     private Timer mShooterTimer = new Timer();
 
+    private GenericEntry mTopShooterVelocity = ConfigMap.SHUFFLEBOARD_TAB.add("Top Velocity", 0).getEntry();
+    private GenericEntry mBottomShooterVelocity = ConfigMap.SHUFFLEBOARD_TAB.add("Bottom Velocity", 0).getEntry();
+
     public Scollector() {
         super("Scollector", ScollectorState.IDLE);
         mCollectorMotor.setIdleMode(IdleMode.kBrake);
         mBottomShooterMotor.setIdleMode(IdleMode.kCoast);
         mTopShooterMotor.setIdleMode(IdleMode.kCoast);
         mTopShooterMotor.setInverted(false);
-        mBottomShooterMotor.setInverted(true);
+        mBottomShooterMotor.setInverted(false);
 
         final double conversionFactor = 0.100203 * 1 / 60;
 
@@ -81,6 +84,8 @@ public class Scollector extends Subsystem {
 
     @Override
     public void genericPeriodic() {
+        mTopShooterVelocity.setDouble(mTopShooterMotor.getEncoder().getVelocity());
+        mBottomShooterVelocity.setDouble(mBottomShooterMotor.getEncoder().getVelocity());
     }
 
     @Override
@@ -118,7 +123,7 @@ public class Scollector extends Subsystem {
             case COLLECT_AUTO_SHOOT:
                 if (!hasNote()) {
                     collect();
-                } else if(mArmInPosition) {
+                } else if (mArmInPosition) {
                     shoot();
                 } else {
                     mCollectorMotor.set(0);
@@ -159,12 +164,11 @@ public class Scollector extends Subsystem {
 
     @Override
     public void teleopPeriodic() {
-        // System.out.println(hasNote() + " :: " + mNoteSensor.getRange());
     }
 
     public boolean hasNote() {
-        return false;
-        // return mNoteSensor.getRange() < 300;
+        // return false;
+        return mNoteSensor.getRange() < 300;
     }
 
     public boolean shooterAtSpeed() {
@@ -180,14 +184,13 @@ public class Scollector extends Subsystem {
     }
 
     private void driveMotors() {
-        mTopPID.setReference(7.4, ControlType.kVelocity);
-        mBottomPID.setReference(7.4, ControlType.kVelocity);
+        mTopShooterMotor.set(1);
+        mBottomShooterMotor.set(1);
     }
 
     private void collect() {
         if (!hasNote()) {
             mCollectorMotor.set(-1);
-            System.out.println("aaaaaaaaaaaaaaaa");
         } else {
             mCollectorMotor.set(0);
             mHasShot = false;
@@ -195,7 +198,7 @@ public class Scollector extends Subsystem {
     }
 
     private void shoot() {
-        final double desiredSpeed = 7;
+        final double desiredSpeed = 9;
 
         mTopPID.setReference(desiredSpeed, ControlType.kVelocity);
         mBottomPID.setReference(desiredSpeed, ControlType.kVelocity);
@@ -206,7 +209,7 @@ public class Scollector extends Subsystem {
 
         if (!mArmInPosition)
             return;
-        
+
         if (mShooterTimer.get() >= 0.1 && mShooterTimer.get() <= 1.5) {
             mCollectorMotor.set(-1);
             if (!hasNote()) {
