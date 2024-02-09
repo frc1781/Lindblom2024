@@ -12,6 +12,8 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import tech.team1781.ConfigMap;
+import tech.team1781.utils.LimelightHelper;
+
 import com.revrobotics.SparkLimitSwitch;
 
 public class Arm extends Subsystem {
@@ -136,17 +138,26 @@ public class Arm extends Subsystem {
     }
 
     private double calculateAngleFromDistance() {
-        final double start = 26.2;
-        final double coefficient = 16.8;
-        double dist = 2.0;  //temporary, need to get distance from somewhere
+        final double start = 33;
+        final double coefficient = 19.7;
+        double dist = LimelightHelper.getDistanceOfApriltag(4);
+        System.out.println(dist); 
         dist = Math.log(dist);
-        //return start + (dist * coefficient);
-        return 45.0;  //temporary
+        return start + (dist * coefficient);
     }
 
-    public void manualControlAngle(double d) {
+    public void manualAdjustAngle(double d) {
         setDesiredState(ArmState.MANUAL);
+
         mDesiredPosition += d;
+        if(mDesiredPosition > ConfigMap.MAX_THRESHOLD_ARM) {
+            mDesiredPosition = ConfigMap.MAX_THRESHOLD_ARM;
+        }
+
+        if(mDesiredPosition < ConfigMap.MIN_THRESHOLD_ARM) {
+            mDesiredPosition = ConfigMap.MIN_THRESHOLD_ARM;
+        }
+        
     }
 
     public void setSpeakerDistance(double d) {

@@ -74,6 +74,10 @@ public class ConfigMap {
         public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.238;
         public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.419;
 
+        // Constants
+        public static final double MIN_THRESHOLD_ARM = 0;
+        public static final double MAX_THRESHOLD_ARM = 90;
+
         // First Drivebase
 
         //Limelight

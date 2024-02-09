@@ -173,8 +173,8 @@ public class ControlSystem {
         }
     }
 
-    public void moveArm(double diff) {
-        mArm.manualControlAngle(diff);
+    public void manualAdjustAngle(double diff) {
+        mArm.manualAdjustAngle(diff);
     }
 
     public void setPrepareToShoot(boolean pushingPrepare) {

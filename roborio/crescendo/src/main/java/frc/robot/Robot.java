@@ -70,13 +70,13 @@ public class Robot extends TimedRobot {
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, "E", (isPressed) -> {
       if(isPressed) {
-        mControlSystem.moveArm(3);
+        mControlSystem.manualAdjustAngle(3);
       }
     });
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, "W", (isPressed) -> {
       if(isPressed) {
-        mControlSystem.moveArm(-3);
+        mControlSystem.manualAdjustAngle(-3);
       }
     });
 
