@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.path.PathPlannerTrajectory;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput.ControllerSide;
@@ -97,6 +97,8 @@ public class ControlSystem {
                 mYDriveLimiter.calculate(yVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
                 mAutoAiming ? aimingAngle
                         : (mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND));
+
+        odometryUpdate(xVelocity, yVelocity);
     }
 
     public void keepArmDown(boolean pushingKeepDown) {
@@ -105,7 +107,7 @@ public class ControlSystem {
         }
 
         mKeepArmDownButton = pushingKeepDown;
-        if (mKeepArmDownButton) { 
+        if (mKeepArmDownButton) {
             mArm.setDesiredState(ArmState.COLLECT);
         }
         else {
@@ -135,10 +137,10 @@ public class ControlSystem {
             }
             if (mPrepareToShootButton) {
                 mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
-                mArm.setDesiredState(ArmState.AUTO_ANGLE); 
+                mArm.setDesiredState(ArmState.AUTO_ANGLE);
             }
             else {
-                mScollector.setDesiredState(ScollectorState.IDLE); 
+                mScollector.setDesiredState(ScollectorState.IDLE);
             }
         }
     }
@@ -182,11 +184,11 @@ public class ControlSystem {
         mPrepareToShootButton = pushingPrepare;
         if (mPrepareToShootButton) {
             if (mCollectingButton || mKeepArmDownButton) {
-                mScollector.setDesiredState(ScollectorState.COLLECT_RAMP); 
+                mScollector.setDesiredState(ScollectorState.COLLECT_RAMP);
             }
             else {
-                mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER); 
-                mArm.setDesiredState(ArmState.AUTO_ANGLE); 
+                mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
+                mArm.setDesiredState(ArmState.AUTO_ANGLE);
             }
         } else  {
             if (!mCollectingButton && !mKeepArmDownButton) {
@@ -211,9 +213,40 @@ public class ControlSystem {
     public void centerOnAprilTag(boolean isHeld) {
         if (isHeld) {
             double x = LimelightHelper.getXOffsetOfPreferredTarget(4);
-            aimingAngle = mLimelightAimController.calculate(x, 0);
+            if (x != 0.0) {
+                aimingAngle = mLimelightAimController.calculate(x, 0);
+            } else {
+                odometryAlignment();
+            }
+            //LimelightHelper.getDistanceOfApriltag(4);
         }
+
         mAutoAiming = isHeld;
+    }
+
+    public void odometryAlignment() {
+        Pose2d robotPose = mDriveSystem.getRobotPose();
+        Pose2d targetPose = new Pose2d(16.578467,5.547593, new Rotation2d()); //coords of apriltag 4
+
+        Transform2d finishingPose = targetPose.minus(robotPose);
+        double angle = Math.atan2(finishingPose.getY(), finishingPose.getX());
+        double deltaAngle = calculateShortestRotationToAngle(robotPose.getRotation().getDegrees(), angle);
+
+        aimingAngle = mLimelightAimController.calculate(deltaAngle, 0);
+    }
+
+    public double calculateShortestRotationToAngle(double startingAngle, double goalAngle) {
+        double ogAngle = startingAngle - goalAngle;
+        double[] angles = {ogAngle, ogAngle - 360, ogAngle + 360};
+        int smallestAngleIndex = -1;
+
+        for (int i = 0; i < angles.length; i++) {
+            if (smallestAngleIndex == -1 || Math.abs(angles[i]) < Math.abs(angles[smallestAngleIndex])) {
+                smallestAngleIndex = i;
+            }
+        }
+
+        return angles[smallestAngleIndex];
     }
 
     public void setAction(Action desiredAction) {
@@ -377,7 +410,23 @@ public class ControlSystem {
             default:
                 break;
         }
+
     }
+
+
+    private void odometryUpdate(double velocityX, double velocityY) {
+        if (velocityX <= ConfigMap.MAX_VELOCITY_FOR_UPDATE || velocityY <= ConfigMap.MAX_VELOCITY_FOR_UPDATE) {
+            if (LimelightHelper.getLatestResults(ConfigMap.LIMELIGHT_NAME).targetingResults.targets_Fiducials.length >= 2) {
+                localizeOnLimelight();
+            }
+        }
+    }
+
+    private void localizeOnLimelight() {
+        Pose2d currentPose = LimelightHelper.getBotPose2d(ConfigMap.LIMELIGHT_NAME);
+        mDriveSystem.setOdometry(currentPose);
+    }
+
 }
 
 class SubsystemSetting {
