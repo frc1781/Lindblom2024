@@ -11,6 +11,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput.ControllerSide;
@@ -42,6 +44,8 @@ public class ControlSystem {
     private Arm mArm;
 
     private OperatingMode mCurrentOperatingMode;
+    private NetworkTable mLimelightInstance = NetworkTableInstance.getDefault().getTable(ConfigMap.LIMELIGHT_NAME);
+
 
     // Slew Rate Limiters for controls
     private final SlewRateLimiter mXDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
@@ -309,8 +313,19 @@ public class ControlSystem {
         }
     }
 
+    public void callPrintModules() {
+        mDriveSystem.printModules();
+    }
+    
     public void run(DriverInput driverInput) {
-        mArm.setSpeakerDistance(LimelightHelper.getDistanceOfApriltag(4));
+        var doubleArray = new double[6];
+        doubleArray = mLimelightInstance.getEntry("botpose").getDoubleArray(doubleArray);
+        // System.out.println(mLimelightInstance.getEntry("tx").getDouble(-1000.0));
+        // System.out.printf("botpose %.2f,%.2f\n", 
+        //     doubleArray[0],
+        //     doubleArray[1]);
+
+        mArm.setSpeakerDistance(mDriveSystem.distanceToSpeaker());
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
 
         switch (mCurrentOperatingMode) {
@@ -318,18 +333,6 @@ public class ControlSystem {
                 driverDriving(
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
-
-                // int pov = driverInput.getPOV(ConfigMap.CO_PILOT_PORT);
-                // if (pov != -1) {
-                //     switch(pov) {
-                //         case 90:
-                //             mArm.manualControlAngle(3.0);
-                //         break;
-                //         case 270:
-                //             mArm.manualControlAngle(-3.0);
-                //         break;
-                //     }
-                // }
                 break;
             case AUTONOMOUS:
                 System.out.println(mScollector.getState().toString());
@@ -416,11 +419,11 @@ public class ControlSystem {
 
 
     private void odometryUpdate(double velocityX, double velocityY) {
-        if (velocityX <= ConfigMap.MAX_VELOCITY_FOR_UPDATE || velocityY <= ConfigMap.MAX_VELOCITY_FOR_UPDATE) {
-            if (LimelightHelper.getLatestResults(ConfigMap.LIMELIGHT_NAME).targetingResults.targets_Fiducials.length >= 2) {
-                localizeOnLimelight();
-            }
-        }
+        // if (velocityX <= ConfigMap.MAX_VELOCITY_FOR_UPDATE || velocityY <= ConfigMap.MAX_VELOCITY_FOR_UPDATE) {
+        //     if (LimelightHelper.getLatestResults(ConfigMap.LIMELIGHT_NAME).targetingResults.targets_Fiducials.length >= 2) {
+        //         localizeOnLimelight();
+        //     }
+        // }
     }
 
     private void localizeOnLimelight() {

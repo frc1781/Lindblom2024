@@ -118,7 +118,7 @@ public class NEOL1SwerveModule extends SwerveModule{
         mDrivePID.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
         mTurnPID.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
         
-        // syncRelativeToAbsoluteEncoder();
+        syncRelativeToAbsoluteEncoder();
     }
 
     public void syncRelativeToAbsoluteEncoder() {
@@ -132,8 +132,17 @@ public class NEOL1SwerveModule extends SwerveModule{
         
         double diff = modAbs - modRel;
         if(Math.abs(diff) > 1) {
+            System.out.printf("synching %d with abs %.2f rel %.2f\n", mCancoderID, modAbs, modRel);
             mTurnEncoder.setPosition(getAbsoluteAngle().getRadians());
         }
+    }
+
+    public void printModuleState() {
+        System.out.println("===============================================");
+        System.out.printf("Module %d:\n", mCancoderID);
+        System.out.printf("  abs: %.2f\n", getAbsoluteAngle().getDegrees());
+        System.out.printf("  rel: %.2f\n", mTurnEncoder.getPosition() * 360 / (Math.PI * 2));
+        System.out.println("===============================================");
     }
 
     static SwerveModuleConfiguration moduleConfiguration() {

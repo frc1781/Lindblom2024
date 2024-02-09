@@ -184,8 +184,11 @@ public class Scollector extends Subsystem {
     }
 
     private void driveMotors() {
-        mTopShooterMotor.set(1);
-        mBottomShooterMotor.set(1);
+        // mTopShooterMotor.set(1);
+        // mBottomShooterMotor.set(1);
+        double setpoint = 8;
+        mTopPID.setReference(setpoint, ControlType.kVelocity);
+        mBottomPID.setReference(setpoint, ControlType.kVelocity);
     }
 
     private void collect() {

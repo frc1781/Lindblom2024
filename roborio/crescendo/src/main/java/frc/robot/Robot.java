@@ -42,6 +42,12 @@ public class Robot extends TimedRobot {
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
 
+    mDriverInput.addClickListener(ConfigMap.CO_PILOT_PORT, "Y", (isPressed)->{
+      if(isPressed) {
+        mControlSystem.callPrintModules();
+      }
+    });
+
     mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.RESET_NAVX, (isPressed)->{
       if(isPressed) {
         mControlSystem.zeroNavX();
@@ -84,7 +90,7 @@ public class Robot extends TimedRobot {
     //     mControlSystem.centerOnAprilTag(isHeld);
     // });
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CENTER_TO_APRIL_TAG, (isHeld) -> {
-         mControlSystem.centerOnAprilTag(isHeld);
+        //  mControlSystem.centerOnAprilTag(isHeld);
     });
 
     // // mDriverInput.addClickListener(0, "B", (isPressed) -> {
