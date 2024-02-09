@@ -8,7 +8,6 @@ public class AutonomousBuilder {
 
     public static AutoStep[] buildFromString(String s) {
         String[] steps = s.split(",");
-        System.out.println("aaaaaaa: " + s);
         if(steps.length == 0 || steps.length == 1) {
             throw new IllegalArgumentException("Invalid string format");
         }
