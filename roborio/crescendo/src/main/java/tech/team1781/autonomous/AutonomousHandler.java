@@ -16,6 +16,7 @@ public class AutonomousHandler {
     private Timer mTimer = new Timer();
 
     private AutoStep sampledStep;
+    private AutoStep[] mSampledSteps;
 
     public AutonomousHandler(ControlSystem controlSystem, AutoRoutine... routines) {
         mAutoChooser.setDefaultOption(routines[0].getName(), routines[0]);
@@ -32,9 +33,8 @@ public class AutonomousHandler {
         mTimer.reset();
         mTimer.start();
         mStepIndex = 0;
-        mSelectedRoutine = new PIDTuningRoutine();
-
-        AutonomousBuilder.buildFromString("aljdad");
+        mSelectedRoutine = mAutoChooser.getSelected();
+        mSampledSteps = mAutoChooser.getSelected().getSteps();
 
 
         sampledStep = mSelectedRoutine.getSteps()[0];
@@ -54,7 +54,7 @@ public class AutonomousHandler {
                 mStepIndex++;
                 mTimer.reset();
                 mTimer.start();
-                sampledStep = mSelectedRoutine.getSteps()[mStepIndex];
+                sampledStep = mSampledSteps[mStepIndex];
                 startStep(sampledStep);
             }
 
@@ -65,6 +65,7 @@ public class AutonomousHandler {
     }
 
     private void startStep(AutoStep step) {
+        System.out.println("new step!");
         mControlSystem.setAutoStep(step.getAction(), step.getPosition(), step.getPath());
     }
 

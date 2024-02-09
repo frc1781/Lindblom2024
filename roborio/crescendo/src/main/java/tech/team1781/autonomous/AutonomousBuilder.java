@@ -1,20 +1,24 @@
 package tech.team1781.autonomous;
 
-import com.pathplanner.lib.path.PathPlannerPath;
+import java.util.LinkedList;
 
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.PathPlannerTrajectory;
+
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import tech.team1781.Paths;
 
 public class AutonomousBuilder {
 
     public static AutoStep[] buildFromString(String s) {
-        s = "p1,n2,n3,n1";
         s = s.trim();
         String[] steps = s.split(",");
-        if(steps.length == 0 || steps.length == 1) {
+        if(steps.length == 0) {
             throw new IllegalArgumentException("Invalid string format");
         }
 
-        AutoStep[] autonomousSteps = new AutoStep[steps.length];
+        LinkedList<AutoStep> autonomousSteps = new LinkedList<>();
         String previous = steps[0];
 
         for(int i = 1; i < steps.length; i++) {
@@ -23,7 +27,7 @@ public class AutonomousBuilder {
                 String timeInt = current.substring(1);
                 int time = Integer.parseInt(timeInt);
                 AutoStep waitStep = new AutoStep(time);
-                autonomousSteps[i] = waitStep;
+                autonomousSteps.add(waitStep);
                 continue;
 
             }
@@ -33,15 +37,22 @@ public class AutonomousBuilder {
            Paths.AutonomousPosition nextPosition = Paths.getPosition(current);
 
            PathPlannerPath path = Paths.getPath(prevPosition, nextPosition);
-           System.out.println("Path: " + path.toString());
+           System.out.println("Path: " + path.toString() + " ================================================================== ");
 
-           currentStep = new AutoStep(5, path);
-           autonomousSteps[i] = currentStep;
+           PathPlannerTrajectory tempTraj = path.getTrajectory(new ChassisSpeeds(), new Rotation2d());
+           currentStep = new AutoStep(tempTraj.getTotalTimeSeconds() + 0.5, path);
+           autonomousSteps.add(currentStep);
            previous = steps[i];
            
-        }        
+        }      
+        
+        AutoStep[] ret_val = new AutoStep[autonomousSteps.size()];
 
-        return autonomousSteps;
+        for(int i = 0 ; i < autonomousSteps.size(); i ++) {
+            ret_val[i] = autonomousSteps.get(i);
+        }
+
+        return ret_val;
     }
 
     private static boolean isWait(String s) {
