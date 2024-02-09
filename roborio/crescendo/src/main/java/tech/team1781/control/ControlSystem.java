@@ -310,6 +310,7 @@ public class ControlSystem {
     }
 
     public void run(DriverInput driverInput) {
+        mArm.setSpeakerDistance(LimelightHelper.getDistanceOfApriltag(4));
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
 
         switch (mCurrentOperatingMode) {

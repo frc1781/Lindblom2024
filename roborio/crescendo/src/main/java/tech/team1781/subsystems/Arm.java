@@ -24,6 +24,7 @@ public class Arm extends Subsystem {
     private GenericEntry mArmPositionEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Arm Position", -1).getEntry();
     //private GenericEntry mSpeakerDistanceEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Distance", 1).getEntry();
     private double mDesiredPosition = 0;
+    private double mSpeakerDistance = 0;
 
     public Arm() {
         super("Arm", ArmState.START);
@@ -146,6 +147,10 @@ public class Arm extends Subsystem {
     public void manualControlAngle(double d) {
         setDesiredState(ArmState.MANUAL);
         mDesiredPosition += d;
+    }
+
+    public void setSpeakerDistance(double d) {
+        mSpeakerDistance = d;
     }
 
     private boolean matchesPosition() {
