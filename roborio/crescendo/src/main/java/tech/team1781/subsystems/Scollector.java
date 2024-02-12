@@ -29,7 +29,7 @@ public class Scollector extends Subsystem {
     private final SparkPIDController mLeftPID;
 
     private GenericEntry mThresholdEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Shooter Threshold", 6).getEntry();
-
+    private GenericEntry mUpToSpeed = ConfigMap.SHUFFLEBOARD_TAB.add("Up to Speed", false).getEntry();
     private final EVector SHOOTER_PID = EVector.newVector(0.1, 0.0, 0.0);
     private final TrapezoidProfile.Constraints SHOOTER_CONSTRAINTS = new TrapezoidProfile.Constraints(9.0, 10);
     private ProfiledPIDController mLeftShooterPID = new ProfiledPIDController(SHOOTER_PID.x, SHOOTER_PID.y,
@@ -78,6 +78,13 @@ public class Scollector extends Subsystem {
 
     @Override
     public void genericPeriodic() {
+        mRightShooterMotor.getEncoder().getVelocity();
+        mLeftShooterMotor.getEncoder().getVelocity();
+        if(0.1 >= Math.abs(mRightShooterMotor.getEncoder().getVelocity() - 8) && 0.1 >= Math.abs(mLeftShooterMotor.getEncoder().getVelocity() - 8)){
+            mUpToSpeed.setBoolean(true);
+        } else {
+            mUpToSpeed.setBoolean(false);
+        }
     }
 
     @Override
