@@ -54,7 +54,7 @@ public class Scollector extends Subsystem {
         mBottomShooterMotor.setIdleMode(IdleMode.kCoast);
         mTopShooterMotor.setIdleMode(IdleMode.kCoast);
         mTopShooterMotor.setInverted(false);
-        mBottomShooterMotor.setInverted(false);
+        mBottomShooterMotor.setInverted(true);
 
         final double conversionFactor = 0.100203 * 1 / 60;
 
@@ -80,7 +80,7 @@ public class Scollector extends Subsystem {
         mBottomShooterMotor.burnFlash();
         mTopShooterMotor.burnFlash();
         System.out.println("top motor faults: " + mTopShooterMotor.getFaults());
-        System.out.println("top motor faults: " + mBottomShooterMotor.getFaults());
+        System.out.println("bottom motor faults: " + mBottomShooterMotor.getFaults());
     }
 
     public enum ScollectorState implements SubsystemState {
@@ -189,9 +189,9 @@ public class Scollector extends Subsystem {
     }
 
     private void driveMotors() {
-        // mTopShooterMotor.set(1);
-        // mBottomShooterMotor.set(1);
-        double setpoint = 8;
+        //  mTopShooterMotor.set(1);
+        //  mBottomShooterMotor.set(1);
+        double setpoint = 10;
         mTopPID.setReference(setpoint, ControlType.kVelocity);
         mBottomPID.setReference(setpoint, ControlType.kVelocity);
     }

@@ -132,7 +132,7 @@ public class NEOL1SwerveModule extends SwerveModule{
         
         double diff = modAbs - modRel;
         if(Math.abs(diff) > 1) {
-            System.out.printf("synching %d with abs %.2f rel %.2f\n", mCancoderID, modAbs, modRel);
+           // System.out.printf("synching %d with abs %.2f rel %.2f\n", mCancoderID, modAbs, modRel);
             mTurnEncoder.setPosition(getAbsoluteAngle().getRadians());
         }
     }
