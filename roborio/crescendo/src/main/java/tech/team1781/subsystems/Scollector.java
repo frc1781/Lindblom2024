@@ -79,6 +79,7 @@ public class Scollector extends Subsystem {
         mBottomPID.setFF(1.0 / 9.8);
         mBottomShooterMotor.burnFlash();
         mTopShooterMotor.burnFlash();
+        mCollectorMotor.burnFlash();
         System.out.println("top motor faults: " + mTopShooterMotor.getFaults());
         System.out.println("top motor faults: " + mBottomShooterMotor.getFaults());
     }

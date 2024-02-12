@@ -47,6 +47,12 @@ public class Arm extends Subsystem {
         System.out.println("initialized arm moters for following...");
         System.out.println("ENSURE ARM IN ZERO POSITION!!!!! Just set encoder to zero");
         mLeftEncoder.setPosition(0);
+        mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
+        mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
+        mLeftMotor.setSmartCurrentLimit(30);
+        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 90);
+        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, 0);
+        mLeftMotor.burnFlash();
         mPositions.put(ArmState.START, 0.0); // Temporary, used to be 71.9
         mPositions.put(ArmState.SAFE, 63.0);
         mPositions.put(ArmState.PODIUM, 43.8);
@@ -71,12 +77,7 @@ public class Arm extends Subsystem {
 
     @Override
     public void init() {
-        mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
-        mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
-        mLeftMotor.setSmartCurrentLimit(30);
-        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 90);
-        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, 0);
-        mLeftMotor.burnFlash();
+
         mDesiredPosition = mLeftEncoder.getPosition();
         setDesiredState(ArmState.START);
         if (currentMode == OperatingMode.DISABLED) {
