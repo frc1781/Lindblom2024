@@ -62,7 +62,8 @@ public class Scollector extends Subsystem {
         mBottomShooterMotor.getEncoder().setVelocityConversionFactor(conversionFactor);
         mTopShooterMotor.getEncoder().setPositionConversionFactor(conversionFactor);
         mTopShooterMotor.getEncoder().setVelocityConversionFactor(conversionFactor);
-
+        mBottomShooterMotor.setSmartCurrentLimit(30);
+        mTopShooterMotor.setSmartCurrentLimit(30);
         mTopPID = mTopShooterMotor.getPIDController();
         mBottomPID = mBottomShooterMotor.getPIDController();
         mTopPID.setFeedbackDevice(mTopShooterMotor.getEncoder());
@@ -76,6 +77,10 @@ public class Scollector extends Subsystem {
         mBottomPID.setI(0);
         mBottomPID.setD(0.01);
         mBottomPID.setFF(1.0 / 9.8);
+        mBottomShooterMotor.burnFlash();
+        mTopShooterMotor.burnFlash();
+        System.out.println("top motor faults: " + mTopShooterMotor.getFaults());
+        System.out.println("top motor faults: " + mBottomShooterMotor.getFaults());
     }
 
     public enum ScollectorState implements SubsystemState {
