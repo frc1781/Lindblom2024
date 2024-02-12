@@ -316,11 +316,15 @@ public class ControlSystem {
 
     public void run(DriverInput driverInput) {
         var doubleArray = new double[6];
-        doubleArray = mLimelightInstance.getEntry("botpose").getDoubleArray(doubleArray);
-        // System.out.println(mLimelightInstance.getEntry("tx").getDouble(-1000.0));
-        // System.out.printf("botpose %.2f,%.2f\n",
+        // doubleArray = mLimelightInstance.getEntry("botpose").getDoubleArray(doubleArray);
+        // // System.out.println(mLimelightInstance.getEntry("tx").getDouble(-1000.0));
+        // System.out.printf("botpose %.2f,%.2f,%.2f\n",
         // doubleArray[0],
-        // doubleArray[1]);
+        // doubleArray[1],
+        // doubleArray[2]);
+
+        // System.out.printf("dist %.2f\n", 
+        // LimelightHelper.getDistanceOfApriltag(4));
 
         mArm.setSpeakerDistance(mDriveSystem.distanceToSpeaker());
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
