@@ -150,6 +150,7 @@ public class DriveSystem extends Subsystem {
                 mOdometryBeenSet = false;
                 break;
             case TELEOP:
+                setOdometry(new Pose2d(1.26, 5.53, new Rotation2d()));
                 mIsManual = true;
                 break;
             case DISABLED:
@@ -276,7 +277,6 @@ public class DriveSystem extends Subsystem {
         EVector currentPose = EVector.fromPose(getRobotPose());
         EVector otherPose = EVector.fromPose(other);
         return currentPose.dist(otherPose) <= TOLERANCE;
-
     }
 
     public void driveRaw(double xSpeed, double ySpeed, double rot) {
@@ -318,8 +318,23 @@ public class DriveSystem extends Subsystem {
         return false;
     }
 
+    public double distanceToSpeaker() {
+        Pose2d currentPose = getRobotPose();
+        EVector currentPoseEvector = EVector.newVector(currentPose.getX(), currentPose.getY());
+        EVector speakerPosition = EVector.newVector(0, 5.55);
+
+        return currentPoseEvector.dist(speakerPosition);
+    }
+
     private void updateOdometry() {
         mOdometry.update(getRobotAngle(), getModulePositions());
+    }
+
+    public void printModules() {
+        ((NEOL1SwerveModule) mFrontLeft).printModuleState();
+        ((NEOL1SwerveModule) mFrontRight).printModuleState();
+        ((NEOL1SwerveModule) mBackLeft).printModuleState();
+        ((NEOL1SwerveModule) mBackRight).printModuleState();
     }
 
     private SwerveModulePosition[] getModulePositions() {
