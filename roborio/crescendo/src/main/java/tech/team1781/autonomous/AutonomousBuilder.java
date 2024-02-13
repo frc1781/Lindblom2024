@@ -1,5 +1,6 @@
 package tech.team1781.autonomous;
 
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -7,9 +8,28 @@ import com.pathplanner.lib.path.PathPlannerTrajectory;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.networktables.GenericEntry;
 import tech.team1781.Paths;
 
 public class AutonomousBuilder {
+
+    public static AutoStep[] buildFromLinkedHashMap(LinkedHashMap<GenericEntry, Paths.AutonomousPosition> map) {
+        LinkedList<Paths.AutonomousPosition> positions = new LinkedList<>();
+
+        for(GenericEntry entry : map.keySet()) {
+            if(entry.getBoolean(false)) {
+                positions.add(map.get(entry));
+            }
+        }
+
+        Paths.AutonomousPosition[] positionsArray = new Paths.AutonomousPosition[positions.size()];
+
+        for(int i = 0; i < positions.size(); i++) {
+            positionsArray[i] = positions.get(i);
+        }
+
+        return buildFromPositions(positionsArray);
+    }
 
     public static AutoStep[] buildFromString(String s) {
         s = s.trim();
@@ -53,6 +73,29 @@ public class AutonomousBuilder {
         }
 
         return ret_val;
+    }
+
+    public static AutoStep[] buildFromPositions(Paths.AutonomousPosition... positions) {
+        LinkedList<AutoStep> autonomousSteps = new LinkedList<>();
+        Paths.AutonomousPosition previous = positions[0];
+
+        for(int i = 1; i < positions.length; i++) {
+            Paths.AutonomousPosition current = positions[i];
+            PathPlannerPath path = Paths.getPath(previous, current);
+            PathPlannerTrajectory tempTraj = path.getTrajectory(new ChassisSpeeds(), new Rotation2d());
+            AutoStep currentStep = new AutoStep(tempTraj.getTotalTimeSeconds() + 0.5, path);
+            autonomousSteps.add(currentStep);
+            previous = positions[i];
+        }
+
+        AutoStep[] ret_val = new AutoStep[autonomousSteps.size()];
+
+        for(int i = 0 ; i < autonomousSteps.size(); i ++) {
+            ret_val[i] = autonomousSteps.get(i);
+        }
+
+        return ret_val;
+
     }
 
     private static boolean isWait(String s) {
