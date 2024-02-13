@@ -15,7 +15,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 import java.io.IOException;
-import java.io.ObjectInputFilter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -27,8 +26,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import tech.team1781.ConfigMap;
 
 public class LimelightHelper {
@@ -783,8 +780,8 @@ public class LimelightHelper {
         return results;
     }
 
-    public static Double getXOffsetOfPreferredTarget(int id) {
-        LimelightTarget_Fiducial[] limelightTargetFiducials = getLatestResults(ConfigMap.LIMELIGHT_NAME).targetingResults.targets_Fiducials;
+    public static double getXOffsetOfApriltag(int id) {
+        LimelightTarget_Fiducial[] limelightTargetFiducials = getLatestResults(ConfigMap.MAIN_LIMELIGHT_NAME).targetingResults.targets_Fiducials;
         double x = 0.0;
 
         for (LimelightTarget_Fiducial targetsFiducial : limelightTargetFiducials) {
@@ -798,14 +795,13 @@ public class LimelightHelper {
     }
 
     public static double getDistanceOfApriltag(int id) {
-        LimelightTarget_Fiducial[] limelightTargetFiducials = getLatestResults(ConfigMap.LIMELIGHT_NAME).targetingResults.targets_Fiducials;
+        LimelightTarget_Fiducial[] limelightTargetFiducials = getLatestResults(ConfigMap.MAIN_LIMELIGHT_NAME).targetingResults.targets_Fiducials;
         double x = 0.0;
 
         for (LimelightTarget_Fiducial targetsFiducial : limelightTargetFiducials) {
             if (targetsFiducial.fiducialID == id) {
-                Pose2d pose = targetsFiducial.getTargetPose_CameraSpace2D();
-                System.out.printf("%.2f,%.2f\n", pose.getX(), pose.getY());
-                x = Math.sqrt(Math.pow(pose.getX(), 2) + Math.pow(pose.getY(), 2));
+                Pose3d pose = targetsFiducial.getTargetPose_CameraSpace();
+                x = Math.sqrt(Math.pow(pose.getZ(), 2) + Math.pow(pose.getY(), 2));
                 break;
             }
         }

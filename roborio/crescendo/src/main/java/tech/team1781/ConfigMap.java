@@ -77,7 +77,8 @@ public class ConfigMap {
         // First Drivebase
 
         //Limelight
-        public static final String LIMELIGHT_NAME = "limelight-three";
+        public static final String MAIN_LIMELIGHT_NAME = "limelight-three";
+        public static final String NOTE_LIMELIGHT_NAME = "limelight-two";
 
         // Controls
         public static final int DRIVER_CONTROLLER_PORT = 0;
@@ -93,6 +94,7 @@ public class ConfigMap {
         public static final int CO_PILOT_PORT = 1;
 
         public static final String CENTER_TO_APRIL_TAG = "B";
+        public static final String NOTE_COLLECTION = "A";
         public static final String SPIT = "LB";
         public static final String SHOOT = "RB";
         public static final String PREPARE_TO_SHOOT = "X";

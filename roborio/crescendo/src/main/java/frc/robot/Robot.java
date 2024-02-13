@@ -72,6 +72,10 @@ public class Robot extends TimedRobot {
          mControlSystem.centerOnAprilTag(isHeld);
     });
 
+/*    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.NOTE_COLLECTION, (isHeld) -> {
+        mControlSystem.collectNote(isHeld);
+    });*/
+
     // // mDriverInput.addClickListener(0, "B", (isPressed) -> {
     // //   if (isPressed) {
     // //     mControlSystem.setArmState(ArmState.AUTO_ANGLE);

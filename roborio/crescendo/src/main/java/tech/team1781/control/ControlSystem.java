@@ -208,13 +208,13 @@ public class ControlSystem {
 
     public void centerOnAprilTag(boolean isHeld) {
         if (isHeld) {
-            double x = LimelightHelper.getXOffsetOfPreferredTarget(4);
+            double x = LimelightHelper.getXOffsetOfApriltag(4);
             if (x != 0.0) {
                 aimingAngle = mLimelightAimController.calculate(x, 0);
             } else {
                 odometryAlignment();
             }
-            //LimelightHelper.getDistanceOfApriltag(4);
+            System.out.println(LimelightHelper.getDistanceOfApriltag(4));
         }
 
         mAutoAiming = isHeld;
@@ -243,6 +243,23 @@ public class ControlSystem {
         }
 
         return angles[smallestAngleIndex];
+    }
+
+    public void collectNote(boolean isHeld) {
+        //don't mention this code, doesnt work yet many bugs
+        if (isHeld) {
+            double x = LimelightHelper.getTX(ConfigMap.NOTE_LIMELIGHT_NAME);
+            if (x != 0.0) {
+                aimingAngle = mLimelightAimController.calculate(x, 0);
+                System.out.println(getDistanceFromNote());
+            }
+        }
+
+        mAutoAiming = isHeld;
+    }
+    public double getDistanceFromNote() {
+        double ta = LimelightHelper.getTA(ConfigMap.NOTE_LIMELIGHT_NAME);
+        return 1.278 / Math.pow(ta, 0.4425);
     }
 
     public void setAction(Action desiredAction) {
@@ -412,14 +429,14 @@ public class ControlSystem {
 
     private void odometryUpdate(double velocityX, double velocityY) {
         if (velocityX <= ConfigMap.MAX_VELOCITY_FOR_UPDATE || velocityY <= ConfigMap.MAX_VELOCITY_FOR_UPDATE) {
-            if (LimelightHelper.getLatestResults(ConfigMap.LIMELIGHT_NAME).targetingResults.targets_Fiducials.length >= 2) {
+            if (LimelightHelper.getLatestResults(ConfigMap.MAIN_LIMELIGHT_NAME).targetingResults.targets_Fiducials.length >= 2) {
                 localizeOnLimelight();
             }
         }
     }
 
     private void localizeOnLimelight() {
-        Pose2d currentPose = LimelightHelper.getBotPose2d(ConfigMap.LIMELIGHT_NAME);
+        Pose2d currentPose = LimelightHelper.getBotPose2d(ConfigMap.MAIN_LIMELIGHT_NAME);
         mDriveSystem.setOdometry(currentPose);
     }
 
