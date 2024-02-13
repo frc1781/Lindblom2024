@@ -331,9 +331,6 @@ public class ControlSystem {
     }
 
     public void run(DriverInput driverInput) {
-        var doubleArray = new double[6];
-
-        mArm.setSpeakerDistance(mDriveSystem.distanceToSpeaker());
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
 
         switch (mCurrentOperatingMode) {

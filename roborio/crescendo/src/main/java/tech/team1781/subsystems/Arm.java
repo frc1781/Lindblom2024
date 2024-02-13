@@ -15,6 +15,7 @@ import tech.team1781.ConfigMap;
 import tech.team1781.utils.LimelightHelper;
 
 import com.revrobotics.SparkLimitSwitch;
+import tech.team1781.utils.NetworkLogger;
 
 public class Arm extends Subsystem {
     private CANSparkMax mRightMotor;
@@ -24,9 +25,9 @@ public class Arm extends Subsystem {
             new TrapezoidProfile.Constraints(80, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
     private GenericEntry mArmPositionEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Arm Position", -1).getEntry();
-    //private GenericEntry mSpeakerDistanceEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Distance", 1).getEntry();
     private double mDesiredPosition = 0;
-    private double mSpeakerDistance = 0;
+
+    //private double mSpeakerDistance;
 
     public Arm() {
         super("Arm", ArmState.START);
@@ -139,23 +140,21 @@ public class Arm extends Subsystem {
     }
 
     private double calculateAngleFromDistance() {
-        // final double start = 32;
-        // final double coefficient = 18.3;
-        // // double dist = LimelightHelper.getDistanceOfApriltag(4);
-        // double dist = mSpeakerDistance - ConfigMap.DRIVETRAIN_TRACKWIDTH/2;
-        // double angle = 32.0;
-        // if (dist < 0.5) {//can not see april tag
-        //     angle = 32.0;
-        // } else {
-        //     angle = Math.log(dist) * coefficient + start;
-        // }
-        
-        // System.out.printf("dist %.2f, angle %.2f\n", dist, angle); 
-        // if (angle > 51) {
-        //     angle = 51;
-        // }
-        // return angle;
-        return 32.0;
+         final double start = 32;
+         final double coefficient = 18.3;
+         double dist = LimelightHelper.getDistanceOfApriltag(4);
+         double angle = 32.0;
+
+         if (dist == 0.0) {
+             angle = 32.0;
+         } else {
+             angle = Math.log(dist) * coefficient + start;
+         }
+
+        mNetworkLogger.log("angle", angle);
+
+         if (angle >= 51) { angle = 51; }
+         return angle;
     }
 
     public void manualAdjustAngle(double d) {
@@ -170,10 +169,6 @@ public class Arm extends Subsystem {
             mDesiredPosition = ConfigMap.MIN_THRESHOLD_ARM;
         }
         
-    }
-
-    public void setSpeakerDistance(double d) {
-        mSpeakerDistance = d;
     }
 
     private boolean matchesPosition() {
