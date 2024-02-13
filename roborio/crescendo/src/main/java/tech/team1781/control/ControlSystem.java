@@ -117,6 +117,8 @@ public class ControlSystem {
             }
             if (mPrepareToShootButton) {
                 mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
+
+                mArm.setSpeakerAngle(calculateAngleFromDistance());
                 mArm.setDesiredState(ArmState.AUTO_ANGLE);
             }
         }
@@ -139,6 +141,7 @@ public class ControlSystem {
                 mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
 
                 if(!mKeepArmDownButton && !mCollectingButton) {
+                    mArm.setSpeakerAngle(calculateAngleFromDistance());
                     mArm.setDesiredState(ArmState.AUTO_ANGLE);
                 }
             } else {
@@ -188,6 +191,8 @@ public class ControlSystem {
                 mScollector.setDesiredState(ScollectorState.COLLECT_RAMP);
             } else if (!mKeepArmDownButton) {
                 mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
+
+                mArm.setSpeakerAngle(calculateAngleFromDistance());
                 mArm.setDesiredState(ArmState.AUTO_ANGLE);
             }
         } else {
@@ -434,6 +439,22 @@ public class ControlSystem {
     private void localizeOnLimelight() {
         Pose2d currentPose = LimelightHelper.getBotPose2d(ConfigMap.MAIN_LIMELIGHT_NAME);
         mDriveSystem.setOdometry(currentPose);
+    }
+
+    private double calculateAngleFromDistance() {
+        final double start = 32;
+        final double coefficient = 18.3;
+        double dist = LimelightHelper.getDistanceOfApriltag(4);
+        double angle = 32.0;
+
+        if (dist == 0.0) {
+            angle = 32.0;
+        } else {
+            angle = Math.log(dist) * coefficient + start;
+        }
+
+        if (angle >= 51) { angle = 51; }
+        return angle;
     }
 
 }

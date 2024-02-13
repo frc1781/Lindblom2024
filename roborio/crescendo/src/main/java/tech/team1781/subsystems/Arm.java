@@ -27,7 +27,7 @@ public class Arm extends Subsystem {
     private GenericEntry mArmPositionEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Arm Position", -1).getEntry();
     private double mDesiredPosition = 0;
 
-    //private double mSpeakerDistance;
+    private double mSpeakerAngle = 0.0;
 
     public Arm() {
         super("Arm", ArmState.START);
@@ -88,7 +88,7 @@ public class Arm extends Subsystem {
     @Override
     public void getToState() {
         if (getState() == ArmState.AUTO_ANGLE) {
-            mDesiredPosition = calculateAngleFromDistance();
+            mDesiredPosition = mSpeakerAngle;
         }
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), mDesiredPosition);
         mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
@@ -131,30 +131,12 @@ public class Arm extends Subsystem {
         if (state != ArmState.MANUAL && state != ArmState.AUTO_ANGLE) {
             mDesiredPosition = mPositions.get(state);
         } else if (state == ArmState.AUTO_ANGLE) {
-            mDesiredPosition = calculateAngleFromDistance();
+            mDesiredPosition = mSpeakerAngle;
         }
     }
 
     public double getAngle() {
         return mLeftEncoder.getPosition();
-    }
-
-    private double calculateAngleFromDistance() {
-         final double start = 32;
-         final double coefficient = 18.3;
-         double dist = LimelightHelper.getDistanceOfApriltag(4);
-         double angle = 32.0;
-
-         if (dist == 0.0) {
-             angle = 32.0;
-         } else {
-             angle = Math.log(dist) * coefficient + start;
-         }
-
-        mNetworkLogger.log("angle", angle);
-
-         if (angle >= 51) { angle = 51; }
-         return angle;
     }
 
     public void manualAdjustAngle(double d) {
@@ -174,5 +156,9 @@ public class Arm extends Subsystem {
     private boolean matchesPosition() {
         var diff = mDesiredPosition - mLeftEncoder.getPosition();
         return Math.abs(diff) <= 1;
+    }
+
+    public void setSpeakerAngle(double angle) {
+        mSpeakerAngle = angle;
     }
 }
