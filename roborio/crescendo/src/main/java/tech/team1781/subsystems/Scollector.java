@@ -54,7 +54,7 @@ public class Scollector extends Subsystem {
         mBottomShooterMotor.setIdleMode(IdleMode.kCoast);
         mTopShooterMotor.setIdleMode(IdleMode.kCoast);
         mTopShooterMotor.setInverted(false);
-        mBottomShooterMotor.setInverted(false);
+        mBottomShooterMotor.setInverted(true);
 
         final double conversionFactor = 0.100203 * 1 / 60;
 
