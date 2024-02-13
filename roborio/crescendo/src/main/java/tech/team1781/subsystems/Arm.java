@@ -87,7 +87,7 @@ public class Arm extends Subsystem {
     @Override
     public void getToState() {
         if (getState() == ArmState.AUTO_ANGLE) {
-            mDesiredPosition = calculateAngleFromDistance();
+            //mDesiredPosition = calculateAngleFromDistance();
         }
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), mDesiredPosition);
         mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
@@ -130,7 +130,7 @@ public class Arm extends Subsystem {
         if (state != ArmState.MANUAL && state != ArmState.AUTO_ANGLE) {
             mDesiredPosition = mPositions.get(state);
         } else if (state == ArmState.AUTO_ANGLE) {
-            mDesiredPosition = calculateAngleFromDistance();
+            //mDesiredPosition = calculateAngleFromDistance();
         }
     }
 
