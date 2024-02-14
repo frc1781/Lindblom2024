@@ -4,7 +4,10 @@
 
 package frc.robot;
 
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.WidgetType;
 import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput;
 import tech.team1781.autonomous.AutonomousHandler;
@@ -36,7 +39,7 @@ public class Robot extends TimedRobot {
   private ControlSystem mControlSystem;
   private AutonomousHandler mAutonomousHandler;
   private DriverInput mDriverInput;
-  private PreferenceHandler mPreferenceHandler;
+  private GenericEntry mSaveConfigButton = ConfigMap.CONFIG_TAB.add("Save Config", false).withWidget(BuiltInWidgets.kToggleButton).getEntry();
 
   @Override
   public void robotInit() {
@@ -45,12 +48,16 @@ public class Robot extends TimedRobot {
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
 
-    mPreferenceHandler = new PreferenceHandler(
-      new ValueHolder<Double>("FrontLeftOffset", ConfigMap.FRONT_LEFT_MODULE_STEER_OFFSET),
-      new ValueHolder<Double>("FrontRightOffset", ConfigMap.FRONT_RIGHT_MODULE_STEER_OFFSET),
-      new ValueHolder<Double>("BackLeftOffset", ConfigMap.BACK_LEFT_MODULE_STEER_OFFSET),
-      new ValueHolder<Double>("BackRightOffset", ConfigMap.BACK_RIGHT_MODULE_STEER_OFFSET)
-    );
+    PreferenceHandler.addValue("frontLeftOffset", ConfigMap.FRONT_LEFT_MODULE_STEER_OFFSET);
+    PreferenceHandler.addValue("frontRightOffset", ConfigMap.FRONT_RIGHT_MODULE_STEER_OFFSET);
+    PreferenceHandler.addValue("backLeftOffset", ConfigMap.BACK_LEFT_MODULE_STEER_OFFSET);
+    PreferenceHandler.addValue("backRightOffset", ConfigMap.BACK_RIGHT_MODULE_STEER_OFFSET);
+
+    mDriverInput.addClickListener(ConfigMap.CO_PILOT_PORT, "Y", (isPressed)->{
+      if(isPressed) {
+        mControlSystem.callPrintModules();
+      }
+    });
 
     mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.RESET_NAVX, (isPressed)->{
       if(isPressed) {
@@ -58,44 +65,82 @@ public class Robot extends TimedRobot {
       }
     });
 
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CENTER_TO_APRIL_TAG, (isHeld) -> {
-        mControlSystem.centerOnAprilTag(isHeld);
-    });
-
-    mDriverInput.addClickListener(0, "B", (isPressed) -> {
-      if (isPressed) {
-        mControlSystem.setArmState(ArmState.AUTO_ANGLE);
-      }
-    });
-
-    mDriverInput.addClickListener(0, "A", (isPressed) -> {
-      if (isPressed) {
-        mControlSystem.setArmState(ArmState.COLLECT);
-      }
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.KEEP_DOWN, (isPressed) -> {
+      mControlSystem.keepArmDown(isPressed);
     });
 
     mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT, (isPressed) -> {
+      mControlSystem.setCollecting(isPressed);
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SPIT, (isPressed) -> {
+      mControlSystem.setSpit(isPressed);
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SHOOT, (isPressed) -> {
+      mControlSystem.setShooting(isPressed);
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.PREPARE_TO_SHOOT, (isPressed) -> {
+      mControlSystem.setPrepareToShoot(isPressed);
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, "E", (isPressed) -> {
       if(isPressed) {
-        mControlSystem.setCollecting();
+        mControlSystem.manualAdjustAngle(3);
       }
     });
 
-    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.SHOOT, (isPressed) -> {
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, "W", (isPressed) -> {
       if(isPressed) {
-        mControlSystem.setShooting();
+        mControlSystem.manualAdjustAngle(-3);
       }
     });
 
-    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.SPIT, (isPressed) -> {
-      if(isPressed)
-        mControlSystem.setSpit();
+    // mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CENTER_TO_APRIL_TAG, (isHeld) -> {
+    //     mControlSystem.centerOnAprilTag(isHeld);
+    // });
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CENTER_TO_APRIL_TAG, (isHeld) -> {
+        //  mControlSystem.centerOnAprilTag(isHeld);
     });
+
+    // // mDriverInput.addClickListener(0, "B", (isPressed) -> {
+    // //   if (isPressed) {
+    // //     mControlSystem.setArmState(ArmState.AUTO_ANGLE);
+    // //   }
+    // // });
+
+    // // mDriverInput.addClickListener(0, "A", (isPressed) -> {
+    // //   if (isPressed) {
+    // //     mControlSystem.setArmState(ArmState.COLLECT);
+    // //   }
+    // // });
+
+    // mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT, (isPressed) -> {
+    //   if(isPressed) {
+    //     mControlSystem.setCollecting();
+    //   }
+    // });
+
+    // mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.SHOOT, (isPressed) -> {
+    //   if(isPressed) {
+    //     mControlSystem.setShooting();
+    //   }
+    // });
+
+    // mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.SPIT, (isPressed) -> {
+    //   if(isPressed)
+    //     mControlSystem.setSpit();
+    // });
 
   }
 
   @Override
   public void robotPeriodic() {
-    mPreferenceHandler.checkForUpdates();
+    if(mSaveConfigButton.getBoolean(false)) {
+      PreferenceHandler.updateValues();
+      mSaveConfigButton.setBoolean(false);
+    }
   }
 
   @Override
