@@ -14,7 +14,6 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import frc.lib.math.Conversions;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.util.Units;
@@ -23,6 +22,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import tech.team1781.ConfigMap;
+import tech.team1781.utils.Conversions;
 import tech.team1781.utils.SwerveModuleConfiguration;
 
 public class KrakenL2SwerveModule extends SwerveModule{ 
@@ -107,7 +107,7 @@ public class KrakenL2SwerveModule extends SwerveModule{
             mDriveMotor.setControl(driveDutyCycle);
         }
         else {
-            driveVelocity.Velocity = desiredState.speedMetersPerSecond / (0.10033);
+            driveVelocity.Velocity = Conversions.MPSToRPS(desiredState.speedMetersPerSecond, 0.10033);
             driveVelocity.FeedForward = driveFeedForward.calculate(desiredState.speedMetersPerSecond);
             mDriveMotor.setControl(driveVelocity);
         }
