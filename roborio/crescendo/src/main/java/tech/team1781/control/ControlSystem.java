@@ -105,29 +105,38 @@ public class ControlSystem {
     }
 
     public void onButtonRelease() {
-        if (mCollectingButton) {
-            mScollector.setDesiredState(ScollectorState.COLLECT);
-            mArm.setDesiredState(ArmState.COLLECT);
-        }
-        else if (mKeepArmDownButton) {
-            mArm.setDesiredState(ArmState.COLLECT);
-        }
-
-        if (mPrepareToShootButton) {
+            // Arm
             if (mCollectingButton || mKeepArmDownButton) {
-                mScollector.setDesiredState(ScollectorState.COLLECT_RAMP);
-            } else if (!mKeepArmDownButton) {
-                mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
+                mArm.setDesiredState(ArmState.COLLECT);
+            }
+            else if (mPrepareToShootButton) {
                 mArm.setDesiredState(ArmState.AUTO_ANGLE);
             }
-        }
+            else if (!mShootButton) {
+                mArm.setDesiredState(ArmState.SAFE);
+            }
 
-        if (mShootButton) {
-            mScollector.setDesiredState(ScollectorState.SHOOT);
-        }
-        else if (mSpitButton) {
-            mScollector.setDesiredState(ScollectorState.SPIT);
-        }
+            // Scollector
+            if (mShootButton) {
+                mScollector.setDesiredState(ScollectorState.SHOOT);
+            }
+            else if (mPrepareToShootButton) {
+                if (mCollectingButton || mKeepArmDownButton) {
+                    mScollector.setDesiredState(ScollectorState.COLLECT_RAMP);
+                }
+                else if (!mKeepArmDownButton) {
+                    mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
+                }
+            }
+            else if (mSpitButton) {
+                mScollector.setDesiredState(ScollectorState.SPIT);
+            }
+            else if (mCollectingButton) {
+                mScollector.setDesiredState(ScollectorState.COLLECT);
+            }
+            else {
+                mScollector.setDesiredState(ScollectorState.IDLE);
+            }
     }
 
     public void keepArmDown(boolean pushingKeepDown) {
@@ -139,13 +148,7 @@ public class ControlSystem {
         if (mKeepArmDownButton) {
             mArm.setDesiredState(ArmState.COLLECT);
         } else {
-            if (!mPrepareToShootButton && !mCollectingButton) {
-                mArm.setDesiredState(ArmState.SAFE);
-            }
-            if (mPrepareToShootButton) {
-                mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
-                mArm.setDesiredState(ArmState.AUTO_ANGLE);
-            }
+            onButtonRelease();
         }
     }
 
@@ -159,18 +162,7 @@ public class ControlSystem {
             mScollector.setDesiredState(ScollectorState.COLLECT);
             mArm.setDesiredState(ArmState.COLLECT);
         } else {
-            if (!mKeepArmDownButton && !mPrepareToShootButton) {
-                mArm.setDesiredState(ArmState.SAFE);
-            }
-            if (mPrepareToShootButton) {
-                mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
-
-                if(!mKeepArmDownButton && !mCollectingButton) {
-                    mArm.setDesiredState(ArmState.AUTO_ANGLE);
-                }
-            } else {
-                mScollector.setDesiredState(ScollectorState.IDLE);
-            }
+            onButtonRelease();
         }
     }
 
@@ -183,7 +175,7 @@ public class ControlSystem {
         if (mSpitButton) {
             mScollector.setDesiredState(ScollectorState.SPIT);
         } else {
-            mScollector.setDesiredState(ScollectorState.IDLE);
+            onButtonRelease();
         }
     }
 
@@ -195,9 +187,8 @@ public class ControlSystem {
         mShootButton = pushingShoot;
         if (mShootButton) {
             mScollector.setDesiredState(ScollectorState.SHOOT);
-        } else if (!mKeepArmDownButton && !mCollectingButton){
-            mArm.setDesiredState(ArmState.SAFE);
-            mScollector.setDesiredState(ScollectorState.IDLE);
+        } else {
+            onButtonRelease();
         }
     }
 
@@ -218,14 +209,7 @@ public class ControlSystem {
                 mArm.setDesiredState(ArmState.AUTO_ANGLE);
             }
         } else {
-            if (!mCollectingButton && !mKeepArmDownButton) {
-                mArm.setDesiredState(ArmState.SAFE);
-            }
-            if (mCollectingButton) {
-                mScollector.setDesiredState(ScollectorState.COLLECT);
-            } else {
-                mScollector.setDesiredState(ScollectorState.IDLE);
-            }
+            onButtonRelease();
         }
     }
 
