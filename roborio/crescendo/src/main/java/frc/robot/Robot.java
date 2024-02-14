@@ -87,12 +87,12 @@ public class Robot extends TimedRobot {
     });
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CENTER_TO_APRIL_TAG, (isHeld) -> {
-        mControlSystem.centerOnAprilTag(isHeld);
+        mControlSystem.setCenteringOnAprilTag(isHeld);
     });
 
-/*    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.NOTE_COLLECTION, (isHeld) -> {
-        mControlSystem.collectNote(isHeld);
-    });*/
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.NOTE_COLLECTION, (isHeld) -> {
+        mControlSystem.setAutoCollectionButton(isHeld);
+    });
 
     // // mDriverInput.addClickListener(0, "B", (isPressed) -> {
     // //   if (isPressed) {

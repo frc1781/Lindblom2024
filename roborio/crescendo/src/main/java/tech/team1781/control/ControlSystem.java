@@ -10,6 +10,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -61,6 +62,10 @@ public class ControlSystem {
     private boolean mPrepareToShootButton = false;
     private boolean mShootButton = false;
     private boolean mSpitButton = false;
+    private boolean mCenterOnAprilTagButton = false;
+    private boolean mAutoCollectionButton = false;
+
+    private HashMap<Number, Pose2d> aprilTagCoords = new HashMap<>();
 
     public enum Action {
         COLLECT,
@@ -80,6 +85,23 @@ public class ControlSystem {
         mSubsystems.add(mScollector);
         mSubsystems.add(mClimber);
         mSubsystems.add(mArm);
+
+        aprilTagCoords.put(1, new Pose2d(15.078597,0.245597, new Rotation2d()));
+        aprilTagCoords.put(2, new Pose2d(16.184259, 0.883391, new Rotation2d()));
+        aprilTagCoords.put(3, new Pose2d(16.578467, 4.982443, new Rotation2d()));
+        aprilTagCoords.put(4, new Pose2d(16.578467, 5.547593, new Rotation2d()));
+        aprilTagCoords.put(5, new Pose2d(14.699883, 8.203925, new Rotation2d()));
+        aprilTagCoords.put(6, new Pose2d(1.840625, 8.203925, new Rotation2d()));
+        aprilTagCoords.put(7, new Pose2d(-0.038975, 5.547593, new Rotation2d()));
+        aprilTagCoords.put(8, new Pose2d(-0.038975, 4.982443, new Rotation2d()));
+        aprilTagCoords.put(9, new Pose2d(0.355233, 0.883391, new Rotation2d()));
+        aprilTagCoords.put(10, new Pose2d(1.460641, 0.245597, new Rotation2d()));
+        aprilTagCoords.put(11, new Pose2d(11.903851, 3.712951, new Rotation2d()));
+        aprilTagCoords.put(12, new Pose2d(11.903851, 4.498065, new Rotation2d()));
+        aprilTagCoords.put(13, new Pose2d(11.219321, 4.104873, new Rotation2d()));
+        aprilTagCoords.put(14, new Pose2d(5.319917, 4.104873, new Rotation2d()));
+        aprilTagCoords.put(15, new Pose2d(4.640467, 4.498065, new Rotation2d()));
+        aprilTagCoords.put(16, new Pose2d(4.640467, 3.712951, new Rotation2d()));
 
         initActions();
 
@@ -215,23 +237,46 @@ public class ControlSystem {
         mDriveSystem.zeroNavX();
     }
 
-    public void centerOnAprilTag(boolean isHeld) {
-        if (isHeld) {
-            double x = LimelightHelper.getXOffsetOfApriltag(4);
-            if (x != 0.0) {
-                aimingAngle = mLimelightAimController.calculate(x, 0);
-            } else {
-                odometryAlignment();
-            }
-            System.out.println(LimelightHelper.getDistanceOfApriltag(4));
-        }
-
-        mAutoAiming = isHeld;
+    public void setCenteringOnAprilTag(boolean isHeld) {
+        mCenterOnAprilTagButton = isHeld;
     }
 
-    public void odometryAlignment() {
+    public void setAutoCollectionButton(boolean isHeld) {
+        mAutoCollectionButton = isHeld;
+    }
+
+    public void autoAimingInputs() {
+        if (!mAutoCollectionButton && !mCenterOnAprilTagButton) {
+            mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
+            mAutoAiming = false;
+            return;
+        }
+
+        if (mCenterOnAprilTagButton && !mAutoCollectionButton) {
+            centerOnAprilTag();
+            mAutoAiming = true;
+        }
+
+        if (mAutoCollectionButton && !mCenterOnAprilTagButton) {
+            mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
+            mArm.setDesiredState(ArmState.COLLECT);
+            collectNote();
+            mAutoAiming = true;
+        }
+    }
+
+    public void centerOnAprilTag() {
+        double x = LimelightHelper.getXOffsetOfApriltag(4);
+        if (x != 0.0) {
+            aimingAngle = mLimelightAimController.calculate(x, 0);
+        } else {
+            odometryAlignment(4);
+        }
+    }
+
+    public void odometryAlignment(int id) {
         Pose2d robotPose = mDriveSystem.getRobotPose();
-        Pose2d targetPose = new Pose2d(16.578467, 5.547593, new Rotation2d()); // coords of apriltag 4
+        Pose2d targetPose = aprilTagCoords.get(id);
 
         Transform2d finishingPose = targetPose.minus(robotPose);
         double angle = Math.atan2(finishingPose.getY(), finishingPose.getX());
@@ -254,18 +299,17 @@ public class ControlSystem {
         return angles[smallestAngleIndex];
     }
 
-    public void collectNote(boolean isHeld) {
-        //don't mention this code, doesnt work yet many bugs
-        if (isHeld) {
-            double x = LimelightHelper.getTX(ConfigMap.NOTE_LIMELIGHT_NAME);
-            if (x != 0.0) {
-                aimingAngle = mLimelightAimController.calculate(x, 0);
-                System.out.println(getDistanceFromNote());
-            }
-        }
+    public void collectNote() {
+        double x = LimelightHelper.getTX(ConfigMap.NOTE_LIMELIGHT_NAME);
+        if (x != 0.0) {
+            aimingAngle = mLimelightAimController.calculate(x, 180);
+            double distance = getDistanceFromNote();
 
-        mAutoAiming = isHeld;
+            Transform2d notePose = new Transform2d(distance * Math.cos(Math.toRadians(aimingAngle)), distance * Math.sin(Math.toRadians(aimingAngle)), new Rotation2d());
+            mDriveSystem.setPosition(EVector.fromPose(mDriveSystem.getRobotPose().plus(notePose)));
+        }
     }
+
     public double getDistanceFromNote() {
         double ta = LimelightHelper.getTA(ConfigMap.NOTE_LIMELIGHT_NAME);
         return 1.278 / Math.pow(ta, 0.4425);
@@ -343,6 +387,7 @@ public class ControlSystem {
                 driverDriving(
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
+                autoAimingInputs();
                 break;
             case AUTONOMOUS:
                 System.out.println(mScollector.getState().toString());
