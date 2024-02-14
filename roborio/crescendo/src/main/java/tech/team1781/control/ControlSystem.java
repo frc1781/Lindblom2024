@@ -104,6 +104,32 @@ public class ControlSystem {
         odometryUpdate(xVelocity, yVelocity);
     }
 
+    public void onButtonRelease() {
+        if (mCollectingButton) {
+            mScollector.setDesiredState(ScollectorState.COLLECT);
+            mArm.setDesiredState(ArmState.COLLECT);
+        }
+        else if (mKeepArmDownButton) {
+            mArm.setDesiredState(ArmState.COLLECT);
+        }
+
+        if (mPrepareToShootButton) {
+            if (mCollectingButton || mKeepArmDownButton) {
+                mScollector.setDesiredState(ScollectorState.COLLECT_RAMP);
+            } else if (!mKeepArmDownButton) {
+                mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
+                mArm.setDesiredState(ArmState.AUTO_ANGLE);
+            }
+        }
+
+        if (mShootButton) {
+            mScollector.setDesiredState(ScollectorState.SHOOT);
+        }
+        else if (mSpitButton) {
+            mScollector.setDesiredState(ScollectorState.SPIT);
+        }
+    }
+
     public void keepArmDown(boolean pushingKeepDown) {
         if (mKeepArmDownButton == pushingKeepDown) {
             return; // already set, do nothing
