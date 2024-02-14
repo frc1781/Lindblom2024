@@ -90,6 +90,7 @@ public class DriveSystem extends Subsystem {
                 goTo(mDesiredPosition);
                 break;
             case DRIVE_TRAJECTORY:
+                System.out.println(mDesiredTrajectory.hashCode() + " :: " + mDesiredTrajectory.getTotalTimeSeconds());
                 followTrajectory();
                 break;
             case DRIVE_MANUAL:

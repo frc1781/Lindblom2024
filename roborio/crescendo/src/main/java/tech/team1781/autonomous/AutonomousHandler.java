@@ -24,7 +24,7 @@ public class AutonomousHandler {
             mAutoChooser.addOption(routine.getName(), routine);
         }
         
-        ConfigMap.SHUFFLEBOARD_TAB.add(mAutoChooser);
+        ConfigMap.AUTONOMOUS_TAB.add(mAutoChooser);
 
         mControlSystem = controlSystem;
     }
