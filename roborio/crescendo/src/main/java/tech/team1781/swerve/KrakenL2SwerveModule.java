@@ -14,6 +14,7 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -23,7 +24,6 @@ import tech.team1781.utils.SwerveModuleConfiguration;
 
 public class KrakenL2SwerveModule extends SwerveModule{ 
     private SwerveModuleState mDesiredState = new SwerveModuleState();
-
     private final TalonFX mDriveMotor;
     private final CANSparkMax mTurnMotor;
     private final SparkPIDController mTurnPID;
@@ -37,8 +37,12 @@ public class KrakenL2SwerveModule extends SwerveModule{
         mTurnMotor = new CANSparkMax(turnMotorID, MotorType.kBrushless);
         
         mTurnMotor.restoreFactoryDefaults();
+        mTurnMotor.setInverted(true);
 
         mTurnPID = mTurnMotor.getPIDController();
+        mTurnPID.setPositionPIDWrappingMaxInput(2 * Math.PI);
+        mTurnPID.setPositionPIDWrappingMinInput(0);
+        mTurnPID.setPositionPIDWrappingEnabled(true);
         mTurnEncoder = mTurnMotor.getEncoder();
         
         mTurnPID.setFeedbackDevice(mTurnEncoder);
@@ -54,8 +58,13 @@ public class KrakenL2SwerveModule extends SwerveModule{
         mTurnPID.setD(moduleConfiguration().turningD);
         mTurnPID.setFF(moduleConfiguration().turningFF);
 
+        mTurnEncoder.setPositionConversionFactor(moduleConfiguration().radiansPerRevolution);
+        mTurnEncoder.setVelocityConversionFactor(moduleConfiguration().radiansPerSecond);
+
+        mTurnPID.setFF(moduleConfiguration().turningFF);
+
         mTurnPID.setOutputRange(moduleConfiguration().minTurningMotorVoltage, moduleConfiguration().maxTurningMotorVoltage);
-        
+        mTurnEncoder.setPosition(getAbsoluteAngle().getRadians());
 
         mTurnMotor.burnFlash();
     }
@@ -82,9 +91,8 @@ public class KrakenL2SwerveModule extends SwerveModule{
     public void setDesiredState(SwerveModuleState desiredState) {
         SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, getAbsoluteAngle());
         
-        VelocityVoltage driveRequest = new VelocityVoltage(desiredState.speedMetersPerSecond);
         mTurnPID.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
-        mDriveMotor.setControl(driveRequest);
+        mDriveMotor.set(desiredState.speedMetersPerSecond/ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
         mDesiredState = desiredState;
 
         syncRelativeToAbsoluteEncoder();
