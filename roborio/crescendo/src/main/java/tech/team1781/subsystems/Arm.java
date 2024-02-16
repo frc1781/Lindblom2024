@@ -89,6 +89,7 @@ public class Arm extends Subsystem {
         if (getState() == ArmState.AUTO_ANGLE) {
             mDesiredPosition = calculateAngleFromDistance();
         }
+
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), mDesiredPosition);
         mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
         mLeftMotor.set(armDutyCycle);

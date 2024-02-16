@@ -54,7 +54,7 @@ public class Scollector extends Subsystem {
         mBottomShooterMotor.setIdleMode(IdleMode.kCoast);
         mTopShooterMotor.setIdleMode(IdleMode.kCoast);
         mTopShooterMotor.setInverted(false);
-        mBottomShooterMotor.setInverted(false);
+        mBottomShooterMotor.setInverted(true);
 
         final double conversionFactor = 0.100203 * 1 / 60;
 
@@ -199,8 +199,10 @@ public class Scollector extends Subsystem {
 
     private void collect() {
         if (!hasNote()) {
+            System.out.println("aaaaaaaaaaa");
             mCollectorMotor.set(-1);
         } else {
+            System.out.println("bbbbbbbbbb");
             mCollectorMotor.set(0);
             mHasShot = false;
         }

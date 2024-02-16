@@ -46,7 +46,7 @@ public class ConfigMap {
 
         public static final double DRIVETRAIN_TRACKWIDTH = Units.inchesToMeters(30);
         public static final double DRIVETRAIN_WHEELBASE = Units.inchesToMeters(25);
-        public static final double MAX_VELOCITY_METERS_PER_SECOND = 4.0;
+        public static final double MAX_VELOCITY_METERS_PER_SECOND = 4.5;
         public static final double MAX_VELOCITY_FOR_UPDATE = 0.01;
         public static final double MAX_VELOCITY_RADIANS_PER_SECOND = (MAX_VELOCITY_METERS_PER_SECOND /
                         (Math.hypot(DRIVETRAIN_TRACKWIDTH / 2, DRIVETRAIN_WHEELBASE / 2)));
@@ -69,10 +69,10 @@ public class ConfigMap {
         // public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.8688;
         // //-0.272; // -0.735;
 
-        public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.772;
-        public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.427;
-        public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.238;
-        public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.419;
+        public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.9733;
+        public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.8144;
+        public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.8142;
+        public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.1159;
 
         // Constants
         public static final double MIN_THRESHOLD_ARM = 0;
