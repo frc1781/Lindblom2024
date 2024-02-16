@@ -121,14 +121,16 @@ public class KrakenL2SwerveModule extends SwerveModule {
     }
 
     public void setDesiredState(SwerveModuleState desiredState) {
-        SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, getAbsoluteAngle());
+        mTurnMotor.set(0.1);
+        mDriveMotor.set(0);
+        // SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, getAbsoluteAngle());
         
-        mTurnPID.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
-        driveVelocity.Velocity = desiredState.speedMetersPerSecond;
-        driveVelocity.FeedForward = driveFF.calculate(desiredState.speedMetersPerSecond);
-        mDriveMotor.setControl(driveVelocity);
-        mDesiredState = desiredState;
-        syncRelativeToAbsoluteEncoder();
+        // mTurnPID.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
+        // driveVelocity.Velocity = desiredState.speedMetersPerSecond;
+        // driveVelocity.FeedForward = driveFF.calculate(desiredState.speedMetersPerSecond);
+        // mDriveMotor.setControl(driveVelocity);
+        // mDesiredState = desiredState;
+        // syncRelativeToAbsoluteEncoder();
     }
 
     private double getDriveMotorSpeed() {
