@@ -7,6 +7,7 @@ import com.pathplanner.lib.path.PathPlannerTrajectory.State;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -51,7 +52,7 @@ public class DriveSystem extends Subsystem {
             ConfigMap.FRONT_RIGHT_MODULE_POSITION, ConfigMap.BACK_LEFT_MODULE_POSITION,
             ConfigMap.BACK_RIGHT_MODULE_POSITION);
 
-    private SwerveDriveOdometry mOdometry;
+    private SwerveDrivePoseEstimator mPoseEstimator;
     private boolean mIsFieldOriented = true;
     private double mNavXOffset = 0;
     private boolean mHasNavXOffsetBeenSet = false;
@@ -74,7 +75,8 @@ public class DriveSystem extends Subsystem {
 
     public DriveSystem() {
         super("Drive System", DriveSystemState.DRIVE_MANUAL);
-        mOdometry = new SwerveDriveOdometry(mKinematics, getRobotAngle(), getModulePositions());
+        // mOdometry = new SwerveDriveOdometry(mKinematics, getRobotAngle(), getModulePositions());
+        mPoseEstimator = new SwerveDrivePoseEstimator(mKinematics, new Rotation2d(), getModulePositions(), getRobotPose());
         mRotController.enableContinuousInput(0, Math.PI * 2);
     }
 
@@ -176,7 +178,8 @@ public class DriveSystem extends Subsystem {
     }
 
     public void setOdometry(Pose2d pose) {
-        mOdometry.resetPosition(getRobotAngle(), getModulePositions(), pose);
+        // mOdometry.resetPosition(getRobotAngle(), getModulePositions(), pose);
+        mPoseEstimator.resetPosition(getRobotAngle(), getModulePositions(), pose);
     }
 
     public void setNavXOffset(Rotation2d offset) {
@@ -306,7 +309,7 @@ public class DriveSystem extends Subsystem {
     }
 
     public Pose2d getRobotPose() {
-        return mOdometry.getPoseMeters();
+        return mPoseEstimator.getEstimatedPosition();
     }
 
     public boolean matchesDesiredPosition() {
@@ -328,7 +331,8 @@ public class DriveSystem extends Subsystem {
     }
 
     private void updateOdometry() {
-        mOdometry.update(getRobotAngle(), getModulePositions());
+        // mOdometry.update(getRobotAngle(), getModulePositions());
+        mPoseEstimator.update(getRobotAngle(), getModulePositions());
     }
 
     public void printModules() {
