@@ -199,10 +199,8 @@ public class Scollector extends Subsystem {
 
     private void collect() {
         if (!hasNote()) {
-            System.out.println("aaaaaaaaaaa");
             mCollectorMotor.set(-1);
         } else {
-            System.out.println("bbbbbbbbbb");
             mCollectorMotor.set(0);
             mHasShot = false;
         }
