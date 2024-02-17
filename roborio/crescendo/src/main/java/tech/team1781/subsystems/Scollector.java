@@ -174,7 +174,7 @@ public class Scollector extends Subsystem {
 
     public boolean hasNote() {
         // return false;
-        System.out.println(mNoteSensor.getRange());
+        System.out.printf("Range: %.2f\n", mNoteSensor.getRange());
         return mNoteSensor.getRange() < 300;
     }
 
