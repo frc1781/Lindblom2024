@@ -365,6 +365,9 @@ public class ControlSystem {
                 driverDriving(
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
+                mClimber.manualClimb(
+                    driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y
+                );
                 break;
             case AUTONOMOUS:
                 System.out.println(mScollector.getState().toString());
