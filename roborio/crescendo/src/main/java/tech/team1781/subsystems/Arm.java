@@ -93,6 +93,7 @@ public class Arm extends Subsystem {
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), mDesiredPosition);
         mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
         mLeftMotor.set(armDutyCycle);
+        System.out.printf("%.2f \n", mLeftEncoder.getPosition() );
         // System.out.printf("%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\n",
         //   (currentTime-startTime)/1000000000.0,
         //   mDesiredPosition,

@@ -21,6 +21,8 @@ public class Climber extends Subsystem {
         super("Climber", ClimberState.IDLE);
         mLeftClimberMotor.setInverted(true);
         mRightClimberMotor.setInverted(false);
+        mLeftClimberMotor.setIdleMode(IdleMode.kBrake);
+        mRightClimberMotor.setIdleMode(IdleMode.kBrake);
     }
 
     public enum ClimberState implements Subsystem.SubsystemState {
@@ -46,12 +48,12 @@ public class Climber extends Subsystem {
                 rightDC = 0;
                 break;
             case EXTEND:
-                leftDC = 0.3;
-                rightDC = 0.3;
+                leftDC = 0.5;
+                rightDC = 0.5;
                 break;
             case RETRACT:
-                leftDC = -0.3;
-                rightDC = -0.3;
+                leftDC = -0.5;
+                rightDC = -0.5;
                 break;
         }
 
