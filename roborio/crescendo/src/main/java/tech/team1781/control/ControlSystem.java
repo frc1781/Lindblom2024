@@ -62,6 +62,8 @@ public class ControlSystem {
     private boolean mPrepareToShootButton = false;
     private boolean mShootButton = false;
     private boolean mSpitButton = false;
+    private boolean mClimberRetractButton = false;
+    private boolean mClimberExtendButton = false;
 
     public enum Action {
         COLLECT,
@@ -203,9 +205,38 @@ public class ControlSystem {
         }
     }
 
+    public void setClimberRetract(boolean pushingRetract) {
+        if (mClimberRetractButton == pushingRetract) {
+            return; // no change in state
+        }
+
+        mClimberRetractButton = pushingRetract;
+        if (mClimberRetractButton) {
+            mClimber.setDesiredState(Climber.ClimberState.RETRACT);
+        } else if(!mClimberExtendButton) {
+            mClimber.setDesiredState(Climber.ClimberState.IDLE);
+        }
+    }
+
+    public void setClimberExtend(boolean pushingExtend) {
+        if (mClimberExtendButton == pushingExtend) {
+            return; // no change in state
+        }
+
+        mClimberExtendButton = pushingExtend;
+        if (mClimberExtendButton) {
+            mClimber.setDesiredState(Climber.ClimberState.EXTEND);
+        } else if(!mClimberRetractButton) {
+            mClimber.setDesiredState(Climber.ClimberState.IDLE);
+        }
+    }
+
+
+
     public void setArmState(ArmState desiredState) {
         mArm.setDesiredState(desiredState);
     }
+
 
     public void zeroNavX() {
         mDriveSystem.zeroNavX();
