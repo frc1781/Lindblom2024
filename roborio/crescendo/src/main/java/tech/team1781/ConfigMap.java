@@ -30,10 +30,13 @@ public class ConfigMap {
         public static final int ARM_PIVOT_RIGHT_MOTOR = 41;
         public static final double ARM_POSITION_TOLERANCE = 2.0;
         public static final double ARM_GEAR_RATIO = (1.0/125.0)*(18.0/56.0);
+
         // 57 Motors
         public static final int COLLECTOR_MOTOR = 57;
         public static final int SHOOTER_TOP_MOTOR = 42;
         public static final int SHOOTER_BOTTOM_MOTOR = 43;
+        public static final int LEFT_CLIMBER_MOTOR = 50;
+        public static final int RIGHT_CLIMBER_MOTOR = 51;
 
         // 60-69 Sensors
         public static final int SCOLLECTOR_TOF = 58;
@@ -100,4 +103,6 @@ public class ConfigMap {
         public static final String SPIT = "LB";
         public static final String SHOOT = "RB";
         public static final String PREPARE_TO_SHOOT = "X";
+        public static final String ANGLE_UP = "E";
+        public static final String ANGLE_DOWN = "W";
 }

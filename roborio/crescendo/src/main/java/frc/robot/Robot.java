@@ -74,13 +74,13 @@ public class Robot extends TimedRobot {
       mControlSystem.setPrepareToShoot(isPressed);
     });
 
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, "E", (isPressed) -> {
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.ANGLE_UP, (isPressed) -> {
       if(isPressed) {
         mControlSystem.manualAdjustAngle(3);
       }
     });
 
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, "W", (isPressed) -> {
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.ANGLE_DOWN, (isPressed) -> {
       if(isPressed) {
         mControlSystem.manualAdjustAngle(-3);
       }
