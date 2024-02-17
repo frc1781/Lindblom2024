@@ -82,6 +82,9 @@ public class AutonomousBuilder {
         for(int i = 1; i < positions.length; i++) {
             Paths.AutonomousPosition current = positions[i];
             PathPlannerPath path = Paths.getPath(previous, current);
+            if(path == null) {
+                continue;
+            }
             PathPlannerTrajectory tempTraj = path.getTrajectory(new ChassisSpeeds(), new Rotation2d());
             AutoStep currentStep = new AutoStep(tempTraj.getTotalTimeSeconds() + 0.5, path);
             autonomousSteps.add(currentStep);
