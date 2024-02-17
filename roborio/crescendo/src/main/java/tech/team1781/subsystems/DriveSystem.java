@@ -7,6 +7,7 @@ import com.pathplanner.lib.path.PathPlannerTrajectory.State;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -17,6 +18,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import tech.team1781.ConfigMap;
@@ -35,22 +37,22 @@ public class DriveSystem extends Subsystem {
     // Swerve Modules
     private final SwerveModule mFrontLeft = new KrakenL2SwerveModule(ConfigMap.FRONT_LEFT_MODULE_DRIVE_MOTOR,
             ConfigMap.FRONT_LEFT_MODULE_STEER_MOTOR, ConfigMap.FRONT_LEFT_MODULE_STEER_ENCODER,
-            ConfigMap.FRONT_LEFT_MODULE_STEER_OFFSET);
+            Preferences.getDouble("frontLeftOffset", ConfigMap.FRONT_LEFT_MODULE_STEER_OFFSET));
     private final SwerveModule mFrontRight = new KrakenL2SwerveModule(ConfigMap.FRONT_RIGHT_MODULE_DRIVE_MOTOR,
             ConfigMap.FRONT_RIGHT_MODULE_STEER_MOTOR, ConfigMap.FRONT_RIGHT_MODULE_STEER_ENCODER,
-            ConfigMap.FRONT_RIGHT_MODULE_STEER_OFFSET);
+            Preferences.getDouble("frontRightOffset", ConfigMap.FRONT_RIGHT_MODULE_STEER_OFFSET));
     private final SwerveModule mBackLeft = new KrakenL2SwerveModule(ConfigMap.BACK_LEFT_MODULE_DRIVE_MOTOR,
             ConfigMap.BACK_LEFT_MODULE_STEER_MOTOR, ConfigMap.BACK_LEFT_MODULE_STEER_ENCODER,
-            ConfigMap.BACK_LEFT_MODULE_STEER_OFFSET);
+            Preferences.getDouble("backLeftOffset", ConfigMap.BACK_LEFT_MODULE_STEER_OFFSET));
     private final SwerveModule mBackRight = new KrakenL2SwerveModule(ConfigMap.BACK_RIGHT_MODULE_DRIVE_MOTOR,
             ConfigMap.BACK_RIGHT_MODULE_STEER_MOTOR, ConfigMap.BACK_RIGHT_MODULE_STEER_ENCODER,
-            ConfigMap.BACK_RIGHT_MODULE_STEER_OFFSET);
+            Preferences.getDouble("backRightOffset", ConfigMap.BACK_RIGHT_MODULE_STEER_OFFSET));
 
     // Odometry & Kinematics
     private SwerveDriveKinematics mKinematics = new SwerveDriveKinematics(ConfigMap.FRONT_LEFT_MODULE_POSITION,
             ConfigMap.FRONT_RIGHT_MODULE_POSITION, ConfigMap.BACK_LEFT_MODULE_POSITION,
             ConfigMap.BACK_RIGHT_MODULE_POSITION);
-
+    
     private SwerveDriveOdometry mOdometry;
     private boolean mIsFieldOriented = true;
     private double mNavXOffset = 0;

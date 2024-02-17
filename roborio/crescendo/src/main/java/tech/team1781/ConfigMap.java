@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 public class ConfigMap {
         public static final ShuffleboardTab SHUFFLEBOARD_TAB = Shuffleboard.getTab("Electric Eagles");
-
+        public static final ShuffleboardTab CONFIG_TAB = Shuffleboard.getTab("Config");
 
         // CAN IDs
 
