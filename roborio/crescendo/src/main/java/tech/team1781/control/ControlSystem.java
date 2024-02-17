@@ -213,7 +213,20 @@ public class ControlSystem {
         mClimberRetractButton = pushingRetract;
         if (mClimberRetractButton) {
             mClimber.setDesiredState(Climber.ClimberState.RETRACT);
-        } else {
+        } else if(!mClimberExtendButton) {
+            mClimber.setDesiredState(Climber.ClimberState.IDLE);
+        }
+    }
+
+    public void setClimberExtend(boolean pushingExtend) {
+        if (mClimberExtendButton == pushingExtend) {
+            return; // no change in state
+        }
+
+        mClimberExtendButton = pushingExtend;
+        if (mClimberExtendButton) {
+            mClimber.setDesiredState(Climber.ClimberState.EXTEND);
+        } else if(!mClimberRetractButton) {
             mClimber.setDesiredState(Climber.ClimberState.IDLE);
         }
     }
