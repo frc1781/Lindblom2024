@@ -47,7 +47,7 @@ public class KrakenL2SwerveModule extends SwerveModule {
         mDriveMotor = new TalonFX(driveMotorID);
         TalonFXConfiguration driveConfig = new TalonFXConfiguration();
         
-        driveConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        driveConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         // Gear Ratio Config: using metersPerRevolution but not sure if that is correct here, should be 
         //gear ratio
@@ -64,6 +64,7 @@ public class KrakenL2SwerveModule extends SwerveModule {
         driveConfig.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.25;
         driveConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = 0;
         driveConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0; 
+        
         mDriveMotor.getConfigurator().apply(driveConfig);
 
         mTurnMotor = new CANSparkMax(turnMotorID, MotorType.kBrushless);
@@ -76,6 +77,7 @@ public class KrakenL2SwerveModule extends SwerveModule {
         mTurnPID.setPositionPIDWrappingMinInput(0);
         mTurnPID.setPositionPIDWrappingEnabled(true);
         mTurnEncoder = mTurnMotor.getEncoder();
+
         
         mTurnPID.setFeedbackDevice(mTurnEncoder);
 
@@ -124,9 +126,9 @@ public class KrakenL2SwerveModule extends SwerveModule {
         SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, getAbsoluteAngle());
         
         mTurnPID.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
-        driveVelocity.Velocity = desiredState.speedMetersPerSecond;
-        driveVelocity.FeedForward = driveFF.calculate(desiredState.speedMetersPerSecond);
-        mDriveMotor.set(desiredState.speedMetersPerSecond / ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
+        // driveVelocity.Velocity = desiredState.speedMetersPerSecond;
+        // driveVelocity.FeedForward = driveFF.calculate(desiredState.speedMetersPerSecond);
+        mDriveMotor.set(optimizedState.speedMetersPerSecond / ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
         
         mDesiredState = desiredState;
         syncRelativeToAbsoluteEncoder();

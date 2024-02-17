@@ -18,6 +18,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import tech.team1781.ConfigMap;
@@ -76,8 +77,9 @@ public class DriveSystem extends Subsystem {
     public DriveSystem() {
         super("Drive System", DriveSystemState.DRIVE_MANUAL);
         // mOdometry = new SwerveDriveOdometry(mKinematics, getRobotAngle(), getModulePositions());
-        mPoseEstimator = new SwerveDrivePoseEstimator(mKinematics, new Rotation2d(), getModulePositions(), getRobotPose());
+        mPoseEstimator = new SwerveDrivePoseEstimator(mKinematics, new Rotation2d(), getModulePositions(), new Pose2d());
         mRotController.enableContinuousInput(0, Math.PI * 2);
+        mNavX.resetDisplacement();
     }
 
     public enum DriveSystemState implements Subsystem.SubsystemState {
@@ -154,6 +156,7 @@ public class DriveSystem extends Subsystem {
                 break;
             case TELEOP:
                 setOdometry(new Pose2d(1.26, 5.53, new Rotation2d()));
+                mIsFieldOriented = false;
                 mIsManual = true;
                 break;
             case DISABLED:
@@ -301,7 +304,7 @@ public class DriveSystem extends Subsystem {
         double reportedVal = mNavX.getRotation2d().getRadians() + mNavXOffset;
 
         reportedVal %= 2 * Math.PI;
-        if (reportedVal < 0) {
+        if (reportedVal > 0) {
             reportedVal += 2 * Math.PI;
         }
 

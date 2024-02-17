@@ -55,10 +55,10 @@ public class Climber extends Subsystem {
                 break;
         }
 
-        System.out.printf("left dc: %.2f right dc: %.2f\n",
-            leftDC,
-            rightDC
-        );       
+        // System.out.printf("left dc: %.2f right dc: %.2f\n",
+        //     leftDC,
+        //     rightDC
+        // );       
         mLeftClimberMotor.set(leftDC);
         mRightClimberMotor.set(rightDC);     
     }

@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 public class ConfigMap {
         public static final ShuffleboardTab SHUFFLEBOARD_TAB = Shuffleboard.getTab("Electric Eagles");
-
+        public static final ShuffleboardTab CONFIG_TAB = Shuffleboard.getTab("Config");
 
         // CAN IDs
 
@@ -72,10 +72,10 @@ public class ConfigMap {
         // public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.8688;
         // //-0.272; // -0.735;
 
-        public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.9733;
-        public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.8144;
-        public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.8142;
-        public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.1159;
+        public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.9755;
+        public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.8167;
+        public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.670;
+        public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.116;
 
         // Constants
         public static final double MIN_THRESHOLD_ARM = 0;
