@@ -131,7 +131,7 @@ public class Scollector extends Subsystem {
             case COLLECT_AUTO_SHOOT:
                 if (!hasNote()) {
                     collect();
-                } else if (mArmInPosition && isUpToSpeed()) {
+                } else if (mArmInPosition) {
                     shoot();
                 } else {
                     mCollectorMotor.set(0);
