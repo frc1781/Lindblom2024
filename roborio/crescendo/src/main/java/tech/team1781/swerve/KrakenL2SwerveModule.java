@@ -135,15 +135,15 @@ public class KrakenL2SwerveModule extends SwerveModule {
     }
 
     public void printDriveMotor() {
-        System.out.println("Pos Conv:" + moduleConfiguration().metersPerRevolution + " Velocity Conv: " + moduleConfiguration().velocityConversion + " Velocity: " + mDriveMotor.getVelocity().getValueAsDouble() * moduleConfiguration().velocityConversion);
+        System.out.println("Velocity: " + mDriveMotor.getVelocity().getValueAsDouble());
     }
 
     private double getDriveMotorSpeed() {
-        return mDriveMotor.getVelocity().getValueAsDouble() * moduleConfiguration().metersPerRevolution;
+        return mDriveMotor.getVelocity().getValueAsDouble();
     }
 
     private double getDriveMotorPosition() {
-        return mDriveMotor.getPosition().getValueAsDouble() * moduleConfiguration().metersPerRevolution;
+        return mDriveMotor.getPosition().getValueAsDouble();
     }
 
     void syncRelativeToAbsoluteEncoder() {
@@ -161,7 +161,7 @@ public class KrakenL2SwerveModule extends SwerveModule {
     static SwerveModuleConfiguration moduleConfiguration() {
         SwerveModuleConfiguration ret_val = new SwerveModuleConfiguration();
 
-        ret_val.metersPerRevolution = 0.10033 * Math.PI * (1/6.75);
+        ret_val.metersPerRevolution = 0.10033 * Math.PI * (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0);
         ret_val.radiansPerRevolution = 2 * Math.PI * (14.0 / 50.0) * (10.0 / 60.0);
         ret_val.velocityConversion = ret_val.metersPerRevolution / 60.0;
         ret_val.radiansPerSecond = ret_val.radiansPerRevolution / 60.0;
