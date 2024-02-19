@@ -34,7 +34,7 @@ public class DriverInput {
     }
 
     public EVector getControllerJoyAxis(ControllerSide side, int controllerIndex) {
-        var selectedController = (XboxController) mControllers[0];
+        var selectedController = (XboxController) mControllers[controllerIndex];
         EVector ret_val = new EVector();
         if (side == ControllerSide.LEFT) {
             ret_val.x = selectedController.getLeftX();

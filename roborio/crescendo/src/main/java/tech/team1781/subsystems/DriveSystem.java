@@ -156,7 +156,7 @@ public class DriveSystem extends Subsystem {
                 break;
             case TELEOP:
                 setOdometry(new Pose2d(1.26, 5.53, new Rotation2d()));
-                mIsFieldOriented = false;
+                mIsFieldOriented = true;
                 mIsManual = true;
                 break;
             case DISABLED:
@@ -301,7 +301,7 @@ public class DriveSystem extends Subsystem {
     }
 
     public Rotation2d getRobotAngle() {
-        double reportedVal = mNavX.getRotation2d().getRadians() + mNavXOffset;
+        double reportedVal = -mNavX.getRotation2d().getRadians() + mNavXOffset;
 
         reportedVal %= 2 * Math.PI;
         if (reportedVal > 0) {
