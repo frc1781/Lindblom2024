@@ -76,8 +76,10 @@ public class DriveSystem extends Subsystem {
 
     public DriveSystem() {
         super("Drive System", DriveSystemState.DRIVE_MANUAL);
-        // mOdometry = new SwerveDriveOdometry(mKinematics, getRobotAngle(), getModulePositions());
-        mPoseEstimator = new SwerveDrivePoseEstimator(mKinematics, new Rotation2d(), getModulePositions(), new Pose2d());
+        // mOdometry = new SwerveDriveOdometry(mKinematics, getRobotAngle(),
+        // getModulePositions());
+        mPoseEstimator = new SwerveDrivePoseEstimator(mKinematics, new Rotation2d(), getModulePositions(),
+                new Pose2d());
         mRotController.enableContinuousInput(0, Math.PI * 2);
         mNavX.resetDisplacement();
     }
@@ -85,7 +87,8 @@ public class DriveSystem extends Subsystem {
     public enum DriveSystemState implements Subsystem.SubsystemState {
         DRIVE_SETPOINT,
         DRIVE_TRAJECTORY,
-        DRIVE_MANUAL
+        DRIVE_MANUAL,
+        SYSID
     }
 
     @Override
@@ -102,6 +105,11 @@ public class DriveSystem extends Subsystem {
                     driveRaw(0, 0, 0);
                 }
                 break;
+            case SYSID:
+                driveRaw(ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, 0, 0);
+                ChassisSpeeds currentSpeeds = getChassisSpeeds();
+                System.out.println("Speeds X: " + currentSpeeds.vxMetersPerSecond + " Y: " + currentSpeeds.vyMetersPerSecond + " Rot: " + currentSpeeds.omegaRadiansPerSecond);
+            break;
             default:
                 break;
         }
@@ -121,7 +129,7 @@ public class DriveSystem extends Subsystem {
                 return false;
             // return mIsManual;
             default:
-                return true;
+                return false;
         }
     }
 
@@ -136,6 +144,7 @@ public class DriveSystem extends Subsystem {
     @Override
     public void genericPeriodic() {
         updateOdometry();
+        ((KrakenL2SwerveModule) mFrontLeft).printDriveMotor();
     }
 
     @Override
@@ -315,6 +324,10 @@ public class DriveSystem extends Subsystem {
         return mPoseEstimator.getEstimatedPosition();
     }
 
+    public ChassisSpeeds getChassisSpeeds() {
+        return mKinematics.toChassisSpeeds(getModuleStates());
+    }
+
     public boolean matchesDesiredPosition() {
         if (mIsManual) {
             return true;
@@ -351,6 +364,15 @@ public class DriveSystem extends Subsystem {
                 mFrontRight.getModulePosition(),
                 mBackLeft.getModulePosition(),
                 mBackRight.getModulePosition()
+        };
+    }
+
+    private SwerveModuleState[] getModuleStates() {
+        return new SwerveModuleState[] {
+                mFrontLeft.getCurrentState(),
+                mFrontRight.getCurrentState(),
+                mBackLeft.getCurrentState(),
+                mFrontLeft.getCurrentState()
         };
     }
 

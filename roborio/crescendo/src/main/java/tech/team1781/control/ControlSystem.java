@@ -69,7 +69,8 @@ public class ControlSystem {
         COLLECT,
         SHOOT,
         COLLECT_RAMP,
-        COLLECT_AUTO_SHOOT
+        COLLECT_AUTO_SHOOT,
+        SYSID
     }
 
     public ControlSystem() {
@@ -305,7 +306,7 @@ public class ControlSystem {
         } else if (path != null) {
             mDriveSystem.setTrajectoryFromPath(path);
             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_TRAJECTORY);
-        } else {
+        } else if(desiredAction != Action.SYSID){
             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
         }
 
@@ -370,7 +371,7 @@ public class ControlSystem {
                 );
                 break;
             case AUTONOMOUS:
-                System.out.println(mScollector.getState().toString());
+                // System.out.println(mScollector.getState().toString());
                 if (mScollector.getState() == ScollectorState.COLLECT
                         || mScollector.getState() == ScollectorState.COLLECT_RAMP
                         || mScollector.getState() == ScollectorState.COLLECT_AUTO_SHOOT) {
@@ -416,6 +417,12 @@ public class ControlSystem {
     }
 
     private void initActions() {
+        defineAction(Action.SYSID, 
+            new SubsystemSetting(mDriveSystem, DriveSystemState.SYSID),
+            new SubsystemSetting(mArm, ArmState.COLLECT),
+            new SubsystemSetting(mScollector, ScollectorState.IDLE)
+        );
+
         defineAction(Action.COLLECT,
                 new SubsystemSetting(mScollector, ScollectorState.COLLECT),
                 new SubsystemSetting(mArm, ArmState.COLLECT));
