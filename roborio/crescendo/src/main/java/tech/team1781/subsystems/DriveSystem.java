@@ -106,9 +106,9 @@ public class DriveSystem extends Subsystem {
                 }
                 break;
             case SYSID:
-                driveRaw(ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, 0, 0);
+                driveRaw(1, 0, 0);
                 ChassisSpeeds currentSpeeds = getChassisSpeeds();
-                System.out.println("Speeds X: " + currentSpeeds.vxMetersPerSecond + " Y: " + currentSpeeds.vyMetersPerSecond + " Rot: " + currentSpeeds.omegaRadiansPerSecond);
+                System.out.print(super.currentTime + "," + currentSpeeds.vxMetersPerSecond + "," + currentSpeeds.vyMetersPerSecond + "," + currentSpeeds.omegaRadiansPerSecond);
             break;
             default:
                 break;

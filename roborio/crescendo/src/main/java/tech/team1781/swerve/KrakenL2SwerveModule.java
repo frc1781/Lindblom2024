@@ -31,7 +31,7 @@ public class KrakenL2SwerveModule extends SwerveModule {
     private final TalonFX mDriveMotor;
     private final CANSparkMax mTurnMotor;
     private final SparkPIDController mTurnPID;
-    private final VelocityVoltage driveVelocity = new VelocityVoltage(0);
+    private final VelocityVoltage mDriveVelocity = new VelocityVoltage(0);
     private final SimpleMotorFeedforward driveFF = new SimpleMotorFeedforward (
         moduleConfiguration().drivingKS,
         moduleConfiguration().drivingKV,
@@ -126,16 +126,16 @@ public class KrakenL2SwerveModule extends SwerveModule {
         SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, getAbsoluteAngle());
         
         mTurnPID.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
-        // driveVelocity.Velocity = desiredState.speedMetersPerSecond;
-        // driveVelocity.FeedForward = driveFF.calculate(desiredState.speedMetersPerSecond);
+        // mDriveVelocity.Velocity = desiredState.speedMetersPerSecond;
+        // mDriveVelocity.FeedForward = driveFF.calculate(desiredState.speedMetersPerSecond);
         mDriveMotor.set(optimizedState.speedMetersPerSecond / ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
         
-        mDesiredState = desiredState;
+        mDesiredState = optimizedState;
         syncRelativeToAbsoluteEncoder();
     }
 
     public void printDriveMotor() {
-        System.out.println("Velocity: " + mDriveMotor.getVelocity().getValueAsDouble());
+        // System.out.print("," + mDesiredState.speedMetersPerSecond / ConfigMap.MAX_VELOCITY_METERS_PER_SECOND + "\n");
     }
 
     private double getDriveMotorSpeed() {
@@ -161,7 +161,7 @@ public class KrakenL2SwerveModule extends SwerveModule {
     static SwerveModuleConfiguration moduleConfiguration() {
         SwerveModuleConfiguration ret_val = new SwerveModuleConfiguration();
 
-        ret_val.metersPerRevolution = 0.10033 * Math.PI * (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0);
+        ret_val.metersPerRevolution =1 / (0.10033 * Math.PI * (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0));
         ret_val.radiansPerRevolution = 2 * Math.PI * (14.0 / 50.0) * (10.0 / 60.0);
         ret_val.velocityConversion = ret_val.metersPerRevolution / 60.0;
         ret_val.radiansPerSecond = ret_val.radiansPerRevolution / 60.0;
@@ -173,7 +173,7 @@ public class KrakenL2SwerveModule extends SwerveModule {
         ret_val.drivingFF = 1.0 / (ConfigMap.MAX_VELOCITY_METERS_PER_SECOND + 0.08);
         ret_val.drivingKS = 0.02;
         ret_val.drivingKV = 1.0 / (ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND + 0.08) - ret_val.drivingKS;
-        ret_val.drivingKA = 0.27; 
+        ret_val.drivingKA = 5.4; 
 
         ret_val.turningP = 1;
         ret_val.turningI = 0.0;

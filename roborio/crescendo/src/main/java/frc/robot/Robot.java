@@ -46,8 +46,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     mControlSystem = new ControlSystem();
     mAutonomousHandler = new AutonomousHandler(mControlSystem, 
-      new FourNoteRoutine(),
-      new SYSIDRoutine());
+      new FourNoteRoutine());
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
 
