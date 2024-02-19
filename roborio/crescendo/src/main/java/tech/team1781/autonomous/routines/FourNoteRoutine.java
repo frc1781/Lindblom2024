@@ -22,6 +22,7 @@ public class FourNoteRoutine implements AutoRoutine {
 
     @Override
     public AutoStep[] getSteps() {
+        
         return new AutoStep[] {
                 // new AutoStep(2, ControlSystem.Action.AUTO_AIM_SHOOT),
                 // new AutoStep(2, ControlSystem.Action.COLLECT, Paths.p2r3Path),
