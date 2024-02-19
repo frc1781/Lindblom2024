@@ -76,8 +76,10 @@ public class DriveSystem extends Subsystem {
 
     public DriveSystem() {
         super("Drive System", DriveSystemState.DRIVE_MANUAL);
-        // mOdometry = new SwerveDriveOdometry(mKinematics, getRobotAngle(), getModulePositions());
-        mPoseEstimator = new SwerveDrivePoseEstimator(mKinematics, new Rotation2d(), getModulePositions(), new Pose2d());
+        // mOdometry = new SwerveDriveOdometry(mKinematics, getRobotAngle(),
+        // getModulePositions());
+        mPoseEstimator = new SwerveDrivePoseEstimator(mKinematics, new Rotation2d(), getModulePositions(),
+                new Pose2d());
         mRotController.enableContinuousInput(0, Math.PI * 2);
         mNavX.resetDisplacement();
     }
@@ -85,7 +87,8 @@ public class DriveSystem extends Subsystem {
     public enum DriveSystemState implements Subsystem.SubsystemState {
         DRIVE_SETPOINT,
         DRIVE_TRAJECTORY,
-        DRIVE_MANUAL
+        DRIVE_MANUAL,
+        SYSID
     }
 
     @Override
@@ -102,6 +105,11 @@ public class DriveSystem extends Subsystem {
                     driveRaw(0, 0, 0);
                 }
                 break;
+            case SYSID:
+                driveRaw(1, 0, 0);
+                ChassisSpeeds currentSpeeds = getChassisSpeeds();
+                System.out.print(super.currentTime + "," + currentSpeeds.vxMetersPerSecond + "," + currentSpeeds.vyMetersPerSecond + "," + currentSpeeds.omegaRadiansPerSecond);
+            break;
             default:
                 break;
         }
@@ -121,7 +129,7 @@ public class DriveSystem extends Subsystem {
                 return false;
             // return mIsManual;
             default:
-                return true;
+                return false;
         }
     }
 
@@ -136,6 +144,7 @@ public class DriveSystem extends Subsystem {
     @Override
     public void genericPeriodic() {
         updateOdometry();
+        ((KrakenL2SwerveModule) mFrontLeft).printDriveMotor();
     }
 
     @Override
@@ -156,7 +165,7 @@ public class DriveSystem extends Subsystem {
                 break;
             case TELEOP:
                 setOdometry(new Pose2d(1.26, 5.53, new Rotation2d()));
-                mIsFieldOriented = false;
+                mIsFieldOriented = true;
                 mIsManual = true;
                 break;
             case DISABLED:
@@ -301,7 +310,7 @@ public class DriveSystem extends Subsystem {
     }
 
     public Rotation2d getRobotAngle() {
-        double reportedVal = mNavX.getRotation2d().getRadians() + mNavXOffset;
+        double reportedVal = -mNavX.getRotation2d().getRadians() + mNavXOffset;
 
         reportedVal %= 2 * Math.PI;
         if (reportedVal > 0) {
@@ -313,6 +322,10 @@ public class DriveSystem extends Subsystem {
 
     public Pose2d getRobotPose() {
         return mPoseEstimator.getEstimatedPosition();
+    }
+
+    public ChassisSpeeds getChassisSpeeds() {
+        return mKinematics.toChassisSpeeds(getModuleStates());
     }
 
     public boolean matchesDesiredPosition() {
@@ -351,6 +364,15 @@ public class DriveSystem extends Subsystem {
                 mFrontRight.getModulePosition(),
                 mBackLeft.getModulePosition(),
                 mBackRight.getModulePosition()
+        };
+    }
+
+    private SwerveModuleState[] getModuleStates() {
+        return new SwerveModuleState[] {
+                mFrontLeft.getCurrentState(),
+                mFrontRight.getCurrentState(),
+                mBackLeft.getCurrentState(),
+                mFrontLeft.getCurrentState()
         };
     }
 

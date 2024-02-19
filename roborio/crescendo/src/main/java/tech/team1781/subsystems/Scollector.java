@@ -45,6 +45,8 @@ public class Scollector extends Subsystem {
     private boolean mHasShot = false;
     private Timer mShooterTimer = new Timer();
 
+    private final double SHOOTER_SPEED = 8;
+
     private GenericEntry mTopShooterVelocity = ConfigMap.SHUFFLEBOARD_TAB.add("Top Velocity", 0).getEntry();
     private GenericEntry mBottomShooterVelocity = ConfigMap.SHUFFLEBOARD_TAB.add("Bottom Velocity", 0).getEntry();
 
@@ -129,7 +131,7 @@ public class Scollector extends Subsystem {
             case COLLECT_AUTO_SHOOT:
                 if (!hasNote()) {
                     collect();
-                } else if (mArmInPosition) {
+                } else if (mArmInPosition && isUpToSpeed()) {
                     shoot();
                 } else {
                     mCollectorMotor.set(0);
@@ -173,9 +175,7 @@ public class Scollector extends Subsystem {
     }
 
     public boolean hasNote() {
-        // return false;
-        System.out.printf("Range: %.2f\n", mNoteSensor.getRange());
-        return false;
+        return mNoteSensor.getRange() <= 200;
     }
 
     public boolean shooterAtSpeed() {
@@ -191,9 +191,7 @@ public class Scollector extends Subsystem {
     }
 
     private void driveMotors() {
-        // mTopShooterMotor.set(1);
-        // mBottomShooterMotor.set(1);
-        double setpoint = 8;
+        double setpoint = SHOOTER_SPEED;
         mTopPID.setReference(setpoint, ControlType.kVelocity);
         mBottomPID.setReference(setpoint, ControlType.kVelocity);
     }
@@ -208,31 +206,14 @@ public class Scollector extends Subsystem {
     }
 
     private void shoot() {
-        // final double desiredSpeed = 9;
-
-        //mTopPID.setReference(desiredSpeed, ControlType.kVelocity);
-        //mBottomPID.setReference(desiredSpeed, ControlType.kVelocity);
-
         driveMotors();
-        // if (shooterAtSpeed()) {
-        //     mShooterTimer.start();
-        // }
+        mCollectorMotor.set(-1);
 
-        // if (!mArmInPosition)
-        //     return;
-
-        // if (mShooterTimer.get() >= 0.1 && mShooterTimer.get() <= 1.5) {
-            mCollectorMotor.set(-1);
-    //         if (!hasNote()) {
-    //             mHasShot = false;
-    //         }
-    //     } else if (mShooterTimer.get() > 1.5) {
-    //         mShooterTimer.stop();
-    //         mShooterTimer.reset();
-    //         mCollectorMotor.set(0);
-    //     } else {
-    //     }
-    // }
     }
 
+    private boolean isUpToSpeed() {
+        double diff = Math.abs(SHOOTER_SPEED - mTopShooterMotor.get());
+        double tolerance = 0.1;
+        return diff <= tolerance;
+    }
 }
