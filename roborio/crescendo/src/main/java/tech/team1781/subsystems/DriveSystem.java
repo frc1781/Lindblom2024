@@ -18,9 +18,13 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import tech.team1781.ConfigMap;
 import tech.team1781.swerve.KrakenL2SwerveModule;
 import tech.team1781.swerve.NEOL1SwerveModule;
@@ -74,6 +78,8 @@ public class DriveSystem extends Subsystem {
     private HolonomicDriveController mTrajectoryController = new HolonomicDriveController(mXController, mYController,
             mRotController);
 
+    private Field2d mField = new Field2d();
+
     public DriveSystem() {
         super("Drive System", DriveSystemState.DRIVE_MANUAL);
         // mOdometry = new SwerveDriveOdometry(mKinematics, getRobotAngle(),
@@ -82,6 +88,8 @@ public class DriveSystem extends Subsystem {
                 new Pose2d());
         mRotController.enableContinuousInput(0, Math.PI * 2);
         mNavX.resetDisplacement();
+
+        ConfigMap.SHUFFLEBOARD_TAB.add(mField);
     }
 
     public enum DriveSystemState implements Subsystem.SubsystemState {
@@ -144,7 +152,8 @@ public class DriveSystem extends Subsystem {
     @Override
     public void genericPeriodic() {
         updateOdometry();
-        ((KrakenL2SwerveModule) mFrontLeft).printDriveMotor();
+
+        mField.setRobotPose(getRobotPose());
     }
 
     @Override
@@ -157,6 +166,8 @@ public class DriveSystem extends Subsystem {
         mNavX.reset();
         mNavX.zeroYaw();
 
+        double startingAngle = DriverStation.getAlliance().get() == Alliance.Red ? Math.PI : 0;
+
         switch (currentMode) {
             case AUTONOMOUS:
                 mIsFieldOriented = true;
@@ -164,7 +175,9 @@ public class DriveSystem extends Subsystem {
                 mOdometryBeenSet = false;
                 break;
             case TELEOP:
-                setOdometry(new Pose2d(1.26, 5.53, new Rotation2d()));
+                // setOdometry(new Pose2d(1.26, 5.53, new Rotation2d()));
+                mHasNavXOffsetBeenSet = false;
+                setNavXOffset(new Rotation2d(startingAngle));
                 mIsFieldOriented = true;
                 mIsManual = true;
                 break;
@@ -182,11 +195,24 @@ public class DriveSystem extends Subsystem {
             Pose2d robotPose = getRobotPose();
             super.mNetworkLogger.log("X", robotPose.getX());
             super.mNetworkLogger.log("Y", robotPose.getY());
-            super.mNetworkLogger.log("Rot", getRobotAngle().getDegrees());
+            super.mNetworkLogger.log("Rot", getRobotAngle().getRadians());
         };
 
         ScheduledExecutorService loggingExecutor = Executors.newScheduledThreadPool(1);
         loggingExecutor.scheduleAtFixedRate(OdometryLogging, 0, 1, TimeUnit.SECONDS);
+    }
+
+    public void updateVisionLocalization(Pose2d visionEstimate) {
+        var visionEstimateVector = EVector.fromPose2d(visionEstimate);
+        var currentPose = EVector.fromPose2d(getRobotPose());
+
+        visionEstimateVector.z = currentPose.z;
+
+        if(Math.abs(currentPose.dist(visionEstimateVector)) >= 1) {
+            return;
+        }
+
+        mPoseEstimator.addVisionMeasurement(visionEstimateVector.toPose2d(), Timer.getFPGATimestamp());
     }
 
     public void setOdometry(Pose2d pose) {
@@ -255,7 +281,7 @@ public class DriveSystem extends Subsystem {
         mDesiredTrajectory = trajectory;
 
         if (!mOdometryBeenSet) {
-            setNavXOffset(new Rotation2d(45.0 / 180.0 * Math.PI));
+            setNavXOffset(new Rotation2d((45.0 / 180.0 * Math.PI)));
             setOdometry(initialPose);
             mOdometryBeenSet = true;
         }
