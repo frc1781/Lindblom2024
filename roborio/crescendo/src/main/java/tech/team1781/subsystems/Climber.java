@@ -77,7 +77,7 @@ public class Climber extends Subsystem {
     }
 
     public void manualClimb(double dutyCycle) {
-        if(dutyCycle <= 0.1) {
+        if(Math.abs(dutyCycle) <= 0.1) {
             dutyCycle = 0;
         }
 
