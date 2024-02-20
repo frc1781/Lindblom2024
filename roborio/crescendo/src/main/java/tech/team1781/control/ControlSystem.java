@@ -108,8 +108,7 @@ public class ControlSystem {
         mDriveSystem.driveRaw(
                 mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
                 mYDriveLimiter.calculate(yVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
-                mAutoAiming ? mAimingAngle
-                        : (mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND));
+                mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND);
 
         odometryUpdate(xVelocity, yVelocity);
     }
@@ -186,11 +185,7 @@ public class ControlSystem {
     }
 
     public void seekSpeaker(boolean isHeld) {
-        if(isHeld)
-            mAimingAngle = mDriveSystem.getSpeakerAngle();
-
-        
-        mAutoAiming = isHeld;
+        mDriveSystem.aim(isHeld);
     }
 
     public void manualAdjustAngle(double diff) {

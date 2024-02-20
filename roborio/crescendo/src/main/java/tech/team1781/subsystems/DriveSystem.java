@@ -69,6 +69,8 @@ public class DriveSystem extends Subsystem {
     private PathPlannerTrajectory mDesiredTrajectory = null;
     private EVector mDesiredPosition = null;
     private boolean mIsManual = true;
+    private double mDesiredAngle = 0.0;
+    private boolean mIsAiming = false;
 
     private PIDController mXController = new PIDController(1, 0, 0);
     private PIDController mYController = new PIDController(1, 0, 0);
@@ -220,6 +222,11 @@ public class DriveSystem extends Subsystem {
         return angleError;
     }
 
+    public void aim(boolean isAiming) {
+        mDesiredAngle = getSpeakerAngle() + getRobotAngle().getRadians();
+        mIsAiming = isAiming;
+    }
+
     public void updateVisionLocalization(Pose2d visionEstimate) {
         var visionEstimateVector = EVector.fromPose2d(visionEstimate);
         var currentPose = EVector.fromPose2d(getRobotPose());
@@ -340,6 +347,13 @@ public class DriveSystem extends Subsystem {
     }
 
     public void driveRaw(double xSpeed, double ySpeed, double rot) {
+
+        double angleDiff = mDesiredAngle - getRobotAngle().getRadians();
+        rot = mIsAiming ? angleDiff : rot;
+
+        if(mIsAiming) {
+            System.out.println(angleDiff + " mDesiredAngle: " + angleDiff + " current: " + getRobotAngle().getRadians());
+        }
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(
                 mIsFieldOriented
                         ? ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(xSpeed, ySpeed, rot), getRobotAngle())
