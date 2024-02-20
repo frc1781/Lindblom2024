@@ -251,6 +251,7 @@ public class DriveSystem extends Subsystem {
         // pathplannerState.accelerationMpsSq,
         // pathplannerState.getTargetHolonomicPose(),
         // pathplannerState.curvatureRadPerMeter);
+        // System.out.println(pathplannerState.velocityMps);
         ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(
                 getRobotPose(),
                 new Pose2d(pathplannerState.positionMeters, pathplannerState.heading),
