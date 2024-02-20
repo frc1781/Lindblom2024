@@ -69,6 +69,7 @@ public class ControlSystem {
     private boolean mClimberExtendButton = false;
     private boolean mCenterOnAprilTagButton = false;
     private boolean mAutoCollectionButton = false;
+    private boolean mSeekSpeakerButton = false;
 
     private HashMap<Number, Pose2d> aprilTagCoords = new HashMap<>();
     private NetworkTable mLimelightTable = NetworkTableInstance.getDefault().getTable(ConfigMap.BACK_LIMELIGHT_NAME);
@@ -130,10 +131,9 @@ public class ControlSystem {
         mDriveSystem.driveRaw(
                 mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
                 mYDriveLimiter.calculate(yVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
-                mAutoAiming ? aimingAngle
+                mAutoAiming ? mAimingAngle
                         : (mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND));
 
-        odometryUpdate(xVelocity, yVelocity);
     }
 
     public void keepArmDown(boolean pushingKeepDown) {
@@ -208,9 +208,15 @@ public class ControlSystem {
         }
     }
 
-    public void seekSpeaker(boolean isHeld) {
-        mDriveSystem.aim(isHeld);
+    public void seekSpeaker() {
+        boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
+        if (isRed) {
+            odometryAlignment(4);
+        } else {
+            odometryAlignment(8);
+        }
     }
+
 
     public void manualAdjustAngle(double diff) {
         mArm.manualAdjustAngle(diff);
@@ -285,19 +291,28 @@ public class ControlSystem {
         mAutoCollectionButton = isHeld;
     }
 
+    public void setSeekSpeakerButton(boolean isHeld) {
+        mSeekSpeakerButton = isHeld;
+    }
+
     public void autoAimingInputs() {
-        if (!mAutoCollectionButton && !mCenterOnAprilTagButton) {
+        if (!mAutoCollectionButton && !mCenterOnAprilTagButton && !mSeekSpeakerButton) {
             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
             mAutoAiming = false;
             return;
         }
 
-        if (mCenterOnAprilTagButton && !mAutoCollectionButton) {
+        if (mCenterOnAprilTagButton && !mAutoCollectionButton && !mSeekSpeakerButton) {
             centerOnAprilTag();
             mAutoAiming = true;
         }
 
-        if (mAutoCollectionButton && !mCenterOnAprilTagButton) {
+        if (mSeekSpeakerButton && !mAutoCollectionButton && !mCenterOnAprilTagButton) {
+            seekSpeaker();
+            mAutoAiming = true;
+        }
+
+        if (mAutoCollectionButton && !mCenterOnAprilTagButton && !mSeekSpeakerButton) {
 /*            mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
             mArm.setDesiredState(ArmState.COLLECT);*/
             centerNote();
@@ -342,10 +357,10 @@ public class ControlSystem {
     public void centerNote() {
         double x = LimelightHelper.getTX(ConfigMap.BACK_LIMELIGHT_NAME);
         if (x != 0.0) {
-            aimingAngle = mLimelightAimController.calculate(x, 180);
+            mAimingAngle = mLimelightAimController.calculate(x, 180);
             double distance = getDistanceFromNote();
 
-            Transform2d notePose = new Transform2d(distance * Math.cos(Math.toRadians(aimingAngle)), distance * Math.sin(Math.toRadians(aimingAngle)), new Rotation2d());
+            Transform2d notePose = new Transform2d(distance * Math.cos(Math.toRadians(mAimingAngle)), distance * Math.sin(Math.toRadians(mAimingAngle)), new Rotation2d());
             mDriveSystem.setPosition(EVector.fromPose(mDriveSystem.getRobotPose().plus(notePose)));
         }
     }
@@ -530,14 +545,6 @@ public class ControlSystem {
                 break;
         }
 
-    }
-
-    private void odometryUpdate(double velocityX, double velocityY) {
-        if (velocityX <= ConfigMap.MAX_VELOCITY_FOR_UPDATE || velocityY <= ConfigMap.MAX_VELOCITY_FOR_UPDATE) {
-            if (LimelightHelper.getLatestResults(ConfigMap.FRONT_LIMELIGHT_NAME).targetingResults.targets_Fiducials.length >= 2) {
-                localizeOnLimelight();
-            }
-        }
     }
 
     private void localizeOnLimelight() {

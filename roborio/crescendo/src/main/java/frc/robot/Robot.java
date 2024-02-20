@@ -108,7 +108,7 @@ public class Robot extends TimedRobot {
     });
 
     mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, "Y", (isPressed) -> {
-        mControlSystem.seekSpeaker(isPressed);
+        mControlSystem.setSeekSpeakerButton(isPressed);
     });
 
     // // mDriverInput.addClickListener(0, "B", (isPressed) -> {
