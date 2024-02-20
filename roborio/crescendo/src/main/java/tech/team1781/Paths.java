@@ -140,17 +140,33 @@ public class Paths {
     }
 
     public enum AutonomousPosition {
-        POSITION_1,
-        POSITION_2,
-        POSITION_3,
-        NOTE_1,
-        NOTE_2,
-        NOTE_3,
-        CENTER_1,
-        CENTER_2,
-        CENTER_3,
-        CENTER_4,
-        CENTER_5;
+        POSITION_1(1,1),
+        POSITION_2(1,2),
+        POSITION_3(1,3),
+        NOTE_1(2,1),
+        NOTE_2(2,2),
+        NOTE_3(2,3),
+        CENTER_1(3,1),
+        CENTER_2(3,2),
+        CENTER_3(3,3),
+        CENTER_4(3,4),
+        CENTER_5(3,5);
+
+        private int xpos;
+        private int ypos;
+        
+        private AutonomousPosition(int x, int y){
+            xpos = x;
+            ypos = y;
+        }
+
+        public int getX() {
+            return xpos;
+        }
+
+        public int getY() {
+            return ypos;
+        }
     }
 
 

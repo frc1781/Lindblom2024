@@ -17,7 +17,9 @@ public class DriverCustomAuto implements AutoRoutine {
     public DriverCustomAuto() {
         for(Paths.AutonomousPosition position : Paths.AutonomousPosition.values()) {
             mPositionEntries.put(ConfigMap.AUTONOMOUS_TAB.add(position.name(), false)
-            .withWidget(BuiltInWidgets.kToggleButton).getEntry()
+            .withWidget(BuiltInWidgets.kToggleButton)
+            .withPosition(position.getX(), position.getY())
+            .getEntry()
             , position);
         }
     }
