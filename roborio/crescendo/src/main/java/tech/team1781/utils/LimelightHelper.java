@@ -781,7 +781,7 @@ public class LimelightHelper {
     }
 
     public static double getXOffsetOfApriltag(int id) {
-        LimelightTarget_Fiducial[] limelightTargetFiducials = getLatestResults(ConfigMap.MAIN_LIMELIGHT_NAME).targetingResults.targets_Fiducials;
+        LimelightTarget_Fiducial[] limelightTargetFiducials = getLatestResults(ConfigMap.FRONT_LIMELIGHT_NAME).targetingResults.targets_Fiducials;
         double x = 0.0;
 
         for (LimelightTarget_Fiducial targetsFiducial : limelightTargetFiducials) {
@@ -795,7 +795,7 @@ public class LimelightHelper {
     }
 
     public static double getDistanceOfApriltag(int id) {
-        LimelightTarget_Fiducial[] limelightTargetFiducials = getLatestResults(ConfigMap.MAIN_LIMELIGHT_NAME).targetingResults.targets_Fiducials;
+        LimelightTarget_Fiducial[] limelightTargetFiducials = getLatestResults(ConfigMap.FRONT_LIMELIGHT_NAME).targetingResults.targets_Fiducials;
         double x = 0.0;
 
         for (LimelightTarget_Fiducial targetsFiducial : limelightTargetFiducials) {
