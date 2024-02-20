@@ -783,13 +783,32 @@ public class LimelightHelper {
         return results;
     }
 
-    public static Double getXOffsetOfPreferredTarget(int apriltag) {
-        LimelightTarget_Fiducial[] limelightTargetFiducials = getLatestResults(ConfigMap.LIMELIGHT_NAME).targetingResults.targets_Fiducials;
+    public static Double getXOffsetOfPreferredTarget(int id) {
+        LimelightTarget_Fiducial[] limelightTargetFiducials = getLatestResults(ConfigMap.FRONT_LIMELIGHT_NAME).targetingResults.targets_Fiducials;
         double x = 0.0;
 
         for (LimelightTarget_Fiducial targetsFiducial : limelightTargetFiducials) {
-            if (targetsFiducial.fiducialID == apriltag) {
+            if (targetsFiducial.fiducialID == id) {
                 x = targetsFiducial.tx;
+                break;
+            }
+        }
+
+        return x;
+    }
+
+    public static double getDistanceOfApriltag(int id) {
+        LimelightTarget_Fiducial[] limelightTargetFiducials = getLatestResults(ConfigMap.FRONT_LIMELIGHT_NAME).targetingResults.targets_Fiducials;
+        double x = 0.0;
+
+        for (LimelightTarget_Fiducial targetsFiducial : limelightTargetFiducials) {
+            if (targetsFiducial.fiducialID == id) {
+                Pose2d pose = targetsFiducial.getTargetPose_CameraSpace2D();
+                System.out.printf("%.2f,%.2f\n", pose.getX(), pose.getY());
+                x = Math.sqrt(Math.pow(pose.getX(), 2) + Math.pow(pose.getY(), 2));
+
+                // new NetworkLogger().log("Distance", x);
+                break;
             }
         }
 
