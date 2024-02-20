@@ -96,7 +96,6 @@ public class DriveSystem extends Subsystem {
         DRIVE_SETPOINT,
         DRIVE_TRAJECTORY,
         DRIVE_MANUAL,
-        DRIVE_LIMELIGHT,
         SYSID
     }
 
@@ -113,11 +112,6 @@ public class DriveSystem extends Subsystem {
                 if (super.currentMode == OperatingMode.AUTONOMOUS) {
                     driveRaw(0, 0, 0);
                 }
-            case DRIVE_LIMELIGHT:
-                if (super.currentMode != OperatingMode.AUTONOMOUS) {
-
-                }
-                break;
             case SYSID:
                 driveRaw(1, 0, 0);
                 ChassisSpeeds currentSpeeds = getChassisSpeeds();
@@ -139,8 +133,6 @@ public class DriveSystem extends Subsystem {
                 return matchesPosition(mDesiredTrajectory.getEndState().getTargetHolonomicPose())
                         && (currentTime >= mDesiredTrajectory.getTotalTimeSeconds());
             case DRIVE_MANUAL:
-                return false;
-            case DRIVE_LIMELIGHT:
                 return false;
             // return mIsManual;
             default:

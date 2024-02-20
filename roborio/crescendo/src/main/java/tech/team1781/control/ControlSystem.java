@@ -78,7 +78,8 @@ public class ControlSystem {
         SHOOT,
         COLLECT_RAMP,
         COLLECT_AUTO_SHOOT,
-        SYSID
+        SYSID,
+        LIMELIGHT_COLLECT
     }
 
     public ControlSystem() {
@@ -222,7 +223,7 @@ public class ControlSystem {
             } else if (!mKeepArmDownButton) {
                 mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
 
-                mArm.setSpeakerAngle(calculateAngleFromDistance());
+                //mArm.setSpeakerAngle(calculateAngleFromDistance());
                 mArm.setDesiredState(ArmState.AUTO_ANGLE);
             }
         } else {
@@ -292,9 +293,9 @@ public class ControlSystem {
         }
 
         if (mAutoCollectionButton && !mCenterOnAprilTagButton) {
-            mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
-            mArm.setDesiredState(ArmState.COLLECT);
-            collectNote();
+/*            mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
+            mArm.setDesiredState(ArmState.COLLECT);*/
+            centerNote();
             mAutoAiming = true;
         }
     }
@@ -314,7 +315,7 @@ public class ControlSystem {
 
         Transform2d finishingPose = targetPose.minus(robotPose);
         double angle = Math.atan2(finishingPose.getY(), finishingPose.getX());
-        double deltaAngle = calculateShortestRotationToAngle(robotPose.getRotation().getDegrees(), angle);
+        double deltaAngle = calculateShortestRotationToAngle(mDriveSystem.getRobotAngle().getDegrees(), angle);
 
         aimingAngle = mLimelightAimController.calculate(deltaAngle, 0);
     }
@@ -333,8 +334,8 @@ public class ControlSystem {
         return angles[smallestAngleIndex];
     }
 
-    public void collectNote() {
-        double x = LimelightHelper.getTX(ConfigMap.NOTE_LIMELIGHT_NAME);
+    public void centerNote() {
+        double x = LimelightHelper.getTX(ConfigMap.BACK_LIMELIGHT_NAME);
         if (x != 0.0) {
             aimingAngle = mLimelightAimController.calculate(x, 180);
             double distance = getDistanceFromNote();
@@ -345,7 +346,7 @@ public class ControlSystem {
     }
 
     public double getDistanceFromNote() {
-        double ta = LimelightHelper.getTA(ConfigMap.NOTE_LIMELIGHT_NAME);
+        double ta = LimelightHelper.getTA(ConfigMap.BACK_LIMELIGHT_NAME);
         return 1.278 / Math.pow(ta, 0.4425);
     }
 
@@ -389,7 +390,7 @@ public class ControlSystem {
     public void init(OperatingMode operatingMode) {
         mCurrentOperatingMode = operatingMode;
 
-        mDriveSystem.setOdometry(getLimelightPose());
+        mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME));
 
         for (Subsystem subsystem : mSubsystems) {
             subsystem.setOperatingMode(operatingMode);
@@ -418,7 +419,7 @@ public class ControlSystem {
 
     public void run(DriverInput driverInput) {
 
-        mDriveSystem.updateVisionLocalization(getLimelightPose());
+        mDriveSystem.updateVisionLocalization(LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME));
         mArm.setSpeakerDistance(mDriveSystem.distanceToSpeaker());
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
         // mDriveSystem.updateVisionLocalization();
@@ -479,13 +480,6 @@ public class ControlSystem {
         }
     }
 
-    private Pose2d getLimelightPose(){
-        double[] doubleArray = {-99.9, -99.9, -99.9, -99.9, -99.9, -99.9};
-        doubleArray = mLimelightTable.getEntry("botpose").getDoubleArray(doubleArray);
-
-        return new Pose2d(doubleArray[0], doubleArray[1], mDriveSystem.getRobotAngle());
-    }
-
     private void initActions() {
         defineAction(Action.SYSID,
                 new SubsystemSetting(mDriveSystem, DriveSystemState.SYSID),
@@ -506,6 +500,11 @@ public class ControlSystem {
 
         defineAction(Action.COLLECT_AUTO_SHOOT,
                 new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
+
+        defineAction(Action.LIMELIGHT_COLLECT,
+                new SubsystemSetting(mDriveSystem, DriveSystemState.DRIVE_SETPOINT),
+                new SubsystemSetting(mArm, ArmState.COLLECT),
+                new SubsystemSetting(mScollector, ArmState.COLLECT));
     }
 
     private void defineAction(Action action, SubsystemSetting... settings) {
@@ -530,7 +529,7 @@ public class ControlSystem {
 
     private void odometryUpdate(double velocityX, double velocityY) {
         if (velocityX <= ConfigMap.MAX_VELOCITY_FOR_UPDATE || velocityY <= ConfigMap.MAX_VELOCITY_FOR_UPDATE) {
-            if (LimelightHelper.getLatestResults(ConfigMap.MAIN_LIMELIGHT_NAME).targetingResults.targets_Fiducials.length >= 2) {
+            if (LimelightHelper.getLatestResults(ConfigMap.FRONT_LIMELIGHT_NAME).targetingResults.targets_Fiducials.length >= 2) {
                 localizeOnLimelight();
             }
         }
