@@ -4,7 +4,10 @@
 
 package frc.robot;
 
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.WidgetType;
 import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput;
 import tech.team1781.autonomous.AutonomousHandler;
@@ -13,6 +16,8 @@ import tech.team1781.autonomous.routines.FourNoteRoutine;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
+import tech.team1781.utils.PreferenceHandler;
+import tech.team1781.utils.PreferenceHandler.ValueHolder;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -34,6 +39,7 @@ public class Robot extends TimedRobot {
   private ControlSystem mControlSystem;
   private AutonomousHandler mAutonomousHandler;
   private DriverInput mDriverInput;
+  private GenericEntry mSaveConfigButton = ConfigMap.CONFIG_TAB.add("Save Config", false).withWidget(BuiltInWidgets.kToggleButton).getEntry();
 
   @Override
   public void robotInit() {
@@ -41,6 +47,11 @@ public class Robot extends TimedRobot {
     mAutonomousHandler = new AutonomousHandler(mControlSystem, new FourNoteRoutine());
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
+
+    // PreferenceHandler.addValue("frontLeftOffset", ConfigMap.FRONT_LEFT_MODULE_STEER_OFFSET);
+    // PreferenceHandler.addValue("frontRightOffset", ConfigMap.FRONT_RIGHT_MODULE_STEER_OFFSET);
+    // PreferenceHandler.addValue("backLeftOffset", ConfigMap.BACK_LEFT_MODULE_STEER_OFFSET);
+    // PreferenceHandler.addValue("backRightOffset", ConfigMap.BACK_RIGHT_MODULE_STEER_OFFSET);
 
     mDriverInput.addClickListener(ConfigMap.CO_PILOT_PORT, "Y", (isPressed)->{
       if(isPressed) {
@@ -74,16 +85,24 @@ public class Robot extends TimedRobot {
       mControlSystem.setPrepareToShoot(isPressed);
     });
 
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, "E", (isPressed) -> {
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.ANGLE_UP, (isPressed) -> {
       if(isPressed) {
         mControlSystem.manualAdjustAngle(3);
       }
     });
 
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, "W", (isPressed) -> {
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.ANGLE_DOWN, (isPressed) -> {
       if(isPressed) {
         mControlSystem.manualAdjustAngle(-3);
       }
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CLIMBER_EXTEND, (isPressed)-> {
+      mControlSystem.setClimberExtend(isPressed);
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CLIMB_RETRACT, (isPressed)-> {
+      mControlSystem.setClimberRetract(isPressed);
     });
 
     // mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CENTER_TO_APRIL_TAG, (isHeld) -> {
@@ -125,7 +144,12 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+    if(mSaveConfigButton.getBoolean(false)) {
+      // PreferenceHandler.updateValues();
+      mSaveConfigButton.setBoolean(false);
+    }
+  }
 
   @Override
   public void autonomousInit() {

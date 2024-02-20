@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 public class ConfigMap {
         public static final ShuffleboardTab SHUFFLEBOARD_TAB = Shuffleboard.getTab("Electric Eagles");
-
+        public static final ShuffleboardTab CONFIG_TAB = Shuffleboard.getTab("Config");
 
         // CAN IDs
 
@@ -30,10 +30,13 @@ public class ConfigMap {
         public static final int ARM_PIVOT_RIGHT_MOTOR = 41;
         public static final double ARM_POSITION_TOLERANCE = 2.0;
         public static final double ARM_GEAR_RATIO = (1.0/125.0)*(18.0/56.0);
+
         // 57 Motors
         public static final int COLLECTOR_MOTOR = 57;
         public static final int SHOOTER_TOP_MOTOR = 42;
         public static final int SHOOTER_BOTTOM_MOTOR = 43;
+        public static final int LEFT_CLIMBER_MOTOR = 50;
+        public static final int RIGHT_CLIMBER_MOTOR = 51;
 
         // 60-69 Sensors
         public static final int SCOLLECTOR_TOF = 58;
@@ -46,7 +49,7 @@ public class ConfigMap {
 
         public static final double DRIVETRAIN_TRACKWIDTH = Units.inchesToMeters(30);
         public static final double DRIVETRAIN_WHEELBASE = Units.inchesToMeters(25);
-        public static final double MAX_VELOCITY_METERS_PER_SECOND = 4.0;
+        public static final double MAX_VELOCITY_METERS_PER_SECOND = 4.5;
         public static final double MAX_VELOCITY_FOR_UPDATE = 0.01;
         public static final double MAX_VELOCITY_RADIANS_PER_SECOND = (MAX_VELOCITY_METERS_PER_SECOND /
                         (Math.hypot(DRIVETRAIN_TRACKWIDTH / 2, DRIVETRAIN_WHEELBASE / 2)));
@@ -69,10 +72,10 @@ public class ConfigMap {
         // public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.8688;
         // //-0.272; // -0.735;
 
-        public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.772;
-        public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.427;
-        public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.238;
-        public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.419;
+        public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.9755;
+        public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.8167;
+        public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.670;
+        public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.116;
 
         // Constants
         public static final double MIN_THRESHOLD_ARM = 0;
@@ -100,4 +103,8 @@ public class ConfigMap {
         public static final String SPIT = "LB";
         public static final String SHOOT = "RB";
         public static final String PREPARE_TO_SHOOT = "X";
+        public static final String ANGLE_UP = "E";
+        public static final String ANGLE_DOWN = "W";
+        public static final String CLIMBER_EXTEND = "N";
+        public static final String CLIMB_RETRACT = "S";
 }

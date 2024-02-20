@@ -2,7 +2,7 @@
   {
     "name": "/Preferences/frontLeftOffset",
     "type": "double",
-    "value": -0.79999,
+    "value": -0.72,
     "properties": {
       "persistent": true
     }
