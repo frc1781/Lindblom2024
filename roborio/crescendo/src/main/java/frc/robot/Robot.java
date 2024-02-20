@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -15,10 +16,16 @@ import tech.team1781.autonomous.RoutineOverException;
 import tech.team1781.autonomous.routines.FourNoteRoutine;
 import tech.team1781.autonomous.routines.SYSIDRoutine;
 import tech.team1781.control.ControlSystem;
+import tech.team1781.subsystems.DriveSystem;
 import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
 import tech.team1781.utils.PreferenceHandler;
 import tech.team1781.utils.PreferenceHandler.ValueHolder;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.util.datalog.StringLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -37,6 +44,8 @@ public class Robot extends TimedRobot {
    */
 
   // control and autonomous
+  DoubleLogEntry mLeftMotorLog;
+
   private ControlSystem mControlSystem;
   private AutonomousHandler mAutonomousHandler;
   private DriverInput mDriverInput;
@@ -49,7 +58,9 @@ public class Robot extends TimedRobot {
       new FourNoteRoutine());
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
-
+    DataLogManager.start();
+    DataLog log = DataLogManager.getLog();
+    mLeftMotorLog = new DoubleLogEntry(log, "mLeftMotorEncoderLog");
     // PreferenceHandler.addValue("frontLeftOffset", ConfigMap.FRONT_LEFT_MODULE_STEER_OFFSET);
     // PreferenceHandler.addValue("frontRightOffset", ConfigMap.FRONT_RIGHT_MODULE_STEER_OFFSET);
     // PreferenceHandler.addValue("backLeftOffset", ConfigMap.BACK_LEFT_MODULE_STEER_OFFSET);
@@ -151,6 +162,7 @@ public class Robot extends TimedRobot {
       // PreferenceHandler.updateValues();
       mSaveConfigButton.setBoolean(false);
     }
+    mLeftMotorLog.append(90); //Placeholder
   }
 
   @Override

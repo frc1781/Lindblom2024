@@ -158,6 +158,10 @@ public class KrakenL2SwerveModule extends SwerveModule {
 
     }
 
+    public RelativeEncoder getTurnEncoder() {
+        return mTurnEncoder;
+    }
+
     static SwerveModuleConfiguration moduleConfiguration() {
         SwerveModuleConfiguration ret_val = new SwerveModuleConfiguration();
 

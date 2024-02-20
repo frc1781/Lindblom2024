@@ -2,6 +2,7 @@ package tech.team1781.swerve;
 
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -27,6 +28,8 @@ public abstract class SwerveModule {
     public abstract SwerveModuleState getCurrentState();
 
     public abstract void setDesiredState(SwerveModuleState sentDesiredState);
+
+    public abstract RelativeEncoder getTurnEncoder();
 
     abstract void syncRelativeToAbsoluteEncoder();
 
