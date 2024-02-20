@@ -202,7 +202,7 @@ public class DriveSystem extends Subsystem {
         loggingExecutor.scheduleAtFixedRate(OdometryLogging, 0, 1, TimeUnit.SECONDS);
     }
 
-    public void seekSpeaker() {
+    public double getSpeakerAngle() {
         boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
         EVector target = isRed ? ConfigMap.RED_SPEAKER_POS : ConfigMap.BLUE_SPEAKER_POS;
 
@@ -217,7 +217,7 @@ public class DriveSystem extends Subsystem {
             angleError += 2 * Math.PI;
         }
 
-        System.out.println("angle error: " + angleError);
+        return angleError;
     }
 
     public void updateVisionLocalization(Pose2d visionEstimate) {

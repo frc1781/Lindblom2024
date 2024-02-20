@@ -100,9 +100,7 @@ public class Robot extends TimedRobot {
     });
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, "B", (isPressed) -> {
-      if(isPressed) {
-        mControlSystem.seekSpeaker();
-      }
+      mControlSystem.seekSpeaker(isPressed);
     });
 
     // mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CLIMBER_EXTEND, (isPressed)-> {

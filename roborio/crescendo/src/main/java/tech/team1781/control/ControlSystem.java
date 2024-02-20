@@ -56,7 +56,7 @@ public class ControlSystem {
             new TrapezoidProfile.Constraints(1, 0.5));
 
     private boolean mAutoAiming = false;
-    private double aimingAngle = 0.0;
+    private double mAimingAngle = 0.0;
 
     // CURRENT STATE OF INPUT for HOLD DOWN BUTTONS
     private boolean mKeepArmDownButton = false;
@@ -108,7 +108,7 @@ public class ControlSystem {
         mDriveSystem.driveRaw(
                 mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
                 mYDriveLimiter.calculate(yVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
-                mAutoAiming ? aimingAngle
+                mAutoAiming ? mAimingAngle
                         : (mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND));
 
         odometryUpdate(xVelocity, yVelocity);
@@ -185,8 +185,12 @@ public class ControlSystem {
         }
     }
 
-    public void seekSpeaker() {
-        mDriveSystem.seekSpeaker();
+    public void seekSpeaker(boolean isHeld) {
+        if(isHeld)
+            mAimingAngle = mDriveSystem.getSpeakerAngle();
+
+        
+        mAutoAiming = isHeld;
     }
 
     public void manualAdjustAngle(double diff) {
@@ -255,7 +259,7 @@ public class ControlSystem {
         if (isHeld) {
             double x = LimelightHelper.getXOffsetOfPreferredTarget(4);
             if (x != 0.0) {
-                aimingAngle = mLimelightAimController.calculate(x, 0);
+                mAimingAngle = mLimelightAimController.calculate(x, 0);
             } else {
                 odometryAlignment();
             }
@@ -273,7 +277,7 @@ public class ControlSystem {
         double angle = Math.atan2(finishingPose.getY(), finishingPose.getX());
         double deltaAngle = calculateShortestRotationToAngle(robotPose.getRotation().getDegrees(), angle);
 
-        aimingAngle = mLimelightAimController.calculate(deltaAngle, 0);
+        mAimingAngle = mLimelightAimController.calculate(deltaAngle, 0);
     }
 
     public double calculateShortestRotationToAngle(double startingAngle, double goalAngle) {
