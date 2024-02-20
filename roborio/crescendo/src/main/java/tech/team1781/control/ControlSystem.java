@@ -185,6 +185,10 @@ public class ControlSystem {
         }
     }
 
+    public void seekSpeaker() {
+        mDriveSystem.seekSpeaker();
+    }
+
     public void manualAdjustAngle(double diff) {
         mArm.manualAdjustAngle(diff);
     }
