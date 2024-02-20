@@ -57,7 +57,7 @@ public class ControlSystem {
             new TrapezoidProfile.Constraints(1, 0.5));
 
     private boolean mAutoAiming = false;
-    private double aimingAngle = 0.0;
+    private double mAimingAngle = 0.0;
 
     // CURRENT STATE OF INPUT for HOLD DOWN BUTTONS
     private boolean mKeepArmDownButton = false;
@@ -208,6 +208,10 @@ public class ControlSystem {
         }
     }
 
+    public void seekSpeaker(boolean isHeld) {
+        mDriveSystem.aim(isHeld);
+    }
+
     public void manualAdjustAngle(double diff) {
         mArm.manualAdjustAngle(diff);
     }
@@ -272,6 +276,7 @@ public class ControlSystem {
         mDriveSystem.zeroNavX();
     }
 
+            // LimelightHelper.getDistanceOfApriltag(4);
     public void setCenteringOnAprilTag(boolean isHeld) {
         mCenterOnAprilTagButton = isHeld;
     }
@@ -303,7 +308,7 @@ public class ControlSystem {
     public void centerOnAprilTag() {
         double x = LimelightHelper.getXOffsetOfApriltag(4);
         if (x != 0.0) {
-            aimingAngle = mLimelightAimController.calculate(x, 0);
+            mAimingAngle = mLimelightAimController.calculate(x, 0);
         } else {
             odometryAlignment(4);
         }
@@ -317,7 +322,7 @@ public class ControlSystem {
         double angle = Math.atan2(finishingPose.getY(), finishingPose.getX());
         double deltaAngle = calculateShortestRotationToAngle(mDriveSystem.getRobotAngle().getDegrees(), angle);
 
-        aimingAngle = mLimelightAimController.calculate(deltaAngle, 0);
+        mAimingAngle = mLimelightAimController.calculate(deltaAngle, 0);
     }
 
     public double calculateShortestRotationToAngle(double startingAngle, double goalAngle) {

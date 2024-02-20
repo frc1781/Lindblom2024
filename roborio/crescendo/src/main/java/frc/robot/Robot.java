@@ -107,6 +107,10 @@ public class Robot extends TimedRobot {
         mControlSystem.setAutoCollectionButton(isHeld);
     });
 
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, "Y", (isPressed) -> {
+        mControlSystem.seekSpeaker(isPressed);
+    });
+
     // // mDriverInput.addClickListener(0, "B", (isPressed) -> {
     // //   if (isPressed) {
     // //     mControlSystem.setArmState(ArmState.AUTO_ANGLE);

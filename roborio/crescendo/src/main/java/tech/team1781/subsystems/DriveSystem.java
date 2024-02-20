@@ -69,6 +69,8 @@ public class DriveSystem extends Subsystem {
     private PathPlannerTrajectory mDesiredTrajectory = null;
     private EVector mDesiredPosition = null;
     private boolean mIsManual = true;
+    private double mDesiredAngle = 0.0;
+    private boolean mIsAiming = false;
 
     private PIDController mXController = new PIDController(1, 0, 0);
     private PIDController mYController = new PIDController(1, 0, 0);
@@ -201,6 +203,29 @@ public class DriveSystem extends Subsystem {
         loggingExecutor.scheduleAtFixedRate(OdometryLogging, 0, 1, TimeUnit.SECONDS);
     }
 
+    public double getSpeakerAngle() {
+        boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
+        EVector target = isRed ? ConfigMap.RED_SPEAKER_POS : ConfigMap.BLUE_SPEAKER_POS;
+
+        Pose2d currentPose = getRobotPose();
+
+        double angleToSpeaker = Math.atan2(target.y - currentPose.getY(), target.x - currentPose.getX());
+        double angleError = angleToSpeaker - getRobotAngle().getRadians();
+
+        if (angleError > Math.PI) {
+            angleError -= 2 * Math.PI;
+        } else if (angleError < -Math.PI) {
+            angleError += 2 * Math.PI;
+        }
+
+        return angleError;
+    }
+
+    public void aim(boolean isAiming) {
+        mDesiredAngle = getSpeakerAngle() + getRobotAngle().getRadians();
+        mIsAiming = isAiming;
+    }
+
     public void updateVisionLocalization(Pose2d visionEstimate) {
         var visionEstimateVector = EVector.fromPose2d(visionEstimate);
         var currentPose = EVector.fromPose2d(getRobotPose());
@@ -321,6 +346,13 @@ public class DriveSystem extends Subsystem {
     }
 
     public void driveRaw(double xSpeed, double ySpeed, double rot) {
+
+        double angleDiff = mDesiredAngle - getRobotAngle().getRadians();
+        rot = mIsAiming ? angleDiff : rot;
+
+        if(mIsAiming) {
+            System.out.println(angleDiff + " mDesiredAngle: " + angleDiff + " current: " + getRobotAngle().getRadians());
+        }
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(
                 mIsFieldOriented
                         ? ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(xSpeed, ySpeed, rot), getRobotAngle())
