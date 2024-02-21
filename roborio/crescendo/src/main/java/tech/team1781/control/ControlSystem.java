@@ -28,6 +28,8 @@ import tech.team1781.subsystems.Subsystem;
 import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.DriveSystem.DriveSystemState;
 import tech.team1781.subsystems.Scollector.ScollectorState;
+import tech.team1781.subsystems.Pivot;
+import tech.team1781.subsystems.Pivot.PivotState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
 import tech.team1781.subsystems.Subsystem.SubsystemState;
 import tech.team1781.utils.EVector;
@@ -45,6 +47,7 @@ public class ControlSystem {
     private Scollector mScollector;
     private Climber mClimber;
     private Arm mArm;
+    private Pivot mPivot;
 
     private OperatingMode mCurrentOperatingMode;
 
@@ -82,12 +85,14 @@ public class ControlSystem {
         mScollector = new Scollector();
         mClimber = new Climber();
         mArm = new Arm();
+        mPivot = new Pivot();
 
         mSubsystems = new ArrayList<>();
         mSubsystems.add(mDriveSystem);
         mSubsystems.add(mScollector);
         mSubsystems.add(mClimber);
         mSubsystems.add(mArm);
+        mSubsystems.add(mPivot);
 
         initActions();
 
