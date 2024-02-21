@@ -13,6 +13,7 @@ import tech.team1781.DriverInput;
 import tech.team1781.autonomous.AutonomousHandler;
 import tech.team1781.autonomous.RoutineOverException;
 import tech.team1781.autonomous.routines.FourNoteRoutine;
+import tech.team1781.autonomous.routines.SYSIDRoutine;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
@@ -44,7 +45,8 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     mControlSystem = new ControlSystem();
-    mAutonomousHandler = new AutonomousHandler(mControlSystem, new FourNoteRoutine());
+    mAutonomousHandler = new AutonomousHandler(mControlSystem, 
+      new FourNoteRoutine());
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
 
@@ -97,17 +99,17 @@ public class Robot extends TimedRobot {
       }
     });
 
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CLIMBER_EXTEND, (isPressed)-> {
-      mControlSystem.setClimberExtend(isPressed);
-    });
-
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CLIMB_RETRACT, (isPressed)-> {
-      mControlSystem.setClimberRetract(isPressed);
-    });
-
-    // mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CENTER_TO_APRIL_TAG, (isHeld) -> {
-    //     mControlSystem.centerOnAprilTag(isHeld);
+    // mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CLIMBER_EXTEND, (isPressed)-> {
+    //   mControlSystem.setClimberExtend(isPressed);
     // });
+
+    // mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CLIMB_RETRACT, (isPressed)-> {
+    //   mControlSystem.setClimberRetract(isPressed);
+    // });
+
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CENTER_TO_APRIL_TAG, (isHeld) -> {
+        mControlSystem.centerOnAprilTag(isHeld);
+    });
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CENTER_TO_APRIL_TAG, (isHeld) -> {
         //  mControlSystem.centerOnAprilTag(isHeld);
     });

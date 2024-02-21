@@ -40,27 +40,27 @@ public class Climber extends Subsystem {
         double leftDC = 0;
         double rightDC = 0;
 
-        switch ((ClimberState) getState()) {
-            case IDLE:
-                leftDC = 0;
-                rightDC = 0;
-                break;
-            case EXTEND:
-                leftDC = 0.3;
-                rightDC = 0.3;
-                break;
-            case RETRACT:
-                leftDC = -0.3;
-                rightDC = -0.3;
-                break;
-        }
+        // switch ((ClimberState) getState()) {
+        //     case IDLE:
+        //         leftDC = 0;
+        //         rightDC = 0;
+        //         break;
+        //     case EXTEND:
+        //         leftDC = 0.3;
+        //         rightDC = 0.3;
+        //         break;
+        //     case RETRACT:
+        //         leftDC = -0.3;
+        //         rightDC = -0.3;
+        //         break;
+        // }
 
-        // System.out.printf("left dc: %.2f right dc: %.2f\n",
-        //     leftDC,
-        //     rightDC
-        // );       
-        mLeftClimberMotor.set(leftDC);
-        mRightClimberMotor.set(rightDC);     
+        // // System.out.printf("left dc: %.2f right dc: %.2f\n",
+        // //     leftDC,
+        // //     rightDC
+        // // );       
+        // mLeftClimberMotor.set(leftDC);
+        // mRightClimberMotor.set(rightDC);     
     }
 
     @Override
@@ -74,6 +74,15 @@ public class Climber extends Subsystem {
 
     @Override
     public void teleopPeriodic() {
+    }
+
+    public void manualClimb(double dutyCycle) {
+        if(Math.abs(dutyCycle) <= 0.1) {
+            dutyCycle = 0;
+        }
+
+        mLeftClimberMotor.set(dutyCycle);
+        mRightClimberMotor.set(dutyCycle);
     }
 
 }

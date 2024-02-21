@@ -2,6 +2,7 @@ package tech.team1781.control;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Optional;
 
 import com.pathplanner.lib.path.PathPlannerPath;
 
@@ -13,7 +14,9 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput.ControllerSide;
 import tech.team1781.autonomous.AutoStep;
@@ -44,7 +47,6 @@ public class ControlSystem {
     private Arm mArm;
 
     private OperatingMode mCurrentOperatingMode;
-    private NetworkTable mLimelightInstance = NetworkTableInstance.getDefault().getTable(ConfigMap.LIMELIGHT_NAME);
 
     // Slew Rate Limiters for controls
     private final SlewRateLimiter mXDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
@@ -65,11 +67,14 @@ public class ControlSystem {
     private boolean mClimberRetractButton = false;
     private boolean mClimberExtendButton = false;
 
+    private NetworkTable mLimelightTable = NetworkTableInstance.getDefault().getTable(ConfigMap.BACK_LIMELIGHT_NAME);
+
     public enum Action {
         COLLECT,
         SHOOT,
         COLLECT_RAMP,
-        COLLECT_AUTO_SHOOT
+        COLLECT_AUTO_SHOOT,
+        SYSID
     }
 
     public ControlSystem() {
@@ -90,10 +95,13 @@ public class ControlSystem {
     }
 
     public void driverDriving(EVector translation, EVector rotation) {
+        boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
+        int mult = isRed ? -1 : 1;
+
         // forward and backwards
-        double xVelocity = -translation.y;
+        double xVelocity = -translation.y * mult;
         // left and right
-        double yVelocity = -translation.x;
+        double yVelocity = -translation.x * mult;
         // rotation
         double rotVelocity = -rotation.x * 0.5;
 
@@ -164,7 +172,22 @@ public class ControlSystem {
             mScollector.setDesiredState(ScollectorState.COLLECT);
             mArm.setDesiredState(ArmState.COLLECT);
         } else {
+<<<<<<< HEAD
             onButtonRelease();
+=======
+            if (!mKeepArmDownButton && !mPrepareToShootButton) {
+                mArm.setDesiredState(ArmState.SAFE);
+            }
+            if (mPrepareToShootButton) {
+                mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
+
+                if (!mKeepArmDownButton && !mCollectingButton) {
+                    mArm.setDesiredState(ArmState.AUTO_ANGLE);
+                }
+            } else {
+                mScollector.setDesiredState(ScollectorState.IDLE);
+            }
+>>>>>>> main
         }
     }
 
@@ -189,8 +212,14 @@ public class ControlSystem {
         mShootButton = pushingShoot;
         if (mShootButton) {
             mScollector.setDesiredState(ScollectorState.SHOOT);
+<<<<<<< HEAD
         } else {
             onButtonRelease();
+=======
+        } else if (!mKeepArmDownButton && !mCollectingButton) {
+            mArm.setDesiredState(ArmState.SAFE);
+            mScollector.setDesiredState(ScollectorState.IDLE);
+>>>>>>> main
         }
     }
 
@@ -223,7 +252,7 @@ public class ControlSystem {
         mClimberRetractButton = pushingRetract;
         if (mClimberRetractButton) {
             mClimber.setDesiredState(Climber.ClimberState.RETRACT);
-        } else if(!mClimberExtendButton) {
+        } else if (!mClimberExtendButton) {
             mClimber.setDesiredState(Climber.ClimberState.IDLE);
         }
     }
@@ -236,17 +265,14 @@ public class ControlSystem {
         mClimberExtendButton = pushingExtend;
         if (mClimberExtendButton) {
             mClimber.setDesiredState(Climber.ClimberState.EXTEND);
-        } else if(!mClimberRetractButton) {
+        } else if (!mClimberRetractButton) {
             mClimber.setDesiredState(Climber.ClimberState.IDLE);
         }
     }
 
-
-
     public void setArmState(ArmState desiredState) {
         mArm.setDesiredState(desiredState);
     }
-
 
     public void zeroNavX() {
         mDriveSystem.zeroNavX();
@@ -315,7 +341,7 @@ public class ControlSystem {
         } else if (path != null) {
             mDriveSystem.setTrajectoryFromPath(path);
             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_TRAJECTORY);
-        } else {
+        } else if (desiredAction != Action.SYSID) {
             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
         }
 
@@ -330,6 +356,9 @@ public class ControlSystem {
 
     public void init(OperatingMode operatingMode) {
         mCurrentOperatingMode = operatingMode;
+        
+        mDriveSystem.setOdometry(getLimelightPose());
+
         for (Subsystem subsystem : mSubsystems) {
             subsystem.setOperatingMode(operatingMode);
         }
@@ -356,28 +385,23 @@ public class ControlSystem {
     }
 
     public void run(DriverInput driverInput) {
-        var doubleArray = new double[6];
-        // doubleArray = mLimelightInstance.getEntry("botpose").getDoubleArray(doubleArray);
-        // // System.out.println(mLimelightInstance.getEntry("tx").getDouble(-1000.0));
-        // System.out.printf("botpose %.2f,%.2f,%.2f\n",
-        // doubleArray[0],
-        // doubleArray[1],
-        // doubleArray[2]);
 
-        // System.out.printf("dist %.2f\n", 
-        // LimelightHelper.getDistanceOfApriltag(4));
-
+        mDriveSystem.updateVisionLocalization(getLimelightPose());
         mArm.setSpeakerDistance(mDriveSystem.distanceToSpeaker());
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
+        // mDriveSystem.updateVisionLocalization();
 
         switch (mCurrentOperatingMode) {
             case TELEOP:
                 driverDriving(
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
+                mClimber.manualClimb(
+                    driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y
+                );
                 break;
             case AUTONOMOUS:
-                System.out.println(mScollector.getState().toString());
+                // System.out.println(mScollector.getState().toString());
                 if (mScollector.getState() == ScollectorState.COLLECT
                         || mScollector.getState() == ScollectorState.COLLECT_RAMP
                         || mScollector.getState() == ScollectorState.COLLECT_AUTO_SHOOT) {
@@ -422,7 +446,19 @@ public class ControlSystem {
         }
     }
 
+    private Pose2d getLimelightPose(){
+        double[] doubleArray = {-99.9, -99.9, -99.9, -99.9, -99.9, -99.9};
+        doubleArray = mLimelightTable.getEntry("botpose").getDoubleArray(doubleArray);
+
+        return new Pose2d(doubleArray[0], doubleArray[1], mDriveSystem.getRobotAngle());
+    }
+
     private void initActions() {
+        defineAction(Action.SYSID,
+                new SubsystemSetting(mDriveSystem, DriveSystemState.SYSID),
+                new SubsystemSetting(mArm, ArmState.COLLECT),
+                new SubsystemSetting(mScollector, ScollectorState.IDLE));
+
         defineAction(Action.COLLECT,
                 new SubsystemSetting(mScollector, ScollectorState.COLLECT),
                 new SubsystemSetting(mArm, ArmState.COLLECT));
@@ -471,7 +507,7 @@ public class ControlSystem {
     }
 
     private void localizeOnLimelight() {
-        Pose2d currentPose = LimelightHelper.getBotPose2d(ConfigMap.LIMELIGHT_NAME);
+        Pose2d currentPose = LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME);
         mDriveSystem.setOdometry(currentPose);
     }
 
