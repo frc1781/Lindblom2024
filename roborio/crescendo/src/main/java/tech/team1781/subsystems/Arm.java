@@ -24,7 +24,7 @@ public class Arm extends Subsystem {
             new TrapezoidProfile.Constraints(80, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
     private GenericEntry mArmPositionEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Arm Position", -1).getEntry();
-    //private GenericEntry mSpeakerDistanceEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Distance", 1).getEntry();
+    private GenericEntry mSpeakerDistanceEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Distance", 1).getEntry();
     private double mDesiredPosition = 0;
     private double mSpeakerDistance = 0;
 
@@ -89,6 +89,7 @@ public class Arm extends Subsystem {
         if (getState() == ArmState.AUTO_ANGLE) {
             mDesiredPosition = calculateAngleFromDistance();
         }
+
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), mDesiredPosition);
         mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
         mLeftMotor.set(armDutyCycle);
@@ -144,7 +145,9 @@ public class Arm extends Subsystem {
         // final double start = 32;
         // final double coefficient = 18.3;
         // // double dist = LimelightHelper.getDistanceOfApriltag(4);
-        // double dist = mSpeakerDistance - ConfigMap.DRIVETRAIN_TRACKWIDTH/2;
+        // // double dist = mSpeakerDistance - ConfigMap.DRIVETRAIN_TRACKWIDTH/2;
+        // double dist = mSpeakerDistanceEntry.getDouble(1);
+        // dist = Math.abs(dist);
         // double angle = 32.0;
         // if (dist < 0.5) {//can not see april tag
         //     angle = 32.0;
