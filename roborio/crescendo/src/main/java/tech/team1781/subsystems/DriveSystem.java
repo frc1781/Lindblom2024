@@ -106,6 +106,7 @@ public class DriveSystem extends Subsystem {
                 goTo(mDesiredPosition);
                 break;
             case DRIVE_TRAJECTORY:
+                System.out.println(mDesiredTrajectory.hashCode() + " :: " + mDesiredTrajectory.getTotalTimeSeconds());
                 followTrajectory();
                 break;
             case DRIVE_MANUAL:
@@ -250,6 +251,7 @@ public class DriveSystem extends Subsystem {
         // pathplannerState.accelerationMpsSq,
         // pathplannerState.getTargetHolonomicPose(),
         // pathplannerState.curvatureRadPerMeter);
+        // System.out.println(pathplannerState.velocityMps);
         ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(
                 getRobotPose(),
                 new Pose2d(pathplannerState.positionMeters, pathplannerState.heading),
