@@ -15,6 +15,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.motorcontrol.PWMTalonSRX;
+
+import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+
+
 import tech.team1781.ConfigMap;
 import tech.team1781.utils.EVector;
 
@@ -28,6 +34,9 @@ public class Scollector extends Subsystem {
 
     private final SparkPIDController mTopPID;
     private final SparkPIDController mBottomPID;
+
+    private DoubleSolenoid mSolenoid;
+    private Compressor mCompressor;
 
     private GenericEntry mThresholdEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Shooter Threshold", 6).getEntry();
 
@@ -58,6 +67,10 @@ public class Scollector extends Subsystem {
         mTopShooterMotor.setIdleMode(IdleMode.kCoast);
         mTopShooterMotor.setInverted(false);
         mBottomShooterMotor.setInverted(true);
+
+        // Temporary, Will use Co-Pilot A for forward, B for back, Y for compressor
+        mSolenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, 0, 1);
+        mCompressor = new Compressor(PneumaticsModuleType.REVPH);
 
         final double conversionFactor = 0.100203 * 1 / 60;
 
@@ -231,5 +244,25 @@ public class Scollector extends Subsystem {
         double diff = Math.abs(SHOOTER_SPEED - mTopShooterMotor.get());
         double tolerance = 0.1;
         return diff <= tolerance;
+    }
+
+    public void controlSolenoid(boolean forwardPressed, boolean reversePressed) {
+        if (forwardPressed) {
+        mSolenoid.set(DoubleSolenoid.Value.kForward);
+        }
+        else if (reversePressed) {
+        mSolenoid.set(DoubleSolenoid.Value.kReverse);
+        }
+    }
+
+    public void enableCompressor(boolean compressorPressed) {
+        if (compressorPressed) {
+            if (mCompressor.isEnabled()) {
+                mCompressor.disable();
+            } else {
+                // Assuming digital is what we want
+                mCompressor.enableDigital();
+            }
+        }
     }
 }

@@ -66,6 +66,7 @@ public class ControlSystem {
     private boolean mSpitButton = false;
     private boolean mClimberRetractButton = false;
     private boolean mClimberExtendButton = false;
+    private boolean mPivotButton = false;
 
     private NetworkTable mLimelightTable = NetworkTableInstance.getDefault().getTable(ConfigMap.BACK_LIMELIGHT_NAME);
 
@@ -237,6 +238,14 @@ public class ControlSystem {
         } else if (!mClimberRetractButton) {
             mClimber.setDesiredState(Climber.ClimberState.IDLE);
         }
+    }
+
+    public void pivotScollector(boolean pushingPivotF, boolean pushingPivotR) {
+        mScollector.controlSolenoid(pushingPivotF, pushingPivotR);
+    }
+
+    public void toggleCompressor(boolean pushingComp) {
+        mScollector.enableCompressor(pushingComp);
     }
 
     public void setArmState(ArmState desiredState) {

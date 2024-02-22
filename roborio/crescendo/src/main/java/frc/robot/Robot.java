@@ -101,6 +101,24 @@ public class Robot extends TimedRobot {
       }
     });
 
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, "A", (isPressed) -> {
+      if(isPressed) {
+        mControlSystem.pivotScollector(isPressed, false);
+      }
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, "X", (isPressed) -> {
+      if(isPressed) {
+        mControlSystem.pivotScollector(false, isPressed);
+      }
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, "Y", (isPressed) -> {
+      if(isPressed) {
+        mControlSystem.toggleCompressor(isPressed);
+      }
+    });
+
     // mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CLIMBER_EXTEND, (isPressed)-> {
     //   mControlSystem.setClimberExtend(isPressed);
     // });
