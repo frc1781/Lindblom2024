@@ -2,7 +2,6 @@ package tech.team1781.control;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Optional;
 
 import com.pathplanner.lib.path.PathPlannerPath;
 
@@ -11,10 +10,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -40,7 +36,6 @@ public class ControlSystem {
     private SubsystemSetting[] mCurrentSettings;
     private AutoStep mCurrentStep;
     private Timer mStepTime;
-
     private ArrayList<Subsystem> mSubsystems;
     private DriveSystem mDriveSystem;
     private Scollector mScollector;
@@ -72,15 +67,13 @@ public class ControlSystem {
     private boolean mSeekSpeakerButton = false;
 
     private HashMap<Number, Pose2d> aprilTagCoords = new HashMap<>();
-    private NetworkTable mLimelightTable = NetworkTableInstance.getDefault().getTable(ConfigMap.BACK_LIMELIGHT_NAME);
 
     public enum Action {
         COLLECT,
         SHOOT,
         COLLECT_RAMP,
         COLLECT_AUTO_SHOOT,
-        SYSID,
-        LIMELIGHT_COLLECT
+        SYSID
     }
 
     public ControlSystem() {
@@ -313,8 +306,10 @@ public class ControlSystem {
         }
 
         if (mAutoCollectionButton && !mCenterOnAprilTagButton && !mSeekSpeakerButton) {
-/*            mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
-            mArm.setDesiredState(ArmState.COLLECT);*/
+            mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
+            mArm.setDesiredState(ArmState.COLLECT);
+            mScollector.setDesiredState(ScollectorState.COLLECT);
+
             centerNote();
             mAutoAiming = true;
         }
@@ -410,7 +405,7 @@ public class ControlSystem {
     public void init(OperatingMode operatingMode) {
         mCurrentOperatingMode = operatingMode;
 
-        mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME));
+        mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.BACK_LIMELIGHT_NAME));
 
         for (Subsystem subsystem : mSubsystems) {
             subsystem.setOperatingMode(operatingMode);
@@ -439,7 +434,7 @@ public class ControlSystem {
 
     public void run(DriverInput driverInput) {
 
-        mDriveSystem.updateVisionLocalization(LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME));
+        mDriveSystem.updateVisionLocalization(LimelightHelper.getBotPose2d(ConfigMap.BACK_LIMELIGHT_NAME));
         mArm.setSpeakerDistance(mDriveSystem.distanceToSpeaker());
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
         // mDriveSystem.updateVisionLocalization();
@@ -520,11 +515,6 @@ public class ControlSystem {
 
         defineAction(Action.COLLECT_AUTO_SHOOT,
                 new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
-
-        defineAction(Action.LIMELIGHT_COLLECT,
-                new SubsystemSetting(mDriveSystem, DriveSystemState.DRIVE_SETPOINT),
-                new SubsystemSetting(mArm, ArmState.COLLECT),
-                new SubsystemSetting(mScollector, ArmState.COLLECT));
     }
 
     private void defineAction(Action action, SubsystemSetting... settings) {
@@ -545,11 +535,6 @@ public class ControlSystem {
                 break;
         }
 
-    }
-
-    private void localizeOnLimelight() {
-        Pose2d currentPose = LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME);
-        mDriveSystem.setOdometry(currentPose);
     }
 
     private double calculateAngleFromDistance() {

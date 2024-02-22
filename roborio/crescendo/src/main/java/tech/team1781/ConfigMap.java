@@ -88,8 +88,8 @@ public class ConfigMap {
         // First Drivebase
 
         //Limelight
-        public static final String FRONT_LIMELIGHT_NAME = "limelight-front";
-        public static final String BACK_LIMELIGHT_NAME = "limelight-back";
+        public static final String BACK_LIMELIGHT_NAME = "limelight-front";
+        public static final String FRONT_LIMELIGHT_NAME = "limelight-back";
 
         // Controls
         public static final int DRIVER_CONTROLLER_PORT = 0;
