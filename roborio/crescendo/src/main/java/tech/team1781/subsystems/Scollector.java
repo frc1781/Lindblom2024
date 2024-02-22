@@ -176,7 +176,7 @@ public class Scollector extends Subsystem {
 
     public boolean hasNote() {
         double r = mNoteSensor.getRange();
-        if (r == 0.0) {
+        if (!mNoteSensor.isRangeValid()) {
             System.out.println("error on ToF");
             return false;
         }
