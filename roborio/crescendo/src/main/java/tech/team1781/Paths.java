@@ -141,16 +141,16 @@ public class Paths {
 
     public enum AutonomousPosition {
         POSITION_1(1,1),
-        POSITION_2(1,2),
-        POSITION_3(1,3),
-        NOTE_1(2,1),
+        POSITION_2(2,1),
+        POSITION_3(3,1),
+        NOTE_1(1,2),
         NOTE_2(2,2),
-        NOTE_3(2,3),
-        CENTER_1(3,1),
-        CENTER_2(3,2),
+        NOTE_3(3,2),
+        CENTER_1(1,3),
+        CENTER_2(2,3),
         CENTER_3(3,3),
-        CENTER_4(3,4),
-        CENTER_5(3,5);
+        CENTER_4(4,3),
+        CENTER_5(5,3);
 
         private int xpos;
         private int ypos;

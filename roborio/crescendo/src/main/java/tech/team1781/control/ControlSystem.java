@@ -326,7 +326,6 @@ public class ControlSystem {
     public void init(OperatingMode operatingMode) {
         mCurrentOperatingMode = operatingMode;
         
-        mDriveSystem.setOdometry(getLimelightPose());
 
         for (Subsystem subsystem : mSubsystems) {
             subsystem.setOperatingMode(operatingMode);
@@ -343,6 +342,7 @@ public class ControlSystem {
                 mDriveSystem.setDesiredState(DriveSystem.DriveSystemState.DRIVE_MANUAL);
                 break;
             case AUTONOMOUS:
+                mDriveSystem.setOdometry(getLimelightPose());
                 break;
             default:
                 break;

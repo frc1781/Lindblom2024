@@ -10,6 +10,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.GenericEntry;
 import tech.team1781.Paths;
+import tech.team1781.control.ControlSystem;
+import tech.team1781.control.ControlSystem.Action;
 
 public class AutonomousBuilder {
 
@@ -40,6 +42,7 @@ public class AutonomousBuilder {
 
         LinkedList<AutoStep> autonomousSteps = new LinkedList<>();
         String previous = steps[0];
+        autonomousSteps.add(new AutoStep(2, ControlSystem.Action.SHOOT));
 
         for(int i = 1; i < steps.length; i++) {
             String current = steps[i];
@@ -60,7 +63,8 @@ public class AutonomousBuilder {
            System.out.println("Path: " + path.toString() + " ================================================================== ");
 
            PathPlannerTrajectory tempTraj = path.getTrajectory(new ChassisSpeeds(), new Rotation2d());
-           currentStep = new AutoStep(tempTraj.getTotalTimeSeconds() + 0.5, path);
+           final double shootWaitTimeAfterPath = 2.5;
+           currentStep = new AutoStep(tempTraj.getTotalTimeSeconds() + shootWaitTimeAfterPath, Action.COLLECT_AUTO_SHOOT ,path);
            autonomousSteps.add(currentStep);
            previous = steps[i];
            
@@ -77,6 +81,9 @@ public class AutonomousBuilder {
 
     public static AutoStep[] buildFromPositions(Paths.AutonomousPosition... positions) {
         LinkedList<AutoStep> autonomousSteps = new LinkedList<>();
+        final double shootTime = 3;
+        autonomousSteps.add(new AutoStep(shootTime, Action.COLLECT_AUTO_SHOOT));
+
         Paths.AutonomousPosition previous = positions[0];
 
         for(int i = 1; i < positions.length; i++) {
@@ -86,7 +93,8 @@ public class AutonomousBuilder {
                 continue;
             }
             PathPlannerTrajectory tempTraj = path.getTrajectory(new ChassisSpeeds(), new Rotation2d());
-            AutoStep currentStep = new AutoStep(tempTraj.getTotalTimeSeconds() + 0.5, path);
+            final double shootWaitTimeAfterPath = 2.5;
+            AutoStep currentStep = new AutoStep(tempTraj.getTotalTimeSeconds() + shootWaitTimeAfterPath, Action.COLLECT_AUTO_SHOOT, path);
             autonomousSteps.add(currentStep);
             previous = positions[i];
         }
