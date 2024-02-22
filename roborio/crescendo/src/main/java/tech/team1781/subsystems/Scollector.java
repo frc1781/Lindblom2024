@@ -38,7 +38,8 @@ public class Scollector extends Subsystem {
     private ProfiledPIDController mTopShooterPID = new ProfiledPIDController(SHOOTER_PID.x, SHOOTER_PID.y,
             SHOOTER_PID.z, SHOOTER_CONSTRAINTS);
 
-    private TimeOfFlight mNoteSensor = new TimeOfFlight(ConfigMap.SCOLLECTOR_TOF);
+    private TimeOfFlight mTopTof = new TimeOfFlight(ConfigMap.TOP_SCOLLECTOR_TOF);
+    private TimeOfFlight mBottomTof = new TimeOfFlight(ConfigMap.BOTTOM_SCOLLECTOR_TOF);
 
     private boolean mIsReadyToShoot = false;
     private boolean mArmInPosition = false;
@@ -131,7 +132,7 @@ public class Scollector extends Subsystem {
             case COLLECT_AUTO_SHOOT:
                 if (!hasNote()) {
                     collect();
-                } else if (mArmInPosition) {
+                } else if (mArmInPosition && !noteCloseToShooter()) {
                     shoot();
                 } else {
                     mCollectorMotor.set(0);
@@ -175,7 +176,18 @@ public class Scollector extends Subsystem {
     }
 
     public boolean hasNote() {
-        return mNoteSensor.getRange() <= 200;
+        if(!mBottomTof.isRangeValid()) {
+            return false;
+        }      
+
+        return mBottomTof.getRange() <= 400 || noteCloseToShooter();
+    }
+
+    public boolean noteCloseToShooter() {
+        if(!mTopTof.isRangeValid()) {
+            return false;
+        }
+        return mTopTof.getRange() <= 400;
     }
 
     public boolean shooterAtSpeed() {
@@ -197,8 +209,10 @@ public class Scollector extends Subsystem {
     }
 
     private void collect() {
-        if (!hasNote()) {
+        if (!hasNote() && !noteCloseToShooter()) {
             mCollectorMotor.set(-1);
+        } else if(noteCloseToShooter()){
+            mCollectorMotor.set(1);
         } else {
             mCollectorMotor.set(0);
             mHasShot = false;
@@ -208,7 +222,6 @@ public class Scollector extends Subsystem {
     private void shoot() {
         driveMotors();
         mCollectorMotor.set(-1);
-
     }
 
     private boolean isUpToSpeed() {
