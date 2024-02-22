@@ -24,8 +24,6 @@ public abstract class SwerveModule {
 
     public abstract SwerveModulePosition getModulePosition();
 
-    public abstract SwerveModuleState getCurrentState();
-
     public abstract void setDesiredState(SwerveModuleState sentDesiredState);
 
     abstract void syncRelativeToAbsoluteEncoder();

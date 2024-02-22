@@ -39,10 +39,6 @@ public class AutoStep {
         mPath = path;
     }
 
-    public AutoStep(double maxTime) {
-        mMaxTime = maxTime;
-    }
-
     public double getMaxTime() {
         return mMaxTime;
     }

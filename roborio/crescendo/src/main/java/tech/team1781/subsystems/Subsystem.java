@@ -37,7 +37,6 @@ public abstract class Subsystem {
       if (desiredState == currentState) {
          return;
       }
-
       currentState = desiredState;
       mNetworkLogger.log(getName(), getState().toString());
       System.out.println("Changing " + name +  "'s state to " + desiredState);

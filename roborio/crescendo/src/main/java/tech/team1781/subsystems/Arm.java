@@ -12,8 +12,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import tech.team1781.ConfigMap;
-import tech.team1781.utils.LimelightHelper;
-
 import com.revrobotics.SparkLimitSwitch;
 
 public class Arm extends Subsystem {
@@ -24,9 +22,8 @@ public class Arm extends Subsystem {
             new TrapezoidProfile.Constraints(80, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
     private GenericEntry mArmPositionEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Arm Position", -1).getEntry();
-    private GenericEntry mSpeakerDistanceEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Distance", 1).getEntry();
+    //private GenericEntry mSpeakerDistanceEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Distance", 1).getEntry();
     private double mDesiredPosition = 0;
-    private double mSpeakerDistance = 0;
 
     public Arm() {
         super("Arm", ArmState.START);
@@ -47,12 +44,6 @@ public class Arm extends Subsystem {
         System.out.println("initialized arm moters for following...");
         System.out.println("ENSURE ARM IN ZERO POSITION!!!!! Just set encoder to zero");
         mLeftEncoder.setPosition(0);
-        mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
-        mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
-        mLeftMotor.setSmartCurrentLimit(30);
-        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 90);
-        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, 0);
-        mLeftMotor.burnFlash();
         mPositions.put(ArmState.START, 0.0); // Temporary, used to be 71.9
         mPositions.put(ArmState.SAFE, 63.0);
         mPositions.put(ArmState.PODIUM, 43.8);
@@ -77,7 +68,12 @@ public class Arm extends Subsystem {
 
     @Override
     public void init() {
-
+        mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
+        mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
+        mLeftMotor.setSmartCurrentLimit(30);
+        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 90);
+        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, 0);
+        mLeftMotor.burnFlash();
         mDesiredPosition = mLeftEncoder.getPosition();
         setDesiredState(ArmState.START);
         if (currentMode == OperatingMode.DISABLED) {
@@ -89,7 +85,6 @@ public class Arm extends Subsystem {
         if (getState() == ArmState.AUTO_ANGLE) {
             mDesiredPosition = calculateAngleFromDistance();
         }
-
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), mDesiredPosition);
         mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
         mLeftMotor.set(armDutyCycle);
@@ -140,43 +135,17 @@ public class Arm extends Subsystem {
     }
 
     private double calculateAngleFromDistance() {
-        // final double start = 32;
-        // final double coefficient = 18.3;
-        // // double dist = LimelightHelper.getDistanceOfApriltag(4);
-        // // double dist = mSpeakerDistance - ConfigMap.DRIVETRAIN_TRACKWIDTH/2;
-        // double dist = mSpeakerDistanceEntry.getDouble(1);
-        // dist = Math.abs(dist);
-        // double angle = 32.0;
-        // if (dist < 0.5) {//can not see april tag
-        //     angle = 32.0;
-        // } else {
-        //     angle = Math.log(dist) * coefficient + start;
-        // }
-        
-        // System.out.printf("dist %.2f, angle %.2f\n", dist, angle); 
-        // if (angle > 51) {
-        //     angle = 51;
-        // }
-        // return angle;
-        return 32.0;
+        final double start = 26.2;
+        final double coefficient = 16.8;
+        double dist = 2.0;  //temporary, need to get distance from somewhere
+        dist = Math.log(dist);
+        //return start + (dist * coefficient);
+        return 45.0;  //temporary
     }
 
-    public void manualAdjustAngle(double d) {
+    public void manualControlAngle(double d) {
         setDesiredState(ArmState.MANUAL);
-
         mDesiredPosition += d;
-        if(mDesiredPosition > ConfigMap.MAX_THRESHOLD_ARM) {
-            mDesiredPosition = ConfigMap.MAX_THRESHOLD_ARM;
-        }
-
-        if(mDesiredPosition < ConfigMap.MIN_THRESHOLD_ARM) {
-            mDesiredPosition = ConfigMap.MIN_THRESHOLD_ARM;
-        }
-        
-    }
-
-    public void setSpeakerDistance(double d) {
-        mSpeakerDistance = d;
     }
 
     private boolean matchesPosition() {

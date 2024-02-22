@@ -1,7 +1,6 @@
 package tech.team1781.utils;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 
 /**
  * Very similar to the PVector class, except it has an E in it.
@@ -79,10 +78,6 @@ public class EVector {
 
     public static EVector fromAngle(double angle) {
         return new EVector(Math.cos(angle), Math.sin(angle), 0);
-    }
-
-    public Pose2d toPose2d() {
-        return new Pose2d(x,y, new Rotation2d(z));
     }
 
     public double heading() {

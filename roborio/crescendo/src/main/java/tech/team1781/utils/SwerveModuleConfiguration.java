@@ -10,9 +10,6 @@ public class SwerveModuleConfiguration {
    public double drivingI;
    public double drivingD;
    public double drivingFF;
-   public double drivingKS;
-   public double drivingKV;
-   public double drivingKA;
 
    public double minDrivingMotorVoltage;
    public double maxDrivingMotorVoltage;
