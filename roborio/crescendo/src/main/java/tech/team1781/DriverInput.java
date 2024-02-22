@@ -34,7 +34,7 @@ public class DriverInput {
     }
 
     public EVector getControllerJoyAxis(ControllerSide side, int controllerIndex) {
-        var selectedController = (XboxController) mControllers[0];
+        var selectedController = (XboxController) mControllers[controllerIndex];
         EVector ret_val = new EVector();
         if (side == ControllerSide.LEFT) {
             ret_val.x = selectedController.getLeftX();
@@ -149,6 +149,14 @@ public class DriverInput {
         mButtonMap.put(createKey(index, "A"), controller.getAButton());
         mButtonMap.put(createKey(index, "START"), controller.getStartButton());
         mButtonMap.put(createKey(index, "BACK"), controller.getBackButton());
+        mButtonMap.put(createKey(index, "N"), controller.getPOV() == 0);
+        mButtonMap.put(createKey(index, "NE"), controller.getPOV() == 45);
+        mButtonMap.put(createKey(index, "E"), controller.getPOV() == 90);
+        mButtonMap.put(createKey(index, "SE"), controller.getPOV() == 135);
+        mButtonMap.put(createKey(index, "S"), controller.getPOV() == 180);
+        mButtonMap.put(createKey(index, "SW"), controller.getPOV() == 225);
+        mButtonMap.put(createKey(index, "W"), controller.getPOV() == 270);
+        mButtonMap.put(createKey(index, "NW"), controller.getPOV() == 315);
     }
 
     private void updateJoystickButtons(int index, Joystick joystick) {
@@ -181,6 +189,11 @@ public class DriverInput {
 
     public interface Event {
         public void onPress(boolean isPressed);
+    }
+
+    public void addButtonListener(int coPilotPort, String string, Object object) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'addButtonListener'");
     }
 
 }

@@ -7,6 +7,7 @@ import com.pathplanner.lib.path.PathPlannerTrajectory.State;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -17,9 +18,15 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import tech.team1781.ConfigMap;
+import tech.team1781.swerve.KrakenL2SwerveModule;
 import tech.team1781.swerve.NEOL1SwerveModule;
 import tech.team1781.swerve.SwerveModule;
 import tech.team1781.utils.EVector;
@@ -32,16 +39,16 @@ import java.util.concurrent.TimeUnit;
 public class DriveSystem extends Subsystem {
 
     // Swerve Modules
-    private final SwerveModule mFrontLeft = new NEOL1SwerveModule(ConfigMap.FRONT_LEFT_MODULE_DRIVE_MOTOR,
+    private final SwerveModule mFrontLeft = new KrakenL2SwerveModule(ConfigMap.FRONT_LEFT_MODULE_DRIVE_MOTOR,
             ConfigMap.FRONT_LEFT_MODULE_STEER_MOTOR, ConfigMap.FRONT_LEFT_MODULE_STEER_ENCODER,
             ConfigMap.FRONT_LEFT_MODULE_STEER_OFFSET);
-    private final SwerveModule mFrontRight = new NEOL1SwerveModule(ConfigMap.FRONT_RIGHT_MODULE_DRIVE_MOTOR,
+    private final SwerveModule mFrontRight = new KrakenL2SwerveModule(ConfigMap.FRONT_RIGHT_MODULE_DRIVE_MOTOR,
             ConfigMap.FRONT_RIGHT_MODULE_STEER_MOTOR, ConfigMap.FRONT_RIGHT_MODULE_STEER_ENCODER,
             ConfigMap.FRONT_RIGHT_MODULE_STEER_OFFSET);
-    private final SwerveModule mBackLeft = new NEOL1SwerveModule(ConfigMap.BACK_LEFT_MODULE_DRIVE_MOTOR,
+    private final SwerveModule mBackLeft = new KrakenL2SwerveModule(ConfigMap.BACK_LEFT_MODULE_DRIVE_MOTOR,
             ConfigMap.BACK_LEFT_MODULE_STEER_MOTOR, ConfigMap.BACK_LEFT_MODULE_STEER_ENCODER,
             ConfigMap.BACK_LEFT_MODULE_STEER_OFFSET);
-    private final SwerveModule mBackRight = new NEOL1SwerveModule(ConfigMap.BACK_RIGHT_MODULE_DRIVE_MOTOR,
+    private final SwerveModule mBackRight = new KrakenL2SwerveModule(ConfigMap.BACK_RIGHT_MODULE_DRIVE_MOTOR,
             ConfigMap.BACK_RIGHT_MODULE_STEER_MOTOR, ConfigMap.BACK_RIGHT_MODULE_STEER_ENCODER,
             ConfigMap.BACK_RIGHT_MODULE_STEER_OFFSET);
 
@@ -50,7 +57,7 @@ public class DriveSystem extends Subsystem {
             ConfigMap.FRONT_RIGHT_MODULE_POSITION, ConfigMap.BACK_LEFT_MODULE_POSITION,
             ConfigMap.BACK_RIGHT_MODULE_POSITION);
 
-    private SwerveDriveOdometry mOdometry;
+    private SwerveDrivePoseEstimator mPoseEstimator;
     private boolean mIsFieldOriented = true;
     private double mNavXOffset = 0;
     private boolean mHasNavXOffsetBeenSet = false;
@@ -71,16 +78,25 @@ public class DriveSystem extends Subsystem {
     private HolonomicDriveController mTrajectoryController = new HolonomicDriveController(mXController, mYController,
             mRotController);
 
+    private Field2d mField = new Field2d();
+
     public DriveSystem() {
         super("Drive System", DriveSystemState.DRIVE_MANUAL);
-        mOdometry = new SwerveDriveOdometry(mKinematics, getRobotAngle(), getModulePositions());
+        // mOdometry = new SwerveDriveOdometry(mKinematics, getRobotAngle(),
+        // getModulePositions());
+        mPoseEstimator = new SwerveDrivePoseEstimator(mKinematics, new Rotation2d(), getModulePositions(),
+                new Pose2d());
         mRotController.enableContinuousInput(0, Math.PI * 2);
+        mNavX.resetDisplacement();
+
+        ConfigMap.SHUFFLEBOARD_TAB.add(mField);
     }
 
     public enum DriveSystemState implements Subsystem.SubsystemState {
         DRIVE_SETPOINT,
         DRIVE_TRAJECTORY,
-        DRIVE_MANUAL
+        DRIVE_MANUAL,
+        SYSID
     }
 
     @Override
@@ -90,6 +106,7 @@ public class DriveSystem extends Subsystem {
                 goTo(mDesiredPosition);
                 break;
             case DRIVE_TRAJECTORY:
+                System.out.println(mDesiredTrajectory.hashCode() + " :: " + mDesiredTrajectory.getTotalTimeSeconds());
                 followTrajectory();
                 break;
             case DRIVE_MANUAL:
@@ -97,6 +114,11 @@ public class DriveSystem extends Subsystem {
                     driveRaw(0, 0, 0);
                 }
                 break;
+            case SYSID:
+                driveRaw(1, 0, 0);
+                ChassisSpeeds currentSpeeds = getChassisSpeeds();
+                System.out.print(super.currentTime + "," + currentSpeeds.vxMetersPerSecond + "," + currentSpeeds.vyMetersPerSecond + "," + currentSpeeds.omegaRadiansPerSecond);
+            break;
             default:
                 break;
         }
@@ -116,7 +138,7 @@ public class DriveSystem extends Subsystem {
                 return false;
             // return mIsManual;
             default:
-                return true;
+                return false;
         }
     }
 
@@ -131,6 +153,8 @@ public class DriveSystem extends Subsystem {
     @Override
     public void genericPeriodic() {
         updateOdometry();
+
+        mField.setRobotPose(getRobotPose());
     }
 
     @Override
@@ -143,6 +167,8 @@ public class DriveSystem extends Subsystem {
         mNavX.reset();
         mNavX.zeroYaw();
 
+        double startingAngle = DriverStation.getAlliance().get() == Alliance.Red ? Math.PI : 0;
+
         switch (currentMode) {
             case AUTONOMOUS:
                 mIsFieldOriented = true;
@@ -150,6 +176,10 @@ public class DriveSystem extends Subsystem {
                 mOdometryBeenSet = false;
                 break;
             case TELEOP:
+                // setOdometry(new Pose2d(1.26, 5.53, new Rotation2d()));
+                mHasNavXOffsetBeenSet = false;
+                setNavXOffset(new Rotation2d(startingAngle));
+                mIsFieldOriented = true;
                 mIsManual = true;
                 break;
             case DISABLED:
@@ -166,15 +196,29 @@ public class DriveSystem extends Subsystem {
             Pose2d robotPose = getRobotPose();
             super.mNetworkLogger.log("X", robotPose.getX());
             super.mNetworkLogger.log("Y", robotPose.getY());
-            super.mNetworkLogger.log("Rot", getRobotAngle().getDegrees());
+            super.mNetworkLogger.log("Rot", getRobotAngle().getRadians());
         };
 
         ScheduledExecutorService loggingExecutor = Executors.newScheduledThreadPool(1);
         loggingExecutor.scheduleAtFixedRate(OdometryLogging, 0, 1, TimeUnit.SECONDS);
     }
 
+    public void updateVisionLocalization(Pose2d visionEstimate) {
+        var visionEstimateVector = EVector.fromPose2d(visionEstimate);
+        var currentPose = EVector.fromPose2d(getRobotPose());
+
+        visionEstimateVector.z = currentPose.z;
+
+        if(Math.abs(currentPose.dist(visionEstimateVector)) >= 1) {
+            return;
+        }
+
+        mPoseEstimator.addVisionMeasurement(visionEstimateVector.toPose2d(), Timer.getFPGATimestamp());
+    }
+
     public void setOdometry(Pose2d pose) {
-        mOdometry.resetPosition(getRobotAngle(), getModulePositions(), pose);
+        // mOdometry.resetPosition(getRobotAngle(), getModulePositions(), pose);
+        mPoseEstimator.resetPosition(getRobotAngle(), getModulePositions(), pose);
     }
 
     public void setNavXOffset(Rotation2d offset) {
@@ -207,6 +251,7 @@ public class DriveSystem extends Subsystem {
         // pathplannerState.accelerationMpsSq,
         // pathplannerState.getTargetHolonomicPose(),
         // pathplannerState.curvatureRadPerMeter);
+        // System.out.println(pathplannerState.velocityMps);
         ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(
                 getRobotPose(),
                 new Pose2d(pathplannerState.positionMeters, pathplannerState.heading),
@@ -238,7 +283,7 @@ public class DriveSystem extends Subsystem {
         mDesiredTrajectory = trajectory;
 
         if (!mOdometryBeenSet) {
-            setNavXOffset(new Rotation2d(45.0 / 180.0 * Math.PI));
+            setNavXOffset(new Rotation2d((45.0 / 180.0 * Math.PI)));
             setOdometry(initialPose);
             mOdometryBeenSet = true;
         }
@@ -276,7 +321,6 @@ public class DriveSystem extends Subsystem {
         EVector currentPose = EVector.fromPose(getRobotPose());
         EVector otherPose = EVector.fromPose(other);
         return currentPose.dist(otherPose) <= TOLERANCE;
-
     }
 
     public void driveRaw(double xSpeed, double ySpeed, double rot) {
@@ -294,10 +338,10 @@ public class DriveSystem extends Subsystem {
     }
 
     public Rotation2d getRobotAngle() {
-        double reportedVal = mNavX.getRotation2d().getRadians() + mNavXOffset;
+        double reportedVal = -mNavX.getRotation2d().getRadians() + mNavXOffset;
 
         reportedVal %= 2 * Math.PI;
-        if (reportedVal < 0) {
+        if (reportedVal > 0) {
             reportedVal += 2 * Math.PI;
         }
 
@@ -305,7 +349,11 @@ public class DriveSystem extends Subsystem {
     }
 
     public Pose2d getRobotPose() {
-        return mOdometry.getPoseMeters();
+        return mPoseEstimator.getEstimatedPosition();
+    }
+
+    public ChassisSpeeds getChassisSpeeds() {
+        return mKinematics.toChassisSpeeds(getModuleStates());
     }
 
     public boolean matchesDesiredPosition() {
@@ -318,8 +366,24 @@ public class DriveSystem extends Subsystem {
         return false;
     }
 
+    public double distanceToSpeaker() {
+        Pose2d currentPose = getRobotPose();
+        EVector currentPoseEvector = EVector.newVector(currentPose.getX(), currentPose.getY());
+        EVector speakerPosition = EVector.newVector(0, 5.55);
+
+        return currentPoseEvector.dist(speakerPosition);
+    }
+
     private void updateOdometry() {
-        mOdometry.update(getRobotAngle(), getModulePositions());
+        // mOdometry.update(getRobotAngle(), getModulePositions());
+        mPoseEstimator.update(getRobotAngle(), getModulePositions());
+    }
+
+    public void printModules() {
+        ((NEOL1SwerveModule) mFrontLeft).printModuleState();
+        ((NEOL1SwerveModule) mFrontRight).printModuleState();
+        ((NEOL1SwerveModule) mBackLeft).printModuleState();
+        ((NEOL1SwerveModule) mBackRight).printModuleState();
     }
 
     private SwerveModulePosition[] getModulePositions() {
@@ -328,6 +392,15 @@ public class DriveSystem extends Subsystem {
                 mFrontRight.getModulePosition(),
                 mBackLeft.getModulePosition(),
                 mBackRight.getModulePosition()
+        };
+    }
+
+    private SwerveModuleState[] getModuleStates() {
+        return new SwerveModuleState[] {
+                mFrontLeft.getCurrentState(),
+                mFrontRight.getCurrentState(),
+                mBackLeft.getCurrentState(),
+                mFrontLeft.getCurrentState()
         };
     }
 

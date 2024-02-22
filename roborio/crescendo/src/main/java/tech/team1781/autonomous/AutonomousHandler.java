@@ -3,6 +3,8 @@ package tech.team1781.autonomous;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import tech.team1781.ConfigMap;
+import tech.team1781.autonomous.routines.FourNoteRoutine;
+import tech.team1781.autonomous.routines.PIDTuningRoutine;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.subsystems.Subsystem;
 
@@ -14,6 +16,7 @@ public class AutonomousHandler {
     private Timer mTimer = new Timer();
 
     private AutoStep sampledStep;
+    private AutoStep[] mSampledSteps;
 
     public AutonomousHandler(ControlSystem controlSystem, AutoRoutine... routines) {
         mAutoChooser.setDefaultOption(routines[0].getName(), routines[0]);
@@ -21,7 +24,7 @@ public class AutonomousHandler {
             mAutoChooser.addOption(routine.getName(), routine);
         }
         
-        ConfigMap.SHUFFLEBOARD_TAB.add(mAutoChooser);
+        ConfigMap.AUTONOMOUS_TAB.add(mAutoChooser);
 
         mControlSystem = controlSystem;
     }
@@ -31,6 +34,8 @@ public class AutonomousHandler {
         mTimer.start();
         mStepIndex = 0;
         mSelectedRoutine = mAutoChooser.getSelected();
+        mSampledSteps = mAutoChooser.getSelected().getSteps();
+
 
         sampledStep = mSelectedRoutine.getSteps()[0];
         startStep(sampledStep);
@@ -49,7 +54,7 @@ public class AutonomousHandler {
                 mStepIndex++;
                 mTimer.reset();
                 mTimer.start();
-                sampledStep = mSelectedRoutine.getSteps()[mStepIndex];
+                sampledStep = mSampledSteps[mStepIndex];
                 startStep(sampledStep);
             }
 
@@ -60,6 +65,7 @@ public class AutonomousHandler {
     }
 
     private void startStep(AutoStep step) {
+        System.out.println("new step!");
         mControlSystem.setAutoStep(step.getAction(), step.getPosition(), step.getPath());
     }
 

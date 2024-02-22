@@ -3,25 +3,58 @@
   "waypoints": [
     {
       "anchor": {
+<<<<<<< HEAD
         "x": 2.89,
         "y": 6.99
       },
       "prevControl": null,
       "nextControl": {
+<<<<<<<< HEAD:roborio/crescendo/src/main/deploy/pathplanner/paths/p1;c1.path
         "x": 4.004124919787621,
         "y": 7.077879191398411
+========
+        "x": 7.448590491976619,
+        "y": 8.366915656988608
+>>>>>>>> main:roborio/crescendo/src/main/deploy/pathplanner/paths/n1;c3.path
+=======
+        "x": 2.0,
+        "y": 7.0
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.0,
+        "y": 7.0
+>>>>>>> main
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
+<<<<<<< HEAD
+<<<<<<<< HEAD:roborio/crescendo/src/main/deploy/pathplanner/paths/p1;c1.path
         "x": 7.89,
         "y": 7.43
       },
       "prevControl": {
         "x": 8.036958789103496,
         "y": 6.643346289618155
+========
+        "x": 7.89242756150487,
+        "y": 4.1
+      },
+      "prevControl": {
+        "x": 6.674978629145077,
+        "y": 2.65630378976494
+>>>>>>>> main:roborio/crescendo/src/main/deploy/pathplanner/paths/n1;c3.path
+=======
+        "x": 2.9195544105373927,
+        "y": 7.0
+      },
+      "prevControl": {
+        "x": 1.9195544105373927,
+        "y": 7.0
+>>>>>>> main
       },
       "nextControl": null,
       "isLocked": false,
@@ -32,8 +65,8 @@
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 1.0,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 5.8,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
@@ -44,6 +77,9 @@
   },
   "reversed": false,
   "folder": null,
-  "previewStartingState": null,
-  "useDefaultConstraints": false
+  "previewStartingState": {
+    "rotation": 0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
 }
