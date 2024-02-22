@@ -176,11 +176,12 @@ public class Scollector extends Subsystem {
     }
 
     public boolean hasNote() {
-        if(!mBottomTof.isRangeValid()) {
+        double range = mBottomTof.getRange();
+        if(!mBottomTof.isRangeValid() && range == 0.0) {
             return false;
         }      
 
-        return mBottomTof.getRange() <= 400 || noteCloseToShooter();
+        return range <= 400;
     }
 
     public boolean noteCloseToShooter() {
@@ -215,7 +216,7 @@ public class Scollector extends Subsystem {
             mCollectorMotor.set(-1);
         } else if(noteCloseToShooter()){
             mCollectorMotor.set(1);
-        } else {
+        } else if(hasNote()){
             mCollectorMotor.set(0);
             mHasShot = false;
         }
