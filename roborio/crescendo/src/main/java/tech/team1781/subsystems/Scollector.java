@@ -187,7 +187,9 @@ public class Scollector extends Subsystem {
         if(!mTopTof.isRangeValid()) {
             return false;
         }
-        return mTopTof.getRange() <= 400;
+        System.out.println("tof range: " + mTopTof.getRange());
+        return false;
+        // return mTopTof.getRange() <= 400;
     }
 
     public boolean shooterAtSpeed() {
