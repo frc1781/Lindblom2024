@@ -340,6 +340,9 @@ public class ControlSystem {
                 mRotDriveLimiter.reset(0);
                 mArm.setDesiredState(ArmState.SAFE);
                 mDriveSystem.setDesiredState(DriveSystem.DriveSystemState.DRIVE_MANUAL);
+                if(getLimelightPose().getX() != -99.9) {
+                    mDriveSystem.setOdometry(getLimelightPose());
+                }
                 break;
             case AUTONOMOUS:
                 mDriveSystem.setOdometry(getLimelightPose());
@@ -417,7 +420,6 @@ public class ControlSystem {
     private Pose2d getLimelightPose(){
         double[] doubleArray = {-99.9, -99.9, -99.9, -99.9, -99.9, -99.9};
         doubleArray = mLimelightTable.getEntry("botpose").getDoubleArray(doubleArray);
-
         return new Pose2d(doubleArray[0], doubleArray[1], mDriveSystem.getRobotAngle());
     }
 

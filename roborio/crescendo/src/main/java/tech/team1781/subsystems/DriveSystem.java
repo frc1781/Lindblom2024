@@ -369,9 +369,11 @@ public class DriveSystem extends Subsystem {
     public double distanceToSpeaker() {
         Pose2d currentPose = getRobotPose();
         EVector currentPoseEvector = EVector.newVector(currentPose.getX(), currentPose.getY());
-        EVector speakerPosition = EVector.newVector(0, 5.55);
 
-        return currentPoseEvector.dist(speakerPosition);
+        boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
+        EVector speakerPos = isRed ? ConfigMap.RED_SPEAKER_LOCATION : ConfigMap.BLUE_SPEAKER_LOCATION;
+
+        return currentPoseEvector.dist(speakerPos);
     }
 
     private void updateOdometry() {

@@ -140,25 +140,25 @@ public class Arm extends Subsystem {
     }
 
     private double calculateAngleFromDistance() {
-        // final double start = 32;
-        // final double coefficient = 18.3;
-        // // double dist = LimelightHelper.getDistanceOfApriltag(4);
-        // // double dist = mSpeakerDistance - ConfigMap.DRIVETRAIN_TRACKWIDTH/2;
-        // double dist = mSpeakerDistanceEntry.getDouble(1);
-        // dist = Math.abs(dist);
-        // double angle = 32.0;
-        // if (dist < 0.5) {//can not see april tag
-        //     angle = 32.0;
-        // } else {
-        //     angle = Math.log(dist) * coefficient + start;
-        // }
+        final double start = 32;
+        final double coefficient = 18.3;
+        // double dist = LimelightHelper.getDistanceOfApriltag(4);
+        // double dist = mSpeakerDistance - ConfigMap.DRIVETRAIN_TRACKWIDTH/2;
+        double dist = mSpeakerDistanceEntry.getDouble(1);
+        dist = Math.abs(dist);
+        double angle = 32.0;
+        if (dist < 0.5) {//can not see april tag
+            angle = 32.0;
+        } else {
+            angle = Math.log(dist) * coefficient + start;
+        }
         
-        // System.out.printf("dist %.2f, angle %.2f\n", dist, angle); 
-        // if (angle > 51) {
-        //     angle = 51;
-        // }
-        // return angle;
-        return 32.0;
+        System.out.printf("dist %.2f, angle %.2f\n", dist, angle); 
+        if (angle > 51) {
+            angle = 51;
+        }
+        return angle;
+        // return 32.0;
     }
 
     public void manualAdjustAngle(double d) {
