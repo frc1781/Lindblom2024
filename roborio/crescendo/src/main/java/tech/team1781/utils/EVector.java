@@ -118,7 +118,8 @@ public class EVector {
         return new EVector(x * Math.cos(angle) - y * Math.sin(angle), x * Math.sin(angle) + y * Math.cos(angle), z);
     }
 
-    public String asString() {
+    @Override
+    public String toString() {
         return "(" + x + ", " + y + ", " + z + ")";
     }
 }

@@ -9,10 +9,8 @@ import tech.team1781.utils.EVector;
 
 public class ConfigMap {
         public static final ShuffleboardTab SHUFFLEBOARD_TAB = Shuffleboard.getTab("Electric Eagles");
+        public static final ShuffleboardTab AUTONOMOUS_TAB = Shuffleboard.getTab("Autonomous");
         public static final ShuffleboardTab CONFIG_TAB = Shuffleboard.getTab("Config");
-
-        public static final EVector BLUE_SPEAKER_POS = EVector.newVector(0, 5.57);
-        public static final EVector RED_SPEAKER_POS = EVector.newVector(16.52, 5.57);
 
         // CAN IDs
 
@@ -43,7 +41,8 @@ public class ConfigMap {
         public static final int RIGHT_CLIMBER_MOTOR = 51;
 
         // 60-69 Sensors
-        public static final int SCOLLECTOR_TOF = 58;
+        public static final int BOTTOM_SCOLLECTOR_TOF = 58;
+        public static final int TOP_SCOLLECTOR_TOF = 56;
         public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 60;
         public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 62;
         public static final int BACK_LEFT_MODULE_STEER_ENCODER = 61;

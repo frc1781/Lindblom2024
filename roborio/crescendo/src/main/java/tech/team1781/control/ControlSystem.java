@@ -210,7 +210,6 @@ public class ControlSystem {
         }
     }
 
-
     public void manualAdjustAngle(double diff) {
         mArm.manualAdjustAngle(diff);
     }
@@ -405,7 +404,6 @@ public class ControlSystem {
 
     public void init(OperatingMode operatingMode) {
         mCurrentOperatingMode = operatingMode;
-
         mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.BACK_LIMELIGHT_NAME));
 
         for (Subsystem subsystem : mSubsystems) {
@@ -421,8 +419,10 @@ public class ControlSystem {
                 mRotDriveLimiter.reset(0);
                 mArm.setDesiredState(ArmState.SAFE);
                 mDriveSystem.setDesiredState(DriveSystem.DriveSystemState.DRIVE_MANUAL);
+                mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.BACK_LIMELIGHT_NAME));
                 break;
             case AUTONOMOUS:
+                mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.BACK_LIMELIGHT_NAME));
                 break;
             default:
                 break;
