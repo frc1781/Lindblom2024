@@ -175,7 +175,8 @@ public class Scollector extends Subsystem {
     }
 
     public boolean hasNote() {
-        System.out.printf("%.2f\n", mNoteSensor.getRange());
+        //System.out.printf("%.2f\n", mNoteSensor.getRange());
+        //System.out.println(mNoteSensor.getStatus());
         return mNoteSensor.getRange() <= 200;
     }
 

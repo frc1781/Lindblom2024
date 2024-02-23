@@ -290,7 +290,6 @@ public class ControlSystem {
 
     public void autoAimingInputs() {
         if (!mAutoCollectionButton && !mCenterOnAprilTagButton && !mSeekSpeakerButton) {
-            mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
             mAutoAiming = false;
             return;
         }
@@ -306,10 +305,6 @@ public class ControlSystem {
         }
 
         if (mAutoCollectionButton && !mCenterOnAprilTagButton && !mSeekSpeakerButton) {
-            mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
-            mArm.setDesiredState(ArmState.COLLECT);
-            mScollector.setDesiredState(ScollectorState.COLLECT);
-
             centerNote();
             mAutoAiming = true;
         }
@@ -353,10 +348,16 @@ public class ControlSystem {
         double x = LimelightHelper.getTX(ConfigMap.BACK_LIMELIGHT_NAME);
         if (x != 0.0) {
             mAimingAngle = mLimelightAimController.calculate(x, 180);
-            double distance = getDistanceFromNote();
+/*            double distance = getDistanceFromNote();
 
-            Transform2d notePose = new Transform2d(distance * Math.cos(Math.toRadians(mAimingAngle)), distance * Math.sin(Math.toRadians(mAimingAngle)), new Rotation2d());
-            mDriveSystem.setPosition(EVector.fromPose(mDriveSystem.getRobotPose().plus(notePose)));
+            if (x <= 0.1) {
+                Transform2d notePose = new Transform2d(distance * Math.cos(Math.toRadians(mAimingAngle)), distance * Math.sin(Math.toRadians(mAimingAngle)), new Rotation2d());
+                mDriveSystem.setPosition(EVector.fromPose(mDriveSystem.getRobotPose().plus(notePose)));
+
+                mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
+                mArm.setDesiredState(ArmState.COLLECT);
+                mScollector.setDesiredState(ScollectorState.COLLECT);
+            }*/
         }
     }
 
