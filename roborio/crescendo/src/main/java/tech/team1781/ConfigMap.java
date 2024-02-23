@@ -5,12 +5,16 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import tech.team1781.utils.EVector;
 
 public class ConfigMap {
         public static final ShuffleboardTab SHUFFLEBOARD_TAB = Shuffleboard.getTab("Electric Eagles");
         public static final ShuffleboardTab AUTONOMOUS_TAB = Shuffleboard.getTab("Autonomous");
 
         public static final ShuffleboardTab CONFIG_TAB = Shuffleboard.getTab("Config");
+
+        public static final EVector RED_SPEAKER_LOCATION = EVector.newVector(16.57, 5.54);
+        public static final EVector BLUE_SPEAKER_LOCATION = EVector.newVector(0.02, 5.54);
 
         // CAN IDs
 
