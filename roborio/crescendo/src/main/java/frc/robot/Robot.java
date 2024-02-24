@@ -87,6 +87,7 @@ public class Robot extends TimedRobot {
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.PREPARE_TO_SHOOT, (isPressed) -> {
       mControlSystem.setPrepareToShoot(isPressed);
+      mControlSystem.setCenteringOnAprilTag(isPressed);
     });
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.ANGLE_UP, (isPressed) -> {
@@ -99,10 +100,6 @@ public class Robot extends TimedRobot {
       if(isPressed) {
         mControlSystem.manualAdjustAngle(-3);
       }
-    });
-
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CENTER_TO_APRIL_TAG, (isHeld) -> {
-        mControlSystem.setCenteringOnAprilTag(isHeld);
     });
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.NOTE_COLLECTION, (isHeld) -> {

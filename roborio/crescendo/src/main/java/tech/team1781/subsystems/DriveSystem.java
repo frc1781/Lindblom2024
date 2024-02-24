@@ -202,24 +202,6 @@ public class DriveSystem extends Subsystem {
         loggingExecutor.scheduleAtFixedRate(OdometryLogging, 0, 1, TimeUnit.SECONDS);
     }
 
-    public double getSpeakerAngle() {
-        boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
-        EVector target = isRed ? ConfigMap.RED_SPEAKER_POS : ConfigMap.BLUE_SPEAKER_POS;
-
-        Pose2d currentPose = getRobotPose();
-
-        double angleToSpeaker = Math.atan2(target.y - currentPose.getY(), target.x - currentPose.getX());
-        double angleError = angleToSpeaker - getRobotAngle().getRadians();
-
-        if (angleError > Math.PI) {
-            angleError -= 2 * Math.PI;
-        } else if (angleError < -Math.PI) {
-            angleError += 2 * Math.PI;
-        }
-
-        return angleError;
-    }
-
     public void updateVisionLocalization(Pose2d visionEstimate) {
         var visionEstimateVector = EVector.fromPose2d(visionEstimate);
         var currentPose = EVector.fromPose2d(getRobotPose());
@@ -381,16 +363,6 @@ public class DriveSystem extends Subsystem {
             return mDesiredPosition.dist(EVector.fromPose(getRobotPose())) < 0.1;
         }
         return false;
-    }
-
-    public double distanceToSpeaker() {
-        Pose2d currentPose = getRobotPose();
-        EVector currentPoseEvector = EVector.newVector(currentPose.getX(), currentPose.getY());
-
-        boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
-        EVector speakerPos = isRed ? ConfigMap.RED_SPEAKER_LOCATION : ConfigMap.BLUE_SPEAKER_LOCATION;
-
-        return currentPoseEvector.dist(speakerPos);
     }
 
     private void updateOdometry() {

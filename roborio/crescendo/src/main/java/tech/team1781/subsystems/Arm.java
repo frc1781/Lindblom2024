@@ -24,9 +24,7 @@ public class Arm extends Subsystem {
             new TrapezoidProfile.Constraints(80, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
     private GenericEntry mArmPositionEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Arm Position", -1).getEntry();
-    private GenericEntry mSpeakerDistanceEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Distance", 1).getEntry();
     private double mDesiredPosition = 0;
-    private double mSpeakerDistance = 0;
 
     public Arm() {
         super("Arm", ArmState.START);
@@ -142,23 +140,19 @@ public class Arm extends Subsystem {
     private double calculateAngleFromDistance() {
         final double start = 32;
         final double coefficient = 18.3;
-        // double dist = LimelightHelper.getDistanceOfApriltag(4);
-        // double dist = mSpeakerDistance - ConfigMap.DRIVETRAIN_TRACKWIDTH/2;
-        double dist = mSpeakerDistanceEntry.getDouble(1);
-        dist = Math.abs(dist);
+
+        boolean isRed = DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
+        double dist = isRed ? LimelightHelper.getDistanceOfApriltag(4) : LimelightHelper.getDistanceOfApriltag(8);
         double angle = 32.0;
-        if (dist < 0.5) {//can not see april tag
+
+        if (dist == 0.0) {
             angle = 32.0;
         } else {
             angle = Math.log(dist) * coefficient + start;
         }
-        
-        System.out.printf("dist %.2f, angle %.2f\n", dist, angle); 
-        if (angle > 51) {
-            angle = 51;
-        }
+
+        if (angle >= 51) { angle = 51; }
         return angle;
-        // return 32.0;
     }
 
     public void manualAdjustAngle(double d) {
@@ -173,10 +167,6 @@ public class Arm extends Subsystem {
             mDesiredPosition = ConfigMap.MIN_THRESHOLD_ARM;
         }
         
-    }
-
-    public void setSpeakerDistance(double d) {
-        mSpeakerDistance = d;
     }
 
     private boolean matchesPosition() {

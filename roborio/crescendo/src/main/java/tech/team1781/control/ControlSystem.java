@@ -165,7 +165,6 @@ public class ControlSystem {
                 mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
 
                 if (!mKeepArmDownButton && !mCollectingButton) {
-                    //mArm.setSpeakerAngle(calculateAngleFromDistance());
                     mArm.setDesiredState(ArmState.AUTO_ANGLE);
                 }
             } else {
@@ -225,7 +224,6 @@ public class ControlSystem {
             } else if (!mKeepArmDownButton) {
                 mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
 
-                //mArm.setSpeakerAngle(calculateAngleFromDistance());
                 mArm.setDesiredState(ArmState.AUTO_ANGLE);
             }
         } else {
@@ -274,7 +272,6 @@ public class ControlSystem {
         mDriveSystem.zeroNavX();
     }
 
-            // LimelightHelper.getDistanceOfApriltag(4);
     public void setCenteringOnAprilTag(boolean isHeld) {
         mCenterOnAprilTagButton = isHeld;
     }
@@ -310,7 +307,9 @@ public class ControlSystem {
     }
 
     public void centerOnAprilTag() {
-        double x = LimelightHelper.getXOffsetOfApriltag(4);
+        boolean isRed = DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
+        double x = isRed ? LimelightHelper.getXOffsetOfApriltag(4) : LimelightHelper.getXOffsetOfApriltag(8);
+
         if (x != 0.0) {
             mAimingAngle = mLimelightAimController.calculate(x, 0);
         } else {
@@ -419,10 +418,8 @@ public class ControlSystem {
                 mRotDriveLimiter.reset(0);
                 mArm.setDesiredState(ArmState.SAFE);
                 mDriveSystem.setDesiredState(DriveSystem.DriveSystemState.DRIVE_MANUAL);
-                mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.BACK_LIMELIGHT_NAME));
                 break;
             case AUTONOMOUS:
-                mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.BACK_LIMELIGHT_NAME));
                 break;
             default:
                 break;
@@ -434,12 +431,6 @@ public class ControlSystem {
     }
 
     public void run(DriverInput driverInput) {
-
-        mDriveSystem.updateVisionLocalization(LimelightHelper.getBotPose2d(ConfigMap.BACK_LIMELIGHT_NAME));
-        mArm.setSpeakerDistance(mDriveSystem.distanceToSpeaker());
-        mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
-        // mDriveSystem.updateVisionLocalization();
-
         switch (mCurrentOperatingMode) {
             case TELEOP:
                 driverDriving(
@@ -451,7 +442,6 @@ public class ControlSystem {
                 autoAimingInputs();
                 break;
             case AUTONOMOUS:
-                // System.out.println(mScollector.getState().toString());
                 if (mScollector.getState() == ScollectorState.COLLECT
                         || mScollector.getState() == ScollectorState.COLLECT_RAMP
                         || mScollector.getState() == ScollectorState.COLLECT_AUTO_SHOOT) {
@@ -537,23 +527,6 @@ public class ControlSystem {
         }
 
     }
-
-    private double calculateAngleFromDistance() {
-        final double start = 32;
-        final double coefficient = 18.3;
-        double dist = LimelightHelper.getDistanceOfApriltag(4);
-        double angle = 32.0;
-
-        if (dist == 0.0) {
-            angle = 32.0;
-        } else {
-            angle = Math.log(dist) * coefficient + start;
-        }
-
-        if (angle >= 51) { angle = 51; }
-        return angle;
-    }
-
 }
 
 class SubsystemSetting {

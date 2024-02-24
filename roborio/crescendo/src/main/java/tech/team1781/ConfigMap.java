@@ -103,7 +103,6 @@ public class ConfigMap {
         // Co-pilot controls
         public static final int CO_PILOT_PORT = 1;
 
-        public static final String CENTER_TO_APRIL_TAG = "B";
         public static final String NOTE_COLLECTION = "A";
         public static final String SPIT = "LB";
         public static final String SHOOT = "RB";
