@@ -62,6 +62,7 @@ public class Arm extends Subsystem {
         mPositions.put(ArmState.PODIUM, 43.8);
         mPositions.put(ArmState.SUBWOOFER, 40.0);
         mPositions.put(ArmState.COLLECT, 0.0);
+        mPositions.put(ArmState.COLLECT_HIGH, 53.0);
     }
 
     public enum ArmState implements Subsystem.SubsystemState {
@@ -70,6 +71,7 @@ public class Arm extends Subsystem {
         PODIUM,
         SUBWOOFER,
         COLLECT,
+        COLLECT_HIGH,
         MANUAL,
         AUTO_ANGLE
     }

@@ -66,6 +66,7 @@ public class ControlSystem {
     private boolean mSpitButton = false;
     private boolean mClimberRetractButton = false;
     private boolean mClimberExtendButton = false;
+    private boolean mCollectingHighButton = false;
 
     private NetworkTable mLimelightTable = NetworkTableInstance.getDefault().getTable(ConfigMap.BACK_LIMELIGHT_NAME);
 
@@ -247,6 +248,19 @@ public class ControlSystem {
         }
     }
 
+    public void setCollectHigh(boolean collectingHigh) {
+        if(mCollectingHighButton == collectingHigh) {
+            return;
+        }
+
+        mCollectingHighButton = collectingHigh;
+
+        if(!mCollectingButton && collectingHigh && !mKeepArmDownButton){
+            mArm.setDesiredState(ArmState.COLLECT_HIGH);
+            mScollector.setDesiredState(ScollectorState.COLLECT);
+        }
+    }
+
     public void setArmState(ArmState desiredState) {
         mArm.setDesiredState(desiredState);
     }
@@ -352,8 +366,8 @@ public class ControlSystem {
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
 
 
-        if(mLimelightTable.getEntry("tv").getDouble(-1) >= 2) {
-            mDriveSystem.updateVisionLocalization(getLimelightPose());
+        if(mLimelightTable.getEntry("tv").getDouble(-1) >= 1) {
+            mDriveSystem.setOdometry(getLimelightPose());
         } //2 4.3 -35
         // mDriveSystem.updateVisionLocalization();
 

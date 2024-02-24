@@ -413,10 +413,10 @@ public class DriveSystem extends Subsystem {
     }
 
     public void printModules() {
-        ((NEOL1SwerveModule) mFrontLeft).printModuleState();
-        ((NEOL1SwerveModule) mFrontRight).printModuleState();
-        ((NEOL1SwerveModule) mBackLeft).printModuleState();
-        ((NEOL1SwerveModule) mBackRight).printModuleState();
+        // ((NEOL1SwerveModule) mFrontLeft).printModuleState();
+        // ((NEOL1SwerveModule) mFrontRight).printModuleState();
+        // ((NEOL1SwerveModule) mBackLeft).printModuleState();
+        // ((NEOL1SwerveModule) mBackRight).printModuleState();
     }
 
     private double normalizeRadians(double rads){

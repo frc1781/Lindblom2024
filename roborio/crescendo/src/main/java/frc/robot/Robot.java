@@ -57,12 +57,6 @@ public class Robot extends TimedRobot {
     // PreferenceHandler.addValue("backLeftOffset", ConfigMap.BACK_LEFT_MODULE_STEER_OFFSET);
     // PreferenceHandler.addValue("backRightOffset", ConfigMap.BACK_RIGHT_MODULE_STEER_OFFSET);
 
-    mDriverInput.addClickListener(ConfigMap.CO_PILOT_PORT, "Y", (isPressed)->{
-      if(isPressed) {
-        mControlSystem.callPrintModules();
-      }
-    });
-
     mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.RESET_NAVX, (isPressed)->{
       if(isPressed) {
         mControlSystem.zeroNavX();
@@ -105,6 +99,10 @@ public class Robot extends TimedRobot {
       if(isPressed){
         mControlSystem.calibratePosition();
       }
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT_HIGH, (isPressed)-> {
+      mControlSystem.setCollectHigh(isPressed); 
     });
 
     // mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CLIMBER_EXTEND, (isPressed)-> {
