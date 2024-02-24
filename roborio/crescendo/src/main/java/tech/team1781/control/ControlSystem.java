@@ -360,6 +360,7 @@ public class ControlSystem {
 
         mDriveSystem.updateVisionLocalization(getLimelightPose());
         mArm.setSpeakerDistance(mDriveSystem.distanceToSpeaker());
+        mArm.updateRobotPose(mDriveSystem.getRobotPose());
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
         // mDriveSystem.updateVisionLocalization();
 
