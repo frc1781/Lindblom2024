@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.simulation.XboxControllerSim;
 import tech.team1781.utils.EVector;
 
 public class DriverInput {
@@ -157,6 +158,8 @@ public class DriverInput {
         mButtonMap.put(createKey(index, "SW"), controller.getPOV() == 225);
         mButtonMap.put(createKey(index, "W"), controller.getPOV() == 270);
         mButtonMap.put(createKey(index, "NW"), controller.getPOV() == 315);
+        mButtonMap.put(createKey(index, "R3"), controller.getRightStickButton());
+        mButtonMap.put(createKey(index, "L3"), controller.getLeftStickButton());
     }
 
     private void updateJoystickButtons(int index, Joystick joystick) {

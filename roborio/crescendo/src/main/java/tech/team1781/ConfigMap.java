@@ -94,8 +94,8 @@ public class ConfigMap {
         // First Drivebase
 
         //Limelight
-        public static final String FRONT_LIMELIGHT_NAME = "limelight-front";
-        public static final String BACK_LIMELIGHT_NAME = "limelight-back";
+        public static final String FRONT_LIMELIGHT_NAME = "limelight-back";
+        public static final String BACK_LIMELIGHT_NAME = "limelight-front";
 
         // Controls
         public static final int DRIVER_CONTROLLER_PORT = 0;
@@ -104,8 +104,10 @@ public class ConfigMap {
         public static final double DRIVER_ROTATION_RATE_LIMIT = 1.2;
 
         public static final String RESET_NAVX = "X";
+        public static final String CALIBRATE_POSITION = "Y";
         public static final String KEEP_DOWN = "LB";
         public static final String COLLECT = "RB";
+        public static final String AUTO_AIM = "START";
 
         // Co-pilot controls
         public static final int CO_PILOT_PORT = 1;

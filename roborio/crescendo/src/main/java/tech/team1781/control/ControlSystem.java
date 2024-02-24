@@ -94,6 +94,10 @@ public class ControlSystem {
         mStepTime = new Timer();
     }
 
+    public static boolean isRed() {
+        return DriverStation.getAlliance().get() == Alliance.Red;
+    }
+
     public void driverDriving(EVector translation, EVector rotation) {
         boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
         int mult = isRed ? -1 : 1;
@@ -189,6 +193,10 @@ public class ControlSystem {
         mArm.manualAdjustAngle(diff);
     }
 
+    public void calibratePosition(){
+        mDriveSystem.setOdometry(getLimelightPose());
+    }
+
     public void setPrepareToShoot(boolean pushingPrepare) {
         if (mPrepareToShootButton == pushingPrepare) {
             return; // no change in state
@@ -247,29 +255,9 @@ public class ControlSystem {
         mDriveSystem.zeroNavX();
     }
 
-    public void centerOnAprilTag(boolean isHeld) {
-        if (isHeld) {
-            double x = LimelightHelper.getXOffsetOfPreferredTarget(4);
-            if (x != 0.0) {
-                aimingAngle = mLimelightAimController.calculate(x, 0);
-            } else {
-                odometryAlignment();
-            }
-            // LimelightHelper.getDistanceOfApriltag(4);
-        }
 
-        mAutoAiming = isHeld;
-    }
-
-    public void odometryAlignment() {
-        Pose2d robotPose = mDriveSystem.getRobotPose();
-        Pose2d targetPose = new Pose2d(16.578467, 5.547593, new Rotation2d()); // coords of apriltag 4
-
-        Transform2d finishingPose = targetPose.minus(robotPose);
-        double angle = Math.atan2(finishingPose.getY(), finishingPose.getX());
-        double deltaAngle = calculateShortestRotationToAngle(robotPose.getRotation().getDegrees(), angle);
-
-        aimingAngle = mLimelightAimController.calculate(deltaAngle, 0);
+    public void aimDrivesystem(boolean isAiming) {
+        mDriveSystem.aimSpeaker(isAiming);
     }
 
     public double calculateShortestRotationToAngle(double startingAngle, double goalAngle) {

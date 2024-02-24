@@ -141,6 +141,7 @@ public class Arm extends Subsystem {
 
     private double calculateAngleFromDistance() {
         if(isAtPodium()) {
+            System.out.println("shooting podium shot");
             return 49;
         }
 

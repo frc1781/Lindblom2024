@@ -101,6 +101,12 @@ public class Robot extends TimedRobot {
       }
     });
 
+    mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.CALIBRATE_POSITION, (isPressed)-> {
+      if(isPressed){
+        mControlSystem.calibratePosition();
+      }
+    });
+
     // mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CLIMBER_EXTEND, (isPressed)-> {
     //   mControlSystem.setClimberExtend(isPressed);
     // });
@@ -109,11 +115,8 @@ public class Robot extends TimedRobot {
     //   mControlSystem.setClimberRetract(isPressed);
     // });
 
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CENTER_TO_APRIL_TAG, (isHeld) -> {
-        mControlSystem.centerOnAprilTag(isHeld);
-    });
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CENTER_TO_APRIL_TAG, (isHeld) -> {
-        //  mControlSystem.centerOnAprilTag(isHeld);
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.CENTER_TO_APRIL_TAG, (isHeld) -> {
+      mControlSystem.aimDrivesystem(isHeld);
     });
 
     // // mDriverInput.addClickListener(0, "B", (isPressed) -> {

@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import tech.team1781.ConfigMap;
+import tech.team1781.control.ControlSystem;
 import tech.team1781.swerve.KrakenL2SwerveModule;
 import tech.team1781.swerve.NEOL1SwerveModule;
 import tech.team1781.swerve.SwerveModule;
@@ -69,6 +70,8 @@ public class DriveSystem extends Subsystem {
     private PathPlannerTrajectory mDesiredTrajectory = null;
     private EVector mDesiredPosition = null;
     private boolean mIsManual = true;
+    private boolean mIsAiming = false;
+    private double mDesiredAngle = 0.0;
 
     private PIDController mXController = new PIDController(1, 0, 0);
     private PIDController mYController = new PIDController(1, 0, 0);
@@ -80,6 +83,7 @@ public class DriveSystem extends Subsystem {
 
     private Field2d mField = new Field2d();
 
+
     public DriveSystem() {
         super("Drive System", DriveSystemState.DRIVE_MANUAL);
         // mOdometry = new SwerveDriveOdometry(mKinematics, getRobotAngle(),
@@ -89,7 +93,7 @@ public class DriveSystem extends Subsystem {
         mRotController.enableContinuousInput(0, Math.PI * 2);
         mNavX.resetDisplacement();
 
-        ConfigMap.SHUFFLEBOARD_TAB.add(mField);
+        ConfigMap.SHUFFLEBOARD_TAB.add(mField).withPosition(5, 1).withSize(3, 2);
     }
 
     public enum DriveSystemState implements Subsystem.SubsystemState {
@@ -260,6 +264,23 @@ public class DriveSystem extends Subsystem {
         driveWithChassisSpeds(desiredChassisSpeeds);
     }
 
+    public void aimSpeaker(boolean isAiming) {
+        mIsAiming = isAiming;
+        if(!isAiming) {
+            return;
+        }
+        
+        EVector speakerpos = ControlSystem.isRed() ? ConfigMap.RED_SPEAKER_LOCATION : ConfigMap.BLUE_SPEAKER_LOCATION;
+        EVector currentPose = EVector.fromPose(getRobotPose());
+        currentPose.z = 0;
+
+        double angle = currentPose.angleBetween(speakerpos) - getRobotAngle().getRadians();
+        mDesiredAngle = angle;
+        System.out.println(angle);
+        
+
+    }
+
     public void goTo(EVector target) {
         if (mIsManual && mDesiredPosition == null) {
             return;
@@ -326,7 +347,11 @@ public class DriveSystem extends Subsystem {
     public void driveRaw(double xSpeed, double ySpeed, double rot) {
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(
                 mIsFieldOriented
-                        ? ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(xSpeed, ySpeed, rot), getRobotAngle())
+                        ? ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
+                            xSpeed, 
+                            ySpeed, 
+                            mIsAiming ? mDesiredAngle - getRobotAngle().getRadians() : rot), 
+                            getRobotAngle())
                         : new ChassisSpeeds(xSpeed, ySpeed, rot));
 
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
