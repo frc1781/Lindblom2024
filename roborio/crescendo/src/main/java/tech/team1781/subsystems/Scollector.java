@@ -50,6 +50,8 @@ public class Scollector extends Subsystem {
 
     private GenericEntry mTopShooterVelocity = ConfigMap.SHUFFLEBOARD_TAB.add("Top Velocity", 0).getEntry();
     private GenericEntry mBottomShooterVelocity = ConfigMap.SHUFFLEBOARD_TAB.add("Bottom Velocity", 0).getEntry();
+    private GenericEntry mReadyToShootEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Ready to Shoot", false).withSize(4, 4).withPosition(0, 0).getEntry();
+    private GenericEntry mHasNoteEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Has Note", false).withPosition(4, 3).getEntry();
 
     public Scollector() {
         super("Scollector", ScollectorState.IDLE);
@@ -95,6 +97,7 @@ public class Scollector extends Subsystem {
     public void genericPeriodic() {
         mTopShooterVelocity.setDouble(mTopShooterMotor.getEncoder().getVelocity());
         mBottomShooterVelocity.setDouble(mBottomShooterMotor.getEncoder().getVelocity());
+        mHasNoteEntry.setBoolean(hasNote());
     }
 
     @Override
@@ -107,6 +110,8 @@ public class Scollector extends Subsystem {
 
     @Override
     public void getToState() {
+        mReadyToShootEntry.setBoolean(shooterAtSpeed());
+
         switch ((ScollectorState) getState()) {
             case IDLE:
                 mCollectorMotor.set(0);

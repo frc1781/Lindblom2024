@@ -8,10 +8,13 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkLimitSwitch.Type;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import tech.team1781.ConfigMap;
+import tech.team1781.utils.EVector;
 import tech.team1781.utils.LimelightHelper;
 
 import com.revrobotics.SparkLimitSwitch;
@@ -23,10 +26,11 @@ public class Arm extends Subsystem {
     private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.05, 0, 0,
             new TrapezoidProfile.Constraints(80, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
-    private GenericEntry mArmPositionEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Arm Position", -1).getEntry();
+    private GenericEntry mArmPositionEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Arm Position", -1).withPosition(4, 2).getEntry();
     private GenericEntry mSpeakerDistanceEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Distance", 1).getEntry();
     private double mDesiredPosition = 0;
     private double mSpeakerDistance = 0;
+    private Pose2d mRobotPose;
 
     public Arm() {
         super("Arm", ArmState.START);
@@ -93,14 +97,6 @@ public class Arm extends Subsystem {
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), mDesiredPosition);
         mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
         mLeftMotor.set(armDutyCycle);
-        // System.out.printf("%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\n",
-        //   (currentTime-startTime)/1000000000.0,
-        //   mDesiredPosition,
-        //   armDutyCycle,
-        //   getAngle(),
-        //   mLeftEncoder.getVelocity(),
-        //   mLeftMotor.getAppliedOutput()
-        // );
     }
 
     @Override
@@ -139,7 +135,16 @@ public class Arm extends Subsystem {
         return mLeftEncoder.getPosition();
     }
 
+    public void updateRobotPose(Pose2d robotPose) {
+        mRobotPose = robotPose;
+    }
+
     private double calculateAngleFromDistance() {
+        if(isAtPodium()) {
+            return 49;
+        }
+
+
         final double start = 32;
         final double coefficient = 18.3;
         // double dist = LimelightHelper.getDistanceOfApriltag(4);
@@ -157,6 +162,8 @@ public class Arm extends Subsystem {
         if (angle > 51) {
             angle = 51;
         }
+
+
         return angle;
         // return 32.0;
     }
@@ -178,6 +185,17 @@ public class Arm extends Subsystem {
     public void setSpeakerDistance(double d) {
         mSpeakerDistance = d;
     }
+
+    private boolean isAtPodium() {
+        final double TOLERANCE = 1;
+        boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
+        EVector target = isRed ? ConfigMap.RED_PODIUM : ConfigMap.BLUE_PODIUM;
+        EVector currentPose = EVector.fromPose(mRobotPose);
+        currentPose.z = 0;
+        double dist = target.dist(currentPose);
+        return dist <= TOLERANCE; 
+    }
+    //amp angle 41.2
 
     private boolean matchesPosition() {
         var diff = mDesiredPosition - mLeftEncoder.getPosition();
