@@ -113,6 +113,7 @@ public class DriveSystem extends Subsystem {
                 if (super.currentMode == OperatingMode.AUTONOMOUS) {
                     driveRaw(0, 0, 0);
                 }
+                break;
             case SYSID:
                 driveRaw(1, 0, 0);
                 ChassisSpeeds currentSpeeds = getChassisSpeeds();
