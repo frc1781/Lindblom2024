@@ -188,6 +188,10 @@ public class Arm extends Subsystem {
     }
 
     private boolean isAtPodium() {
+        if(mRobotPose == null) {
+            mRobotPose = new Pose2d();
+        }
+
         final double TOLERANCE = 1;
         boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
         EVector target = isRed ? ConfigMap.RED_PODIUM : ConfigMap.BLUE_PODIUM;

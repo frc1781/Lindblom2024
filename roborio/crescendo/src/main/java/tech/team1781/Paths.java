@@ -57,8 +57,6 @@ public class Paths {
     private static final PathPlannerPath note3ToCenter4 = PathPlannerPath.fromPathFile("n3;c4");
     private static final PathPlannerPath note3ToCenter5 = PathPlannerPath.fromPathFile("n3;c5");
 
-
-
     private static final HashMap<AutonomousPosition, HashMap<AutonomousPosition, Junction>> junctions = new HashMap<>();
     private static final HashMap<String, AutonomousPosition> positionMap = new HashMap<>();
 

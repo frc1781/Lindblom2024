@@ -46,7 +46,7 @@ public class Scollector extends Subsystem {
     private boolean mHasShot = false;
     private Timer mShooterTimer = new Timer();
 
-    private final double SHOOTER_SPEED = 8;
+    private final double SHOOTER_SPEED = 6;
 
     private GenericEntry mTopShooterVelocity = ConfigMap.SHUFFLEBOARD_TAB.add("Top Velocity", 0).getEntry();
     private GenericEntry mBottomShooterVelocity = ConfigMap.SHUFFLEBOARD_TAB.add("Bottom Velocity", 0).getEntry();

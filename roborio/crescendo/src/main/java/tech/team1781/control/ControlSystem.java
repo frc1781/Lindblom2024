@@ -258,8 +258,6 @@ public class ControlSystem {
 
     public void aimDrivesystem(boolean isAiming) {
         mDriveSystem.aimSpeaker(isAiming);
-        if(isAiming)
-            System.out.println("auto aiming");
     }
 
     public double calculateShortestRotationToAngle(double startingAngle, double goalAngle) {
@@ -347,11 +345,16 @@ public class ControlSystem {
     }
 
     public void run(DriverInput driverInput) {
+        mArm.updateRobotPose(mDriveSystem.getRobotPose());
 
         mDriveSystem.updateVisionLocalization(getLimelightPose());
         mArm.setSpeakerDistance(mDriveSystem.distanceToSpeaker());
-        mArm.updateRobotPose(mDriveSystem.getRobotPose());
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
+
+
+        if(mLimelightTable.getEntry("tv").getDouble(-1) >= 2) {
+            mDriveSystem.updateVisionLocalization(getLimelightPose());
+        } //2 4.3 -35
         // mDriveSystem.updateVisionLocalization();
 
         switch (mCurrentOperatingMode) {
@@ -433,6 +436,7 @@ public class ControlSystem {
                 new SubsystemSetting(mArm, ArmState.COLLECT));
 
         defineAction(Action.COLLECT_AUTO_SHOOT,
+                new SubsystemSetting(mArm, ArmState.AUTO_ANGLE),
                 new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
     }
 
@@ -467,10 +471,6 @@ public class ControlSystem {
         // }
     }
 
-    private void localizeOnLimelight() {
-        Pose2d currentPose = LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME);
-        mDriveSystem.setOdometry(currentPose);
-    }
 
 }
 
