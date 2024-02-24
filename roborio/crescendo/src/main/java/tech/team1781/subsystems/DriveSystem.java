@@ -276,7 +276,7 @@ public class DriveSystem extends Subsystem {
         EVector currentPose = EVector.fromPose(getRobotPose());
         currentPose.z = 0;
 
-        double angle = currentPose.angleBetween(speakerpos);
+        double angle = currentPose.angleBetween(speakerpos) - Math.PI;
         angle = normalizeRadians(angle);
         
         mDesiredAngle = angle;
