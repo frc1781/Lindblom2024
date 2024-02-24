@@ -203,6 +203,8 @@ public class DriveSystem extends Subsystem {
             super.mNetworkLogger.log("Rot", getRobotAngle().getRadians());
         };
 
+        mRotController.enableContinuousInput(0, 2 * Math.PI);
+
         ScheduledExecutorService loggingExecutor = Executors.newScheduledThreadPool(1);
         loggingExecutor.scheduleAtFixedRate(OdometryLogging, 0, 1, TimeUnit.SECONDS);
     }
@@ -274,9 +276,13 @@ public class DriveSystem extends Subsystem {
         EVector currentPose = EVector.fromPose(getRobotPose());
         currentPose.z = 0;
 
-        double angle = currentPose.angleBetween(speakerpos) - getRobotAngle().getRadians();
+        double angle = currentPose.angleBetween(speakerpos);
+        angle = normalizeRadians(angle);
+        
         mDesiredAngle = angle;
-        System.out.println(angle);
+
+
+
         
 
     }
@@ -350,7 +356,7 @@ public class DriveSystem extends Subsystem {
                         ? ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
                             xSpeed, 
                             ySpeed, 
-                            mIsAiming ? mDesiredAngle - getRobotAngle().getRadians() : rot), 
+                            mIsAiming ? mRotController.calculate(getRobotAngle().getRadians(), mDesiredAngle) : rot), 
                             getRobotAngle())
                         : new ChassisSpeeds(xSpeed, ySpeed, rot));
 
@@ -366,7 +372,7 @@ public class DriveSystem extends Subsystem {
         double reportedVal = -mNavX.getRotation2d().getRadians() + mNavXOffset;
 
         reportedVal %= 2 * Math.PI;
-        if (reportedVal > 0) {
+        if (reportedVal < 0) {
             reportedVal += 2 * Math.PI;
         }
 
@@ -411,6 +417,16 @@ public class DriveSystem extends Subsystem {
         ((NEOL1SwerveModule) mFrontRight).printModuleState();
         ((NEOL1SwerveModule) mBackLeft).printModuleState();
         ((NEOL1SwerveModule) mBackRight).printModuleState();
+    }
+
+    private double normalizeRadians(double rads){
+        rads %= 2 * Math.PI;
+
+        if(rads < 0) {
+            rads += 2 * Math.PI; 
+        }
+
+        return rads;
     }
 
     private SwerveModulePosition[] getModulePositions() {

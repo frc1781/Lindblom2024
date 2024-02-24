@@ -258,6 +258,8 @@ public class ControlSystem {
 
     public void aimDrivesystem(boolean isAiming) {
         mDriveSystem.aimSpeaker(isAiming);
+        if(isAiming)
+            System.out.println("auto aiming");
     }
 
     public double calculateShortestRotationToAngle(double startingAngle, double goalAngle) {
