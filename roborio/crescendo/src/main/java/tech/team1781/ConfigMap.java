@@ -107,7 +107,7 @@ public class ConfigMap {
         public static final String CALIBRATE_POSITION = "Y";
         public static final String KEEP_DOWN = "LB";
         public static final String COLLECT = "RB";
-        public static final String AUTO_AIM = "START";
+        public static final String AUTO_AIM = "LT";
 
         // Co-pilot controls
         public static final int CO_PILOT_PORT = 1;

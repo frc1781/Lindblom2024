@@ -160,6 +160,8 @@ public class DriverInput {
         mButtonMap.put(createKey(index, "NW"), controller.getPOV() == 315);
         mButtonMap.put(createKey(index, "R3"), controller.getRightStickButton());
         mButtonMap.put(createKey(index, "L3"), controller.getLeftStickButton());
+        mButtonMap.put(createKey(index, "LT"), controller.getLeftTriggerAxis() >= 0.9);
+        mButtonMap.put(createKey(index, "RT"), controller.getRightTriggerAxis() >= 0.9);
     }
 
     private void updateJoystickButtons(int index, Joystick joystick) {

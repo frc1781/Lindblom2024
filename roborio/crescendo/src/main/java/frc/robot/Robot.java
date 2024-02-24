@@ -115,7 +115,7 @@ public class Robot extends TimedRobot {
     //   mControlSystem.setClimberRetract(isPressed);
     // });
 
-    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.CENTER_TO_APRIL_TAG, (isHeld) -> {
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.AUTO_AIM, (isHeld) -> {
       mControlSystem.aimDrivesystem(isHeld);
     });
 
