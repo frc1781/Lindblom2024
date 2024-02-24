@@ -259,6 +259,11 @@ public class ControlSystem {
             mArm.setDesiredState(ArmState.COLLECT_HIGH);
             mScollector.setDesiredState(ScollectorState.COLLECT);
         }
+
+        if(!collectingHigh && !mKeepArmDownButton && !mPrepareToShootButton && !mCollectingButton){
+            mArm.setDesiredState(ArmState.SAFE);
+            mScollector.setDesiredState(ScollectorState.IDLE);
+        }
     }
 
     public void setArmState(ArmState desiredState) {
@@ -368,8 +373,7 @@ public class ControlSystem {
 
         if(mLimelightTable.getEntry("tv").getDouble(-1) >= 1) {
             mDriveSystem.setOdometry(getLimelightPose());
-        } //2 4.3 -35
-        // mDriveSystem.updateVisionLocalization();
+        } 
 
         switch (mCurrentOperatingMode) {
             case TELEOP:

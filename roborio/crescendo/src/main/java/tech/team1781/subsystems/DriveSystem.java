@@ -110,7 +110,8 @@ public class DriveSystem extends Subsystem {
                 goTo(mDesiredPosition);
                 break;
             case DRIVE_TRAJECTORY:
-                System.out.println(mDesiredTrajectory.hashCode() + " :: " + mDesiredTrajectory.getTotalTimeSeconds());
+                var trajectoryInitialPose = mDesiredTrajectory.getInitialState().getTargetHolonomicPose();
+                System.out.println(mDesiredTrajectory.hashCode() + " :: " + EVector.fromPose(trajectoryInitialPose));
                 followTrajectory();
                 break;
             case DRIVE_MANUAL:

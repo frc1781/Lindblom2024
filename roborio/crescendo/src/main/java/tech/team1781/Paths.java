@@ -4,6 +4,8 @@ import java.util.HashMap;
 
 import com.pathplanner.lib.path.PathPlannerPath;
 
+import tech.team1781.control.ControlSystem;
+
 public class Paths {
 
     private static final PathPlannerPath position1ToNote1 = PathPlannerPath.fromPathFile("p1;n1");
@@ -48,7 +50,7 @@ public class Paths {
     private static final PathPlannerPath note2ToCenter3 = PathPlannerPath.fromPathFile("n2;c3");
     private static final PathPlannerPath note2ToCenter4 = PathPlannerPath.fromPathFile("n2;c4");
     private static final PathPlannerPath note2ToCenter5 = PathPlannerPath.fromPathFile("n2;c5");
-    
+
     private static final PathPlannerPath note3ToNote1 = PathPlannerPath.fromPathFile("n3;n1");
     private static final PathPlannerPath note3ToNote2 = PathPlannerPath.fromPathFile("n3;n2");
     private static final PathPlannerPath note3ToCenter1 = PathPlannerPath.fromPathFile("n3;c1");
@@ -138,24 +140,30 @@ public class Paths {
     }
 
     public enum AutonomousPosition {
-        POSITION_1(1,1),
-        POSITION_2(2,1),
-        POSITION_3(3,1),
-        NOTE_1(1,2),
-        NOTE_2(2,2),
-        NOTE_3(3,2),
-        CENTER_1(1,3),
-        CENTER_2(2,3),
-        CENTER_3(3,3),
-        CENTER_4(4,3),
-        CENTER_5(5,3);
+        POSITION_1(1, 1, "p1"),
+        POSITION_2(2, 1, "p2"),
+        POSITION_3(3, 1, "p3"),
+        NOTE_1(1, 2, "n1"),
+        NOTE_2(2, 2, "n2"),
+        NOTE_3(3, 2, "n3"),
+        CENTER_1(1, 3, "c1"),
+        CENTER_2(2, 3, "c2"),
+        CENTER_3(3, 3, "c3"),
+        CENTER_4(4, 3, "c4"),
+        CENTER_5(5, 3, "c5");
 
         private int xpos;
         private int ypos;
-        
-        private AutonomousPosition(int x, int y){
+        private String name;
+
+        private AutonomousPosition(int x, int y, String _name) {
             xpos = x;
             ypos = y;
+            name = _name;
+        }
+
+        public String getName() {
+            return name;
         }
 
         public int getX() {
@@ -167,7 +175,6 @@ public class Paths {
         }
     }
 
-
     public static class Junction {
         public AutonomousPosition endPosition;
         public PathPlannerPath path;
@@ -178,18 +185,31 @@ public class Paths {
         }
     }
 
+    public PathPlannerPath getPathNonStatic(AutonomousPosition start, AutonomousPosition end) {
+        var ret_val = PathPlannerPath.fromPathFile(concatenatePositions(start, end));
+        ret_val.preventFlipping = false;
+        if(ControlSystem.isRed()) {
+            ret_val = ret_val.flipPath();
+        }
+        return ret_val;
+    }
+
+
     public static AutonomousPosition getPosition(String position) {
         return positionMap.get(position);
     }
 
     public static PathPlannerPath getPath(AutonomousPosition start, AutonomousPosition end) {
         return junctions.get(start).get(end).path;
-    }    
+    }
+
+    private String concatenatePositions(AutonomousPosition start, AutonomousPosition end) {
+        return start.getName() + ";" + end.getName();
+    }
 
     private static void addJunction(AutonomousPosition start, AutonomousPosition end, PathPlannerPath path) {
         Junction junction = new Junction(end, path);
         junctions.get(start).put(end, junction);
     }
-
 
 }
