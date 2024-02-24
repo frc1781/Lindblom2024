@@ -12,6 +12,9 @@ public class ConfigMap {
         public static final ShuffleboardTab AUTONOMOUS_TAB = Shuffleboard.getTab("Autonomous");
         public static final ShuffleboardTab CONFIG_TAB = Shuffleboard.getTab("Config");
 
+        public static final EVector BLUE_PODIUM = EVector.newVector(3,4.7);
+        public static final EVector RED_PODIUM = EVector.newVector(13.6,3.6);
+
         // CAN IDs
 
         // 20-24 Drive train left
