@@ -15,7 +15,7 @@ public class ShuffleboardStyle {
     //Scollector
     public static final Style READY_TO_SHOOT = new Style(4, 4, 0, 0, BuiltInWidgets.kBooleanBox)
         .withProperty("Color when false", "#800000") //Maroon
-        .withProperty("Color when true", "#ffbf00"); //Gold
+        .withProperty("Color when true", "#03fc13"); //Green
     public static final Style HAS_NOTE = new Style(1, 1, 4, 1, BuiltInWidgets.kBooleanBox)
         .withProperty("Color when false", "#800000") //Maroon
         .withProperty("Color when true", "#ffbf00"); //Gold
@@ -39,6 +39,15 @@ public class ShuffleboardStyle {
     public static final Style ROBOT_Y = new Style(1,1,6,0, BuiltInWidgets.kTextView);
     public static final Style ROBOT_THETA = new Style(1,1,7,0, BuiltInWidgets.kTextView);
     public static final Style ROBOT_POSITION_FIELD = new Style(3, 2, 5, 1, BuiltInWidgets.kField);
+    public static final Style ROBOT_X_VELOCITY = new Style(1,1,6,3, BuiltInWidgets.kNumberBar)
+        .withProperty("Max", ConfigMap.MAX_VELOCITY_METERS_PER_SECOND)
+        .withProperty("Min", 0);
+    public static final Style ROBOT_Y_VELOCITY = new Style(1,1,7,3, BuiltInWidgets.kNumberBar)
+        .withProperty("Max", ConfigMap.MAX_VELOCITY_METERS_PER_SECOND)
+        .withProperty("Min", 0);
+    public static final Style ROBOT_VELOCITY = new Style(1,1,8,0, BuiltInWidgets.kDial)
+        .withProperty("Max", ConfigMap.MAX_VELOCITY_METERS_PER_SECOND)
+        .withProperty("Min", 0);
 
 
     

@@ -11,6 +11,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
@@ -69,6 +70,8 @@ public class ControlSystem {
     private boolean mClimberRetractButton = false;
     private boolean mClimberExtendButton = false;
     private boolean mCollectingHighButton = false;
+    private boolean mAmpButton = false;
+
 
     private NetworkTable mBackLimelightTable = NetworkTableInstance.getDefault().getTable(ConfigMap.BACK_LIMELIGHT_NAME);
     private GenericEntry mSeesAprilTagEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Sees AprilTag", false, ShuffleboardStyle.SEES_APRILTAG);
@@ -102,16 +105,17 @@ public class ControlSystem {
         return DriverStation.getAlliance().get() == Alliance.Red;
     }
 
-    public void driverDriving(EVector translation, EVector rotation) {
+    public void driverDriving(EVector translation, EVector rotation, EVector triggers) {
         boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
         int mult = isRed ? -1 : 1;
+        final double triggermult = 0.1;
 
         // forward and backwards
         double xVelocity = -translation.y * mult;
         // left and right
         double yVelocity = -translation.x * mult;
         // rotation
-        double rotVelocity = -rotation.x * 0.5;
+        double rotVelocity = -rotation.x * 0.5 + ((triggers.x * triggermult) - (triggers.y * triggermult));
 
         mDriveSystem.driveRaw(
                 mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
@@ -269,6 +273,20 @@ public class ControlSystem {
         }
     }
 
+    public void setAmp(boolean isAmp){
+        if(mAmpButton == isAmp){
+            return;
+        }
+
+        mAmpButton = isAmp;
+
+        if(!mCollectingButton && !mCollectingHighButton && !mKeepArmDownButton && !mPrepareToShootButton && mAmpButton){
+            mArm.setDesiredState(ArmState.AMP);
+        } else if(!mCollectingButton && !mCollectingHighButton && !mKeepArmDownButton && !mPrepareToShootButton && !mAmpButton){
+            mArm.setDesiredState(ArmState.SAFE);
+        }
+    }
+
     public void setArmState(ArmState desiredState) {
         mArm.setDesiredState(desiredState);
     }
@@ -374,17 +392,22 @@ public class ControlSystem {
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
 
         boolean seesApriltag = mBackLimelightTable.getEntry("tv").getDouble(-1) >= 1;
+        final double speedTolerance = 0.5;
+        ChassisSpeeds robotSpeeds = mDriveSystem.getChassisSpeeds();
+        boolean driveSystemSlowEnough = robotSpeeds.vxMetersPerSecond <= speedTolerance && robotSpeeds.vyMetersPerSecond <= speedTolerance; 
         mSeesAprilTagEntry.setBoolean(seesApriltag);
-        if(seesApriltag){
+        if(seesApriltag && driveSystemSlowEnough){
             mDriveSystem.setOdometry(getLimelightPose());
         }
 
 
         switch (mCurrentOperatingMode) {
             case TELEOP:
+                EVector driverTriggers = driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT);
                 driverDriving(
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
-                        driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT));
+                        driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT),
+                        driverTriggers);
                 mClimber.manualClimb(
                     driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y
                 );

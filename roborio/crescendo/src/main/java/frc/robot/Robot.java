@@ -104,6 +104,15 @@ public class Robot extends TimedRobot {
     mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT_HIGH, (isPressed)-> {
       mControlSystem.setCollectHigh(isPressed); 
     });
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, "RT", (isPressed)-> {
+      if(isPressed) {
+        System.out.println("RT BEING PRESSED");
+      }
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SCORE_AMP, (isPressed)->{
+      mControlSystem.setAmp(isPressed);
+    });
 
     // mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CLIMBER_EXTEND, (isPressed)-> {
     //   mControlSystem.setClimberExtend(isPressed);

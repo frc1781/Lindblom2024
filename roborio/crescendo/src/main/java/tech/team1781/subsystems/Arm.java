@@ -61,6 +61,7 @@ public class Arm extends Subsystem {
         mPositions.put(ArmState.SAFE, 63.0);
         mPositions.put(ArmState.PODIUM, 43.8);
         mPositions.put(ArmState.SUBWOOFER, 40.0);
+        mPositions.put(ArmState.AMP, 43.0);
         mPositions.put(ArmState.COLLECT, 0.0);
         mPositions.put(ArmState.COLLECT_HIGH, 53.0);
     }
@@ -73,7 +74,8 @@ public class Arm extends Subsystem {
         COLLECT,
         COLLECT_HIGH,
         MANUAL,
-        AUTO_ANGLE
+        AUTO_ANGLE,
+        AMP
     }
 
     @Override

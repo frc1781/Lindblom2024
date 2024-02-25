@@ -85,6 +85,10 @@ public class DriveSystem extends Subsystem {
     private GenericEntry mRobotXEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "X Position", -1, ShuffleboardStyle.ROBOT_X);
     private GenericEntry mRobotYEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Y Position", -1, ShuffleboardStyle.ROBOT_Y);
     private GenericEntry mRobotThetaEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Theta", -1, ShuffleboardStyle.ROBOT_THETA);
+    private GenericEntry mRobotXSpeedEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "X Speed", -1, ShuffleboardStyle.ROBOT_X_VELOCITY);
+    private GenericEntry mRobotYSpeedEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Y Speed", -1, ShuffleboardStyle.ROBOT_Y_VELOCITY);
+    private GenericEntry mRobotVelocityEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Overall Velocity", -1, ShuffleboardStyle.ROBOT_VELOCITY);
+    
     private Field2d mField = new Field2d();
 
 
@@ -167,6 +171,11 @@ public class DriveSystem extends Subsystem {
 
         mRobotXEntry.setDouble(getRobotPose().getX());
         mRobotYEntry.setDouble(getRobotPose().getY());
+        mRobotXSpeedEntry.setDouble(Math.abs(getChassisSpeeds().vxMetersPerSecond));
+        mRobotYSpeedEntry.setDouble(Math.abs(getChassisSpeeds().vyMetersPerSecond));
+        mRobotVelocityEntry.setDouble(
+            EVector.newVector(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond).magnitude()
+        );
         mRobotThetaEntry.setDouble(getRobotAngle().getRadians());
         mField.setRobotPose(getRobotPose());
         // mField.setRobotPose(getRobotPose());

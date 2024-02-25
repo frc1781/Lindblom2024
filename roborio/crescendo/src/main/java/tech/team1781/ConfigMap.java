@@ -63,7 +63,7 @@ public class ConfigMap {
         // Swerve
 
         public static final double DRIVETRAIN_TRACKWIDTH = Units.inchesToMeters(30);
-        public static final double DRIVETRAIN_WHEELBASE = Units.inchesToMeters(25);
+        public static final double DRIVETRAIN_WHEELBASE = Units.inchesToMeters(28);
         public static final double MAX_VELOCITY_METERS_PER_SECOND = 4.5;
         public static final double MAX_VELOCITY_FOR_UPDATE = 0.01;
         public static final double MAX_VELOCITY_RADIANS_PER_SECOND = (MAX_VELOCITY_METERS_PER_SECOND /
@@ -124,6 +124,7 @@ public class ConfigMap {
         public static final String PREPARE_TO_SHOOT = "X";
         public static final String ANGLE_UP = "E";
         public static final String ANGLE_DOWN = "W";
+        public static final String SCORE_AMP = "Y";
         // public static final String CLIMBER_EXTEND = "N";
         // public static final String CLIMB_RETRACT = "S";
 }
