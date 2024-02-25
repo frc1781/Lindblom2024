@@ -89,14 +89,14 @@ public class Arm extends Subsystem {
     public void genericPeriodic() {
         // System.out.println(getAngle());
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
-        if (isAtPodium()) {
-            mCurrentAimSpot = CURRENT_AIM_SPOT.PODIUM;
-        } else if(atSubwoofer()) {
-            mCurrentAimSpot = CURRENT_AIM_SPOT.SUBWOOFER;
-        } else {
-            mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
-        }
 
+        for(CURRENT_AIM_SPOT aimSpot : CURRENT_AIM_SPOT.values()) {
+            if(aimSpot == CURRENT_AIM_SPOT.UNDEFEINED) continue;
+            if(aimSpot.atPosition(mRobotPose)) {
+                mCurrentAimSpot = aimSpot;
+                break;
+            }
+        }
     }
 
     @Override
@@ -204,46 +204,36 @@ public class Arm extends Subsystem {
     public void setSpeakerDistance(double d) {
         mSpeakerDistance = d;
     }
-
-    private boolean isAtPodium() {
-        if (mRobotPose == null) {
-            mRobotPose = new Pose2d();
-        }
-
-        final double TOLERANCE = 1;
-        boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
-        EVector target = isRed ? ConfigMap.RED_PODIUM : ConfigMap.BLUE_PODIUM;
-        EVector currentPose = EVector.fromPose(mRobotPose);
-        currentPose.z = 0;
-        double dist = target.dist(currentPose);
-        return dist <= TOLERANCE;
-    }
-
-    private boolean atSubwoofer() {
-        if (mRobotPose == null) {
-            mRobotPose = new Pose2d();
-        }
-        final double TOLERANCE = 2.5;
-        EVector target = ControlSystem.isRed() ? ConfigMap.RED_PODIUM : ConfigMap.BLUE_PODIUM;
-        EVector currentPose = EVector.fromPose(mRobotPose);
-        currentPose.z = 0;
-        double dist = target.dist(currentPose);
-        return dist <= TOLERANCE;
-    }
-
+    
     private boolean matchesPosition() {
-        var diff = mDesiredPosition - mLeftEncoder.getPosition();
-        return Math.abs(diff) <= 1;
+        return Math.abs(mLeftEncoder.getPosition() - mDesiredPosition) < 1;
     }
+    
+
 
     private enum CURRENT_AIM_SPOT {
-        UNDEFEINED(0.0), 
-        SUBWOOFER(35),
-        PODIUM(52);
+        UNDEFEINED(0.0, EVector.newVector(), EVector.newVector(), 0.0),
+        SUBWOOFER(35, ConfigMap.RED_SPEAKER_LOCATION, ConfigMap.BLUE_SPEAKER_LOCATION, 2.5),
+        PODIUM(52, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1.5);
 
         private double position;
-        private CURRENT_AIM_SPOT(double _position) {
+        private EVector redPosition;
+        private EVector bluePosition;
+        private double distanceTolerance;
+        private CURRENT_AIM_SPOT(double _position, EVector _redPosition, EVector _bluePosition, double _distanceTolerance) {
             position = _position;
+            redPosition = _redPosition;
+            bluePosition = _bluePosition;
+            distanceTolerance = _distanceTolerance;
+        }
+
+        public boolean atPosition(Pose2d currentPose2d) {
+            EVector target = ControlSystem.isRed() ? redPosition : bluePosition;
+            EVector currentPose = EVector.fromPose(currentPose2d);
+            currentPose.z = 0;
+            double dist = target.dist(currentPose);
+
+            return dist <= distanceTolerance;            
         }
 
         public double getPosition() {
