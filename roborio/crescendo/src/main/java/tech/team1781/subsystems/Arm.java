@@ -31,9 +31,12 @@ public class Arm extends Subsystem {
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
     private GenericEntry mArmPositionEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Angle", -1,
             ShuffleboardStyle.ARM_ANGLE);
+    private GenericEntry mArmAimSpotEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Aim Spot", "N/A", ShuffleboardStyle.ARM_AIM_SPOT);
+    
     private double mDesiredPosition = 0;
     private double mSpeakerDistance = 0;
     private Pose2d mRobotPose;
+    private CURRENT_AIM_SPOT mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
 
     public Arm() {
         super("Arm", ArmState.START);
@@ -85,6 +88,15 @@ public class Arm extends Subsystem {
     @Override
     public void genericPeriodic() {
         // System.out.println(getAngle());
+        mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
+        if (isAtPodium()) {
+            mCurrentAimSpot = CURRENT_AIM_SPOT.PODIUM;
+        } else if(atSubwoofer()) {
+            mCurrentAimSpot = CURRENT_AIM_SPOT.SUBWOOFER;
+        } else {
+            mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
+        }
+
     }
 
     @Override
@@ -148,14 +160,9 @@ public class Arm extends Subsystem {
     }
 
     private double calculateAngleFromDistance() {
-        if (isAtPodium()) {
-            System.out.println("shooting podium shot");
-            return 50;
-        }
 
-        if(atSubwoofer()) {
-            System.out.println("shooting subwoofer");
-            return 35.0;
+        if(mCurrentAimSpot != CURRENT_AIM_SPOT.UNDEFEINED) {
+            return mCurrentAimSpot.getPosition();
         }
 
         final double start = 32;
@@ -227,6 +234,21 @@ public class Arm extends Subsystem {
     private boolean matchesPosition() {
         var diff = mDesiredPosition - mLeftEncoder.getPosition();
         return Math.abs(diff) <= 1;
+    }
+
+    private enum CURRENT_AIM_SPOT {
+        UNDEFEINED(0.0), 
+        SUBWOOFER(35),
+        PODIUM(52);
+
+        private double position;
+        private CURRENT_AIM_SPOT(double _position) {
+            position = _position;
+        }
+
+        public double getPosition() {
+            return position;
+        }
     }
 
 }
