@@ -18,21 +18,19 @@ public class ShuffleboardStyle {
     public static final Style TOP_SHOOTER = new Style(1,1,4,2, BuiltInWidgets.kNumberBar)
         .withProperty("Min", 0)
         .withProperty("Max", ConfigMap.MAX_SHOOTER_SPEED);
-    public static final Style BOTTOM_SHOOTER = new Style(1,1,4,3, BuiltInWidgets.kDial)
+    public static final Style BOTTOM_SHOOTER = new Style(1,1,4,3, BuiltInWidgets.kNumberBar)
         .withProperty("Min", 0)
         .withProperty("Max", ConfigMap.MAX_SHOOTER_SPEED);
 
     //Arm
-    public static final Style ARM_ANGLE = new Style(1,1,4,0, BuiltInWidgets.kGyro)
+    public static final Style ARM_ANGLE = new Style(1,1,4,0, BuiltInWidgets.kNumberBar)
         .withProperty("Min", 0)
         .withProperty("Max", 60);
 
     //DriveSystem
     public static final Style ROBOT_X = new Style(1,1,5,0, BuiltInWidgets.kTextView);
     public static final Style ROBOT_Y = new Style(1,1,6,0, BuiltInWidgets.kTextView);
-    public static final Style ROBOT_THETA = new Style(1,1,7,0, BuiltInWidgets.kGyro)
-        .withProperty("Major tick spacing", Math.PI * 0.25)
-        .withProperty("Starting angle", Math.PI * 2);
+    public static final Style ROBOT_THETA = new Style(1,1,7,0, BuiltInWidgets.kTextView);
     public static final Style ROBOT_POSITION_FIELD = new Style(3, 2, 5, 1, BuiltInWidgets.kField);
 
 
