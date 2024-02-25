@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import tech.team1781.ConfigMap;
+import tech.team1781.ShuffleboardStyle;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.swerve.KrakenL2SwerveModule;
 import tech.team1781.swerve.NEOL1SwerveModule;
@@ -81,6 +82,9 @@ public class DriveSystem extends Subsystem {
     private HolonomicDriveController mTrajectoryController = new HolonomicDriveController(mXController, mYController,
             mRotController);
 
+    private GenericEntry mRobotXEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "X Position", -1, ShuffleboardStyle.ROBOT_X);
+    private GenericEntry mRobotYEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Y Position", -1, ShuffleboardStyle.ROBOT_Y);
+    private GenericEntry mRobotThetaEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Theta", -1, ShuffleboardStyle.ROBOT_THETA);
     private Field2d mField = new Field2d();
 
 
@@ -93,7 +97,9 @@ public class DriveSystem extends Subsystem {
         mRotController.enableContinuousInput(0, Math.PI * 2);
         mNavX.resetDisplacement();
 
-        ConfigMap.SHUFFLEBOARD_TAB.add(mField).withPosition(5, 1).withSize(3, 2);
+        ConfigMap.SHUFFLEBOARD_TAB.add("Field", mField)
+        .withPosition((int)ShuffleboardStyle.ROBOT_POSITION_FIELD.position.x,(int) ShuffleboardStyle.ROBOT_POSITION_FIELD.position.y)
+        .withSize((int) ShuffleboardStyle.ROBOT_POSITION_FIELD.size.x, (int) ShuffleboardStyle.ROBOT_POSITION_FIELD.size.y);
     }
 
     public enum DriveSystemState implements Subsystem.SubsystemState {
@@ -159,7 +165,11 @@ public class DriveSystem extends Subsystem {
     public void genericPeriodic() {
         updateOdometry();
 
+        mRobotXEntry.setDouble(getRobotPose().getX());
+        mRobotYEntry.setDouble(getRobotPose().getY());
+        mRobotThetaEntry.setDouble(getRobotAngle().getRadians());
         mField.setRobotPose(getRobotPose());
+        // mField.setRobotPose(getRobotPose());
     }
 
     @Override
@@ -197,17 +207,17 @@ public class DriveSystem extends Subsystem {
                 break;
         }
 
-        Runnable OdometryLogging = () -> {
-            Pose2d robotPose = getRobotPose();
-            super.mNetworkLogger.log("X", robotPose.getX());
-            super.mNetworkLogger.log("Y", robotPose.getY());
-            super.mNetworkLogger.log("Rot", getRobotAngle().getRadians());
-        };
+        // Runnable OdometryLogging = () -> {
+        //     Pose2d robotPose = getRobotPose();
+        //     super.mNetworkLogger.log("X", robotPose.getX());
+        //     super.mNetworkLogger.log("Y", robotPose.getY());
+        //     super.mNetworkLogger.log("Rot", getRobotAngle().getRadians());
+        // };
 
         mRotController.enableContinuousInput(0, 2 * Math.PI);
 
-        ScheduledExecutorService loggingExecutor = Executors.newScheduledThreadPool(1);
-        loggingExecutor.scheduleAtFixedRate(OdometryLogging, 0, 1, TimeUnit.SECONDS);
+        // ScheduledExecutorService loggingExecutor = Executors.newScheduledThreadPool(1);
+        // loggingExecutor.scheduleAtFixedRate(OdometryLogging, 0, 1, TimeUnit.SECONDS);
     }
 
     public void updateVisionLocalization(Pose2d visionEstimate) {

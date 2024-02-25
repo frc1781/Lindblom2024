@@ -14,6 +14,7 @@ import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import tech.team1781.ConfigMap;
+import tech.team1781.ShuffleboardStyle;
 import tech.team1781.utils.EVector;
 import tech.team1781.utils.LimelightHelper;
 
@@ -26,8 +27,7 @@ public class Arm extends Subsystem {
     private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.05, 0, 0,
             new TrapezoidProfile.Constraints(80, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
-    private GenericEntry mArmPositionEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Arm Position", -1).withPosition(4, 2).getEntry();
-    private GenericEntry mSpeakerDistanceEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Distance", 1).getEntry();
+    private GenericEntry mArmPositionEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Angle", -1, ShuffleboardStyle.ARM_ANGLE);
     private double mDesiredPosition = 0;
     private double mSpeakerDistance = 0;
     private Pose2d mRobotPose;
@@ -152,7 +152,7 @@ public class Arm extends Subsystem {
         final double coefficient = 18.3;
         // double dist = LimelightHelper.getDistanceOfApriltag(4);
         // double dist = mSpeakerDistance - ConfigMap.DRIVETRAIN_TRACKWIDTH/2;
-        double dist = mSpeakerDistanceEntry.getDouble(1);
+        double dist = mSpeakerDistance; 
         dist = Math.abs(dist);
         double angle = 32.0;
         if (dist < 0.5) {//can not see april tag

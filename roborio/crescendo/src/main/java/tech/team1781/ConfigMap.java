@@ -21,6 +21,9 @@ public class ConfigMap {
         public static final EVector BLUE_PODIUM = EVector.newVector(3,4.7);
         public static final EVector RED_PODIUM = EVector.newVector(13.6,3.6);
 
+
+        public static final double MAX_SHOOTER_SPEED = 7;
+
         // CAN IDs
 
         // 20-24 Drive train left
