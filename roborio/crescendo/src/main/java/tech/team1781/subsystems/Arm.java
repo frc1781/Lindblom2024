@@ -1,4 +1,5 @@
 package tech.team1781.subsystems;
+
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import com.revrobotics.CANSparkMax;
@@ -15,6 +16,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import tech.team1781.ConfigMap;
 import tech.team1781.ShuffleboardStyle;
+import tech.team1781.control.ControlSystem;
 import tech.team1781.utils.EVector;
 import tech.team1781.utils.LimelightHelper;
 
@@ -27,7 +29,8 @@ public class Arm extends Subsystem {
     private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.05, 0, 0,
             new TrapezoidProfile.Constraints(80, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
-    private GenericEntry mArmPositionEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Angle", -1, ShuffleboardStyle.ARM_ANGLE);
+    private GenericEntry mArmPositionEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Angle", -1,
+            ShuffleboardStyle.ARM_ANGLE);
     private double mDesiredPosition = 0;
     private double mSpeakerDistance = 0;
     private Pose2d mRobotPose;
@@ -43,8 +46,9 @@ public class Arm extends Subsystem {
                 CANSparkMax.MotorType.kBrushless);
 
         mLeftEncoder = mLeftMotor.getEncoder();
-        mLeftEncoder.setVelocityConversionFactor((ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2)/60);
-        mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2); // will tell us angle in degrees
+        mLeftEncoder.setVelocityConversionFactor((ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2) / 60);
+        mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2); // will tell us angle in
+                                                                                          // degrees
         mRightMotor.follow(mLeftMotor, true);
         mLeftMotor.setIdleMode(IdleMode.kBrake);
         mRightMotor.setIdleMode(IdleMode.kBrake);
@@ -63,7 +67,7 @@ public class Arm extends Subsystem {
         mPositions.put(ArmState.SUBWOOFER, 40.0);
         mPositions.put(ArmState.AMP, 43.0);
         mPositions.put(ArmState.COLLECT, 0.0);
-        mPositions.put(ArmState.COLLECT_HIGH, 53.0);
+        mPositions.put(ArmState.COLLECT_HIGH, 56.0);
     }
 
     public enum ArmState implements Subsystem.SubsystemState {
@@ -144,30 +148,33 @@ public class Arm extends Subsystem {
     }
 
     private double calculateAngleFromDistance() {
-        if(isAtPodium()) {
+        if (isAtPodium()) {
             System.out.println("shooting podium shot");
-            return 49;
+            return 50;
         }
 
+        if(atSubwoofer()) {
+            System.out.println("shooting subwoofer");
+            return 35.0;
+        }
 
         final double start = 32;
         final double coefficient = 18.3;
         // double dist = LimelightHelper.getDistanceOfApriltag(4);
         // double dist = mSpeakerDistance - ConfigMap.DRIVETRAIN_TRACKWIDTH/2;
-        double dist = mSpeakerDistance; 
+        double dist = mSpeakerDistance;
         dist = Math.abs(dist);
         double angle = 32.0;
-        if (dist < 0.5) {//can not see april tag
+        if (dist < 0.5) {// can not see april tag
             angle = 32.0;
         } else {
             angle = Math.log(dist) * coefficient + start;
         }
-        
-        System.out.printf("dist %.2f, angle %.2f\n", dist, angle); 
+
+        System.out.printf("dist %.2f, angle %.2f\n", dist, angle);
         if (angle > 51) {
             angle = 51;
         }
-
 
         return angle;
         // return 32.0;
@@ -177,14 +184,14 @@ public class Arm extends Subsystem {
         setDesiredState(ArmState.MANUAL);
 
         mDesiredPosition += d;
-        if(mDesiredPosition > ConfigMap.MAX_THRESHOLD_ARM) {
+        if (mDesiredPosition > ConfigMap.MAX_THRESHOLD_ARM) {
             mDesiredPosition = ConfigMap.MAX_THRESHOLD_ARM;
         }
 
-        if(mDesiredPosition < ConfigMap.MIN_THRESHOLD_ARM) {
+        if (mDesiredPosition < ConfigMap.MIN_THRESHOLD_ARM) {
             mDesiredPosition = ConfigMap.MIN_THRESHOLD_ARM;
         }
-        
+
     }
 
     public void setSpeakerDistance(double d) {
@@ -192,7 +199,7 @@ public class Arm extends Subsystem {
     }
 
     private boolean isAtPodium() {
-        if(mRobotPose == null) {
+        if (mRobotPose == null) {
             mRobotPose = new Pose2d();
         }
 
@@ -202,12 +209,24 @@ public class Arm extends Subsystem {
         EVector currentPose = EVector.fromPose(mRobotPose);
         currentPose.z = 0;
         double dist = target.dist(currentPose);
-        return dist <= TOLERANCE; 
+        return dist <= TOLERANCE;
     }
-    //amp angle 41.2
+
+    private boolean atSubwoofer() {
+        if (mRobotPose == null) {
+            mRobotPose = new Pose2d();
+        }
+        final double TOLERANCE = 2.5;
+        EVector target = ControlSystem.isRed() ? ConfigMap.RED_PODIUM : ConfigMap.BLUE_PODIUM;
+        EVector currentPose = EVector.fromPose(mRobotPose);
+        currentPose.z = 0;
+        double dist = target.dist(currentPose);
+        return dist <= TOLERANCE;
+    }
 
     private boolean matchesPosition() {
         var diff = mDesiredPosition - mLeftEncoder.getPosition();
         return Math.abs(diff) <= 1;
     }
+
 }
