@@ -47,7 +47,7 @@ public class Scollector extends Subsystem {
 
     private GenericEntry mTopShooterVelocity = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Top Velocity", 0, ShuffleboardStyle.TOP_SHOOTER); 
     private GenericEntry mBottomShooterVelocity = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Bottom Velocity", 0, ShuffleboardStyle.BOTTOM_SHOOTER);
-    private GenericEntry mReadyToShootEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Ready To Shoot", false, ShuffleboardStyle.READY_TO_SHOOT);
+    private GenericEntry mReadyToShootEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Ready To Shoot", true, ShuffleboardStyle.READY_TO_SHOOT);
     private GenericEntry mHasNoteEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Has Note", false, ShuffleboardStyle.HAS_NOTE);
 
     public Scollector() {

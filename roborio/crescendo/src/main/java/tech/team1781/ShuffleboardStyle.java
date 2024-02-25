@@ -13,8 +13,12 @@ import tech.team1781.utils.EVector;
 public class ShuffleboardStyle {
 
     //Scollector
-    public static final Style READY_TO_SHOOT = new Style(4, 4, 0, 0, BuiltInWidgets.kBooleanBox);
-    public static final Style HAS_NOTE = new Style(1, 1, 4, 1, BuiltInWidgets.kBooleanBox);
+    public static final Style READY_TO_SHOOT = new Style(4, 4, 0, 0, BuiltInWidgets.kBooleanBox)
+        .withProperty("Color when false", "#800000") //Maroon
+        .withProperty("Color when true", "#ffbf00"); //Gold
+    public static final Style HAS_NOTE = new Style(1, 1, 4, 1, BuiltInWidgets.kBooleanBox)
+        .withProperty("Color when false", "#800000") //Maroon
+        .withProperty("Color when true", "#ffbf00"); //Gold
     public static final Style TOP_SHOOTER = new Style(1,1,4,2, BuiltInWidgets.kNumberBar)
         .withProperty("Min", 0)
         .withProperty("Max", ConfigMap.MAX_SHOOTER_SPEED);
