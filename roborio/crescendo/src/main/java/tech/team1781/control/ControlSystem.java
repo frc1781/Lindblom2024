@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -32,6 +33,7 @@ import tech.team1781.subsystems.Subsystem.OperatingMode;
 import tech.team1781.subsystems.Subsystem.SubsystemState;
 import tech.team1781.utils.EVector;
 import tech.team1781.DriverInput;
+import tech.team1781.ShuffleboardStyle;
 import tech.team1781.utils.LimelightHelper;
 
 public class ControlSystem {
@@ -68,7 +70,8 @@ public class ControlSystem {
     private boolean mClimberExtendButton = false;
     private boolean mCollectingHighButton = false;
 
-    private NetworkTable mLimelightTable = NetworkTableInstance.getDefault().getTable(ConfigMap.BACK_LIMELIGHT_NAME);
+    private NetworkTable mBackLimelightTable = NetworkTableInstance.getDefault().getTable(ConfigMap.BACK_LIMELIGHT_NAME);
+    private GenericEntry mSeesAprilTagEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Sees AprilTag", false, ShuffleboardStyle.SEES_APRILTAG);
 
     public enum Action {
         COLLECT,
@@ -370,10 +373,12 @@ public class ControlSystem {
         mArm.setSpeakerDistance(mDriveSystem.distanceToSpeaker());
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
 
-
-        if(mLimelightTable.getEntry("tv").getDouble(-1) >= 1) {
+        boolean seesApriltag = mBackLimelightTable.getEntry("tv").getDouble(-1) >= 1;
+        mSeesAprilTagEntry.setBoolean(seesApriltag);
+        if(seesApriltag){
             mDriveSystem.setOdometry(getLimelightPose());
-        } 
+        }
+
 
         switch (mCurrentOperatingMode) {
             case TELEOP:
@@ -431,7 +436,8 @@ public class ControlSystem {
 
     private Pose2d getLimelightPose(){
         double[] doubleArray = {-99.9, -99.9, -99.9, -99.9, -99.9, -99.9};
-        doubleArray = mLimelightTable.getEntry("botpose").getDoubleArray(doubleArray);
+        
+        doubleArray = mBackLimelightTable.getEntry("botpose").getDoubleArray(doubleArray);
         return new Pose2d(doubleArray[0], doubleArray[1], mDriveSystem.getRobotAngle());
     }
 
