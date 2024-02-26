@@ -149,13 +149,20 @@ public class Arm extends Subsystem {
     }
 
     public void updateAimSpots(Pose2d robotPose) {
+        boolean foundAimSpot = false;
+
         for(CURRENT_AIM_SPOT aimSpot : CURRENT_AIM_SPOT.values()) {
             if(aimSpot == CURRENT_AIM_SPOT.UNDEFEINED) continue;
             if(aimSpot.atPosition(robotPose)) {
                 mCurrentAimSpot = aimSpot;
+                foundAimSpot = true;
                 break;
             }
         }
+
+        if(!foundAimSpot) {
+            mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
+        } 
     }
 
     private double calculateAngleFromDistance() {
