@@ -385,14 +385,14 @@ public class ControlSystem {
     }
 
     public void run(DriverInput driverInput) {
-        mArm.updateRobotPose(mDriveSystem.getRobotPose());
+        mArm.updateAimSpots(mDriveSystem.getRobotPose());
 
         mDriveSystem.updateVisionLocalization(getLimelightPose());
         mArm.setSpeakerDistance(mDriveSystem.distanceToSpeaker());
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
 
         boolean seesApriltag = mBackLimelightTable.getEntry("tv").getDouble(-1) >= 1;
-        final double speedTolerance = 0.1;
+        final double speedTolerance = 0.01;
         ChassisSpeeds robotSpeeds = mDriveSystem.getChassisSpeeds();
         boolean driveSystemSlowEnough = robotSpeeds.vxMetersPerSecond <= speedTolerance && robotSpeeds.vyMetersPerSecond <= speedTolerance; 
         mSeesAprilTagEntry.setBoolean(seesApriltag);

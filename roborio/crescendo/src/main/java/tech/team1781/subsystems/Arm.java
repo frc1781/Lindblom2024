@@ -35,7 +35,6 @@ public class Arm extends Subsystem {
     
     private double mDesiredPosition = 0;
     private double mSpeakerDistance = 0;
-    private Pose2d mRobotPose;
     private CURRENT_AIM_SPOT mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
 
     public Arm() {
@@ -90,13 +89,7 @@ public class Arm extends Subsystem {
         // System.out.println(getAngle());
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
 
-        for(CURRENT_AIM_SPOT aimSpot : CURRENT_AIM_SPOT.values()) {
-            if(aimSpot == CURRENT_AIM_SPOT.UNDEFEINED) continue;
-            if(aimSpot.atPosition(mRobotPose)) {
-                mCurrentAimSpot = aimSpot;
-                break;
-            }
-        }
+        
     }
 
     @Override
@@ -155,8 +148,14 @@ public class Arm extends Subsystem {
         return mLeftEncoder.getPosition();
     }
 
-    public void updateRobotPose(Pose2d robotPose) {
-        mRobotPose = robotPose;
+    public void updateAimSpots(Pose2d robotPose) {
+        for(CURRENT_AIM_SPOT aimSpot : CURRENT_AIM_SPOT.values()) {
+            if(aimSpot == CURRENT_AIM_SPOT.UNDEFEINED) continue;
+            if(aimSpot.atPosition(robotPose)) {
+                mCurrentAimSpot = aimSpot;
+                break;
+            }
+        }
     }
 
     private double calculateAngleFromDistance() {
