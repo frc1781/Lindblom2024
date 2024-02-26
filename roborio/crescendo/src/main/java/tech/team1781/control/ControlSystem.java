@@ -228,7 +228,7 @@ public class ControlSystem {
     }
 
     public void calibratePosition(){
-        mDriveSystem.setOdometry(getLimelightPose());
+        mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.BACK_LIMELIGHT_NAME));
     }
 
     public void setPrepareToShoot(boolean pushingPrepare) {
@@ -359,11 +359,15 @@ public class ControlSystem {
     public void centerOnAprilTag() {
         boolean isRed = DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
         double x = isRed ? LimelightHelper.getXOffsetOfApriltag(4) : LimelightHelper.getXOffsetOfApriltag(8);
-        // fix
+
         if (x != 0.0) {
             mAimingAngle = mLimelightAimController.calculate(x, 0);
         } else {
-            odometryAlignment(4);
+            if (isRed) {
+                odometryAlignment(4);
+            } else {
+                odometryAlignment(8);
+            }
         }
     }
 
@@ -396,16 +400,6 @@ public class ControlSystem {
         double x = LimelightHelper.getTX(ConfigMap.BACK_LIMELIGHT_NAME);
         if (x != 0.0) {
             mAimingAngle = mLimelightAimController.calculate(x, 180);
-/*            double distance = getDistanceFromNote();
-
-            if (x <= 0.1) {
-                Transform2d notePose = new Transform2d(distance * Math.cos(Math.toRadians(mAimingAngle)), distance * Math.sin(Math.toRadians(mAimingAngle)), new Rotation2d());
-                mDriveSystem.setPosition(EVector.fromPose(mDriveSystem.getRobotPose().plus(notePose)));
-
-                mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
-                mArm.setDesiredState(ArmState.COLLECT);
-                mScollector.setDesiredState(ScollectorState.COLLECT);
-            }*/
         }
     }
 
@@ -449,7 +443,7 @@ public class ControlSystem {
     public void init(OperatingMode operatingMode) {
         mCurrentOperatingMode = operatingMode;
         mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.BACK_LIMELIGHT_NAME));
-        //add check for setodometry
+
         for (Subsystem subsystem : mSubsystems) {
             subsystem.setOperatingMode(operatingMode);
         }
@@ -471,10 +465,6 @@ public class ControlSystem {
         }
     }
 
-    public void callPrintModules() {
-        mDriveSystem.printModules();
-    }
-
     public void run(DriverInput driverInput) {
         mDriveSystem.updateVisionLocalization(LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME));
         mArm.updateRobotPose(mDriveSystem.getRobotPose());
@@ -485,8 +475,9 @@ public class ControlSystem {
         ChassisSpeeds robotSpeeds = mDriveSystem.getChassisSpeeds();
         boolean driveSystemSlowEnough = robotSpeeds.vxMetersPerSecond <= speedTolerance && robotSpeeds.vyMetersPerSecond <= speedTolerance;
         mSeesAprilTagEntry.setBoolean(seesApriltag);
+
         if(seesApriltag && driveSystemSlowEnough){
-            mDriveSystem.setOdometry(getLimelightPose());
+            mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.BACK_LIMELIGHT_NAME));
         }
 
 
@@ -587,8 +578,12 @@ public class ControlSystem {
             default:
                 break;
         }
+    }
+
+    public void updateOdometry() {
 
     }
+
 }
 
 class SubsystemSetting {

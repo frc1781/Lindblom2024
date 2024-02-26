@@ -243,7 +243,6 @@ public class DriveSystem extends Subsystem {
     }
 
     public void setOdometry(Pose2d pose) {
-        // mOdometry.resetPosition(getRobotAngle(), getModulePositions(), pose);
         mPoseEstimator.resetPosition(getRobotAngle(), getModulePositions(), pose);
     }
 
@@ -284,27 +283,6 @@ public class DriveSystem extends Subsystem {
                 pathplannerState.velocityMps,
                 pathplannerState.getTargetHolonomicPose().getRotation());
         driveWithChassisSpeds(desiredChassisSpeeds);
-    }
-
-    public void aimSpeaker(boolean isAiming) {
-        mIsAiming = isAiming;
-        if(!isAiming) {
-            return;
-        }
-        
-        EVector speakerpos = ControlSystem.isRed() ? ConfigMap.RED_SPEAKER_LOCATION : ConfigMap.BLUE_SPEAKER_LOCATION;
-        EVector currentPose = EVector.fromPose(getRobotPose());
-        currentPose.z = 0;
-
-        double angle = currentPose.angleBetween(speakerpos) - Math.PI;
-        angle = normalizeRadians(angle);
-        
-        mDesiredAngle = angle;
-
-
-
-        
-
     }
 
     public void goTo(EVector target) {
