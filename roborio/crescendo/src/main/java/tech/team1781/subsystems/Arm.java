@@ -12,7 +12,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import tech.team1781.ConfigMap;
+import tech.team1781.ShuffleboardStyle;
 import tech.team1781.utils.EVector;
 import tech.team1781.utils.LimelightHelper;
 
@@ -25,7 +27,7 @@ public class Arm extends Subsystem {
     private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.05, 0, 0,
             new TrapezoidProfile.Constraints(80, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
-    private GenericEntry mArmPositionEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Arm Position", -1).getEntry();
+    private GenericEntry mArmPositionEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Angle", -1, ShuffleboardStyle.ARM_ANGLE);
     private double mDesiredPosition = 0;
 
     private Pose2d mRobotPose;
@@ -59,7 +61,9 @@ public class Arm extends Subsystem {
         mPositions.put(ArmState.SAFE, 63.0);
         mPositions.put(ArmState.PODIUM, 43.8);
         mPositions.put(ArmState.SUBWOOFER, 40.0);
+        mPositions.put(ArmState.AMP, 43.0);
         mPositions.put(ArmState.COLLECT, 0.0);
+        mPositions.put(ArmState.COLLECT_HIGH, 53.0);
     }
 
     public enum ArmState implements Subsystem.SubsystemState {
@@ -68,8 +72,10 @@ public class Arm extends Subsystem {
         PODIUM,
         SUBWOOFER,
         COLLECT,
+        COLLECT_HIGH,
         MANUAL,
-        AUTO_ANGLE
+        AUTO_ANGLE,
+        AMP
     }
 
     @Override
@@ -138,6 +144,12 @@ public class Arm extends Subsystem {
     }
 
     private double calculateAngleFromDistance() {
+        if(isAtPodium()) {
+            System.out.println("shooting podium shot");
+            return 49;
+        }
+
+
         final double start = 32;
         final double coefficient = 18.3;
 
