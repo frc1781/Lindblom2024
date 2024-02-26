@@ -23,6 +23,7 @@ public class ConfigMap {
 
 
         public static final double MAX_SHOOTER_SPEED = 7;
+        public static final double MIN_SHOOTER_SPEED = 6;
 
         // CAN IDs
 

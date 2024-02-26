@@ -226,10 +226,5 @@ public class Scollector extends Subsystem {
         driveMotors();
         mCollectorMotor.set(-1);
     }
-
-    private boolean isUpToSpeed() {
-        double diff = Math.abs(ConfigMap.MAX_SHOOTER_SPEED - mTopShooterMotor.get());
-        double tolerance = 0.1;
-        return diff <= tolerance;
-    }
+    
 }
