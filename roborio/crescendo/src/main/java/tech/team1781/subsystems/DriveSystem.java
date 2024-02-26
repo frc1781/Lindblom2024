@@ -127,6 +127,7 @@ public class DriveSystem extends Subsystem {
             case DRIVE_MANUAL:
                 if (super.currentMode == OperatingMode.AUTONOMOUS) {
                     driveRaw(0, 0, 0);
+                    aimSpeaker(true);
                 }
                 break;
             case SYSID:
