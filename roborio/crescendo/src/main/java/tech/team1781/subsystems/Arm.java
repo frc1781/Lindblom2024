@@ -65,7 +65,7 @@ public class Arm extends Subsystem {
         mLeftMotor.burnFlash();
         mPositions.put(ArmState.START, 0.0); // Temporary, used to be 71.9
         mPositions.put(ArmState.SAFE, 63.0);
-        mPositions.put(ArmState.PODIUM, 43.8);
+        mPositions.put(ArmState.PODIUM, CURRENT_AIM_SPOT.PODIUM.getPosition());
         mPositions.put(ArmState.SUBWOOFER, 40.0);
         mPositions.put(ArmState.AMP, 43.0);
         mPositions.put(ArmState.COLLECT, 0.0);
@@ -81,7 +81,7 @@ public class Arm extends Subsystem {
         COLLECT_HIGH,
         MANUAL,
         AUTO_ANGLE,
-        AMP
+        AMP,
     }
 
     @Override
@@ -171,25 +171,27 @@ public class Arm extends Subsystem {
             return mCurrentAimSpot.getPosition();
         }
 
-        final double start = 32;
-        final double coefficient = 18.3;
-        // double dist = LimelightHelper.getDistanceOfApriltag(4);
-        // double dist = mSpeakerDistance - ConfigMap.DRIVETRAIN_TRACKWIDTH/2;
-        double dist = mSpeakerDistance;
-        dist = Math.abs(dist);
-        double angle = 32.0;
-        if (dist < 0.5) {// can not see april tag
-            angle = 32.0;
-        } else {
-            angle = Math.log(dist) * coefficient + start;
-        }
+        return CURRENT_AIM_SPOT.SUBWOOFER.getPosition();
 
-        System.out.printf("dist %.2f, angle %.2f\n", dist, angle);
-        if (angle > 51) {
-            angle = 51;
-        }
+        // final double start = 32;
+        // final double coefficient = 18.3;
+        // // double dist = LimelightHelper.getDistanceOfApriltag(4);
+        // // double dist = mSpeakerDistance - ConfigMap.DRIVETRAIN_TRACKWIDTH/2;
+        // double dist = mSpeakerDistance;
+        // dist = Math.abs(dist);
+        // double angle = 32.0;
+        // if (dist < 0.5) {// can not see april tag
+        //     angle = 32.0;
+        // } else {
+        //     angle = Math.log(dist) * coefficient + start;
+        // }
 
-        return angle;
+        // System.out.printf("dist %.2f, angle %.2f\n", dist, angle);
+        // if (angle > 51) {
+        //     angle = 51;
+        // }
+
+        // return angle;
         // return 32.0;
     }
 
@@ -220,7 +222,7 @@ public class Arm extends Subsystem {
     private enum CURRENT_AIM_SPOT {
         UNDEFEINED(0.0, EVector.newVector(), EVector.newVector(), 0.0),
         SUBWOOFER(35, ConfigMap.RED_SPEAKER_LOCATION, ConfigMap.BLUE_SPEAKER_LOCATION, 2.5),
-        PODIUM(52, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1.5);
+        PODIUM(48, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1.5);
 
         private double position;
         private EVector redPosition;

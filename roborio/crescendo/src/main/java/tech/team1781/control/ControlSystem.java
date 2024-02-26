@@ -71,6 +71,7 @@ public class ControlSystem {
     private boolean mClimberExtendButton = false;
     private boolean mCollectingHighButton = false;
     private boolean mAmpButton = false;
+    private boolean mShootPodiumButton = false;
 
 
     private NetworkTable mBackLimelightTable = NetworkTableInstance.getDefault().getTable(ConfigMap.BACK_LIMELIGHT_NAME);
@@ -298,6 +299,25 @@ public class ControlSystem {
 
     public void aimDrivesystem(boolean isAiming) {
         mDriveSystem.aimSpeaker(isAiming);
+    }
+
+    public void shootPodium(boolean isShooting) {
+        if(isShooting == mShootPodiumButton) {
+            return;
+        }
+
+        mShootPodiumButton = isShooting;
+
+        if(mShootPodiumButton && !mCollectingButton && !mPrepareToShootButton) {
+            if(!mKeepArmDownButton)
+                mArm.setDesiredState(ArmState.PODIUM);
+            mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
+
+        } else if( !mCollectingButton && !mPrepareToShootButton) {
+            if(!mKeepArmDownButton)
+                mArm.setDesiredState(ArmState.SAFE);
+            mScollector.setDesiredState(ScollectorState.IDLE);
+        }
     }
 
     public double calculateShortestRotationToAngle(double startingAngle, double goalAngle) {
@@ -539,4 +559,5 @@ class SubsystemSetting {
 
         return ret_val;
     }
+
 }
