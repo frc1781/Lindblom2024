@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.motorcontrol.PWMTalonSRX;
 import tech.team1781.ConfigMap;
+import tech.team1781.ShuffleboardStyle;
 import tech.team1781.utils.EVector;
 
 //EXAMPLE SUBSYSTEM, NOT FOR ACTUAL BOT
@@ -29,7 +30,6 @@ public class Scollector extends Subsystem {
     private final SparkPIDController mTopPID;
     private final SparkPIDController mBottomPID;
 
-    private GenericEntry mThresholdEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Shooter Threshold", 6).getEntry();
 
     private final EVector SHOOTER_PID = EVector.newVector(0.1, 0.0, 0.0);
     private final TrapezoidProfile.Constraints SHOOTER_CONSTRAINTS = new TrapezoidProfile.Constraints(9.0, 10);
@@ -41,17 +41,14 @@ public class Scollector extends Subsystem {
     private TimeOfFlight mTopTof = new TimeOfFlight(ConfigMap.TOP_SCOLLECTOR_TOF);
     private TimeOfFlight mBottomTof = new TimeOfFlight(ConfigMap.BOTTOM_SCOLLECTOR_TOF);
 
-    private boolean mIsReadyToShoot = false;
     private boolean mArmInPosition = false;
-    private boolean mHasShot = false;
     private Timer mShooterTimer = new Timer();
 
-    private final double SHOOTER_SPEED = 8;
 
-    private GenericEntry mTopShooterVelocity = ConfigMap.SHUFFLEBOARD_TAB.add("Top Velocity", 0).getEntry();
-    private GenericEntry mBottomShooterVelocity = ConfigMap.SHUFFLEBOARD_TAB.add("Bottom Velocity", 0).getEntry();
-    private GenericEntry mReadyToShootEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Ready to Shoot", false).withSize(4, 4).withPosition(0, 0).getEntry();
-    private GenericEntry mHasNoteEntry = ConfigMap.SHUFFLEBOARD_TAB.add("Has Note", false).withPosition(4, 3).getEntry();
+    private GenericEntry mTopShooterVelocity = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Top Velocity", 0, ShuffleboardStyle.TOP_SHOOTER); 
+    private GenericEntry mBottomShooterVelocity = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Bottom Velocity", 0, ShuffleboardStyle.BOTTOM_SHOOTER);
+    private GenericEntry mReadyToShootEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Ready To Shoot", true, ShuffleboardStyle.READY_TO_SHOOT);
+    private GenericEntry mHasNoteEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Has Note", false, ShuffleboardStyle.HAS_NOTE);
 
     public Scollector() {
         super("Scollector", ScollectorState.IDLE);
@@ -102,7 +99,6 @@ public class Scollector extends Subsystem {
 
     @Override
     public void init() {
-        mIsReadyToShoot = false;
         mArmInPosition = false;
         mShooterTimer.reset();
         mShooterTimer.stop();
@@ -211,7 +207,7 @@ public class Scollector extends Subsystem {
     }
 
     private void driveMotors() {
-        double setpoint = SHOOTER_SPEED;
+        double setpoint = ConfigMap.MAX_SHOOTER_SPEED;
         mTopPID.setReference(setpoint, ControlType.kVelocity);
         mBottomPID.setReference(setpoint, ControlType.kVelocity);
     }
@@ -223,7 +219,6 @@ public class Scollector extends Subsystem {
             mCollectorMotor.set(1);
         } else if(hasNote()){
             mCollectorMotor.set(0);
-            mHasShot = false;
         }
     }
 
@@ -233,7 +228,7 @@ public class Scollector extends Subsystem {
     }
 
     private boolean isUpToSpeed() {
-        double diff = Math.abs(SHOOTER_SPEED - mTopShooterMotor.get());
+        double diff = Math.abs(ConfigMap.MAX_SHOOTER_SPEED - mTopShooterMotor.get());
         double tolerance = 0.1;
         return diff <= tolerance;
     }
