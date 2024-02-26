@@ -94,6 +94,7 @@ public class Scollector extends Subsystem {
     public void genericPeriodic() {
         mTopShooterVelocity.setDouble(mTopShooterMotor.getEncoder().getVelocity());
         mBottomShooterVelocity.setDouble(mBottomShooterMotor.getEncoder().getVelocity());
+        mReadyToShootEntry.setBoolean(shooterAtSpeed());
         mHasNoteEntry.setBoolean(hasNote());
     }
 
@@ -106,7 +107,6 @@ public class Scollector extends Subsystem {
 
     @Override
     public void getToState() {
-        mReadyToShootEntry.setBoolean(shooterAtSpeed());
 
         switch ((ScollectorState) getState()) {
             case IDLE:
@@ -133,7 +133,7 @@ public class Scollector extends Subsystem {
             case COLLECT_AUTO_SHOOT:
                 if (!hasNote()) {
                     collect();
-                } else if (mArmInPosition && !noteCloseToShooter()) {
+                } else if (mArmInPosition && !noteCloseToShooter() && shooterAtSpeed()) {
                     shoot();
                 } else {
                     mCollectorMotor.set(0);
