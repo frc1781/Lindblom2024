@@ -81,6 +81,7 @@ public class Robot extends TimedRobot {
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.PREPARE_TO_SHOOT, (isPressed) -> {
       mControlSystem.setPrepareToShoot(isPressed);
+      mControlSystem.setCenteringOnAprilTag(isPressed);
     });
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.ANGLE_UP, (isPressed) -> {
@@ -95,6 +96,10 @@ public class Robot extends TimedRobot {
       }
     });
 
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.NOTE_COLLECTION, (isHeld) -> {
+        mControlSystem.setAutoCollectionButton(isHeld);
+    });
+
     mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.CALIBRATE_POSITION, (isPressed)-> {
       if(isPressed){
         mControlSystem.calibratePosition();
@@ -102,11 +107,13 @@ public class Robot extends TimedRobot {
     });
 
     mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT_HIGH, (isPressed)-> {
-      mControlSystem.setCollectHigh(isPressed); 
+      mControlSystem.setCollectHigh(isPressed);
     });
+
     mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, "RT", (isPressed)-> {
       if(isPressed) {
         System.out.println("RT BEING PRESSED");
+        //rt must be so happy
       }
     });
 
@@ -121,10 +128,6 @@ public class Robot extends TimedRobot {
     // mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CLIMB_RETRACT, (isPressed)-> {
     //   mControlSystem.setClimberRetract(isPressed);
     // });
-
-    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.AUTO_AIM, (isHeld) -> {
-      mControlSystem.aimDrivesystem(isHeld);
-    });
 
     // // mDriverInput.addClickListener(0, "B", (isPressed) -> {
     // //   if (isPressed) {

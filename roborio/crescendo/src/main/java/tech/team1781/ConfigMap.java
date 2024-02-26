@@ -68,7 +68,6 @@ public class ConfigMap {
         public static final double MAX_VELOCITY_FOR_UPDATE = 0.01;
         public static final double MAX_VELOCITY_RADIANS_PER_SECOND = (MAX_VELOCITY_METERS_PER_SECOND /
                         (Math.hypot(DRIVETRAIN_TRACKWIDTH / 2, DRIVETRAIN_WHEELBASE / 2)));
-
         public static Translation2d FRONT_LEFT_MODULE_POSITION = new Translation2d(DRIVETRAIN_WHEELBASE / 2,
                         DRIVETRAIN_TRACKWIDTH / 2);
         public static Translation2d FRONT_RIGHT_MODULE_POSITION = new Translation2d(DRIVETRAIN_WHEELBASE / 2,
@@ -118,7 +117,7 @@ public class ConfigMap {
         // Co-pilot controls
         public static final int CO_PILOT_PORT = 1;
 
-        public static final String CENTER_TO_APRIL_TAG = "B";
+        public static final String NOTE_COLLECTION = "B";
         public static final String SPIT = "LB";
         public static final String SHOOT = "RB";
         public static final String PREPARE_TO_SHOOT = "X";

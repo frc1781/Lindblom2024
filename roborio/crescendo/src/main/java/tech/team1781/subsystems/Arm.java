@@ -148,29 +148,26 @@ public class Arm extends Subsystem {
             System.out.println("shooting podium shot");
             return 49;
         }
-
+        double angle;
 
         final double start = 32;
         final double coefficient = 18.3;
-        // double dist = LimelightHelper.getDistanceOfApriltag(4);
-        // double dist = mSpeakerDistance - ConfigMap.DRIVETRAIN_TRACKWIDTH/2;
-        double dist = mSpeakerDistance; 
-        dist = Math.abs(dist);
-        double angle = 32.0;
-        if (dist < 0.5) {//can not see april tag
+
+        EVector currentPoseEvector = EVector.newVector(mRobotPose.getX(), mRobotPose.getY());
+        boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
+        EVector speakerPos = isRed ? ConfigMap.RED_SPEAKER_LOCATION : ConfigMap.BLUE_SPEAKER_LOCATION;
+        double dist = Math.abs(currentPoseEvector.dist(speakerPos));
+
+        if (dist < 0.5) {
             angle = 32.0;
         } else {
             angle = Math.log(dist) * coefficient + start;
         }
-        
-        System.out.printf("dist %.2f, angle %.2f\n", dist, angle); 
+
         if (angle > 51) {
             angle = 51;
         }
-
-
         return angle;
-        // return 32.0;
     }
 
     public void manualAdjustAngle(double d) {
@@ -187,10 +184,6 @@ public class Arm extends Subsystem {
         
     }
 
-    public void setSpeakerDistance(double d) {
-        mSpeakerDistance = d;
-    }
-
     private boolean isAtPodium() {
         if(mRobotPose == null) {
             mRobotPose = new Pose2d();
@@ -204,7 +197,6 @@ public class Arm extends Subsystem {
         double dist = target.dist(currentPose);
         return dist <= TOLERANCE; 
     }
-    //amp angle 41.2
 
     private boolean matchesPosition() {
         var diff = mDesiredPosition - mLeftEncoder.getPosition();

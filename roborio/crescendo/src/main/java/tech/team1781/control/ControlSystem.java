@@ -1,8 +1,8 @@
 package tech.team1781.control;
 
+import java.io.ObjectInputFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Optional;
 
 import com.pathplanner.lib.path.PathPlannerPath;
 
@@ -42,7 +42,6 @@ public class ControlSystem {
     private SubsystemSetting[] mCurrentSettings;
     private AutoStep mCurrentStep;
     private Timer mStepTime;
-
     private ArrayList<Subsystem> mSubsystems;
     private DriveSystem mDriveSystem;
     private Scollector mScollector;
@@ -59,7 +58,7 @@ public class ControlSystem {
             new TrapezoidProfile.Constraints(1, 0.5));
 
     private boolean mAutoAiming = false;
-    private double aimingAngle = 0.0;
+    private double mAimingAngle = 0.0;
 
     // CURRENT STATE OF INPUT for HOLD DOWN BUTTONS
     private boolean mKeepArmDownButton = false;
@@ -69,12 +68,13 @@ public class ControlSystem {
     private boolean mSpitButton = false;
     private boolean mClimberRetractButton = false;
     private boolean mClimberExtendButton = false;
+    private boolean mCenterOnAprilTagButton = false;
+    private boolean mAutoCollectionButton = false;
+    private boolean mSeekSpeakerButton = false;
     private boolean mCollectingHighButton = false;
     private boolean mAmpButton = false;
-
-
-    private NetworkTable mBackLimelightTable = NetworkTableInstance.getDefault().getTable(ConfigMap.BACK_LIMELIGHT_NAME);
     private GenericEntry mSeesAprilTagEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Sees AprilTag", false, ShuffleboardStyle.SEES_APRILTAG);
+    private HashMap<Number, Pose2d> aprilTagCoords = new HashMap<>();
 
     public enum Action {
         COLLECT,
@@ -95,6 +95,23 @@ public class ControlSystem {
         mSubsystems.add(mScollector);
         mSubsystems.add(mClimber);
         mSubsystems.add(mArm);
+
+        aprilTagCoords.put(1, new Pose2d(15.078597,0.245597, new Rotation2d()));
+        aprilTagCoords.put(2, new Pose2d(16.184259, 0.883391, new Rotation2d()));
+        aprilTagCoords.put(3, new Pose2d(16.578467, 4.982443, new Rotation2d()));
+        aprilTagCoords.put(4, new Pose2d(16.578467, 5.547593, new Rotation2d()));
+        aprilTagCoords.put(5, new Pose2d(14.699883, 8.203925, new Rotation2d()));
+        aprilTagCoords.put(6, new Pose2d(1.840625, 8.203925, new Rotation2d()));
+        aprilTagCoords.put(7, new Pose2d(-0.038975, 5.547593, new Rotation2d()));
+        aprilTagCoords.put(8, new Pose2d(-0.038975, 4.982443, new Rotation2d()));
+        aprilTagCoords.put(9, new Pose2d(0.355233, 0.883391, new Rotation2d()));
+        aprilTagCoords.put(10, new Pose2d(1.460641, 0.245597, new Rotation2d()));
+        aprilTagCoords.put(11, new Pose2d(11.903851, 3.712951, new Rotation2d()));
+        aprilTagCoords.put(12, new Pose2d(11.903851, 4.498065, new Rotation2d()));
+        aprilTagCoords.put(13, new Pose2d(11.219321, 4.104873, new Rotation2d()));
+        aprilTagCoords.put(14, new Pose2d(5.319917, 4.104873, new Rotation2d()));
+        aprilTagCoords.put(15, new Pose2d(4.640467, 4.498065, new Rotation2d()));
+        aprilTagCoords.put(16, new Pose2d(4.640467, 3.712951, new Rotation2d()));
 
         initActions();
 
@@ -120,10 +137,9 @@ public class ControlSystem {
         mDriveSystem.driveRaw(
                 mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
                 mYDriveLimiter.calculate(yVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
-                mAutoAiming ? aimingAngle
+                mAutoAiming ? mAimingAngle
                         : (mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND));
 
-        odometryUpdate(xVelocity, yVelocity);
     }
 
     public void keepArmDown(boolean pushingKeepDown) {
@@ -215,6 +231,7 @@ public class ControlSystem {
                 mScollector.setDesiredState(ScollectorState.COLLECT_RAMP);
             } else if (!mKeepArmDownButton) {
                 mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
+
                 mArm.setDesiredState(ArmState.AUTO_ANGLE);
             }
         } else {
@@ -295,9 +312,54 @@ public class ControlSystem {
         mDriveSystem.zeroNavX();
     }
 
+    public void setCenteringOnAprilTag(boolean isHeld) {
+        mCenterOnAprilTagButton = isHeld;
+    }
 
-    public void aimDrivesystem(boolean isAiming) {
-        mDriveSystem.aimSpeaker(isAiming);
+    public void setAutoCollectionButton(boolean isHeld) {
+        mAutoCollectionButton = isHeld;
+    }
+
+    public void autoAimingInputs() {
+        if (!mAutoCollectionButton && !mCenterOnAprilTagButton) {
+            mAutoAiming = false;
+            return;
+        }
+
+        if (mCenterOnAprilTagButton && !mAutoCollectionButton) {
+            if (isRed()) {
+                centerOnAprilTag(4);
+            } else {
+                centerOnAprilTag(8);
+            }
+            mAutoAiming = true;
+        }
+
+        if (mAutoCollectionButton && !mCenterOnAprilTagButton) {
+            centerNote();
+            mAutoAiming = true;
+        }
+    }
+
+    public void centerOnAprilTag(int id) {
+        double x = LimelightHelper.getXOffsetOfApriltag(id);
+
+        if (x != 0.0) {
+            mAimingAngle = mLimelightAimController.calculate(x, 0);
+        } else {
+                odometryAlignment(id);
+        }
+    }
+
+    public void odometryAlignment(int id) {
+        Pose2d robotPose = mDriveSystem.getRobotPose();
+        Pose2d targetPose = aprilTagCoords.get(id);
+
+        Transform2d finishingPose = targetPose.minus(robotPose);
+        double angle = Math.atan2(finishingPose.getY(), finishingPose.getX());
+        double deltaAngle = calculateShortestRotationToAngle(mDriveSystem.getRobotAngle().getDegrees(), angle);
+
+        mAimingAngle = mLimelightAimController.calculate(deltaAngle, 0);
     }
 
     public double calculateShortestRotationToAngle(double startingAngle, double goalAngle) {
@@ -312,6 +374,13 @@ public class ControlSystem {
         }
 
         return angles[smallestAngleIndex];
+    }
+
+    public void centerNote() {
+        double x = LimelightHelper.getTX(ConfigMap.BACK_LIMELIGHT_NAME);
+        if (x != 0.0) {
+            mAimingAngle = mLimelightAimController.calculate(x, 180);
+        }
     }
 
     public void setAction(Action desiredAction) {
@@ -353,6 +422,7 @@ public class ControlSystem {
 
     public void init(OperatingMode operatingMode) {
         mCurrentOperatingMode = operatingMode;
+        mDriveSystem.setOdometry(getLimelightPose());
         
 
         for (Subsystem subsystem : mSubsystems) {
@@ -368,37 +438,20 @@ public class ControlSystem {
                 mRotDriveLimiter.reset(0);
                 mArm.setDesiredState(ArmState.SAFE);
                 mDriveSystem.setDesiredState(DriveSystem.DriveSystemState.DRIVE_MANUAL);
-                if(getLimelightPose().getX() != -99.9) {
-                    mDriveSystem.setOdometry(getLimelightPose());
-                }
                 break;
             case AUTONOMOUS:
-                mDriveSystem.setOdometry(getLimelightPose());
                 break;
             default:
                 break;
         }
     }
 
-    public void callPrintModules() {
-        mDriveSystem.printModules();
-    }
-
     public void run(DriverInput driverInput) {
         mArm.updateRobotPose(mDriveSystem.getRobotPose());
-
         mDriveSystem.updateVisionLocalization(getLimelightPose());
-        mArm.setSpeakerDistance(mDriveSystem.distanceToSpeaker());
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
 
-        boolean seesApriltag = mBackLimelightTable.getEntry("tv").getDouble(-1) >= 1;
-        final double speedTolerance = 0.5;
-        ChassisSpeeds robotSpeeds = mDriveSystem.getChassisSpeeds();
-        boolean driveSystemSlowEnough = robotSpeeds.vxMetersPerSecond <= speedTolerance && robotSpeeds.vyMetersPerSecond <= speedTolerance; 
-        mSeesAprilTagEntry.setBoolean(seesApriltag);
-        if(seesApriltag && driveSystemSlowEnough){
-            mDriveSystem.setOdometry(getLimelightPose());
-        }
+        localizationUpdates();
 
 
         switch (mCurrentOperatingMode) {
@@ -411,6 +464,7 @@ public class ControlSystem {
                 mClimber.manualClimb(
                     driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y
                 );
+                autoAimingInputs();
                 break;
             case AUTONOMOUS:
                 if (mScollector.getState() == ScollectorState.COLLECT
@@ -458,9 +512,12 @@ public class ControlSystem {
     }
 
     private Pose2d getLimelightPose(){
-        double[] doubleArray = {-99.9, -99.9, -99.9, -99.9, -99.9, -99.9};
-        
-        doubleArray = mBackLimelightTable.getEntry("botpose").getDoubleArray(doubleArray);
+        double[] doubleArray = LimelightHelper.getBotPose(ConfigMap.FRONT_LIMELIGHT_NAME);
+
+        if (doubleArray[0] == 0.0) {
+            doubleArray = new double[]{-99.9, -99.9, -99.9, -99.9, -99.9, -99.9};
+        }
+
         return new Pose2d(doubleArray[0], doubleArray[1], mDriveSystem.getRobotAngle());
     }
 
@@ -504,20 +561,18 @@ public class ControlSystem {
             default:
                 break;
         }
-
     }
 
-    private void odometryUpdate(double velocityX, double velocityY) {
-        // if (velocityX <= ConfigMap.MAX_VELOCITY_FOR_UPDATE || velocityY <=
-        // ConfigMap.MAX_VELOCITY_FOR_UPDATE) {
-        // if
-        // (LimelightHelper.getLatestResults(ConfigMap.LIMELIGHT_NAME).targetingResults.targets_Fiducials.length
-        // >= 2) {
-        // localizeOnLimelight();
-        // }
-        // }
+    public void localizationUpdates() {
+        if (LimelightHelper.getLatestResults(ConfigMap.FRONT_LIMELIGHT_NAME).targetingResults.targets_Fiducials.length >= 2) {
+            final double speedTolerance = 0.5;
+            ChassisSpeeds robotSpeeds = mDriveSystem.getChassisSpeeds();
+            boolean driveSystemSlowEnough = robotSpeeds.vxMetersPerSecond <= speedTolerance && robotSpeeds.vyMetersPerSecond <= speedTolerance;
+            if (driveSystemSlowEnough) {
+                mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME));
+            }
+        }
     }
-
 
 }
 

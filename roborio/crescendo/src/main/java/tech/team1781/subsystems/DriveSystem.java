@@ -216,17 +216,8 @@ public class DriveSystem extends Subsystem {
                 break;
         }
 
-        // Runnable OdometryLogging = () -> {
-        //     Pose2d robotPose = getRobotPose();
-        //     super.mNetworkLogger.log("X", robotPose.getX());
-        //     super.mNetworkLogger.log("Y", robotPose.getY());
-        //     super.mNetworkLogger.log("Rot", getRobotAngle().getRadians());
-        // };
 
         mRotController.enableContinuousInput(0, 2 * Math.PI);
-
-        // ScheduledExecutorService loggingExecutor = Executors.newScheduledThreadPool(1);
-        // loggingExecutor.scheduleAtFixedRate(OdometryLogging, 0, 1, TimeUnit.SECONDS);
     }
 
     public void updateVisionLocalization(Pose2d visionEstimate) {
@@ -243,7 +234,6 @@ public class DriveSystem extends Subsystem {
     }
 
     public void setOdometry(Pose2d pose) {
-        // mOdometry.resetPosition(getRobotAngle(), getModulePositions(), pose);
         mPoseEstimator.resetPosition(getRobotAngle(), getModulePositions(), pose);
     }
 
@@ -253,7 +243,6 @@ public class DriveSystem extends Subsystem {
         }
 
         mNavXOffset = offset.getRadians();
-        // System.out.printf("navx offset set to %.2f\n", mNavXOffset);
         mHasNavXOffsetBeenSet = true;
     }
 
@@ -270,41 +259,12 @@ public class DriveSystem extends Subsystem {
         }
 
         var pathplannerState = mDesiredTrajectory.sample(currentTime);
-        // edu.wpi.first.math.trajectory.Trajectory.State wpilibstate = new
-        // edu.wpi.first.math.trajectory.Trajectory.State(
-        // currentTime,
-        // pathplannerState.velocityMps,
-        // pathplannerState.accelerationMpsSq,
-        // pathplannerState.getTargetHolonomicPose(),
-        // pathplannerState.curvatureRadPerMeter);
-        // System.out.println(pathplannerState.velocityMps);
         ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(
                 getRobotPose(),
                 new Pose2d(pathplannerState.positionMeters, pathplannerState.heading),
                 pathplannerState.velocityMps,
                 pathplannerState.getTargetHolonomicPose().getRotation());
         driveWithChassisSpeds(desiredChassisSpeeds);
-    }
-
-    public void aimSpeaker(boolean isAiming) {
-        mIsAiming = isAiming;
-        if(!isAiming) {
-            return;
-        }
-        
-        EVector speakerpos = ControlSystem.isRed() ? ConfigMap.RED_SPEAKER_LOCATION : ConfigMap.BLUE_SPEAKER_LOCATION;
-        EVector currentPose = EVector.fromPose(getRobotPose());
-        currentPose.z = 0;
-
-        double angle = currentPose.angleBetween(speakerpos) - Math.PI;
-        angle = normalizeRadians(angle);
-        
-        mDesiredAngle = angle;
-
-
-
-        
-
     }
 
     public void goTo(EVector target) {
@@ -415,16 +375,6 @@ public class DriveSystem extends Subsystem {
             return mDesiredPosition.dist(EVector.fromPose(getRobotPose())) < 0.1;
         }
         return false;
-    }
-
-    public double distanceToSpeaker() {
-        Pose2d currentPose = getRobotPose();
-        EVector currentPoseEvector = EVector.newVector(currentPose.getX(), currentPose.getY());
-
-        boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
-        EVector speakerPos = isRed ? ConfigMap.RED_SPEAKER_LOCATION : ConfigMap.BLUE_SPEAKER_LOCATION;
-
-        return currentPoseEvector.dist(speakerPos);
     }
 
     private void updateOdometry() {
