@@ -108,7 +108,7 @@ public class ConfigMap {
         public static final double DRIVER_TRANSLATION_RATE_LIMIT = 1.2;
         public static final double DRIVER_ROTATION_RATE_LIMIT = 1.2;
 
-        public static final String RESET_NAVX = "X";
+        public static final String RESET_NAVX = "B";
         public static final String CALIBRATE_POSITION = "Y";
         public static final String KEEP_DOWN = "LB";
         public static final String COLLECT = "RB";
@@ -118,7 +118,7 @@ public class ConfigMap {
         // Co-pilot controls
         public static final int CO_PILOT_PORT = 1;
 
-        public static final String NOTE_COLLECTION = "B";
+        public static final String NOTE_COLLECTION = "X";
         public static final String SPIT = "LB";
         public static final String SHOOT = "RB";
         public static final String PREPARE_TO_SHOOT = "X";

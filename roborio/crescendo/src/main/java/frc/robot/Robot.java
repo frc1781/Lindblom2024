@@ -95,7 +95,7 @@ public class Robot extends TimedRobot {
       }
     });
 
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.NOTE_COLLECTION, (isHeld) -> {
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.NOTE_COLLECTION, (isHeld) -> {
         mControlSystem.setAutoCollectionButton(isHeld);
     });
 
