@@ -394,7 +394,6 @@ public class ControlSystem {
                 }
                 break;
             case AUTONOMOUS:
-                mDriveSystem.setOdometry(getLimelightPose());
                 break;
             default:
                 break;
