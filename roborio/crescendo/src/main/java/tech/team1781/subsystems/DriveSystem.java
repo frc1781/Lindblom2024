@@ -300,11 +300,6 @@ public class DriveSystem extends Subsystem {
         angle = normalizeRadians(angle);
         
         mDesiredAngle = angle;
-
-
-
-        
-
     }
 
     public void goTo(EVector target) {

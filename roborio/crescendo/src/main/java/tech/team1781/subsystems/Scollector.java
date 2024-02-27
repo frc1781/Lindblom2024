@@ -94,6 +94,7 @@ public class Scollector extends Subsystem {
     public void genericPeriodic() {
         mTopShooterVelocity.setDouble(mTopShooterMotor.getEncoder().getVelocity());
         mBottomShooterVelocity.setDouble(mBottomShooterMotor.getEncoder().getVelocity());
+        mReadyToShootEntry.setBoolean(shooterAtSpeed());
         mHasNoteEntry.setBoolean(hasNote());
     }
 
@@ -106,7 +107,6 @@ public class Scollector extends Subsystem {
 
     @Override
     public void getToState() {
-        mReadyToShootEntry.setBoolean(shooterAtSpeed());
 
         switch ((ScollectorState) getState()) {
             case IDLE:
@@ -133,7 +133,7 @@ public class Scollector extends Subsystem {
             case COLLECT_AUTO_SHOOT:
                 if (!hasNote()) {
                     collect();
-                } else if (mArmInPosition && !noteCloseToShooter()) {
+                } else if (mArmInPosition && !noteCloseToShooter() && shooterAtSpeed()) {
                     shoot();
                 } else {
                     mCollectorMotor.set(0);
@@ -226,10 +226,5 @@ public class Scollector extends Subsystem {
         driveMotors();
         mCollectorMotor.set(-1);
     }
-
-    private boolean isUpToSpeed() {
-        double diff = Math.abs(ConfigMap.MAX_SHOOTER_SPEED - mTopShooterMotor.get());
-        double tolerance = 0.1;
-        return diff <= tolerance;
-    }
+    
 }

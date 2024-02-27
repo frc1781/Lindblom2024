@@ -30,6 +30,7 @@ public class ShuffleboardStyle {
     public static final Style ARM_ANGLE = new Style(1,1,4,0, BuiltInWidgets.kNumberBar)
         .withProperty("Min", 0)
         .withProperty("Max", 60);
+    public static final Style ARM_AIM_SPOT = new Style(1,1, 8,3, BuiltInWidgets.kTextView);
 
     //DriveSystem
     public static final Style SEES_APRILTAG = new Style(1,1,5,3, BuiltInWidgets.kBooleanBox)

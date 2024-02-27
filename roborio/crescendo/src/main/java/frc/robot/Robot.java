@@ -85,13 +85,13 @@ public class Robot extends TimedRobot {
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.ANGLE_UP, (isPressed) -> {
       if(isPressed) {
-        mControlSystem.manualAdjustAngle(3);
+        mControlSystem.manualAdjustAngle(1);
       }
     });
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.ANGLE_DOWN, (isPressed) -> {
       if(isPressed) {
-        mControlSystem.manualAdjustAngle(-3);
+        mControlSystem.manualAdjustAngle(-1);
       }
     });
 
@@ -104,14 +104,13 @@ public class Robot extends TimedRobot {
     mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT_HIGH, (isPressed)-> {
       mControlSystem.setCollectHigh(isPressed); 
     });
-    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, "RT", (isPressed)-> {
-      if(isPressed) {
-        System.out.println("RT BEING PRESSED");
-      }
-    });
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SCORE_AMP, (isPressed)->{
       mControlSystem.setAmp(isPressed);
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SCORE_PODIUM, (isPressed)->{
+      mControlSystem.shootPodium(isPressed);
     });
 
     // mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CLIMBER_EXTEND, (isPressed)-> {

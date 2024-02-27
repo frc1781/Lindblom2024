@@ -23,6 +23,7 @@ public class ConfigMap {
 
 
         public static final double MAX_SHOOTER_SPEED = 7;
+        public static final double MIN_SHOOTER_SPEED = 6;
 
         // CAN IDs
 
@@ -125,6 +126,7 @@ public class ConfigMap {
         public static final String ANGLE_UP = "E";
         public static final String ANGLE_DOWN = "W";
         public static final String SCORE_AMP = "Y";
+        public static final String SCORE_PODIUM = "A";
         // public static final String CLIMBER_EXTEND = "N";
         // public static final String CLIMB_RETRACT = "S";
 }

@@ -71,6 +71,7 @@ public class ControlSystem {
     private boolean mClimberExtendButton = false;
     private boolean mCollectingHighButton = false;
     private boolean mAmpButton = false;
+    private boolean mShootPodiumButton = false;
 
 
     private NetworkTable mBackLimelightTable = NetworkTableInstance.getDefault().getTable(ConfigMap.BACK_LIMELIGHT_NAME);
@@ -300,6 +301,25 @@ public class ControlSystem {
         mDriveSystem.aimSpeaker(isAiming);
     }
 
+    public void shootPodium(boolean isShooting) {
+        if(isShooting == mShootPodiumButton) {
+            return;
+        }
+
+        mShootPodiumButton = isShooting;
+
+        if(mShootPodiumButton && !mCollectingButton && !mPrepareToShootButton) {
+            if(!mKeepArmDownButton)
+                mArm.setDesiredState(ArmState.PODIUM);
+            mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
+
+        } else if( !mCollectingButton && !mPrepareToShootButton) {
+            if(!mKeepArmDownButton)
+                mArm.setDesiredState(ArmState.SAFE);
+            mScollector.setDesiredState(ScollectorState.IDLE);
+        }
+    }
+
     public double calculateShortestRotationToAngle(double startingAngle, double goalAngle) {
         double ogAngle = startingAngle - goalAngle;
         double[] angles = { ogAngle, ogAngle - 360, ogAngle + 360 };
@@ -385,14 +405,14 @@ public class ControlSystem {
     }
 
     public void run(DriverInput driverInput) {
-        mArm.updateRobotPose(mDriveSystem.getRobotPose());
+        mArm.updateAimSpots(mDriveSystem.getRobotPose());
 
         mDriveSystem.updateVisionLocalization(getLimelightPose());
         mArm.setSpeakerDistance(mDriveSystem.distanceToSpeaker());
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
 
         boolean seesApriltag = mBackLimelightTable.getEntry("tv").getDouble(-1) >= 1;
-        final double speedTolerance = 0.5;
+        final double speedTolerance = 0.01;
         ChassisSpeeds robotSpeeds = mDriveSystem.getChassisSpeeds();
         boolean driveSystemSlowEnough = robotSpeeds.vxMetersPerSecond <= speedTolerance && robotSpeeds.vyMetersPerSecond <= speedTolerance; 
         mSeesAprilTagEntry.setBoolean(seesApriltag);
@@ -539,4 +559,5 @@ class SubsystemSetting {
 
         return ret_val;
     }
+
 }
