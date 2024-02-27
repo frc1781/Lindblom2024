@@ -418,6 +418,7 @@ public class ControlSystem {
                 boolean driveSystemSlowEnough = robotSpeeds.vxMetersPerSecond <= speedTolerance
                         && robotSpeeds.vyMetersPerSecond <= speedTolerance;
                 mSeesAprilTagEntry.setBoolean(seesApriltag);
+                mDriveSystem.updateVisionLocalization(getLimelightPose());
                 if (seesApriltag && driveSystemSlowEnough) {
                     mDriveSystem.setOdometry(getLimelightPose());
                 }
@@ -431,7 +432,6 @@ public class ControlSystem {
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y);
                 break;
             case AUTONOMOUS:
-                mDriveSystem.updateVisionLocalization(getLimelightPose());
                 if (mScollector.getState() == ScollectorState.COLLECT
                         || mScollector.getState() == ScollectorState.COLLECT_RAMP
                         || mScollector.getState() == ScollectorState.COLLECT_AUTO_SHOOT) {
