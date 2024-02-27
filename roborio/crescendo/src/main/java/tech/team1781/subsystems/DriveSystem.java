@@ -121,7 +121,6 @@ public class DriveSystem extends Subsystem {
                 break;
             case DRIVE_TRAJECTORY:
                 var trajectoryInitialPose = mDesiredTrajectory.sample(super.currentTime).positionMeters;
-                System.out.println(super.currentTime + "," + trajectoryInitialPose.getX() + "," + trajectoryInitialPose.getY() );
                 followTrajectory();
                 break;
             case DRIVE_MANUAL:
@@ -159,6 +158,7 @@ public class DriveSystem extends Subsystem {
 
     @Override
     public void autonomousPeriodic() {
+        System.out.println("navx raw: " + mNavX.getRotation2d() + " offset " + mNavXOffset + " navx calculated " + getRobotAngle());
     }
 
     @Override
@@ -248,12 +248,13 @@ public class DriveSystem extends Subsystem {
     }
 
     public void setNavXOffset(Rotation2d offset) {
+        // var diff = Math.abs(offset.getRadians() - getRobotAngle().getRadians());
         if (mHasNavXOffsetBeenSet) {
             return;
         }
 
+
         mNavXOffset = offset.getRadians();
-        // System.out.printf("navx offset set to %.2f\n", mNavXOffset);
         mHasNavXOffsetBeenSet = true;
     }
 
@@ -324,8 +325,8 @@ public class DriveSystem extends Subsystem {
         Pose2d initialPose = trajectory.getInitialTargetHolonomicPose();
         mDesiredTrajectory = trajectory;
 
-        if (!mOdometryBeenSet) {
-            setNavXOffset(new Rotation2d((45.0 / 180.0 * Math.PI)));
+        if (!mOdometryBeenSet){
+            setNavXOffset(initialPose.getRotation());
             setOdometry(initialPose);
             mOdometryBeenSet = true;
         }
@@ -334,7 +335,6 @@ public class DriveSystem extends Subsystem {
     }
 
     public void setTrajectoryFromPath(PathPlannerPath path) {
-        setNavXOffset(path.getPreviewStartingHolonomicPose().getRotation());
         // also use current speed of robot
         PathPlannerTrajectory pathTrajectory = new PathPlannerTrajectory(path, new ChassisSpeeds(), getRobotAngle());
         setTrajectory(pathTrajectory);
