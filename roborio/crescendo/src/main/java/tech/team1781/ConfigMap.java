@@ -23,6 +23,7 @@ public class ConfigMap {
 
 
         public static final double MAX_SHOOTER_SPEED = 7;
+        public static final double MIN_SHOOTER_SPEED = 6;
 
         // CAN IDs
 
@@ -98,8 +99,8 @@ public class ConfigMap {
         // First Drivebase
 
         //Limelight
-        public static final String FRONT_LIMELIGHT_NAME = "limelight-back";
-        public static final String BACK_LIMELIGHT_NAME = "limelight-front";
+        public static final String FRONT_LIMELIGHT_NAME = "limelight-front";
+        public static final String BACK_LIMELIGHT_NAME = "limelight-backup";
 
         // Controls
         public static final int DRIVER_CONTROLLER_PORT = 0;
@@ -113,7 +114,7 @@ public class ConfigMap {
         public static final String COLLECT = "RB";
         public static final String AUTO_AIM = "A";
         public static final String COLLECT_HIGH = "B";
-
+// b nax x center
         // Co-pilot controls
         public static final int CO_PILOT_PORT = 1;
 
@@ -124,6 +125,7 @@ public class ConfigMap {
         public static final String ANGLE_UP = "E";
         public static final String ANGLE_DOWN = "W";
         public static final String SCORE_AMP = "Y";
+        public static final String SCORE_PODIUM = "A";
         // public static final String CLIMBER_EXTEND = "N";
         // public static final String CLIMB_RETRACT = "S";
 }

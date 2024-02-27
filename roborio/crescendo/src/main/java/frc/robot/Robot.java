@@ -81,18 +81,17 @@ public class Robot extends TimedRobot {
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.PREPARE_TO_SHOOT, (isPressed) -> {
       mControlSystem.setPrepareToShoot(isPressed);
-      mControlSystem.setCenteringOnAprilTag(isPressed);
     });
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.ANGLE_UP, (isPressed) -> {
       if(isPressed) {
-        mControlSystem.manualAdjustAngle(3);
+        mControlSystem.manualAdjustAngle(1);
       }
     });
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.ANGLE_DOWN, (isPressed) -> {
       if(isPressed) {
-        mControlSystem.manualAdjustAngle(-3);
+        mControlSystem.manualAdjustAngle(-1);
       }
     });
 
@@ -121,6 +120,10 @@ public class Robot extends TimedRobot {
       mControlSystem.setAmp(isPressed);
     });
 
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SCORE_PODIUM, (isPressed)->{
+      mControlSystem.shootPodium(isPressed);
+    });
+
     // mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CLIMBER_EXTEND, (isPressed)-> {
     //   mControlSystem.setClimberExtend(isPressed);
     // });
@@ -128,6 +131,10 @@ public class Robot extends TimedRobot {
     // mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CLIMB_RETRACT, (isPressed)-> {
     //   mControlSystem.setClimberRetract(isPressed);
     // });
+
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.AUTO_AIM, (isHeld) -> {
+      mControlSystem.setCenteringOnAprilTag(isHeld);
+    });
 
     // // mDriverInput.addClickListener(0, "B", (isPressed) -> {
     // //   if (isPressed) {
