@@ -80,6 +80,8 @@ public class AutonomousBuilder {
     }
 
     public static AutoStep[] buildFromPositions(Paths.AutonomousPosition... positions) {
+        Paths paths = new Paths();
+    
         LinkedList<AutoStep> autonomousSteps = new LinkedList<>();
         final double shootTime = 3;
         autonomousSteps.add(new AutoStep(shootTime, Action.COLLECT_AUTO_SHOOT));
@@ -88,7 +90,8 @@ public class AutonomousBuilder {
 
         for(int i = 1; i < positions.length; i++) {
             Paths.AutonomousPosition current = positions[i];
-            PathPlannerPath path = Paths.getPath(previous, current);
+            PathPlannerPath path = paths.getPathNonStatic(previous, current);
+
             if(path == null) {
                 continue;
             }
