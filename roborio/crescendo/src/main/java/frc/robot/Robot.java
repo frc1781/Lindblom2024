@@ -114,7 +114,7 @@ public class Robot extends TimedRobot {
       mControlSystem.setAmp(isPressed);
     });
 
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, "A", (isPressed)->{
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SCORE_PODIUM, (isPressed)->{
       mControlSystem.shootPodium(isPressed);
     });
 
