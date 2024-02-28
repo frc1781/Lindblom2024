@@ -8,7 +8,11 @@
       },
       "prevControl": null,
       "nextControl": {
+<<<<<<< Updated upstream
         "x": 1.6716959626812673,
+=======
+        "x": 1.6716959626812669,
+>>>>>>> Stashed changes
         "y": 6.130504902295761
       },
       "isLocked": false,
@@ -54,7 +58,7 @@
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
-    "velocity": 0,
+    "velocity": 0.0,
     "rotation": 0,
     "rotateFast": false
   },
