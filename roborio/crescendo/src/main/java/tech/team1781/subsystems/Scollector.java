@@ -162,7 +162,7 @@ public class Scollector extends Subsystem {
             case COLLECT_RAMP:
                 return hasNote();
             case COLLECT_AUTO_SHOOT:
-                return false;
+                return !hasNote() && !noteCloseToShooter();
             default:
                 return false;
         }
@@ -199,7 +199,7 @@ public class Scollector extends Subsystem {
         double rightDiff = Math.abs(rightSpeed - ConfigMap.MAX_SHOOTER_SPEED);
         final double TOLERANCE = 0.1;
 
-        return leftDiff <= TOLERANCE && rightDiff <= TOLERANCE;
+        return leftSpeed >= ConfigMap.MAX_SHOOTER_SPEED && rightSpeed >= ConfigMap.MAX_SHOOTER_SPEED;
         
     }
 
