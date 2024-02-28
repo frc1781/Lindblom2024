@@ -96,6 +96,7 @@ public class Scollector extends Subsystem {
         mBottomShooterVelocity.setDouble(mBottomShooterMotor.getEncoder().getVelocity());
         mReadyToShootEntry.setBoolean(shooterAtSpeed());
         mHasNoteEntry.setBoolean(hasNote());
+        System.out.println("Close To shooter: " + noteCloseToShooter());
     }
 
     @Override
@@ -133,7 +134,7 @@ public class Scollector extends Subsystem {
             case COLLECT_AUTO_SHOOT:
                 if (!hasNote()) {
                     collect();
-                } else if (mArmInPosition && !noteCloseToShooter() && shooterAtSpeed()) {
+                } else if (mArmInPosition && (noteCloseToShooter() || hasNote()) && shooterAtSpeed()) {
                     shoot();
                 } else {
                     mCollectorMotor.set(0);
@@ -186,12 +187,10 @@ public class Scollector extends Subsystem {
     }
 
     public boolean noteCloseToShooter() {
-        if(!mTopTof.isRangeValid()) {
+        if(!mTopTof.isRangeValid() && mTopTof.getRange() == 0.0) {
             return false;
         }
-        //System.out.println("tof range: " + mTopTof.getRange());
-        return false;
-        // return mTopTof.getRange() <= 400;
+        return mTopTof.getRange() <= 400;
     }
 
     public boolean shooterAtSpeed() {
@@ -216,7 +215,7 @@ public class Scollector extends Subsystem {
         if (!hasNote() && !noteCloseToShooter()) {
             mCollectorMotor.set(-1);
         } else if(noteCloseToShooter()){
-            mCollectorMotor.set(1);
+            mCollectorMotor.set(0.25);
         } else if(hasNote()){
             mCollectorMotor.set(0);
         }
