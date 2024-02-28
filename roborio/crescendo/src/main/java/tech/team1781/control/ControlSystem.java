@@ -437,7 +437,7 @@ public class ControlSystem {
                         || mScollector.getState() == ScollectorState.COLLECT_RAMP
                         || mScollector.getState() == ScollectorState.COLLECT_AUTO_SHOOT) {
                     if (mScollector.hasNote()) {
-                        mArm.setDesiredState(ArmState.SUBWOOFER);
+                        mArm.setDesiredState(ArmState.AUTO_ANGLE);
                     } else {
                         mArm.setDesiredState(ArmState.COLLECT);
                     }

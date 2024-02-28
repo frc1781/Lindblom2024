@@ -96,6 +96,7 @@ public class Scollector extends Subsystem {
         mBottomShooterVelocity.setDouble(mBottomShooterMotor.getEncoder().getVelocity());
         mReadyToShootEntry.setBoolean(shooterAtSpeed());
         mHasNoteEntry.setBoolean(hasNote());
+        System.out.println("Close To shooter: " + noteCloseToShooter());
     }
 
     @Override
@@ -133,7 +134,7 @@ public class Scollector extends Subsystem {
             case COLLECT_AUTO_SHOOT:
                 if (!hasNote()) {
                     collect();
-                } else if (mArmInPosition && !noteCloseToShooter() && shooterAtSpeed()) {
+                } else if (mArmInPosition && (noteCloseToShooter() || hasNote()) && shooterAtSpeed()) {
                     shoot();
                 } else {
                     mCollectorMotor.set(0);
@@ -186,20 +187,21 @@ public class Scollector extends Subsystem {
     }
 
     public boolean noteCloseToShooter() {
-        if(!mTopTof.isRangeValid()) {
+        if(!mTopTof.isRangeValid() && mTopTof.getRange() == 0.0) {
             return false;
         }
-        //System.out.println("tof range: " + mTopTof.getRange());
-        return false;
-        // return mTopTof.getRange() <= 400;
+        return mTopTof.getRange() <= 400;
     }
 
     public boolean shooterAtSpeed() {
         double leftSpeed = mBottomShooterMotor.getEncoder().getVelocity();
         double rightSpeed = mTopShooterMotor.getEncoder().getVelocity();
-        double diff = Math.abs(leftSpeed - rightSpeed);
-        double threshold = 7;
-        return leftSpeed >= threshold && rightSpeed >= threshold && diff <= 0.1;
+        double leftDiff = Math.abs(leftSpeed - ConfigMap.MAX_SHOOTER_SPEED);
+        double rightDiff = Math.abs(rightSpeed - ConfigMap.MAX_SHOOTER_SPEED);
+        final double TOLERANCE = 0.1;
+
+        return leftDiff <= TOLERANCE && rightDiff <= TOLERANCE;
+        
     }
 
     public void setArmReadyToShoot(boolean armReady) {
@@ -216,7 +218,7 @@ public class Scollector extends Subsystem {
         if (!hasNote() && !noteCloseToShooter()) {
             mCollectorMotor.set(-1);
         } else if(noteCloseToShooter()){
-            mCollectorMotor.set(1);
+            mCollectorMotor.set(0.25);
         } else if(hasNote()){
             mCollectorMotor.set(0);
         }
