@@ -158,11 +158,20 @@ public class DriveSystem extends Subsystem {
 
     @Override
     public void autonomousPeriodic() {
-        System.out.println("navx raw: " + mNavX.getRotation2d() + " offset " + mNavXOffset + " navx calculated " + getRobotAngle());
+        System.out.printf(
+          "getRot %.2f offset %.2f  getAngle %.2f\n", 
+           -mNavX.getRotation2d().getRadians(),
+           mNavXOffset,
+           getRobotAngle().getRadians());
     }
 
     @Override
     public void teleopPeriodic() {
+        System.out.printf(
+          "getRot %.2f offset %.2f  getAngle %.2f\n", 
+           -mNavX.getRotation2d().getRadians(),
+           mNavXOffset,
+           getRobotAngle().getRadians());
     }
 
     @Override
