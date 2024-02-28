@@ -96,7 +96,6 @@ public class Scollector extends Subsystem {
         mBottomShooterVelocity.setDouble(mBottomShooterMotor.getEncoder().getVelocity());
         mReadyToShootEntry.setBoolean(shooterAtSpeed());
         mHasNoteEntry.setBoolean(hasNote());
-        System.out.println("Close To shooter: " + noteCloseToShooter());
     }
 
     @Override
