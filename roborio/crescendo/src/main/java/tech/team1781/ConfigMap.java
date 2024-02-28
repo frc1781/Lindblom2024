@@ -108,7 +108,7 @@ public class ConfigMap {
         public static final double DRIVER_TRANSLATION_RATE_LIMIT = 1.2;
         public static final double DRIVER_ROTATION_RATE_LIMIT = 1.2;
 
-        public static final String RESET_NAVX = "B";
+        public static final String RESET_NAVX = "START";
         public static final String CALIBRATE_POSITION = "Y";
         public static final String KEEP_DOWN = "LB";
         public static final String COLLECT = "RB";

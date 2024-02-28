@@ -54,7 +54,9 @@ public class ControlSystem {
     private final SlewRateLimiter mXDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
     private final SlewRateLimiter mYDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
     private final SlewRateLimiter mRotDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_ROTATION_RATE_LIMIT);
-    private final ProfiledPIDController mLimelightAimController = new ProfiledPIDController(0.075, 0, 0,
+    private final ProfiledPIDController mLimelightAimController = new ProfiledPIDController(0.070, 0, 0,
+            new TrapezoidProfile.Constraints(1, 0.5));
+    private final ProfiledPIDController mNoteAimController = new ProfiledPIDController(0.035, 0, 0,
             new TrapezoidProfile.Constraints(1, 0.5));
 
     private boolean mAutoAiming = false;
@@ -135,6 +137,8 @@ public class ControlSystem {
         double yVelocity = -translation.x * mult;
         // rotation
         double rotVelocity = -rotation.x * 0.5 + ((triggers.x * triggermult) - (triggers.y * triggermult));
+
+        System.out.println(mAimingAngle);
 
         mDriveSystem.driveRaw(
                 mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
@@ -323,6 +327,12 @@ public class ControlSystem {
     }
 
     public void autoAimingInputs() {
+        if (LimelightHelper.getTX(ConfigMap.FRONT_LIMELIGHT_NAME) != 0.0) {
+            mSeesAprilTagEntry.setBoolean(true);
+        } else {
+            mSeesAprilTagEntry.setBoolean(false);
+        }
+
         if (!mAutoCollectionButton && !mCenterOnAprilTagButton) {
             mAutoAiming = false;
             return;
@@ -347,22 +357,39 @@ public class ControlSystem {
         double x = LimelightHelper.getXOffsetOfApriltag(id);
 
         if (x != 0.0) {
-            mAimingAngle = mLimelightAimController.calculate(x, 180);
+            mAimingAngle = mLimelightAimController.calculate(x, 0);
         } else {
                 odometryAlignment(id);
         }
     }
 
     public void odometryAlignment(int id) {
-        Pose2d robotPose = mDriveSystem.getRobotPose();
+/*        Pose2d robotPose = mDriveSystem.getRobotPose();
         Pose2d targetPose = aprilTagCoords.get(id);
 
         Transform2d finishingPose = targetPose.minus(robotPose);
         double angle = Math.atan2(finishingPose.getY(), finishingPose.getX());
         double deltaAngle = calculateShortestRotationToAngle(mDriveSystem.getRobotAngle().getDegrees(), angle);
 
-        mAimingAngle = mLimelightAimController.calculate(deltaAngle, 180);
+*//*        deltaAngle %= 2 * Math.PI;
+
+        if (deltaAngle < 0) {
+            deltaAngle += 2 * Math.PI;
+        }   *//*
+
+        mAimingAngle = mLimelightAimController.calculate(deltaAngle, 0);*/
+        EVector robotPose = EVector.fromPose(mDriveSystem.getRobotPose());
+        EVector targetPose = EVector.fromPose2d(aprilTagCoords.get(id));
+
+        double angle = robotPose.angleBetween(targetPose) - Math.PI;
+        angle %= 2 * Math.PI;
+
+        if (angle < 0) {
+            angle += 2 * Math.PI;
         }
+
+        mAimingAngle = mLimelightAimController.calculate(robotPose.toPose2d().getRotation().getRadians(), angle);
+    }
 
     public void shootPodium(boolean isShooting) {
         if(isShooting == mShootPodiumButton) {
@@ -400,7 +427,7 @@ public class ControlSystem {
     public void centerNote() {
         double x = LimelightHelper.getTX(ConfigMap.BACK_LIMELIGHT_NAME);
         if (x != 0.0) {
-            mAimingAngle = mLimelightAimController.calculate(x, 0);
+            mAimingAngle = mNoteAimController.calculate(x, 0);
         }
     }
 
@@ -473,7 +500,7 @@ public class ControlSystem {
     public void run(DriverInput driverInput) {
         mArm.updateAimSpots(mDriveSystem.getRobotPose());
 
-        mDriveSystem.updateVisionLocalization(getLimelightPose());
+        mDriveSystem.updateVisionLocalization(LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME));
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
 
         localizationUpdates();
