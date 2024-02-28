@@ -219,11 +219,12 @@ public class Arm extends Subsystem {
     }
 
 
-
+    //44 for n2
     private enum CURRENT_AIM_SPOT {
         UNDEFEINED(0.0, EVector.newVector(), EVector.newVector(), 0.0),
         SUBWOOFER(35, ConfigMap.RED_SPEAKER_LOCATION, ConfigMap.BLUE_SPEAKER_LOCATION, 2.5),
-        PODIUM(48, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1.5);
+        PODIUM(48, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1.5),
+        NOTE_2(44, EVector.newVector(14.13, 5.53) ,EVector.newVector(2.48, 5.53), 1);
 
         private double position;
         private EVector redPosition;
