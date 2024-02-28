@@ -192,13 +192,11 @@ public class DriveSystem extends Subsystem {
 
     @Override
     public void init() {
-        mRotController.reset(0);
         mFrontLeft.init();
         mFrontRight.init();
         mBackLeft.init();
         mBackRight.init();
 
-        double startingAngle = DriverStation.getAlliance().get() == Alliance.Red ? Math.PI : 0;
 
         switch (currentMode) {
             case AUTONOMOUS:
@@ -223,18 +221,7 @@ public class DriveSystem extends Subsystem {
                 break;
         }
 
-        // Runnable OdometryLogging = () -> {
-        // Pose2d robotPose = getRobotPose();
-        // super.mNetworkLogger.log("X", robotPose.getX());
-        // super.mNetworkLogger.log("Y", robotPose.getY());
-        // super.mNetworkLogger.log("Rot", getRobotAngle().getRadians());
-        // };
-
         mRotController.enableContinuousInput(0, 2 * Math.PI);
-
-        // ScheduledExecutorService loggingExecutor =
-        // Executors.newScheduledThreadPool(1);
-        // loggingExecutor.scheduleAtFixedRate(OdometryLogging, 0, 1, TimeUnit.SECONDS);
     }
 
     public void updateVisionLocalization(Pose2d visionEstimate) {
@@ -264,7 +251,6 @@ public class DriveSystem extends Subsystem {
         mPoseEstimator = new SwerveDrivePoseEstimator(mKinematics, getRobotAngle(), getModulePositions(),
                 getRobotPose());
         // mPoseEstimator.resetPosition(getRobotAngle(), getModulePositions(), )
-        System.out.printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>navx offset set to %.2f\n", mNavXOffset);
         mHasNavXOffsetBeenSet = true;
     }
 
@@ -281,19 +267,7 @@ public class DriveSystem extends Subsystem {
         }
 
         var pathplannerState = mDesiredTrajectory.sample(currentTime);
-        // edu.wpi.first.math.trajectory.Trajectory.State wpilibstate = new
-        // edu.wpi.first.math.trajectory.Trajectory.State(
-        // currentTime,
-        // pathplannerState.velocityMps,
-        // pathplannerState.accelerationMpsSq,
-        // pathplannerState.getTargetHolonomicPose(),
-        // pathplannerState.curvatureRadPerMeter);
-        // System.out.println(pathplannerState.velocityMps);
-        System.out.printf("ra: %.2f hpr: %.2f ppsh: %.2f\n",
-                getRobotPose().getRotation().getDegrees(),
-                pathplannerState.getTargetHolonomicPose().getRotation().getDegrees(),
-                pathplannerState.heading.getDegrees());
-
+        
         ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(
                 getRobotPose(),
                 new Pose2d(pathplannerState.positionMeters, pathplannerState.heading),
@@ -341,6 +315,11 @@ public class DriveSystem extends Subsystem {
         mDesiredTrajectory = trajectory;
 
         if (!mOdometryBeenSet) {
+            mXController = new PIDController(1, 0, 0);
+            mYController = new PIDController(1, 0, 0);
+            mRotController = new ProfiledPIDController(4, 0, 0,
+                new TrapezoidProfile.Constraints(6.28, 3.14));
+            mTrajectoryController = new HolonomicDriveController(mXController, mYController, mRotController);
             setOdometry(initialPose);
             mOdometryBeenSet = true;
         }
@@ -351,11 +330,6 @@ public class DriveSystem extends Subsystem {
     public void setTrajectoryFromPath(PathPlannerPath path) {
         Rotation2d startingOrientation = path.getPreviewStartingHolonomicPose().getRotation();
         setNavXOffset(startingOrientation);
-        System.out.printf(">>>>path making>>> staring Orientation: %.2f,%.2f,%.2f,%.2f\n",
-                startingOrientation.getDegrees(),
-                getRobotAngle().getDegrees(),
-                mNavXOffset,
-                getRobotPose().getRotation().getDegrees());
         // also use current speed of robot
         PathPlannerTrajectory pathTrajectory = new PathPlannerTrajectory(path, new ChassisSpeeds(), getRobotAngle());
         setTrajectory(pathTrajectory);
@@ -372,6 +346,7 @@ public class DriveSystem extends Subsystem {
             return;
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
+
 
         mFrontLeft.setDesiredState(moduleStates[0]);
         mFrontRight.setDesiredState(moduleStates[1]);
