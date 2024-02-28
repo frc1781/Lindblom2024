@@ -71,8 +71,6 @@ public class DriveSystem extends Subsystem {
     private PathPlannerTrajectory mDesiredTrajectory = null;
     private EVector mDesiredPosition = null;
     private boolean mIsManual = true;
-    private boolean mIsAiming = false;
-    private double mDesiredAngle = 0.0;
 
     private PIDController mXController = new PIDController(1, 0, 0);
     private PIDController mYController = new PIDController(1, 0, 0);
@@ -96,6 +94,7 @@ public class DriveSystem extends Subsystem {
             "Overall Velocity", -1, ShuffleboardStyle.ROBOT_VELOCITY);
 
     private Field2d mField = new Field2d();
+
 
     public DriveSystem() {
         super("Drive System", DriveSystemState.DRIVE_MANUAL);
@@ -221,6 +220,7 @@ public class DriveSystem extends Subsystem {
                 break;
         }
 
+
         mRotController.enableContinuousInput(0, 2 * Math.PI);
     }
 
@@ -238,7 +238,6 @@ public class DriveSystem extends Subsystem {
     }
 
     public void setOdometry(Pose2d pose) {
-        // mOdometry.resetPosition(getRobotAngle(), getModulePositions(), pose);
         mPoseEstimator.resetPosition(getRobotAngle(), getModulePositions(), pose);
     }
 
@@ -267,29 +266,13 @@ public class DriveSystem extends Subsystem {
         }
 
         var pathplannerState = mDesiredTrajectory.sample(currentTime);
-        
+
         ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(
                 getRobotPose(),
                 new Pose2d(pathplannerState.positionMeters, pathplannerState.heading),
                 pathplannerState.velocityMps,
                 pathplannerState.getTargetHolonomicPose().getRotation());
         driveWithChassisSpeds(desiredChassisSpeeds);
-    }
-
-    public void aimSpeaker(boolean isAiming) {
-        mIsAiming = isAiming;
-        if (!isAiming) {
-            return;
-        }
-
-        EVector speakerpos = ControlSystem.isRed() ? ConfigMap.RED_SPEAKER_LOCATION : ConfigMap.BLUE_SPEAKER_LOCATION;
-        EVector currentPose = EVector.fromPose(getRobotPose());
-        currentPose.z = 0;
-
-        double angle = currentPose.angleBetween(speakerpos) - Math.PI;
-        angle = normalizeRadians(angle);
-
-        mDesiredAngle = angle;
     }
 
     public void goTo(EVector target) {
@@ -365,11 +348,10 @@ public class DriveSystem extends Subsystem {
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(
                 mIsFieldOriented
                         ? ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
-                                xSpeed,
-                                ySpeed,
-                                mIsAiming ? mRotController.calculate(getRobotAngle().getRadians(), mDesiredAngle)
-                                        : rot),
-                                getRobotAngle())
+                            xSpeed, 
+                            ySpeed,
+                                rot),
+                            getRobotAngle())
                         : new ChassisSpeeds(xSpeed, ySpeed, rot));
 
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
@@ -409,22 +391,8 @@ public class DriveSystem extends Subsystem {
         return false;
     }
 
-    public double distanceToSpeaker() {
-        Pose2d currentPose = getRobotPose();
-        EVector currentPoseEvector = EVector.newVector(currentPose.getX(), currentPose.getY());
-
-        boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
-        EVector speakerPos = isRed ? ConfigMap.RED_SPEAKER_LOCATION : ConfigMap.BLUE_SPEAKER_LOCATION;
-
-        return currentPoseEvector.dist(speakerPos);
-    }
-
     private void updateOdometry() {
         // mOdometry.update(getRobotAngle(), getModulePositions());
-        // System.out.printf("%.2f,%.2f,%.2f\n",
-        // getRobotAngle().getDegrees(),
-        // mNavXOffset,
-        // getRobotPose().getRotation().getDegrees());
         mPoseEstimator.update(getRobotAngle(), getModulePositions());
     }
 
@@ -433,16 +401,6 @@ public class DriveSystem extends Subsystem {
         // ((NEOL1SwerveModule) mFrontRight).printModuleState();
         // ((NEOL1SwerveModule) mBackLeft).printModuleState();
         // ((NEOL1SwerveModule) mBackRight).printModuleState();
-    }
-
-    private double normalizeRadians(double rads) {
-        rads %= 2 * Math.PI;
-
-        if (rads < 0) {
-            rads += 2 * Math.PI;
-        }
-
-        return rads;
     }
 
     private SwerveModulePosition[] getModulePositions() {

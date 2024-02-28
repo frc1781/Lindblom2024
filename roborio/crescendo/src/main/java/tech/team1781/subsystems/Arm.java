@@ -32,9 +32,10 @@ public class Arm extends Subsystem {
     private GenericEntry mArmPositionEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Angle", -1,
             ShuffleboardStyle.ARM_ANGLE);
     private GenericEntry mArmAimSpotEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Aim Spot", "N/A", ShuffleboardStyle.ARM_AIM_SPOT);
-    
+
     private double mDesiredPosition = 0;
     private double mSpeakerDistance = 0;
+    private Pose2d mRobotPose;
     private CURRENT_AIM_SPOT mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
 
     public Arm() {
@@ -89,7 +90,7 @@ public class Arm extends Subsystem {
         // System.out.println(getAngle());
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
 
-        
+
     }
 
     @Override
@@ -162,7 +163,7 @@ public class Arm extends Subsystem {
 
         if(!foundAimSpot) {
             mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
-        } 
+        }
     }
 
     private double calculateAngleFromDistance() {
@@ -212,11 +213,11 @@ public class Arm extends Subsystem {
     public void setSpeakerDistance(double d) {
         mSpeakerDistance = d;
     }
-    
+
     private boolean matchesPosition() {
         return Math.abs(mLeftEncoder.getPosition() - mDesiredPosition) < 1;
     }
-    
+
 
     //44 for n2
     private enum CURRENT_AIM_SPOT {
@@ -242,7 +243,7 @@ public class Arm extends Subsystem {
             currentPose.z = 0;
             double dist = target.dist(currentPose);
 
-            return dist <= distanceTolerance;            
+            return dist <= distanceTolerance;
         }
 
         public double getPosition() {
