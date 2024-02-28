@@ -261,7 +261,7 @@ public class DriveSystem extends Subsystem {
         if (mHasNavXOffsetBeenSet) {
             return;
         }
-
+        System.out.printf("Call to set offset to %.2f\n", offset.getDegrees());
 
         mNavXOffset = offset.getRadians();
         mHasNavXOffsetBeenSet = true;
