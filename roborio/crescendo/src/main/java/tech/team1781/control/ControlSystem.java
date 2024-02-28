@@ -1,6 +1,5 @@
 package tech.team1781.control;
 
-import java.io.ObjectInputFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -81,7 +80,10 @@ public class ControlSystem {
     private boolean mAmpButton = false;
     private boolean mShootPodiumButton = false;
 
-    private GenericEntry mSeesAprilTagEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Sees AprilTag", false, ShuffleboardStyle.SEES_APRILTAG);
+    private NetworkTable mBackLimelightTable = NetworkTableInstance.getDefault()
+            .getTable(ConfigMap.BACK_LIMELIGHT_NAME);
+    private GenericEntry mSeesAprilTagEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Sees AprilTag",
+            false, ShuffleboardStyle.SEES_APRILTAG);
     private HashMap<Number, Pose2d> aprilTagCoords = new HashMap<>();
 
     public enum Action {
@@ -225,7 +227,7 @@ public class ControlSystem {
         mArm.manualAdjustAngle(diff);
     }
 
-    public void calibratePosition(){
+    public void calibratePosition() {
         mDriveSystem.setOdometry(getLimelightPose());
     }
 
@@ -281,33 +283,35 @@ public class ControlSystem {
     }
 
     public void setCollectHigh(boolean collectingHigh) {
-        if(mCollectingHighButton == collectingHigh) {
+        if (mCollectingHighButton == collectingHigh) {
             return;
         }
 
         mCollectingHighButton = collectingHigh;
 
-        if(!mCollectingButton && collectingHigh && !mKeepArmDownButton){
+        if (!mCollectingButton && collectingHigh && !mKeepArmDownButton) {
             mArm.setDesiredState(ArmState.COLLECT_HIGH);
             mScollector.setDesiredState(ScollectorState.COLLECT);
         }
 
-        if(!collectingHigh && !mKeepArmDownButton && !mPrepareToShootButton && !mCollectingButton){
+        if (!collectingHigh && !mKeepArmDownButton && !mPrepareToShootButton && !mCollectingButton) {
             mArm.setDesiredState(ArmState.SAFE);
             mScollector.setDesiredState(ScollectorState.IDLE);
         }
     }
 
-    public void setAmp(boolean isAmp){
-        if(mAmpButton == isAmp){
+    public void setAmp(boolean isAmp) {
+        if (mAmpButton == isAmp) {
             return;
         }
 
         mAmpButton = isAmp;
 
-        if(!mCollectingButton && !mCollectingHighButton && !mKeepArmDownButton && !mPrepareToShootButton && mAmpButton){
+        if (!mCollectingButton && !mCollectingHighButton && !mKeepArmDownButton && !mPrepareToShootButton
+                && mAmpButton) {
             mArm.setDesiredState(ArmState.AMP);
-        } else if(!mCollectingButton && !mCollectingHighButton && !mKeepArmDownButton && !mPrepareToShootButton && !mAmpButton){
+        } else if (!mCollectingButton && !mCollectingHighButton && !mKeepArmDownButton && !mPrepareToShootButton
+                && !mAmpButton) {
             mArm.setDesiredState(ArmState.SAFE);
         }
     }
@@ -389,19 +393,19 @@ public class ControlSystem {
 
 
     public void shootPodium(boolean isShooting) {
-        if(isShooting == mShootPodiumButton) {
+        if (isShooting == mShootPodiumButton) {
             return;
         }
 
         mShootPodiumButton = isShooting;
 
-        if(mShootPodiumButton && !mCollectingButton && !mPrepareToShootButton) {
-            if(!mKeepArmDownButton)
+        if (mShootPodiumButton && !mCollectingButton && !mPrepareToShootButton) {
+            if (!mKeepArmDownButton)
                 mArm.setDesiredState(ArmState.PODIUM);
             mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
 
-        } else if( !mCollectingButton && !mPrepareToShootButton) {
-            if(!mKeepArmDownButton)
+        } else if (!mCollectingButton && !mPrepareToShootButton) {
+            if (!mKeepArmDownButton)
                 mArm.setDesiredState(ArmState.SAFE);
             mScollector.setDesiredState(ScollectorState.IDLE);
         }
@@ -482,7 +486,7 @@ public class ControlSystem {
                 mRotDriveLimiter.reset(0);
                 mArm.setDesiredState(ArmState.SAFE);
                 mDriveSystem.setDesiredState(DriveSystem.DriveSystemState.DRIVE_MANUAL);
-                if(getLimelightPose().getX() != -99.9) {
+                if (getLimelightPose().getX() != -99.9) {
                     mDriveSystem.setOdometry(getLimelightPose());
                 }
                 break;
@@ -499,12 +503,9 @@ public class ControlSystem {
 
         mDriveSystem.updateVisionLocalization(LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME));
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
-
-        localizationUpdates();
-
-
         switch (mCurrentOperatingMode) {
             case TELEOP:
+                localizationUpdates();
                 EVector driverTriggers = driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT);
                 driverDriving(
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),

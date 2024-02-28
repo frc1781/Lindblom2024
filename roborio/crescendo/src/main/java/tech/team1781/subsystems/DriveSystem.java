@@ -80,13 +80,19 @@ public class DriveSystem extends Subsystem {
     private HolonomicDriveController mTrajectoryController = new HolonomicDriveController(mXController, mYController,
             mRotController);
 
-    private GenericEntry mRobotXEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "X Position", -1, ShuffleboardStyle.ROBOT_X);
-    private GenericEntry mRobotYEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Y Position", -1, ShuffleboardStyle.ROBOT_Y);
-    private GenericEntry mRobotThetaEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Theta", -1, ShuffleboardStyle.ROBOT_THETA);
-    private GenericEntry mRobotXSpeedEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "X Speed", -1, ShuffleboardStyle.ROBOT_X_VELOCITY);
-    private GenericEntry mRobotYSpeedEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Y Speed", -1, ShuffleboardStyle.ROBOT_Y_VELOCITY);
-    private GenericEntry mRobotVelocityEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Overall Velocity", -1, ShuffleboardStyle.ROBOT_VELOCITY);
-    
+    private GenericEntry mRobotXEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "X Position", -1,
+            ShuffleboardStyle.ROBOT_X);
+    private GenericEntry mRobotYEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Y Position", -1,
+            ShuffleboardStyle.ROBOT_Y);
+    private GenericEntry mRobotThetaEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Theta", -1,
+            ShuffleboardStyle.ROBOT_THETA);
+    private GenericEntry mRobotXSpeedEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "X Speed", -1,
+            ShuffleboardStyle.ROBOT_X_VELOCITY);
+    private GenericEntry mRobotYSpeedEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Y Speed", -1,
+            ShuffleboardStyle.ROBOT_Y_VELOCITY);
+    private GenericEntry mRobotVelocityEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB,
+            "Overall Velocity", -1, ShuffleboardStyle.ROBOT_VELOCITY);
+
     private Field2d mField = new Field2d();
 
 
@@ -100,8 +106,10 @@ public class DriveSystem extends Subsystem {
         mNavX.resetDisplacement();
 
         ConfigMap.SHUFFLEBOARD_TAB.add("Field", mField)
-        .withPosition((int)ShuffleboardStyle.ROBOT_POSITION_FIELD.position.x,(int) ShuffleboardStyle.ROBOT_POSITION_FIELD.position.y)
-        .withSize((int) ShuffleboardStyle.ROBOT_POSITION_FIELD.size.x, (int) ShuffleboardStyle.ROBOT_POSITION_FIELD.size.y);
+                .withPosition((int) ShuffleboardStyle.ROBOT_POSITION_FIELD.position.x,
+                        (int) ShuffleboardStyle.ROBOT_POSITION_FIELD.position.y)
+                .withSize((int) ShuffleboardStyle.ROBOT_POSITION_FIELD.size.x,
+                        (int) ShuffleboardStyle.ROBOT_POSITION_FIELD.size.y);
     }
 
     public enum DriveSystemState implements Subsystem.SubsystemState {
@@ -119,7 +127,8 @@ public class DriveSystem extends Subsystem {
                 break;
             case DRIVE_TRAJECTORY:
                 var trajectoryInitialPose = mDesiredTrajectory.getInitialState().getTargetHolonomicPose();
-                System.out.println(mDesiredTrajectory.hashCode() + " :: " + EVector.fromPose(trajectoryInitialPose));
+                // System.out.println(mDesiredTrajectory.hashCode() + " :: " +
+                // EVector.fromPose(trajectoryInitialPose));
                 followTrajectory();
                 break;
             case DRIVE_MANUAL:
@@ -130,8 +139,9 @@ public class DriveSystem extends Subsystem {
             case SYSID:
                 driveRaw(1, 0, 0);
                 ChassisSpeeds currentSpeeds = getChassisSpeeds();
-                System.out.print(super.currentTime + "," + currentSpeeds.vxMetersPerSecond + "," + currentSpeeds.vyMetersPerSecond + "," + currentSpeeds.omegaRadiansPerSecond);
-            break;
+                System.out.print(super.currentTime + "," + currentSpeeds.vxMetersPerSecond + ","
+                        + currentSpeeds.vyMetersPerSecond + "," + currentSpeeds.omegaRadiansPerSecond);
+                break;
             default:
                 break;
         }
@@ -172,8 +182,8 @@ public class DriveSystem extends Subsystem {
         mRobotXSpeedEntry.setDouble(Math.abs(getChassisSpeeds().vxMetersPerSecond));
         mRobotYSpeedEntry.setDouble(Math.abs(getChassisSpeeds().vyMetersPerSecond));
         mRobotVelocityEntry.setDouble(
-            EVector.newVector(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond).magnitude()
-        );
+                EVector.newVector(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond)
+                        .magnitude());
         mRobotThetaEntry.setDouble(getRobotAngle().getRadians());
         mField.setRobotPose(getRobotPose());
         // mField.setRobotPose(getRobotPose());
@@ -181,26 +191,22 @@ public class DriveSystem extends Subsystem {
 
     @Override
     public void init() {
-        mRotController.reset(0);
         mFrontLeft.init();
         mFrontRight.init();
         mBackLeft.init();
         mBackRight.init();
-        mNavX.reset();
-        mNavX.zeroYaw();
 
-        double startingAngle = DriverStation.getAlliance().get() == Alliance.Red ? Math.PI : 0;
 
         switch (currentMode) {
             case AUTONOMOUS:
+                mNavX.reset();
+                mNavX.zeroYaw();
                 mIsFieldOriented = true;
                 mHasNavXOffsetBeenSet = false;
                 mOdometryBeenSet = false;
                 break;
             case TELEOP:
-                // setOdometry(new Pose2d(1.26, 5.53, new Rotation2d()));
                 mHasNavXOffsetBeenSet = false;
-                setNavXOffset(new Rotation2d(startingAngle));
                 mIsFieldOriented = true;
                 mIsManual = true;
                 break;
@@ -224,7 +230,7 @@ public class DriveSystem extends Subsystem {
 
         visionEstimateVector.z = currentPose.z;
 
-        if(Math.abs(currentPose.dist(visionEstimateVector)) >= 1) {
+        if (Math.abs(currentPose.dist(visionEstimateVector)) >= 1) {
             return;
         }
 
@@ -241,6 +247,9 @@ public class DriveSystem extends Subsystem {
         }
 
         mNavXOffset = offset.getRadians();
+        mPoseEstimator = new SwerveDrivePoseEstimator(mKinematics, getRobotAngle(), getModulePositions(),
+                getRobotPose());
+        // mPoseEstimator.resetPosition(getRobotAngle(), getModulePositions(), )
         mHasNavXOffsetBeenSet = true;
     }
 
@@ -257,6 +266,7 @@ public class DriveSystem extends Subsystem {
         }
 
         var pathplannerState = mDesiredTrajectory.sample(currentTime);
+
         ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(
                 getRobotPose(),
                 new Pose2d(pathplannerState.positionMeters, pathplannerState.heading),
@@ -288,7 +298,11 @@ public class DriveSystem extends Subsystem {
         mDesiredTrajectory = trajectory;
 
         if (!mOdometryBeenSet) {
-            setNavXOffset(new Rotation2d((45.0 / 180.0 * Math.PI)));
+            mXController = new PIDController(1, 0, 0);
+            mYController = new PIDController(1, 0, 0);
+            mRotController = new ProfiledPIDController(4, 0, 0,
+                new TrapezoidProfile.Constraints(6.28, 3.14));
+            mTrajectoryController = new HolonomicDriveController(mXController, mYController, mRotController);
             setOdometry(initialPose);
             mOdometryBeenSet = true;
         }
@@ -297,7 +311,8 @@ public class DriveSystem extends Subsystem {
     }
 
     public void setTrajectoryFromPath(PathPlannerPath path) {
-        setNavXOffset(path.getPreviewStartingHolonomicPose().getRotation());
+        Rotation2d startingOrientation = path.getPreviewStartingHolonomicPose().getRotation();
+        setNavXOffset(startingOrientation);
         // also use current speed of robot
         PathPlannerTrajectory pathTrajectory = new PathPlannerTrajectory(path, new ChassisSpeeds(), getRobotAngle());
         setTrajectory(pathTrajectory);
@@ -314,6 +329,7 @@ public class DriveSystem extends Subsystem {
             return;
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
+
 
         mFrontLeft.setDesiredState(moduleStates[0]);
         mFrontRight.setDesiredState(moduleStates[1]);
