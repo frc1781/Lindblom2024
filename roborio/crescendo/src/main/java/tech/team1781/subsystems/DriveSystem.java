@@ -71,8 +71,6 @@ public class DriveSystem extends Subsystem {
     private PathPlannerTrajectory mDesiredTrajectory = null;
     private EVector mDesiredPosition = null;
     private boolean mIsManual = true;
-    private boolean mIsAiming = false;
-    private double mDesiredAngle = 0.0;
 
     private PIDController mXController = new PIDController(1, 0, 0);
     private PIDController mYController = new PIDController(1, 0, 0);
@@ -335,8 +333,8 @@ public class DriveSystem extends Subsystem {
                 mIsFieldOriented
                         ? ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
                             xSpeed, 
-                            ySpeed, 
-                            mIsAiming ? mRotController.calculate(getRobotAngle().getRadians(), mDesiredAngle) : rot), 
+                            ySpeed,
+                                rot),
                             getRobotAngle())
                         : new ChassisSpeeds(xSpeed, ySpeed, rot));
 
@@ -387,16 +385,6 @@ public class DriveSystem extends Subsystem {
         // ((NEOL1SwerveModule) mFrontRight).printModuleState();
         // ((NEOL1SwerveModule) mBackLeft).printModuleState();
         // ((NEOL1SwerveModule) mBackRight).printModuleState();
-    }
-
-    private double normalizeRadians(double rads){
-        rads %= 2 * Math.PI;
-
-        if(rads < 0) {
-            rads += 2 * Math.PI; 
-        }
-
-        return rads;
     }
 
     private SwerveModulePosition[] getModulePositions() {

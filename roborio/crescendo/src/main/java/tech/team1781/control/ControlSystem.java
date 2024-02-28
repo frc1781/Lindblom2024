@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 import com.pathplanner.lib.path.PathPlannerPath;
 
+import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -58,6 +59,9 @@ public class ControlSystem {
             new TrapezoidProfile.Constraints(1, 0.5));
     private final ProfiledPIDController mNoteAimController = new ProfiledPIDController(0.035, 0, 0,
             new TrapezoidProfile.Constraints(1, 0.5));
+    private final ProfiledPIDController mOdometryController = new ProfiledPIDController(4.1, 0, 0,
+            new TrapezoidProfile.Constraints(1, 0.5));
+
 
     private boolean mAutoAiming = false;
     private double mAimingAngle = 0.0;
@@ -137,8 +141,6 @@ public class ControlSystem {
         double yVelocity = -translation.x * mult;
         // rotation
         double rotVelocity = -rotation.x * 0.5 + ((triggers.x * triggermult) - (triggers.y * triggermult));
-
-        System.out.println(mAimingAngle);
 
         mDriveSystem.driveRaw(
                 mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
@@ -364,32 +366,27 @@ public class ControlSystem {
     }
 
     public void odometryAlignment(int id) {
-/*        Pose2d robotPose = mDriveSystem.getRobotPose();
-        Pose2d targetPose = aprilTagCoords.get(id);
-
-        Transform2d finishingPose = targetPose.minus(robotPose);
-        double angle = Math.atan2(finishingPose.getY(), finishingPose.getX());
-        double deltaAngle = calculateShortestRotationToAngle(mDriveSystem.getRobotAngle().getDegrees(), angle);
-
-*//*        deltaAngle %= 2 * Math.PI;
-
-        if (deltaAngle < 0) {
-            deltaAngle += 2 * Math.PI;
-        }   *//*
-
-        mAimingAngle = mLimelightAimController.calculate(deltaAngle, 0);*/
         EVector robotPose = EVector.fromPose(mDriveSystem.getRobotPose());
-        EVector targetPose = EVector.fromPose2d(aprilTagCoords.get(id));
+        EVector targetPose = EVector.fromPose(aprilTagCoords.get(id));
+
+        robotPose.z = 0;
 
         double angle = robotPose.angleBetween(targetPose) - Math.PI;
-        angle %= 2 * Math.PI;
+        angle = normalizeRadians(angle);
 
-        if (angle < 0) {
-            angle += 2 * Math.PI;
+        mAimingAngle = mOdometryController.calculate(mDriveSystem.getRobotAngle().getRadians(), angle);
+    }
+
+    private double normalizeRadians(double rads) {
+        rads %= 2 * Math.PI;
+
+        if (rads < 0) {
+            rads += 2 * Math.PI;
         }
 
-        mAimingAngle = mLimelightAimController.calculate(robotPose.toPose2d().getRotation().getRadians(), angle);
+        return rads;
     }
+
 
     public void shootPodium(boolean isShooting) {
         if(isShooting == mShootPodiumButton) {
