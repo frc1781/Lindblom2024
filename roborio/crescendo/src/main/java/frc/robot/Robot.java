@@ -95,6 +95,10 @@ public class Robot extends TimedRobot {
       }
     });
 
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.NOTE_COLLECTION, (isHeld) -> {
+        mControlSystem.setAutoCollectionButton(isHeld);
+    });
+
     mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.CALIBRATE_POSITION, (isPressed)-> {
       if(isPressed){
         mControlSystem.calibratePosition();
@@ -102,7 +106,14 @@ public class Robot extends TimedRobot {
     });
 
     mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT_HIGH, (isPressed)-> {
-      mControlSystem.setCollectHigh(isPressed); 
+      mControlSystem.setCollectHigh(isPressed);
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, "RT", (isPressed)-> {
+      if(isPressed) {
+        System.out.println("RT BEING PRESSED");
+        //rt must be so happy
+      }
     });
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SCORE_AMP, (isPressed)->{
@@ -122,7 +133,7 @@ public class Robot extends TimedRobot {
     // });
 
     mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.AUTO_AIM, (isHeld) -> {
-      mControlSystem.aimDrivesystem(isHeld);
+      mControlSystem.setCenteringOnAprilTag(isHeld);
     });
 
     // // mDriverInput.addClickListener(0, "B", (isPressed) -> {
