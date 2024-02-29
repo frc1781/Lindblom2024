@@ -501,7 +501,7 @@ public class ControlSystem {
     public void run(DriverInput driverInput) {
         mArm.updateAimSpots(mDriveSystem.getRobotPose());
 
-        mDriveSystem.updateVisionLocalization(LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME));
+        // mDriveSystem.updateVisionLocalization(LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME));
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
         switch (mCurrentOperatingMode) {
             case TELEOP:
