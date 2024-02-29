@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.GenericEntry;
 import tech.team1781.Paths;
+import tech.team1781.Paths.AutonomousPosition;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.control.ControlSystem.Action;
 
@@ -95,6 +96,16 @@ public class AutonomousBuilder {
             if(path == null) {
                 continue;
             }
+
+            if(isCenter(current)) {
+                if(isCenter(previous)) {
+                    autonomousSteps.add(new AutoStep(2, Action.SEEK_NOTE));
+                    continue;
+                } else {
+                    path = Paths.getPath(previous, current);
+                }
+            }
+            
             PathPlannerTrajectory tempTraj = path.getTrajectory(new ChassisSpeeds(), new Rotation2d());
             final double shootWaitTimeAfterPath = 2.5;
             AutoStep currentStep = new AutoStep(tempTraj.getTotalTimeSeconds() + shootWaitTimeAfterPath, Action.COLLECT_AUTO_SHOOT, path);
@@ -110,6 +121,14 @@ public class AutonomousBuilder {
 
         return ret_val;
 
+    }
+
+    public static boolean isCenter(AutonomousPosition position) {
+        return position == Paths.AutonomousPosition.CENTER_1 ||
+                position == Paths.AutonomousPosition.CENTER_2 ||
+                position == Paths.AutonomousPosition.CENTER_3 ||
+                position == Paths.AutonomousPosition.CENTER_4 ||
+                position == Paths.AutonomousPosition.CENTER_5;
     }
 
     private static boolean isWait(String s) {

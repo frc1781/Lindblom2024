@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import com.pathplanner.lib.path.PathPlannerPath;
 
+import tech.team1781.autonomous.AutonomousBuilder;
 import tech.team1781.control.ControlSystem;
 
 public class Paths {
@@ -186,7 +187,12 @@ public class Paths {
     }
 
     public PathPlannerPath getPathNonStatic(AutonomousPosition start, AutonomousPosition end) {
-        var ret_val = PathPlannerPath.fromPathFile(concatenatePositions(start, end));
+        PathPlannerPath ret_val;
+        if(AutonomousBuilder.isCenter(end)) {
+            ret_val = PathPlannerPath.fromPathFile(start.getName() + ":" + "c");    
+        } else { 
+            ret_val = PathPlannerPath.fromPathFile(concatenatePositions(start, end));
+        }
         ret_val.preventFlipping = false;
         if(ControlSystem.isRed()) {
             ret_val = ret_val.flipPath();
