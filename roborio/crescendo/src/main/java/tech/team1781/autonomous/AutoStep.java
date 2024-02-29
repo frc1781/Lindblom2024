@@ -58,5 +58,13 @@ public class AutoStep {
     public PathPlannerPath getPath() {
         return mPath;
     }
+    
+    @Override 
+    public String toString() {
+        if(mPath == null) {
+            return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Position " + mPosition;
+        }
+        return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Position " + mPosition + ", Path Starting Pose: " + mPath.getPreviewStartingHolonomicPose();
+    }
 
 }
