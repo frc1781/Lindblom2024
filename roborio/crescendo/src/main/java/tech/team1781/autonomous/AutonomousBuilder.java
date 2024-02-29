@@ -91,6 +91,7 @@ public class AutonomousBuilder {
         autonomousSteps.add(new AutoStep(shootTime, Action.COLLECT_AUTO_SHOOT));
 
         Paths.AutonomousPosition previous = positions[0];
+        Paths.AutonomousPosition lastNonCenter = null;
         for (int i = 1; i < positions.length; i++) {
             Paths.AutonomousPosition current = positions[i];
             if (isCenter(current)) {
@@ -119,6 +120,7 @@ public class AutonomousBuilder {
                 autonomousSteps.add(toBack);
 
             } else {
+                lastNonCenter = current;
                 PathPlannerPath path = Paths.getPath(previous, current);
 
                 PathPlannerTrajectory tempTraj = path.getTrajectory(new ChassisSpeeds(), new Rotation2d());
