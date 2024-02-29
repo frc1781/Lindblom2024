@@ -91,19 +91,28 @@ public class AutonomousBuilder {
 
         for(int i = 1; i < positions.length; i++) {
             Paths.AutonomousPosition current = positions[i];
-            PathPlannerPath path = paths.getPathNonStatic(previous, current);
+            
+            PathPlannerPath path; 
 
-            if(path == null) {
-                continue;
-            }
-
+            
+            //if it is going to center from a note, we need to go to the center then seek
+            //if we are comming from a center to a center, we need to follow the path to go back to center then seek
             if(isCenter(current)) {
+                final double CENTER_WAIT_TIME = 0.5;
+                final double SEEK_TIME = 2;
                 if(isCenter(previous)) {
                     autonomousSteps.add(new AutoStep(2, Action.SEEK_NOTE));
                     continue;
                 } else {
                     path = Paths.getPath(previous, current);
+                    var tempTraj = path.getTrajectory(new ChassisSpeeds(), new Rotation2d());
+                    AutoStep currentStep = new AutoStep(tempTraj.getTotalTimeSeconds() + CENTER_WAIT_TIME , path);
+                    autonomousSteps.add(currentStep);
+                    autonomousSteps.add(new AutoStep(SEEK_TIME, Action.SEEK_NOTE));
+                    break;
                 }
+            } else {
+                path = paths.getPathNonStatic(previous, current);
             }
             
             PathPlannerTrajectory tempTraj = path.getTrajectory(new ChassisSpeeds(), new Rotation2d());
