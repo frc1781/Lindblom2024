@@ -189,7 +189,7 @@ public class Paths {
     public PathPlannerPath getPathNonStatic(AutonomousPosition start, AutonomousPosition end) {
         PathPlannerPath ret_val;
         if(AutonomousBuilder.isCenter(end)) {
-            ret_val = PathPlannerPath.fromPathFile(start.getName() + ":" + "c");    
+            ret_val = PathPlannerPath.fromPathFile(start.getName() + ";" + "c");    
         } else { 
             ret_val = PathPlannerPath.fromPathFile(concatenatePositions(start, end));
         }
@@ -197,6 +197,16 @@ public class Paths {
         if(ControlSystem.isRed()) {
             ret_val = ret_val.flipPath();
         }
+        return ret_val;
+    }
+
+    public static PathPlannerPath getPathFromName(String name) {
+        var ret_val = PathPlannerPath.fromPathFile(name);
+        ret_val.preventFlipping = false;
+        if(ControlSystem.isRed()) {
+            ret_val = ret_val.flipPath();
+        }
+
         return ret_val;
     }
 

@@ -9,6 +9,7 @@ import com.pathplanner.lib.path.PathPlannerTrajectory;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.GenericEntry;
+import tech.team1781.ConfigMap;
 import tech.team1781.Paths;
 import tech.team1781.Paths.AutonomousPosition;
 import tech.team1781.control.ControlSystem;
@@ -19,15 +20,15 @@ public class AutonomousBuilder {
     public static AutoStep[] buildFromLinkedHashMap(LinkedHashMap<GenericEntry, Paths.AutonomousPosition> map) {
         LinkedList<Paths.AutonomousPosition> positions = new LinkedList<>();
 
-        for(GenericEntry entry : map.keySet()) {
-            if(entry.getBoolean(false)) {
+        for (GenericEntry entry : map.keySet()) {
+            if (entry.getBoolean(false)) {
                 positions.add(map.get(entry));
             }
         }
 
         Paths.AutonomousPosition[] positionsArray = new Paths.AutonomousPosition[positions.size()];
 
-        for(int i = 0; i < positions.size(); i++) {
+        for (int i = 0; i < positions.size(); i++) {
             positionsArray[i] = positions.get(i);
         }
 
@@ -37,7 +38,7 @@ public class AutonomousBuilder {
     public static AutoStep[] buildFromString(String s) {
         s = s.trim();
         String[] steps = s.split(",");
-        if(steps.length == 0) {
+        if (steps.length == 0) {
             throw new IllegalArgumentException("Invalid string format");
         }
 
@@ -45,9 +46,9 @@ public class AutonomousBuilder {
         String previous = steps[0];
         autonomousSteps.add(new AutoStep(2, ControlSystem.Action.SHOOT));
 
-        for(int i = 1; i < steps.length; i++) {
+        for (int i = 1; i < steps.length; i++) {
             String current = steps[i];
-            if(isWait(current)) {
+            if (isWait(current)) {
                 String timeInt = current.substring(1);
                 int time = Integer.parseInt(timeInt);
                 AutoStep waitStep = new AutoStep(time);
@@ -56,24 +57,26 @@ public class AutonomousBuilder {
 
             }
 
-           AutoStep currentStep;
-           Paths.AutonomousPosition prevPosition = Paths.getPosition(previous);
-           Paths.AutonomousPosition nextPosition = Paths.getPosition(current);
+            AutoStep currentStep;
+            Paths.AutonomousPosition prevPosition = Paths.getPosition(previous);
+            Paths.AutonomousPosition nextPosition = Paths.getPosition(current);
 
-           PathPlannerPath path = Paths.getPath(prevPosition, nextPosition);
-           System.out.println("Path: " + path.toString() + " ================================================================== ");
+            PathPlannerPath path = Paths.getPath(prevPosition, nextPosition);
+            System.out.println("Path: " + path.toString()
+                    + " ############################################################################################################# ");
 
-           PathPlannerTrajectory tempTraj = path.getTrajectory(new ChassisSpeeds(), new Rotation2d());
-           final double shootWaitTimeAfterPath = 2.5;
-           currentStep = new AutoStep(tempTraj.getTotalTimeSeconds() + shootWaitTimeAfterPath, Action.COLLECT_AUTO_SHOOT ,path);
-           autonomousSteps.add(currentStep);
-           previous = steps[i];
-           
-        }      
-        
+            PathPlannerTrajectory tempTraj = path.getTrajectory(new ChassisSpeeds(), new Rotation2d());
+            final double shootWaitTimeAfterPath = 2.5;
+            currentStep = new AutoStep(tempTraj.getTotalTimeSeconds() + shootWaitTimeAfterPath,
+                    Action.COLLECT_AUTO_SHOOT, path);
+            autonomousSteps.add(currentStep);
+            previous = steps[i];
+
+        }
+
         AutoStep[] ret_val = new AutoStep[autonomousSteps.size()];
 
-        for(int i = 0 ; i < autonomousSteps.size(); i ++) {
+        for (int i = 0; i < autonomousSteps.size(); i++) {
             ret_val[i] = autonomousSteps.get(i);
         }
 
@@ -82,50 +85,57 @@ public class AutonomousBuilder {
 
     public static AutoStep[] buildFromPositions(Paths.AutonomousPosition... positions) {
         Paths paths = new Paths();
-    
+
         LinkedList<AutoStep> autonomousSteps = new LinkedList<>();
         final double shootTime = 8;
         autonomousSteps.add(new AutoStep(shootTime, Action.COLLECT_AUTO_SHOOT));
 
         Paths.AutonomousPosition previous = positions[0];
-
-        for(int i = 1; i < positions.length; i++) {
+        for (int i = 1; i < positions.length; i++) {
             Paths.AutonomousPosition current = positions[i];
-            
-            PathPlannerPath path; 
-
-            
-            //if it is going to center from a note, we need to go to the center then seek
-            //if we are comming from a center to a center, we need to follow the path to go back to center then seek
-            if(isCenter(current)) {
-                final double CENTER_WAIT_TIME = 0.5;
-                final double SEEK_TIME = 2;
-                if(isCenter(previous)) {
-                    autonomousSteps.add(new AutoStep(2, Action.SEEK_NOTE));
-                    continue;
+            if (isCenter(current)) {
+                PathPlannerPath toCenterPath;
+                PathPlannerPath fromCenterPath = Paths.getPathFromName("c;back");
+                if (isCenter(previous)) {
+                    // TEMPORARY PATH
+                    toCenterPath = paths.getPathNonStatic(AutonomousPosition.NOTE_1, Paths.AutonomousPosition.CENTER_1);
                 } else {
-                    path = Paths.getPath(previous, current);
-                    var tempTraj = path.getTrajectory(new ChassisSpeeds(), new Rotation2d());
-                    AutoStep currentStep = new AutoStep(tempTraj.getTotalTimeSeconds() + CENTER_WAIT_TIME , path);
-                    autonomousSteps.add(currentStep);
-                    autonomousSteps.add(new AutoStep(SEEK_TIME, Action.SEEK_NOTE));
-                    break;
+                    toCenterPath = paths.getPathNonStatic(previous, current);
                 }
+
+                final double WAIT_TIME = 2;
+                final double SEEK_TIME = 5; 
+                double toCenterTime = toCenterPath.getTrajectory(new ChassisSpeeds(), new Rotation2d()).getTotalTimeSeconds();
+                double fromCenterTime = fromCenterPath.getTrajectory(new ChassisSpeeds(), new Rotation2d()).getTotalTimeSeconds();
+
+                var toCenter = new AutoStep(toCenterTime + WAIT_TIME, toCenterPath);
+                var seek = new AutoStep(SEEK_TIME, Action.SEEK_NOTE);
+                var toStarting = new AutoStep(WAIT_TIME, ControlSystem.isRed() ? ConfigMap.RED_AFTER_SEEK_SCORE : ConfigMap.BLUE_AFTER_SEEK_SCORE);
+                var toBack = new AutoStep(fromCenterTime + WAIT_TIME, fromCenterPath);
+
+                autonomousSteps.add(toCenter);
+                autonomousSteps.add(seek);
+                autonomousSteps.add(toStarting);
+                autonomousSteps.add(toBack);
+
             } else {
-                path = paths.getPathNonStatic(previous, current);
+                PathPlannerPath path = Paths.getPath(previous, current);
+
+                PathPlannerTrajectory tempTraj = path.getTrajectory(new ChassisSpeeds(), new Rotation2d());
+                final double shootWaitTimeAfterPath = 2.5;
+                AutoStep currentStep = new AutoStep(tempTraj.getTotalTimeSeconds() + shootWaitTimeAfterPath,
+                        Action.COLLECT_AUTO_SHOOT, path);
+                autonomousSteps.add(currentStep);
             }
-            
-            PathPlannerTrajectory tempTraj = path.getTrajectory(new ChassisSpeeds(), new Rotation2d());
-            final double shootWaitTimeAfterPath = 2.5;
-            AutoStep currentStep = new AutoStep(tempTraj.getTotalTimeSeconds() + shootWaitTimeAfterPath, Action.COLLECT_AUTO_SHOOT, path);
-            autonomousSteps.add(currentStep);
             previous = positions[i];
         }
 
         AutoStep[] ret_val = new AutoStep[autonomousSteps.size()];
+        System.out.println("length: " + autonomousSteps.size());
 
-        for(int i = 0 ; i < autonomousSteps.size(); i ++) {
+        for (int i = 0; i < autonomousSteps.size(); i++) {
             ret_val[i] = autonomousSteps.get(i);
+            System.out.println(ret_val[i].toString());
         }
 
         return ret_val;
