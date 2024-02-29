@@ -91,7 +91,8 @@ public class ControlSystem {
         SHOOT,
         COLLECT_RAMP,
         COLLECT_AUTO_SHOOT,
-        SYSID
+        SYSID, 
+        SEEK_NOTE
     }
 
     public ControlSystem() {
@@ -526,6 +527,32 @@ public class ControlSystem {
                         mArm.setDesiredState(ArmState.COLLECT);
                     }
                 }
+
+                if(mDriveSystem.getState() == DriveSystem.DriveSystemState.SEEK_NOTE) {
+                    switch(mDriveSystem.getSeekNoteState()) {
+                        case SEEKING:
+                            mArm.setDesiredState(ArmState.SAFE);
+                            mScollector.setDesiredState(ScollectorState.COLLECT_RAMP);
+                        break;
+                        case COLLECTING:
+                            mArm.setDesiredState(ArmState.COLLECT);
+                            mScollector.setDesiredState(ScollectorState.COLLECT_RAMP);
+                        break;
+                        case START_SCORE_PATH:
+                            mArm.setDesiredState(ArmState.AUTO_ANGLE);
+                            mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
+                        break;
+                        case GOING_TO_SCORE:
+                            mArm.setDesiredState(ArmState.AUTO_ANGLE);
+                            mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
+                        break;
+                        case SCORE:
+                            mArm.setDesiredState(ArmState.AUTO_ANGLE);
+                            mScollector.setDesiredState(ScollectorState.COLLECT_AUTO_SHOOT);
+                    }
+
+                    // mDriveSystem.updateNotePosition(seesNote, distanceOfNote);
+                }
                 break;
             default:
                 break;
@@ -592,6 +619,8 @@ public class ControlSystem {
         defineAction(Action.COLLECT_AUTO_SHOOT,
                 new SubsystemSetting(mArm, ArmState.AUTO_ANGLE),
                 new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
+
+        
     }
 
     private void defineAction(Action action, SubsystemSetting... settings) {

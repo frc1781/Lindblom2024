@@ -468,6 +468,10 @@ public class DriveSystem extends Subsystem {
         driveWithChassisSpeds(desiredChassisSpeeds);
     }
 
+    public SeekNoteState getSeekNoteState() {
+        return mSeekNoteState;
+    }
+
     private void seekNote() {
        switch(mSeekNoteState){
         case SEEKING:
