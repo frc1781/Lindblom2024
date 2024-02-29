@@ -364,7 +364,6 @@ public class DriveSystem extends Subsystem {
     }
 
     public void driveRaw(double xSpeed, double ySpeed, double rot) {
-        System.out.println("rot dc " + rot);
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(
                 mIsFieldOriented
                         ? ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(

@@ -431,8 +431,9 @@ public class ControlSystem {
     }
 
     public void centerNote() {
-        double x = LimelightHelper.getTX(ConfigMap.BACK_LIMELIGHT_NAME);
+        double x = mFrontLimeLightTable.getEntry("tx").getDouble(0.0);
         if (x != 0.0) {
+            System.out.println("x: " + x);
             mAimingAngle = mNoteAimController.calculate(x, 0);
         }
     }
@@ -481,6 +482,9 @@ public class ControlSystem {
     }
 
     public boolean stepIsFinished() {
+        if(mCurrentAction == Action.SEEK_NOTE) {
+            return mCurrentSeekNoteState == SeekNoteState.DONE;
+        }
         return !isRunningAction() && mDriveSystem.matchesDesiredState();
     }
 
@@ -518,6 +522,7 @@ public class ControlSystem {
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
         switch (mCurrentOperatingMode) {
             case TELEOP:
+                seesNote();
                 localizationUpdates();
                 EVector driverTriggers = driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT);
                 driverDriving(
@@ -542,6 +547,8 @@ public class ControlSystem {
                 if (mCurrentAction == Action.SEEK_NOTE) {
                     seekNote();
                 }
+
+                System.out.println("action: " + mCurrentAction);
 
                 break;
             default:
@@ -571,7 +578,9 @@ public class ControlSystem {
     }
 
     public void interruptAction() {
+        System.out.println("&&&&&&&&&& INTERRUPTING ACTION &&&&&&&&&");
         mCurrentSettings = null;
+        mCurrentAction = null;
 
         for (Subsystem s : mSubsystems) {
             s.restoreDefault();
@@ -579,24 +588,21 @@ public class ControlSystem {
     }
 
     public void localizationUpdates() {
-        if (LimelightHelper
-                .getLatestResults(ConfigMap.FRONT_LIMELIGHT_NAME).targetingResults.targets_Fiducials.length >= 2) {
-            final double speedTolerance = 0.5;
-            ChassisSpeeds robotSpeeds = mDriveSystem.getChassisSpeeds();
-            boolean driveSystemSlowEnough = robotSpeeds.vxMetersPerSecond <= speedTolerance
-                    && robotSpeeds.vyMetersPerSecond <= speedTolerance;
-            if (driveSystemSlowEnough) {
-                mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME));
-            }
-        }
+        // if (LimelightHelper
+        //         .getLatestResults(ConfigMap.FRONT_LIMELIGHT_NAME).targetingResults.targets_Fiducials.length >= 2) {
+        //     final double speedTolerance = 0.5;
+        //     ChassisSpeeds robotSpeeds = mDriveSystem.getChassisSpeeds();
+        //     boolean driveSystemSlowEnough = robotSpeeds.vxMetersPerSecond <= speedTolerance
+        //             && robotSpeeds.vyMetersPerSecond <= speedTolerance;
+        //     if (driveSystemSlowEnough) {
+        //         mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME));
+        //     }
+        // }
     }
 
     private boolean seesNote() {
-        double tx = mFrontLimeLightTable.getEntry("tx").getDouble(-100);
-        final double TOLERANCE = 5;
-        boolean noteInCener = Math.abs(tx) < TOLERANCE;
-        return mFrontLimeLightTable.getEntry("tv").getDouble(0) == 1
-                && noteInCener;
+        
+        return mFrontLimeLightTable.getEntry("tv").getDouble(-1) == 1;
     }
 
     private double getNoteDistance() {
@@ -670,9 +676,11 @@ public class ControlSystem {
                 double rotDutyCycle = 0.0;
 
                 if (seesNote()) {
+                    System.out.println(seesNote());
                     centerNote();
                     rotDutyCycle = mAimingAngle;
                     final double TOLERANCE = 0.1;
+
 
                     if(Math.abs(rotDutyCycle) <= TOLERANCE) {
                         double robotAngle = mDriveSystem.getRobotAngle().getRadians();
@@ -701,17 +709,23 @@ public class ControlSystem {
                     final double ROT_SPEED = 0.5;
                     rotDutyCycle = isRed() ? -ROT_SPEED : ROT_SPEED;
                 }
+                
 
                 mDriveSystem.driveRaw(0, 0, rotDutyCycle);
+
                 break;
             case COLLECTING:
+                mArm.setDesiredState(ArmState.COLLECT);
                 mScollector.setDesiredState(ScollectorState.COLLECT);
+
+                System.out.println(mArm.getState());
+                System.out.println(mScollector.getState());
                 if(mScollector.hasNote()) {
-                    mCurrentSeekNoteState = SeekNoteState.READY_TO_SHOOT;
+                    // mCurrentSeekNoteState = SeekNoteState.DONE;
                 }
             break;
             default:
-                break;
+            break;
         }
 
         System.out.println(mCurrentSeekNoteState);
@@ -720,8 +734,7 @@ public class ControlSystem {
     private enum SeekNoteState {
         SEEKING,
         COLLECTING,
-        READY_TO_SHOOT,
-        SHOOTING
+        DONE
     }
 
 }
