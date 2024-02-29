@@ -95,6 +95,11 @@ public class DriveSystem extends Subsystem {
 
     private Field2d mField = new Field2d();
 
+    private SeekNoteState mSeekNoteState = SeekNoteState.SEEKING;
+    private EVector mNotePosition = new EVector(-1,-1);
+    private Timer mSeekNoteTrajectoryTimer = new Timer();
+    
+
 
     public DriveSystem() {
         super("Drive System", DriveSystemState.DRIVE_MANUAL);
@@ -116,6 +121,7 @@ public class DriveSystem extends Subsystem {
         DRIVE_SETPOINT,
         DRIVE_TRAJECTORY,
         DRIVE_MANUAL,
+        SEEK_NOTE,
         SYSID
     }
 
@@ -142,6 +148,9 @@ public class DriveSystem extends Subsystem {
                 System.out.print(super.currentTime + "," + currentSpeeds.vxMetersPerSecond + ","
                         + currentSpeeds.vyMetersPerSecond + "," + currentSpeeds.omegaRadiansPerSecond);
                 break;
+            case SEEK_NOTE:
+                seekNote();
+            break;
             default:
                 break;
         }
@@ -160,6 +169,8 @@ public class DriveSystem extends Subsystem {
             case DRIVE_MANUAL:
                 return false;
             // return mIsManual;
+            case SEEK_NOTE:
+            return false;
             default:
                 return false;
         }
@@ -222,6 +233,15 @@ public class DriveSystem extends Subsystem {
 
 
         mRotController.enableContinuousInput(0, 2 * Math.PI);
+    }
+
+    @Override
+    public void setDesiredState(SubsystemState state) {
+        super.setDesiredState(state);
+        if(state == DriveSystemState.SEEK_NOTE) {
+            mSeekNoteState = SeekNoteState.SEEKING;
+            mNotePosition = new EVector(-1,-1);
+        }
     }
 
     public void updateVisionLocalization(Pose2d visionEstimate) {
@@ -391,10 +411,7 @@ public class DriveSystem extends Subsystem {
         return false;
     }
 
-    private void updateOdometry() {
-        // mOdometry.update(getRobotAngle(), getModulePositions());
-        mPoseEstimator.update(getRobotAngle(), getModulePositions());
-    }
+
 
     public void printModules() {
         // ((NEOL1SwerveModule) mFrontLeft).printModuleState();
@@ -402,6 +419,21 @@ public class DriveSystem extends Subsystem {
         // ((NEOL1SwerveModule) mBackLeft).printModuleState();
         // ((NEOL1SwerveModule) mBackRight).printModuleState();
     }
+
+    public void updateNotePosition(boolean seesNote, double dist) {
+        if(seesNote) {
+            mNotePosition = EVector.newVector(
+                Math.cos(getRobotAngle().getRadians()) * dist,
+                Math.sin(getRobotAngle().getRadians()) * dist
+            );
+        }
+    }
+
+    private void updateOdometry() {
+        // mOdometry.update(getRobotAngle(), getModulePositions());
+        mPoseEstimator.update(getRobotAngle(), getModulePositions());
+    }
+
 
     private SwerveModulePosition[] getModulePositions() {
         return new SwerveModulePosition[] {
@@ -419,6 +451,94 @@ public class DriveSystem extends Subsystem {
                 mBackLeft.getCurrentState(),
                 mFrontLeft.getCurrentState()
         };
+    }
+
+    public void followTrajectory(double time) {
+        if (mIsManual && mDesiredTrajectory == null) {
+            return;
+        }
+
+        var pathplannerState = mDesiredTrajectory.sample(time);
+
+        ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(
+                getRobotPose(),
+                new Pose2d(pathplannerState.positionMeters, pathplannerState.heading),
+                pathplannerState.velocityMps,
+                pathplannerState.getTargetHolonomicPose().getRotation());
+        driveWithChassisSpeds(desiredChassisSpeeds);
+    }
+
+    private void seekNote() {
+       switch(mSeekNoteState){
+        case SEEKING:
+            final double LOOK_SPEED = 0.5;
+            mIsManual = true;
+            mDesiredPosition = null;
+            mDesiredTrajectory = null;
+
+            driveRaw(0, 0, ControlSystem.isRed() ? -LOOK_SPEED : LOOK_SPEED);        
+            if(mNotePosition.x != -1 && mNotePosition.y != -1) {
+                mSeekNoteState = SeekNoteState.COLLECTING;
+                break;
+            }
+        break;
+        case COLLECTING:
+            setPosition(mNotePosition);
+            goTo(mNotePosition);
+            mDesiredTrajectory = null;
+            mDesiredTrajectory = null;
+            mIsManual = false;
+            if(matchesPosition(mNotePosition.toPose2d())) {
+                mSeekNoteState = SeekNoteState.START_SCORE_PATH;
+                break;
+            }
+        break;
+        case START_SCORE_PATH:
+            EVector startScorePosition = ControlSystem.isRed() ? ConfigMap.RED_AFTER_SEEK_SCORE : ConfigMap.BLUE_AFTER_SEEK_SCORE;
+            setPosition(startScorePosition);
+            goTo(startScorePosition);
+            if(matchesPosition(startScorePosition.toPose2d())) {
+                PathPlannerPath goToScorePath = PathPlannerPath.fromPathFile("seekScore");
+                goToScorePath.preventFlipping = false;
+                if(ControlSystem.isRed()) {
+                    goToScorePath.flipPath();
+                }
+
+                setTrajectoryFromPath(goToScorePath);
+
+                mSeekNoteState = SeekNoteState.GOING_TO_SCORE;
+                mSeekNoteTrajectoryTimer = new Timer();
+                mSeekNoteTrajectoryTimer.reset();
+                mSeekNoteTrajectoryTimer.start();
+
+                break;
+            }
+        case GOING_TO_SCORE:
+            double currentTime = mSeekNoteTrajectoryTimer.get();
+            followTrajectory(currentTime);
+
+            final double WAIT_TIME = 0.1;
+            if(currentTime >= mDesiredTrajectory.getTotalTimeSeconds() + WAIT_TIME) {
+                mSeekNoteState = SeekNoteState.SCORE;
+                mIsManual = true;
+                mDesiredPosition = null;
+                mDesiredTrajectory = null;
+
+                break;
+            }
+            
+        break;
+        case SCORE:
+        break;
+       } 
+    }
+
+    public enum SeekNoteState {
+        SEEKING,
+        COLLECTING,
+        START_SCORE_PATH,
+        GOING_TO_SCORE,
+        SCORE
     }
 
 }
