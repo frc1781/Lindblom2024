@@ -13,6 +13,7 @@ import tech.team1781.DriverInput;
 import tech.team1781.autonomous.AutonomousHandler;
 import tech.team1781.autonomous.RoutineOverException;
 import tech.team1781.autonomous.routines.DriverCustomAuto;
+import tech.team1781.autonomous.routines.ExampleRoutine;
 import tech.team1781.autonomous.routines.FourNoteRoutine;
 import tech.team1781.autonomous.routines.SYSIDRoutine;
 import tech.team1781.control.ControlSystem;
@@ -48,7 +49,8 @@ public class Robot extends TimedRobot {
     mControlSystem = new ControlSystem();
     mAutonomousHandler = new AutonomousHandler(mControlSystem, 
       new FourNoteRoutine(),
-      new DriverCustomAuto());
+      new DriverCustomAuto(),
+      new ExampleRoutine());
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
 

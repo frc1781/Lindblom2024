@@ -61,7 +61,6 @@ public class ControlSystem {
     private final ProfiledPIDController mOdometryController = new ProfiledPIDController(4.1, 0, 0,
             new TrapezoidProfile.Constraints(1, 0.5));
 
-
     private boolean mAutoAiming = false;
     private double mAimingAngle = 0.0;
 
@@ -82,16 +81,22 @@ public class ControlSystem {
 
     private NetworkTable mBackLimelightTable = NetworkTableInstance.getDefault()
             .getTable(ConfigMap.BACK_LIMELIGHT_NAME);
+    private NetworkTable mFrontLimeLightTable = NetworkTableInstance.getDefault()
+            .getTable(ConfigMap.FRONT_LIMELIGHT_NAME);
     private GenericEntry mSeesAprilTagEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Sees AprilTag",
             false, ShuffleboardStyle.SEES_APRILTAG);
     private HashMap<Number, Pose2d> aprilTagCoords = new HashMap<>();
+
+    private Action mCurrentAction = null;
+    private SeekNoteState mCurrentSeekNoteState = SeekNoteState.SEEKING;
+    private EVector mSeekNoteTargetPose = EVector.newVector(-1,-1,-1);
 
     public enum Action {
         COLLECT,
         SHOOT,
         COLLECT_RAMP,
         COLLECT_AUTO_SHOOT,
-        SYSID, 
+        SYSID,
         SEEK_NOTE
     }
 
@@ -107,7 +112,7 @@ public class ControlSystem {
         mSubsystems.add(mClimber);
         mSubsystems.add(mArm);
 
-        aprilTagCoords.put(1, new Pose2d(15.078597,0.245597, new Rotation2d()));
+        aprilTagCoords.put(1, new Pose2d(15.078597, 0.245597, new Rotation2d()));
         aprilTagCoords.put(2, new Pose2d(16.184259, 0.883391, new Rotation2d()));
         aprilTagCoords.put(3, new Pose2d(16.578467, 4.982443, new Rotation2d()));
         aprilTagCoords.put(4, new Pose2d(16.578467, 5.547593, new Rotation2d()));
@@ -366,7 +371,7 @@ public class ControlSystem {
         if (x != 0.0) {
             mAimingAngle = mLimelightAimController.calculate(x, 0);
         } else {
-                odometryAlignment(id);
+            odometryAlignment(id);
         }
     }
 
@@ -391,7 +396,6 @@ public class ControlSystem {
 
         return rads;
     }
-
 
     public void shootPodium(boolean isShooting) {
         if (isShooting == mShootPodiumButton) {
@@ -444,8 +448,18 @@ public class ControlSystem {
         if (desiredAction != null) {
             System.out.println(desiredAction.toString());
             mCurrentSettings = mActions.get(desiredAction);
-            for (SubsystemSetting setting : mCurrentSettings) {
-                setting.setState();
+            try {
+                for (SubsystemSetting setting : mCurrentSettings) {
+                    setting.setState();
+                }
+            } catch (NullPointerException e) {
+            }
+
+            mCurrentAction = desiredAction;
+
+            if (mCurrentAction == Action.SEEK_NOTE) {
+                mCurrentSeekNoteState = SeekNoteState.SEEKING;
+                mSeekNoteTargetPose = EVector.newVector(-1,-1,-1);
             }
         } else {
             mCurrentSettings = null;
@@ -457,7 +471,7 @@ public class ControlSystem {
         } else if (path != null) {
             mDriveSystem.setTrajectoryFromPath(path);
             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_TRAJECTORY);
-        } else if (desiredAction != Action.SYSID) {
+        } else if (desiredAction != Action.SYSID && desiredAction != Action.SEEK_NOTE) {
             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
         }
 
@@ -472,7 +486,6 @@ public class ControlSystem {
 
     public void init(OperatingMode operatingMode) {
         mCurrentOperatingMode = operatingMode;
-
 
         for (Subsystem subsystem : mSubsystems) {
             subsystem.setOperatingMode(operatingMode);
@@ -492,7 +505,6 @@ public class ControlSystem {
                 }
                 break;
             case AUTONOMOUS:
-                mDriveSystem.setOdometry(getLimelightPose());
                 break;
             default:
                 break;
@@ -513,8 +525,7 @@ public class ControlSystem {
                         driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverTriggers);
                 mClimber.manualClimb(
-                    driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y
-                );
+                        driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y);
                 autoAimingInputs();
                 break;
             case AUTONOMOUS:
@@ -528,31 +539,10 @@ public class ControlSystem {
                     }
                 }
 
-                if(mDriveSystem.getState() == DriveSystem.DriveSystemState.SEEK_NOTE) {
-                    switch(mDriveSystem.getSeekNoteState()) {
-                        case SEEKING:
-                            mArm.setDesiredState(ArmState.SAFE);
-                            mScollector.setDesiredState(ScollectorState.COLLECT_RAMP);
-                        break;
-                        case COLLECTING:
-                            mArm.setDesiredState(ArmState.COLLECT);
-                            mScollector.setDesiredState(ScollectorState.COLLECT_RAMP);
-                        break;
-                        case START_SCORE_PATH:
-                            mArm.setDesiredState(ArmState.AUTO_ANGLE);
-                            mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
-                        break;
-                        case GOING_TO_SCORE:
-                            mArm.setDesiredState(ArmState.AUTO_ANGLE);
-                            mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
-                        break;
-                        case SCORE:
-                            mArm.setDesiredState(ArmState.AUTO_ANGLE);
-                            mScollector.setDesiredState(ScollectorState.COLLECT_AUTO_SHOOT);
-                    }
-
-                    // mDriveSystem.updateNotePosition(seesNote, distanceOfNote);
+                if (mCurrentAction == Action.SEEK_NOTE) {
+                    seekNote();
                 }
+
                 break;
             default:
                 break;
@@ -588,12 +578,42 @@ public class ControlSystem {
         }
     }
 
-    private Pose2d getLimelightPose(){
-        double[] doubleArray = LimelightHelper.getBotPose(ConfigMap.FRONT_LIMELIGHT_NAME);
-
-        if (doubleArray[0] == 0.0) {
-            doubleArray = new double[]{-99.9, -99.9, -99.9, -99.9, -99.9, -99.9};
+    public void localizationUpdates() {
+        if (LimelightHelper
+                .getLatestResults(ConfigMap.FRONT_LIMELIGHT_NAME).targetingResults.targets_Fiducials.length >= 2) {
+            final double speedTolerance = 0.5;
+            ChassisSpeeds robotSpeeds = mDriveSystem.getChassisSpeeds();
+            boolean driveSystemSlowEnough = robotSpeeds.vxMetersPerSecond <= speedTolerance
+                    && robotSpeeds.vyMetersPerSecond <= speedTolerance;
+            if (driveSystemSlowEnough) {
+                mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME));
+            }
         }
+    }
+
+    private boolean seesNote() {
+        double tx = mFrontLimeLightTable.getEntry("tx").getDouble(-100);
+        final double TOLERANCE = 5;
+        boolean noteInCener = Math.abs(tx) < TOLERANCE;
+        return mFrontLimeLightTable.getEntry("tv").getDouble(0) == 1
+                && noteInCener;
+    }
+
+    private double getNoteDistance() {
+        if (!seesNote()) {
+            return -1;
+        }
+
+        final double COEFFICIENT = 1.28;
+        final double EXP = -0.434;
+        double area = mFrontLimeLightTable.getEntry("ta").getDouble(0);
+
+        return Math.pow(area, EXP) * COEFFICIENT;
+    }
+
+    private Pose2d getLimelightPose() {
+        double[] doubleArray = mBackLimelightTable.getEntry("botpose")
+                .getDoubleArray(new double[] { -99.9, -99.9, -99.9, -99.9, -99.9, -99.9 });
 
         return new Pose2d(doubleArray[0], doubleArray[1], mDriveSystem.getRobotAngle());
     }
@@ -620,7 +640,6 @@ public class ControlSystem {
                 new SubsystemSetting(mArm, ArmState.AUTO_ANGLE),
                 new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
 
-        
     }
 
     private void defineAction(Action action, SubsystemSetting... settings) {
@@ -642,15 +661,67 @@ public class ControlSystem {
         }
     }
 
-    public void localizationUpdates() {
-        if (LimelightHelper.getLatestResults(ConfigMap.FRONT_LIMELIGHT_NAME).targetingResults.targets_Fiducials.length >= 2) {
-            final double speedTolerance = 0.5;
-            ChassisSpeeds robotSpeeds = mDriveSystem.getChassisSpeeds();
-            boolean driveSystemSlowEnough = robotSpeeds.vxMetersPerSecond <= speedTolerance && robotSpeeds.vyMetersPerSecond <= speedTolerance;
-            if (driveSystemSlowEnough) {
-                mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME));
-            }
+    private void seekNote() {
+        switch (mCurrentSeekNoteState) {
+            case SEEKING:
+                mArm.setDesiredState(ArmState.SAFE);
+                mScollector.setDesiredState(ScollectorState.IDLE);
+
+                double rotDutyCycle = 0.0;
+
+                if (seesNote()) {
+                    centerNote();
+                    rotDutyCycle = mAimingAngle;
+                    final double TOLERANCE = 0.1;
+
+                    if(Math.abs(rotDutyCycle) <= TOLERANCE) {
+                        double robotAngle = mDriveSystem.getRobotAngle().getRadians();
+                        EVector robotPose = EVector.fromPose(mDriveSystem.getRobotPose());
+
+                        double noteDistance = getNoteDistance();
+
+                        if (noteDistance != -1) {
+                            double EXTRA_DISTANCE = 0.25;
+                            noteDistance += EXTRA_DISTANCE;
+                            EVector notePose = EVector.newVector(
+                                Math.cos(robotAngle) * noteDistance + robotPose.x,
+                                Math.sin(robotAngle) * noteDistance + robotPose.y,
+                                robotAngle
+                            );
+
+
+                            mDriveSystem.setPosition(notePose);
+                            mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
+                        }
+
+
+                        mCurrentSeekNoteState = SeekNoteState.COLLECTING;
+                    }
+                } else {
+                    final double ROT_SPEED = 0.5;
+                    rotDutyCycle = isRed() ? -ROT_SPEED : ROT_SPEED;
+                }
+
+                mDriveSystem.driveRaw(0, 0, rotDutyCycle);
+                break;
+            case COLLECTING:
+                mScollector.setDesiredState(ScollectorState.COLLECT);
+                if(mScollector.hasNote()) {
+                    mCurrentSeekNoteState = SeekNoteState.READY_TO_SHOOT;
+                }
+            break;
+            default:
+                break;
         }
+
+        System.out.println(mCurrentSeekNoteState);
+    }
+
+    private enum SeekNoteState {
+        SEEKING,
+        COLLECTING,
+        READY_TO_SHOOT,
+        SHOOTING
     }
 
 }

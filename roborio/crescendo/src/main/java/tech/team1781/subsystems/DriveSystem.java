@@ -77,6 +77,11 @@ public class DriveSystem extends Subsystem {
     private ProfiledPIDController mRotController = new ProfiledPIDController(4, 0, 0,
             new TrapezoidProfile.Constraints(6.28, 3.14));
 
+    private PIDController mXGoToController = new PIDController(1, 0, 0);
+    private PIDController mYGoToController = new PIDController(1, 0, 0);
+    private ProfiledPIDController mRotGoToController = new ProfiledPIDController(4, 0, 0,
+            new TrapezoidProfile.Constraints(6.28, 3.14));
+
     private HolonomicDriveController mTrajectoryController = new HolonomicDriveController(mXController, mYController,
             mRotController);
 
@@ -95,8 +100,8 @@ public class DriveSystem extends Subsystem {
 
     private Field2d mField = new Field2d();
 
-    private SeekNoteState mSeekNoteState = SeekNoteState.SEEKING;
     private EVector mNotePosition = new EVector(-1,-1);
+    private boolean mSeesNote = false;
     private Timer mSeekNoteTrajectoryTimer = new Timer();
     
 
@@ -115,13 +120,13 @@ public class DriveSystem extends Subsystem {
                         (int) ShuffleboardStyle.ROBOT_POSITION_FIELD.position.y)
                 .withSize((int) ShuffleboardStyle.ROBOT_POSITION_FIELD.size.x,
                         (int) ShuffleboardStyle.ROBOT_POSITION_FIELD.size.y);
+        mRotGoToController.enableContinuousInput(0, Math.PI * 2);
     }
 
     public enum DriveSystemState implements Subsystem.SubsystemState {
         DRIVE_SETPOINT,
         DRIVE_TRAJECTORY,
         DRIVE_MANUAL,
-        SEEK_NOTE,
         SYSID
     }
 
@@ -139,7 +144,7 @@ public class DriveSystem extends Subsystem {
                 break;
             case DRIVE_MANUAL:
                 if (super.currentMode == OperatingMode.AUTONOMOUS) {
-                    driveRaw(0, 0, 0);
+                    // driveRaw(0, 0, 0);
                 }
                 break;
             case SYSID:
@@ -148,9 +153,6 @@ public class DriveSystem extends Subsystem {
                 System.out.print(super.currentTime + "," + currentSpeeds.vxMetersPerSecond + ","
                         + currentSpeeds.vyMetersPerSecond + "," + currentSpeeds.omegaRadiansPerSecond);
                 break;
-            case SEEK_NOTE:
-                seekNote();
-            break;
             default:
                 break;
         }
@@ -169,8 +171,6 @@ public class DriveSystem extends Subsystem {
             case DRIVE_MANUAL:
                 return false;
             // return mIsManual;
-            case SEEK_NOTE:
-            return false;
             default:
                 return false;
         }
@@ -187,7 +187,6 @@ public class DriveSystem extends Subsystem {
     @Override
     public void genericPeriodic() {
         updateOdometry();
-
         mRobotXEntry.setDouble(getRobotPose().getX());
         mRobotYEntry.setDouble(getRobotPose().getY());
         mRobotXSpeedEntry.setDouble(Math.abs(getChassisSpeeds().vxMetersPerSecond));
@@ -208,6 +207,7 @@ public class DriveSystem extends Subsystem {
         mBackRight.init();
 
 
+
         switch (currentMode) {
             case AUTONOMOUS:
                 mNavX.reset();
@@ -220,6 +220,8 @@ public class DriveSystem extends Subsystem {
                 mHasNavXOffsetBeenSet = false;
                 mIsFieldOriented = true;
                 mIsManual = true;
+
+                setDesiredState(DriveSystemState.DRIVE_MANUAL);
                 break;
             case DISABLED:
                 break;
@@ -233,15 +235,6 @@ public class DriveSystem extends Subsystem {
 
 
         mRotController.enableContinuousInput(0, 2 * Math.PI);
-    }
-
-    @Override
-    public void setDesiredState(SubsystemState state) {
-        super.setDesiredState(state);
-        if(state == DriveSystemState.SEEK_NOTE) {
-            mSeekNoteState = SeekNoteState.SEEKING;
-            mNotePosition = new EVector(-1,-1);
-        }
     }
 
     public void updateVisionLocalization(Pose2d visionEstimate) {
@@ -306,9 +299,9 @@ public class DriveSystem extends Subsystem {
             return;
         }
 
-        double xDutyCycle = mXController.calculate(robotPose.x, target.x);
-        double yDutyCycle = mYController.calculate(robotPose.y, target.y);
-        double rotDutyCycle = mRotController.calculate(robotPose.z, target.z);
+        double xDutyCycle = mXGoToController.calculate(robotPose.x, target.x);
+        double yDutyCycle = mYGoToController.calculate(robotPose.y, target.y);
+        double rotDutyCycle = mRotGoToController.calculate(getRobotAngle().getRadians(), target.z);
 
         driveRaw(xDutyCycle, yDutyCycle, rotDutyCycle);
     }
@@ -342,6 +335,10 @@ public class DriveSystem extends Subsystem {
         mDesiredPosition = position;
         mDesiredTrajectory = null;
         mIsManual = false;
+
+        mXGoToController.reset();
+        mYGoToController.reset();
+        mRotGoToController.reset(getRobotAngle().getRadians());
     }
 
     public void driveWithChassisSpeds(ChassisSpeeds speeds) {
@@ -361,10 +358,13 @@ public class DriveSystem extends Subsystem {
         final double TOLERANCE = 0.2;
         EVector currentPose = EVector.fromPose(getRobotPose());
         EVector otherPose = EVector.fromPose(other);
-        return currentPose.dist(otherPose) <= TOLERANCE;
+        double dist = currentPose.dist(otherPose); 
+        System.out.println("dist: " + dist + " :: " + currentPose + " :: " + otherPose);
+        return dist <= TOLERANCE;
     }
 
     public void driveRaw(double xSpeed, double ySpeed, double rot) {
+        System.out.println("rot dc " + rot);
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(
                 mIsFieldOriented
                         ? ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
@@ -424,8 +424,10 @@ public class DriveSystem extends Subsystem {
         if(seesNote) {
             mNotePosition = EVector.newVector(
                 Math.cos(getRobotAngle().getRadians()) * dist,
-                Math.sin(getRobotAngle().getRadians()) * dist
+                Math.sin(getRobotAngle().getRadians()) * dist,
+                getRobotAngle().getRadians()
             );
+            mSeesNote = true;
         }
     }
 
@@ -468,81 +470,6 @@ public class DriveSystem extends Subsystem {
         driveWithChassisSpeds(desiredChassisSpeeds);
     }
 
-    public SeekNoteState getSeekNoteState() {
-        return mSeekNoteState;
-    }
 
-    private void seekNote() {
-       switch(mSeekNoteState){
-        case SEEKING:
-            final double LOOK_SPEED = 0.5;
-            mIsManual = true;
-            mDesiredPosition = null;
-            mDesiredTrajectory = null;
-
-            driveRaw(0, 0, ControlSystem.isRed() ? -LOOK_SPEED : LOOK_SPEED);        
-            if(mNotePosition.x != -1 && mNotePosition.y != -1) {
-                mSeekNoteState = SeekNoteState.COLLECTING;
-                break;
-            }
-        break;
-        case COLLECTING:
-            setPosition(mNotePosition);
-            goTo(mNotePosition);
-            mDesiredTrajectory = null;
-            mDesiredTrajectory = null;
-            mIsManual = false;
-            if(matchesPosition(mNotePosition.toPose2d())) {
-                mSeekNoteState = SeekNoteState.START_SCORE_PATH;
-                break;
-            }
-        break;
-        case START_SCORE_PATH:
-            EVector startScorePosition = ControlSystem.isRed() ? ConfigMap.RED_AFTER_SEEK_SCORE : ConfigMap.BLUE_AFTER_SEEK_SCORE;
-            setPosition(startScorePosition);
-            goTo(startScorePosition);
-            if(matchesPosition(startScorePosition.toPose2d())) {
-                PathPlannerPath goToScorePath = PathPlannerPath.fromPathFile("seekScore");
-                goToScorePath.preventFlipping = false;
-                if(ControlSystem.isRed()) {
-                    goToScorePath.flipPath();
-                }
-
-                setTrajectoryFromPath(goToScorePath);
-
-                mSeekNoteState = SeekNoteState.GOING_TO_SCORE;
-                mSeekNoteTrajectoryTimer = new Timer();
-                mSeekNoteTrajectoryTimer.reset();
-                mSeekNoteTrajectoryTimer.start();
-
-                break;
-            }
-        case GOING_TO_SCORE:
-            double currentTime = mSeekNoteTrajectoryTimer.get();
-            followTrajectory(currentTime);
-
-            final double WAIT_TIME = 0.1;
-            if(currentTime >= mDesiredTrajectory.getTotalTimeSeconds() + WAIT_TIME) {
-                mSeekNoteState = SeekNoteState.SCORE;
-                mIsManual = true;
-                mDesiredPosition = null;
-                mDesiredTrajectory = null;
-
-                break;
-            }
-            
-        break;
-        case SCORE:
-        break;
-       } 
-    }
-
-    public enum SeekNoteState {
-        SEEKING,
-        COLLECTING,
-        START_SCORE_PATH,
-        GOING_TO_SCORE,
-        SCORE
-    }
 
 }
