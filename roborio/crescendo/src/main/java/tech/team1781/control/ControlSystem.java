@@ -1,5 +1,6 @@
 package tech.team1781.control;
 
+import java.io.ObjectInputFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -228,7 +229,7 @@ public class ControlSystem {
     }
 
     public void calibratePosition() {
-        mDriveSystem.setOdometry(getLimelightPose());
+        mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME));
     }
 
     public void setPrepareToShoot(boolean pushingPrepare) {
@@ -486,12 +487,12 @@ public class ControlSystem {
                 mRotDriveLimiter.reset(0);
                 mArm.setDesiredState(ArmState.SAFE);
                 mDriveSystem.setDesiredState(DriveSystem.DriveSystemState.DRIVE_MANUAL);
-                if (getLimelightPose().getX() != -99.9) {
-                    mDriveSystem.setOdometry(getLimelightPose());
+                if (LimelightHelper.getTX(ConfigMap.FRONT_LIMELIGHT_NAME) != 0.0) {
+                    mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME));
                 }
                 break;
             case AUTONOMOUS:
-                mDriveSystem.setOdometry(getLimelightPose());
+                mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME));
                 break;
             default:
                 break;
@@ -559,16 +560,6 @@ public class ControlSystem {
         for (Subsystem s : mSubsystems) {
             s.restoreDefault();
         }
-    }
-
-    private Pose2d getLimelightPose(){
-        double[] doubleArray = LimelightHelper.getBotPose(ConfigMap.FRONT_LIMELIGHT_NAME);
-
-        if (doubleArray[0] == 0.0) {
-            doubleArray = new double[]{-99.9, -99.9, -99.9, -99.9, -99.9, -99.9};
-        }
-
-        return new Pose2d(doubleArray[0], doubleArray[1], mDriveSystem.getRobotAngle());
     }
 
     private void initActions() {

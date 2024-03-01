@@ -18,6 +18,7 @@ import tech.team1781.autonomous.routines.SYSIDRoutine;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
+import tech.team1781.utils.LimelightHelper;
 import tech.team1781.utils.PreferenceHandler;
 import tech.team1781.utils.PreferenceHandler.ValueHolder;
 
@@ -51,6 +52,7 @@ public class Robot extends TimedRobot {
       new DriverCustomAuto());
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
+    LimelightHelper.getLatestResults(ConfigMap.FRONT_LIMELIGHT_NAME); //don't remove this. important.
 
     // PreferenceHandler.addValue("frontLeftOffset", ConfigMap.FRONT_LEFT_MODULE_STEER_OFFSET);
     // PreferenceHandler.addValue("frontRightOffset", ConfigMap.FRONT_RIGHT_MODULE_STEER_OFFSET);
