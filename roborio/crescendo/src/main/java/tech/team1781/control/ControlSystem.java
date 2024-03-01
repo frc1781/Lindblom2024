@@ -353,9 +353,9 @@ public class ControlSystem {
 
         if (mCenterOnAprilTagButton && !mAutoCollectionButton) {
             if (isRed()) {
-                centerOnAprilTag(4);
+                centerOnAprilTag(ConfigMap.RED_SPEAKER_APRILTAG);
             } else {
-                centerOnAprilTag(8);
+                centerOnAprilTag(ConfigMap.BLUE_SPEAKER_APRILTAG);
             }
             mAutoAiming = true;
         }
@@ -557,7 +557,6 @@ public class ControlSystem {
                         && mDriveSystem.getState() == DriveSystem.DriveSystemState.DRIVE_MANUAL) {
                     centerOnAprilTag(isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG);
                     mDriveSystem.driveRaw(0, 0, mAimingAngle);
-                    System.out.println(mAimingAngle);
                 }
 
                 break;
@@ -609,7 +608,6 @@ public class ControlSystem {
         double tx = mBackLimelightTable.getEntry("tx").getDouble(0.0);
         if (driveSystemSlowEnough && tx != 0.0) {
             double dist = EVector.fromPose(limelightPose).dist(EVector.fromPose(mDriveSystem.getRobotPose()));
-            System.out.println(limelightPose.getX());
             if (dist > 2) {
                 mDriveSystem.setOdometry(limelightPose);
             }
