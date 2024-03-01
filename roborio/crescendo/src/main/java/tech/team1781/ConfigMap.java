@@ -142,5 +142,5 @@ public class ConfigMap {
         public static final int RIGHT_HOOK_OPEN = 3;
         public static final int RIGHT_HOOK_CLOSE = 4;
         public static final int TRAP_IN = 5;
-        public static final int TRAP_OUT = 6;
+        public static final int TRAP_OUT = 13;
 }
