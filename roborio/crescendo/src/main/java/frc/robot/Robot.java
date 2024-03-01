@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.revrobotics.CANSparkLowLevel.FollowConfig.Config;
+
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -42,7 +44,8 @@ public class Robot extends TimedRobot {
   private ControlSystem mControlSystem;
   private AutonomousHandler mAutonomousHandler;
   private DriverInput mDriverInput;
-  private GenericEntry mSaveConfigButton = ConfigMap.CONFIG_TAB.add("Save Config", false).withWidget(BuiltInWidgets.kToggleButton).getEntry();
+  private GenericEntry mSaveConfigButton = ConfigMap.CONFIG_TAB.add("Save Config", false)
+      .withWidget(BuiltInWidgets.kToggleButton).getEntry();
 
   @Override
   public void robotInit() {
@@ -97,22 +100,24 @@ public class Robot extends TimedRobot {
       }
     });
 
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, "A", (isPressed) -> {
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CLIMBER_EXTEND, (isPressed) -> {
       if(isPressed) {
         mControlSystem.pivotScollector(isPressed, false);
       }
     });
 
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, "X", (isPressed) -> {
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CLIMB_RETRACT, (isPressed) -> {
       if(isPressed) {
         mControlSystem.pivotScollector(false, isPressed);
       }
     });
 
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, "Y", (isPressed) -> {
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, "BACK", (isPressed) -> {
       if(isPressed) {
         mControlSystem.toggleCompressor(isPressed);
       }
+    });
+    
     mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.NOTE_COLLECTION, (isHeld) -> {
         mControlSystem.setAutoCollectionButton(isHeld);
     });
@@ -187,7 +192,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    if(mSaveConfigButton.getBoolean(false)) {
+    if (mSaveConfigButton.getBoolean(false)) {
       // PreferenceHandler.updateValues();
       mSaveConfigButton.setBoolean(false);
     }
@@ -225,17 +230,22 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+  }
 
   @Override
-  public void testInit() {}
+  public void testInit() {
+  }
 
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+  }
 
   @Override
-  public void simulationInit() {}
+  public void simulationInit() {
+  }
 
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+  }
 }
