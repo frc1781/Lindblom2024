@@ -14,6 +14,7 @@ import tech.team1781.Paths;
 import tech.team1781.Paths.AutonomousPosition;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.control.ControlSystem.Action;
+import tech.team1781.utils.EVector;
 
 public class AutonomousBuilder {
 
@@ -111,8 +112,8 @@ public class AutonomousBuilder {
 
                 var toCenter = new AutoStep(toCenterTime + WAIT_TIME, toCenterPath);
                 var seek = new AutoStep(SEEK_TIME, Action.SEEK_NOTE);
-                var toStarting = new AutoStep(WAIT_TIME, ControlSystem.isRed() ? ConfigMap.RED_AFTER_SEEK_SCORE : ConfigMap.BLUE_AFTER_SEEK_SCORE);
-                var toBack = new AutoStep(fromCenterTime + WAIT_TIME, fromCenterPath);
+                var toStarting = new AutoStep(WAIT_TIME, EVector.fromPose(toCenterPath.getPreviewStartingHolonomicPose()));
+                var toBack = new AutoStep(fromCenterTime + WAIT_TIME, Action.COLLECT_RAMP,fromCenterPath);
 
                 autonomousSteps.add(toCenter);
                 autonomousSteps.add(seek);

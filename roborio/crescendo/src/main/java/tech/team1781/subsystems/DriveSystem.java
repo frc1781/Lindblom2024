@@ -359,7 +359,6 @@ public class DriveSystem extends Subsystem {
         EVector currentPose = EVector.fromPose(getRobotPose());
         EVector otherPose = EVector.fromPose(other);
         double dist = currentPose.dist(otherPose); 
-        System.out.println("dist: " + dist + " :: " + currentPose + " :: " + otherPose);
         return dist <= TOLERANCE;
     }
 

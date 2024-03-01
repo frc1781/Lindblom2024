@@ -66,6 +66,7 @@ public class AutonomousHandler {
 
     private void startStep(AutoStep step) {
         System.out.println("new step!");
+        System.out.println(step.toString() + " ==================================================================== " + mStepIndex);
         mControlSystem.setAutoStep(step.getAction(), step.getPosition(), step.getPath());
     }
 

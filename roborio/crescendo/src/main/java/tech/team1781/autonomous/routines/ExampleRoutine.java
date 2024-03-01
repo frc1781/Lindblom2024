@@ -17,7 +17,7 @@ public class ExampleRoutine implements AutoRoutine {
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[]{
-            new AutoStep(100, ControlSystem.Action.SEEK_NOTE),
+            new AutoStep(100, ControlSystem.Action.COLLECT_AUTO_SHOOT),
         };
     }
     

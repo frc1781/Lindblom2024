@@ -366,7 +366,7 @@ public class ControlSystem {
     }
 
     public void centerOnAprilTag(int id) {
-        double x = LimelightHelper.getXOffsetOfApriltag(id);
+        double x = mBackLimelightTable.getEntry("tx").getDouble(0.0);
 
         if (x != 0.0) {
             mAimingAngle = mLimelightAimController.calculate(x, 0);
@@ -433,7 +433,6 @@ public class ControlSystem {
     public void centerNote() {
         double x = mFrontLimeLightTable.getEntry("tx").getDouble(0.0);
         if (x != 0.0) {
-            System.out.println("x: " + x);
             mAimingAngle = mNoteAimController.calculate(x, 0);
         }
     }
@@ -447,7 +446,6 @@ public class ControlSystem {
         mStepTime.start();
 
         if (desiredAction != null) {
-            System.out.println(desiredAction.toString());
             mCurrentSettings = mActions.get(desiredAction);
             try {
                 for (SubsystemSetting setting : mCurrentSettings) {
@@ -548,7 +546,14 @@ public class ControlSystem {
                     seekNote();
                 }
 
-                System.out.println("action: " + mCurrentAction);
+                if(mCurrentAction == Action.COLLECT_AUTO_SHOOT && mDriveSystem.getState() == DriveSystem.DriveSystemState.DRIVE_MANUAL) {
+                    centerOnAprilTag(isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG);
+                    // mDriveSystem.driveRaw(0, 0, mAimingAngle);
+                    System.out.println(mAimingAngle);
+                }
+
+
+
 
                 break;
             default:
@@ -610,11 +615,11 @@ public class ControlSystem {
             return -1;
         }
 
-        final double COEFFICIENT = 1.28;
-        final double EXP = -0.434;
+        final double COEFFICIENT = 1.69;
+        final double EXP = 0.48;
         double area = mFrontLimeLightTable.getEntry("ta").getDouble(0);
 
-        return Math.pow(area, EXP) * COEFFICIENT;
+        return COEFFICIENT / Math.pow(area, EXP);
     }
 
     private Pose2d getLimelightPose() {
@@ -670,19 +675,19 @@ public class ControlSystem {
     private void seekNote() {
         switch (mCurrentSeekNoteState) {
             case SEEKING:
+                mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
                 mArm.setDesiredState(ArmState.SAFE);
                 mScollector.setDesiredState(ScollectorState.IDLE);
 
                 double rotDutyCycle = 0.0;
 
                 if (seesNote()) {
-                    System.out.println(seesNote());
                     centerNote();
                     rotDutyCycle = mAimingAngle;
                     final double TOLERANCE = 0.1;
 
 
-                    if(Math.abs(rotDutyCycle) <= TOLERANCE) {
+                    if(Math.abs(rotDutyCycle) <= TOLERANCE && mArm.matchesDesiredState()) {
                         double robotAngle = mDriveSystem.getRobotAngle().getRadians();
                         EVector robotPose = EVector.fromPose(mDriveSystem.getRobotPose());
 
@@ -706,8 +711,8 @@ public class ControlSystem {
                         mCurrentSeekNoteState = SeekNoteState.COLLECTING;
                     }
                 } else {
-                    final double ROT_SPEED = 0.5;
-                    rotDutyCycle = isRed() ? -ROT_SPEED : ROT_SPEED;
+                    final double ROT_SPEED = -0.5;
+                    rotDutyCycle = ROT_SPEED;
                 }
                 
 
@@ -718,8 +723,6 @@ public class ControlSystem {
                 mArm.setDesiredState(ArmState.COLLECT);
                 mScollector.setDesiredState(ScollectorState.COLLECT);
 
-                System.out.println(mArm.getState());
-                System.out.println(mScollector.getState());
                 if(mScollector.hasNote()) {
                     // mCurrentSeekNoteState = SeekNoteState.DONE;
                 }
@@ -728,7 +731,6 @@ public class ControlSystem {
             break;
         }
 
-        System.out.println(mCurrentSeekNoteState);
     }
 
     private enum SeekNoteState {

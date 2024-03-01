@@ -21,9 +21,8 @@ public class ConfigMap {
         public static final EVector BLUE_PODIUM = EVector.newVector(3,4.7);
         public static final EVector RED_PODIUM = EVector.newVector(13.6,3.6);
 
-        public static final EVector RED_AFTER_SEEK_SCORE = EVector.newVector(9.9, 7.29, Math.PI);
-        public static final EVector BLUE_AFTER_SEEK_SCORE = EVector.newVector(6.64, 7.29, 0);
-
+        public static final int RED_SPEAKER_APRILTAG = 4;
+        public static final int BLUE_SPEAKER_APRILTAG = 7;
 
         public static final double MAX_SHOOTER_SPEED = 7;
         public static final double MIN_SHOOTER_SPEED = 6;
