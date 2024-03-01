@@ -18,6 +18,7 @@ import tech.team1781.autonomous.routines.SYSIDRoutine;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
+import tech.team1781.utils.LimelightHelper;
 import tech.team1781.utils.PreferenceHandler;
 import tech.team1781.utils.PreferenceHandler.ValueHolder;
 
@@ -51,17 +52,12 @@ public class Robot extends TimedRobot {
       new DriverCustomAuto());
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
+    LimelightHelper.getLatestResults(ConfigMap.FRONT_LIMELIGHT_NAME); //don't remove this. important.
 
     // PreferenceHandler.addValue("frontLeftOffset", ConfigMap.FRONT_LEFT_MODULE_STEER_OFFSET);
     // PreferenceHandler.addValue("frontRightOffset", ConfigMap.FRONT_RIGHT_MODULE_STEER_OFFSET);
     // PreferenceHandler.addValue("backLeftOffset", ConfigMap.BACK_LEFT_MODULE_STEER_OFFSET);
     // PreferenceHandler.addValue("backRightOffset", ConfigMap.BACK_RIGHT_MODULE_STEER_OFFSET);
-
-    mDriverInput.addClickListener(ConfigMap.CO_PILOT_PORT, "Y", (isPressed)->{
-      if(isPressed) {
-        mControlSystem.callPrintModules();
-      }
-    });
 
     mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.RESET_NAVX, (isPressed)->{
       if(isPressed) {
@@ -91,13 +87,13 @@ public class Robot extends TimedRobot {
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.ANGLE_UP, (isPressed) -> {
       if(isPressed) {
-        mControlSystem.manualAdjustAngle(3);
+        mControlSystem.manualAdjustAngle(1);
       }
     });
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.ANGLE_DOWN, (isPressed) -> {
       if(isPressed) {
-        mControlSystem.manualAdjustAngle(-3);
+        mControlSystem.manualAdjustAngle(-1);
       }
     });
 
@@ -117,6 +113,33 @@ public class Robot extends TimedRobot {
       if(isPressed) {
         mControlSystem.toggleCompressor(isPressed);
       }
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.NOTE_COLLECTION, (isHeld) -> {
+        mControlSystem.setAutoCollectionButton(isHeld);
+    });
+
+    mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.CALIBRATE_POSITION, (isPressed)-> {
+      if(isPressed){
+        mControlSystem.calibratePosition();
+      }
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT_HIGH, (isPressed)-> {
+      mControlSystem.setCollectHigh(isPressed);
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, "RT", (isPressed)-> {
+      if(isPressed) {
+        System.out.println("RT BEING PRESSED");
+        //rt must be so happy
+      }
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SCORE_AMP, (isPressed)->{
+      mControlSystem.setAmp(isPressed);
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SCORE_PODIUM, (isPressed)->{
+      mControlSystem.shootPodium(isPressed);
     });
 
     // mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CLIMBER_EXTEND, (isPressed)-> {
@@ -127,11 +150,8 @@ public class Robot extends TimedRobot {
     //   mControlSystem.setClimberRetract(isPressed);
     // });
 
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CENTER_TO_APRIL_TAG, (isHeld) -> {
-        mControlSystem.centerOnAprilTag(isHeld);
-    });
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CENTER_TO_APRIL_TAG, (isHeld) -> {
-        //  mControlSystem.centerOnAprilTag(isHeld);
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.AUTO_AIM, (isHeld) -> {
+      mControlSystem.setCenteringOnAprilTag(isHeld);
     });
 
     // // mDriverInput.addClickListener(0, "B", (isPressed) -> {

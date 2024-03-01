@@ -783,7 +783,7 @@ public class LimelightHelper {
         return results;
     }
 
-    public static Double getXOffsetOfPreferredTarget(int id) {
+    public static double getXOffsetOfApriltag(int id) {
         LimelightTarget_Fiducial[] limelightTargetFiducials = getLatestResults(ConfigMap.FRONT_LIMELIGHT_NAME).targetingResults.targets_Fiducials;
         double x = 0.0;
 
@@ -803,11 +803,8 @@ public class LimelightHelper {
 
         for (LimelightTarget_Fiducial targetsFiducial : limelightTargetFiducials) {
             if (targetsFiducial.fiducialID == id) {
-                Pose2d pose = targetsFiducial.getTargetPose_CameraSpace2D();
-                System.out.printf("%.2f,%.2f\n", pose.getX(), pose.getY());
-                x = Math.sqrt(Math.pow(pose.getX(), 2) + Math.pow(pose.getY(), 2));
-
-                // new NetworkLogger().log("Distance", x);
+                Pose3d pose = targetsFiducial.getTargetPose_CameraSpace();
+                x = Math.sqrt(Math.pow(pose.getZ(), 2) + Math.pow(pose.getY(), 2));
                 break;
             }
         }

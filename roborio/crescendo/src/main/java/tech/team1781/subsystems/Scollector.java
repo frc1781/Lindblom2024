@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 
 
 import tech.team1781.ConfigMap;
+import tech.team1781.ShuffleboardStyle;
 import tech.team1781.utils.EVector;
 
 //EXAMPLE SUBSYSTEM, NOT FOR ACTUAL BOT
@@ -50,15 +51,14 @@ public class Scollector extends Subsystem {
     private TimeOfFlight mTopTof = new TimeOfFlight(ConfigMap.TOP_SCOLLECTOR_TOF);
     private TimeOfFlight mBottomTof = new TimeOfFlight(ConfigMap.BOTTOM_SCOLLECTOR_TOF);
 
-    private boolean mIsReadyToShoot = false;
     private boolean mArmInPosition = false;
-    private boolean mHasShot = false;
     private Timer mShooterTimer = new Timer();
 
-    private final double SHOOTER_SPEED = 8;
 
-    private GenericEntry mTopShooterVelocity = ConfigMap.SHUFFLEBOARD_TAB.add("Top Velocity", 0).getEntry();
-    private GenericEntry mBottomShooterVelocity = ConfigMap.SHUFFLEBOARD_TAB.add("Bottom Velocity", 0).getEntry();
+    private GenericEntry mTopShooterVelocity = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Top Velocity", 0, ShuffleboardStyle.TOP_SHOOTER); 
+    private GenericEntry mBottomShooterVelocity = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Bottom Velocity", 0, ShuffleboardStyle.BOTTOM_SHOOTER);
+    private GenericEntry mReadyToShootEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Ready To Shoot", true, ShuffleboardStyle.READY_TO_SHOOT);
+    private GenericEntry mHasNoteEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Has Note", false, ShuffleboardStyle.HAS_NOTE);
 
     public Scollector() {
         super("Scollector", ScollectorState.IDLE);
@@ -108,11 +108,12 @@ public class Scollector extends Subsystem {
     public void genericPeriodic() {
         mTopShooterVelocity.setDouble(mTopShooterMotor.getEncoder().getVelocity());
         mBottomShooterVelocity.setDouble(mBottomShooterMotor.getEncoder().getVelocity());
+        mReadyToShootEntry.setBoolean(shooterAtSpeed());
+        mHasNoteEntry.setBoolean(hasNote());
     }
 
     @Override
     public void init() {
-        mIsReadyToShoot = false;
         mArmInPosition = false;
         mShooterTimer.reset();
         mShooterTimer.stop();
@@ -120,6 +121,7 @@ public class Scollector extends Subsystem {
 
     @Override
     public void getToState() {
+
         switch ((ScollectorState) getState()) {
             case IDLE:
                 mCollectorMotor.set(0);
@@ -145,7 +147,7 @@ public class Scollector extends Subsystem {
             case COLLECT_AUTO_SHOOT:
                 if (!hasNote()) {
                     collect();
-                } else if (mArmInPosition && !noteCloseToShooter()) {
+                } else if (mArmInPosition && (noteCloseToShooter() || hasNote()) && shooterAtSpeed()) {
                     shoot();
                 } else {
                     mCollectorMotor.set(0);
@@ -198,20 +200,21 @@ public class Scollector extends Subsystem {
     }
 
     public boolean noteCloseToShooter() {
-        if(!mTopTof.isRangeValid()) {
+        if(!mTopTof.isRangeValid() && mTopTof.getRange() == 0.0) {
             return false;
         }
-        System.out.println("tof range: " + mTopTof.getRange());
-        return false;
-        // return mTopTof.getRange() <= 400;
+        return mTopTof.getRange() <= 400;
     }
 
     public boolean shooterAtSpeed() {
         double leftSpeed = mBottomShooterMotor.getEncoder().getVelocity();
         double rightSpeed = mTopShooterMotor.getEncoder().getVelocity();
-        double diff = Math.abs(leftSpeed - rightSpeed);
-        double threshold = 7;
-        return leftSpeed >= threshold && rightSpeed >= threshold && diff <= 0.1;
+        double leftDiff = Math.abs(leftSpeed - ConfigMap.MAX_SHOOTER_SPEED);
+        double rightDiff = Math.abs(rightSpeed - ConfigMap.MAX_SHOOTER_SPEED);
+        final double TOLERANCE = 0.1;
+
+        return leftDiff <= TOLERANCE && rightDiff <= TOLERANCE;
+        
     }
 
     public void setArmReadyToShoot(boolean armReady) {
@@ -219,7 +222,7 @@ public class Scollector extends Subsystem {
     }
 
     private void driveMotors() {
-        double setpoint = SHOOTER_SPEED;
+        double setpoint = ConfigMap.MAX_SHOOTER_SPEED;
         mTopPID.setReference(setpoint, ControlType.kVelocity);
         mBottomPID.setReference(setpoint, ControlType.kVelocity);
     }
@@ -228,10 +231,9 @@ public class Scollector extends Subsystem {
         if (!hasNote() && !noteCloseToShooter()) {
             mCollectorMotor.set(-1);
         } else if(noteCloseToShooter()){
-            mCollectorMotor.set(1);
+            mCollectorMotor.set(0.25);
         } else if(hasNote()){
             mCollectorMotor.set(0);
-            mHasShot = false;
         }
     }
 
@@ -241,7 +243,7 @@ public class Scollector extends Subsystem {
     }
 
     private boolean isUpToSpeed() {
-        double diff = Math.abs(SHOOTER_SPEED - mTopShooterMotor.get());
+        double diff = Math.abs(ConfigMap.MAX_SHOOTER_SPEED - mTopShooterMotor.get());
         double tolerance = 0.1;
         return diff <= tolerance;
     }
@@ -265,4 +267,5 @@ public class Scollector extends Subsystem {
             }
         }
     }
+    
 }
