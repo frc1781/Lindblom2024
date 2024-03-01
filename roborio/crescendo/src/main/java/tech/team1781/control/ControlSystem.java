@@ -1,5 +1,6 @@
 package tech.team1781.control;
 
+import java.io.ObjectInputFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -234,7 +235,7 @@ public class ControlSystem {
     }
 
     public void calibratePosition() {
-        mDriveSystem.setOdometry(getLimelightPose());
+        mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME));
     }
 
     public void setPrepareToShoot(boolean pushingPrepare) {
@@ -503,11 +504,15 @@ public class ControlSystem {
                 mRotDriveLimiter.reset(0);
                 mArm.setDesiredState(ArmState.SAFE);
                 mDriveSystem.setDesiredState(DriveSystem.DriveSystemState.DRIVE_MANUAL);
-                if (getLimelightPose().getX() != -99.9) {
-                    mDriveSystem.setOdometry(getLimelightPose());
+                if (LimelightHelper.getTX(ConfigMap.BACK_LIMELIGHT_NAME) != 0.0) {
+                    mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.BACK_LIMELIGHT_NAME));
                 }
                 break;
             case AUTONOMOUS:
+                Pose2d currentLLPose = getLimelightPose();
+                if (currentLLPose.getTranslation().getX() != -99.9 && currentLLPose.getTranslation().getY() != -99.9) {
+                    mDriveSystem.setOdometry(currentLLPose);
+                }
                 break;
             default:
                 break;
@@ -523,6 +528,7 @@ public class ControlSystem {
             case TELEOP:
                 seesNote();
                 localizationUpdates();
+                mDriveSystem.updateVisionLocalization(LimelightHelper.getBotPose2d(ConfigMap.BACK_LIMELIGHT_NAME));
                 EVector driverTriggers = driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT);
                 driverDriving(
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
@@ -550,7 +556,7 @@ public class ControlSystem {
                 if (mCurrentAction == Action.COLLECT_AUTO_SHOOT
                         && mDriveSystem.getState() == DriveSystem.DriveSystemState.DRIVE_MANUAL) {
                     centerOnAprilTag(isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG);
-                    // mDriveSystem.driveRaw(0, 0, mAimingAngle);
+                    mDriveSystem.driveRaw(0, 0, mAimingAngle);
                     System.out.println(mAimingAngle);
                 }
 
@@ -595,19 +601,22 @@ public class ControlSystem {
         // if (LimelightHelper
         // .getLatestResults(ConfigMap.FRONT_LIMELIGHT_NAME).targetingResults.targets_Fiducials.length
         // >= 2) {
-        // final double speedTolerance = 0.5;
-        // ChassisSpeeds robotSpeeds = mDriveSystem.getChassisSpeeds();
-        // boolean driveSystemSlowEnough = robotSpeeds.vxMetersPerSecond <=
-        // speedTolerance
-        // && robotSpeeds.vyMetersPerSecond <= speedTolerance;
-        // if (driveSystemSlowEnough) {
-        // mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME));
-        // }
-        // }
+        final double speedTolerance = 0.5;
+        ChassisSpeeds robotSpeeds = mDriveSystem.getChassisSpeeds();
+        boolean driveSystemSlowEnough = robotSpeeds.vxMetersPerSecond <= speedTolerance
+                && robotSpeeds.vyMetersPerSecond <= speedTolerance;
+        Pose2d limelightPose = getLimelightPose();
+        double tx = mBackLimelightTable.getEntry("tx").getDouble(0.0);
+        if (driveSystemSlowEnough && tx != 0.0) {
+            double dist = EVector.fromPose(limelightPose).dist(EVector.fromPose(mDriveSystem.getRobotPose()));
+            System.out.println(limelightPose.getX());
+            if (dist > 2) {
+                mDriveSystem.setOdometry(limelightPose);
+            }
+        }
     }
 
     private boolean seesNote() {
-
         return mFrontLimeLightTable.getEntry("tv").getDouble(-1) == 1;
     }
 
@@ -626,7 +635,16 @@ public class ControlSystem {
     private Pose2d getLimelightPose() {
         double[] doubleArray = mBackLimelightTable.getEntry("botpose")
                 .getDoubleArray(new double[] { -99.9, -99.9, -99.9, -99.9, -99.9, -99.9 });
+        double tx = mBackLimelightTable.getEntry("tx").getDouble(-99.9);
 
+        if(tx == 0.0) {
+
+            System.out.println(tx);
+            return new Pose2d(-99.9, -99.9, new Rotation2d());
+        }
+
+
+        
         return new Pose2d(doubleArray[0], doubleArray[1], mDriveSystem.getRobotAngle());
     }
 

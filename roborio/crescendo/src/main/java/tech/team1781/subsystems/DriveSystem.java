@@ -243,7 +243,7 @@ public class DriveSystem extends Subsystem {
 
         visionEstimateVector.z = currentPose.z;
 
-        if (Math.abs(currentPose.dist(visionEstimateVector)) >= 1) {
+        if (Math.abs(currentPose.dist(visionEstimateVector)) >= 2 || visionEstimate.getX() == -99.9) {
             return;
         }
 
