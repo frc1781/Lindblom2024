@@ -26,6 +26,7 @@ public class ConfigMap {
         public static final double MIN_SHOOTER_SPEED = 6;
 
         // CAN IDs
+        public static final int FIRST_PCM_ID = 1;
 
         // 20-24 Drive train left
         public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 21;
@@ -117,6 +118,7 @@ public class ConfigMap {
 // b nax x center
         // Co-pilot controls
         public static final int CO_PILOT_PORT = 1;
+        public static final String TRAP_OUT_BUTTON = "B";
 
         public static final String NOTE_COLLECTION = "X";
         public static final String SPIT = "LB";
@@ -128,4 +130,19 @@ public class ConfigMap {
         public static final String SCORE_PODIUM = "A";
         // public static final String CLIMBER_EXTEND = "N";
         // public static final String CLIMB_RETRACT = "S";
+
+        /*
+         * ##############################
+         * ## SOLENOID CHANNELS
+         * ##############################
+         */
+
+        // PID VALUES
+
+        public static final int LEFT_HOOK_OPEN = 2;
+        public static final int LEFT_HOOK_CLOSE = 5;
+        public static final int RIGHT_HOOK_OPEN = 3;
+        public static final int RIGHT_HOOK_CLOSE = 4;
+        public static final int TRAP_IN = 5;
+        public static final int TRAP_OUT = 6;
 }
