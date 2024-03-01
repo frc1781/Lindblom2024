@@ -89,7 +89,7 @@ public class ControlSystem {
 
     private Action mCurrentAction = null;
     private SeekNoteState mCurrentSeekNoteState = SeekNoteState.SEEKING;
-    private EVector mSeekNoteTargetPose = EVector.newVector(-1,-1,-1);
+    private EVector mSeekNoteTargetPose = EVector.newVector(-1, -1, -1);
 
     public enum Action {
         COLLECT,
@@ -366,13 +366,14 @@ public class ControlSystem {
     }
 
     public void centerOnAprilTag(int id) {
-        double x = mBackLimelightTable.getEntry("tx").getDouble(0.0);
+        double x = LimelightHelper.getXOffsetOfApriltag(id);
 
         if (x != 0.0) {
             mAimingAngle = mLimelightAimController.calculate(x, 0);
         } else {
             odometryAlignment(id);
         }
+
     }
 
     public void odometryAlignment(int id) {
@@ -458,7 +459,7 @@ public class ControlSystem {
 
             if (mCurrentAction == Action.SEEK_NOTE) {
                 mCurrentSeekNoteState = SeekNoteState.SEEKING;
-                mSeekNoteTargetPose = EVector.newVector(-1,-1,-1);
+                mSeekNoteTargetPose = EVector.newVector(-1, -1, -1);
             }
         } else {
             mCurrentSettings = null;
@@ -480,7 +481,7 @@ public class ControlSystem {
     }
 
     public boolean stepIsFinished() {
-        if(mCurrentAction == Action.SEEK_NOTE) {
+        if (mCurrentAction == Action.SEEK_NOTE) {
             return mCurrentSeekNoteState == SeekNoteState.DONE;
         }
         return !isRunningAction() && mDriveSystem.matchesDesiredState();
@@ -546,14 +547,12 @@ public class ControlSystem {
                     seekNote();
                 }
 
-                if(mCurrentAction == Action.COLLECT_AUTO_SHOOT && mDriveSystem.getState() == DriveSystem.DriveSystemState.DRIVE_MANUAL) {
+                if (mCurrentAction == Action.COLLECT_AUTO_SHOOT
+                        && mDriveSystem.getState() == DriveSystem.DriveSystemState.DRIVE_MANUAL) {
                     centerOnAprilTag(isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG);
                     // mDriveSystem.driveRaw(0, 0, mAimingAngle);
                     System.out.println(mAimingAngle);
                 }
-
-
-
 
                 break;
             default:
@@ -594,19 +593,21 @@ public class ControlSystem {
 
     public void localizationUpdates() {
         // if (LimelightHelper
-        //         .getLatestResults(ConfigMap.FRONT_LIMELIGHT_NAME).targetingResults.targets_Fiducials.length >= 2) {
-        //     final double speedTolerance = 0.5;
-        //     ChassisSpeeds robotSpeeds = mDriveSystem.getChassisSpeeds();
-        //     boolean driveSystemSlowEnough = robotSpeeds.vxMetersPerSecond <= speedTolerance
-        //             && robotSpeeds.vyMetersPerSecond <= speedTolerance;
-        //     if (driveSystemSlowEnough) {
-        //         mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME));
-        //     }
+        // .getLatestResults(ConfigMap.FRONT_LIMELIGHT_NAME).targetingResults.targets_Fiducials.length
+        // >= 2) {
+        // final double speedTolerance = 0.5;
+        // ChassisSpeeds robotSpeeds = mDriveSystem.getChassisSpeeds();
+        // boolean driveSystemSlowEnough = robotSpeeds.vxMetersPerSecond <=
+        // speedTolerance
+        // && robotSpeeds.vyMetersPerSecond <= speedTolerance;
+        // if (driveSystemSlowEnough) {
+        // mDriveSystem.setOdometry(LimelightHelper.getBotPose2d(ConfigMap.FRONT_LIMELIGHT_NAME));
+        // }
         // }
     }
 
     private boolean seesNote() {
-        
+
         return mFrontLimeLightTable.getEntry("tv").getDouble(-1) == 1;
     }
 
@@ -686,8 +687,7 @@ public class ControlSystem {
                     rotDutyCycle = mAimingAngle;
                     final double TOLERANCE = 0.1;
 
-
-                    if(Math.abs(rotDutyCycle) <= TOLERANCE && mArm.matchesDesiredState()) {
+                    if (Math.abs(rotDutyCycle) <= TOLERANCE && mArm.matchesDesiredState()) {
                         double robotAngle = mDriveSystem.getRobotAngle().getRadians();
                         EVector robotPose = EVector.fromPose(mDriveSystem.getRobotPose());
 
@@ -697,16 +697,13 @@ public class ControlSystem {
                             double EXTRA_DISTANCE = 0.25;
                             noteDistance += EXTRA_DISTANCE;
                             EVector notePose = EVector.newVector(
-                                Math.cos(robotAngle) * noteDistance + robotPose.x,
-                                Math.sin(robotAngle) * noteDistance + robotPose.y,
-                                robotAngle
-                            );
-
+                                    Math.cos(robotAngle) * noteDistance + robotPose.x,
+                                    Math.sin(robotAngle) * noteDistance + robotPose.y,
+                                    robotAngle);
 
                             mDriveSystem.setPosition(notePose);
                             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
                         }
-
 
                         mCurrentSeekNoteState = SeekNoteState.COLLECTING;
                     }
@@ -714,7 +711,6 @@ public class ControlSystem {
                     final double ROT_SPEED = -0.5;
                     rotDutyCycle = ROT_SPEED;
                 }
-                
 
                 mDriveSystem.driveRaw(0, 0, rotDutyCycle);
 
@@ -723,12 +719,12 @@ public class ControlSystem {
                 mArm.setDesiredState(ArmState.COLLECT);
                 mScollector.setDesiredState(ScollectorState.COLLECT);
 
-                if(mScollector.hasNote()) {
+                if (mScollector.hasNote()) {
                     // mCurrentSeekNoteState = SeekNoteState.DONE;
                 }
-            break;
+                break;
             default:
-            break;
+                break;
         }
 
     }
