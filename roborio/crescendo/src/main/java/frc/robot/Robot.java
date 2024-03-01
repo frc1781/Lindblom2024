@@ -50,7 +50,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     mCompressor = new Compressor(ConfigMap.FIRST_PCM_ID,
-        PneumaticsModuleType.CTREPCM);
+        PneumaticsModuleType.REVPH);
     mCompressor.enableDigital();
     mControlSystem = new ControlSystem();
     mAutonomousHandler = new AutonomousHandler(mControlSystem, 
