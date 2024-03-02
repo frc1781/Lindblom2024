@@ -1,19 +1,13 @@
 package tech.team1781.subsystems;
-
-import tech.team1781.utils.NetworkLogger;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkLimitSwitch;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.SparkLimitSwitch.Type;
-
 import tech.team1781.ConfigMap;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 
 public class Climber extends Subsystem {
     private HookState mRightHookState = HookState.DOWN;
@@ -42,7 +36,6 @@ public class Climber extends Subsystem {
 
     private SparkLimitSwitch mLeftLimitSwitch = mLeftClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
     private SparkLimitSwitch mRightLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
-
     private PIDController mRightClimberPID = new PIDController(0.1, 0, 0);
 
     private RelativeEncoder mLeftClimberEncoder = mLeftClimberMotor.getEncoder();
