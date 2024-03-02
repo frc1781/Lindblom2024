@@ -100,7 +100,7 @@ public class ConfigMap {
 
         //Limelight
         public static final String APRILTAG_LIMELIGHT = "limelight-back";
-        public static final String NOTE_LIMELIGHT = "limelight";
+        public static final String NOTE_LIMELIGHT = "limelight-front";
 
         // Controls
         public static final int DRIVER_CONTROLLER_PORT = 0;
