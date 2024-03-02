@@ -136,13 +136,14 @@ public class ControlSystem {
         boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
         int mult = isRed ? -1 : 1;
         final double triggermult = 0.1;
+        triggers.mult(triggermult);
 
         // forward and backwards
         double xVelocity = -translation.y * mult;
         // left and right
         double yVelocity = -translation.x * mult;
         // rotation
-        double rotVelocity = -rotation.x * 0.5 + ((triggers.x * triggermult) - (triggers.y * triggermult));
+        double rotVelocity = -rotation.x * 0.5 + ((triggers.x) - (triggers.y));
 
         mDriveSystem.driveRaw(
                 mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
