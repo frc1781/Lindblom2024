@@ -87,11 +87,18 @@ public class ConfigMap {
         // // -0.077;
         // public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.8688;
         // //-0.272; // -0.735;
+          
+        //RALPH's offsets
+        //public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.9755;
+        //public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.8167;
+        //public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.670;
+        //public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.116;
 
-        public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.9755;
-        public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.8167;
-        public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.670;
-        public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.116;
+        //RUFUS's offset
+        public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.039;
+        public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.115;
+        public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.010;
+        public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.291;
 
         // Constants
         public static final double MIN_THRESHOLD_ARM = 0;
@@ -128,8 +135,8 @@ public class ConfigMap {
         public static final String ANGLE_DOWN = "W";
         public static final String SCORE_AMP = "Y";
         public static final String SCORE_PODIUM = "A";
-        // public static final String CLIMBER_EXTEND = "N";
-        // public static final String CLIMB_RETRACT = "S";
+        public static final String CLIMBER_EXTEND = "N";
+        public static final String CLIMB_RETRACT = "S";
 
         /*
          * ##############################
@@ -137,10 +144,10 @@ public class ConfigMap {
          * ##############################
          */
 
-        public static final int LEFT_HOOK_OPEN = 1;
-        public static final int LEFT_HOOK_CLOSE = 2;
-        public static final int RIGHT_HOOK_OPEN = 3;
-        public static final int RIGHT_HOOK_CLOSE = 4;
-        public static final int TRAP_IN = 5;
+        public static final int LEFT_HOOK_OPEN = 3;
+        public static final int LEFT_HOOK_CLOSE = 10;
+        public static final int RIGHT_HOOK_OPEN = 5;
+        public static final int RIGHT_HOOK_CLOSE = 8;
+        public static final int TRAP_IN = 0;
         public static final int TRAP_OUT = 9;
 }

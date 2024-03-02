@@ -3,6 +3,7 @@ package tech.team1781.subsystems;
 import tech.team1781.utils.NetworkLogger;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkLimitSwitch;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.SparkLimitSwitch.Type;
 
 import tech.team1781.ConfigMap;
@@ -46,9 +47,10 @@ public class Climber extends Subsystem {
 
     public Climber() {
         super("Climber", ClimberState.IDLE);
-        mLeftClimberMotor.setInverted(true);
-        mRightClimberMotor.setInverted(false);
-
+        mLeftClimberMotor.setInverted(false);
+        mRightClimberMotor.setInverted(true);
+        mLeftClimberMotor.setIdleMode(IdleMode.kBrake);
+        mRightClimberMotor.setIdleMode(IdleMode.kBrake);
         mLeftLimitSwitch = mLeftClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
         mRightLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
     }
@@ -67,7 +69,8 @@ public class Climber extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-        if(mLeftLimitSwitch.isPressed() && mRightLimitSwitch.isPressed()) {
+        if(mLeftLimitSwitch.isPressed() && mRightLimitSwitch.isPressed() && mLeftHookState == HookState.DOWN) {
+            System.out.println("Hooks up");
             mLeftHookState = HookState.UP;
             mRightHookState = HookState.UP;
         } else {
@@ -83,11 +86,24 @@ public class Climber extends Subsystem {
 
     @Override
     public void getToState() {
-        double leftDC = 0;
-        double rightDC = 0;
+        double dcLeft = 0;
+        double dcRight = 0;
         mLeftHook.set(mLeftHookState == HookState.UP ? DoubleSolenoid.Value.kForward : DoubleSolenoid.Value.kReverse);
         mRightHook.set(mRightHookState == HookState.UP ? DoubleSolenoid.Value.kForward : DoubleSolenoid.Value.kReverse);
         mTrap.set(mTrapState == TrapState.OUT ? DoubleSolenoid.Value.kForward : DoubleSolenoid.Value.kReverse);
+        if (currentState == ClimberState.EXTEND) {
+            dcLeft = 0.7;
+            dcRight = 0.7;
+        }
+        else if (currentState == ClimberState.RETRACT) {
+            dcLeft = -0.7;
+            dcRight = -0.7;
+        } else {
+            dcLeft = 0.0;
+            dcRight = 0.0;
+        }
+        mLeftClimberMotor.set(dcLeft);
+        mRightClimberMotor.set(dcRight);
     }
 
     @Override
@@ -109,7 +125,10 @@ public class Climber extends Subsystem {
     }
 
     public void setTrap(TrapState t) {
-        mTrapState = t;
+        if (mTrapState != t) {
+          mTrapState = t;
+          System.out.println("Trap set to " + mTrapState);
+        }
     }
 
     public void manualClimb(double dutyCycle) {
@@ -117,11 +136,9 @@ public class Climber extends Subsystem {
             dutyCycle = 0;
         }
 
-        mLeftClimberMotor.set(dutyCycle);
-
-        double rightDutyCycle = mRightClimberPID.calculate(mLeftClimberMotor.getEncoder().getPosition(), mRightClimberMotor.getEncoder().getPosition());
-        mRightClimberMotor.set(rightDutyCycle);
-        
+        //mLeftClimberMotor.set(dutyCycle);
+        //double rightDutyCycle = mRightClimberPID.calculate(mLeftClimberMotor.getEncoder().getPosition(), mRightClimberMotor.getEncoder().getPosition());
+        //mRightClimberMotor.set(rightDutyCycle);
     }
 
 }

@@ -137,13 +137,13 @@ public class Robot extends TimedRobot {
       mControlSystem.shootPodium(isPressed);
     });
 
-    // mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CLIMBER_EXTEND, (isPressed)-> {
-    //   mControlSystem.setClimberExtend(isPressed);
-    // });
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CLIMBER_EXTEND, (isPressed)-> {
+      mControlSystem.setClimberExtend(isPressed);
+    });
 
-    // mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CLIMB_RETRACT, (isPressed)-> {
-    //   mControlSystem.setClimberRetract(isPressed);
-    // });
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.CLIMB_RETRACT, (isPressed)-> {
+      mControlSystem.setClimberRetract(isPressed);
+    });
 
     mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.AUTO_AIM, (isHeld) -> {
       mControlSystem.setCenteringOnAprilTag(isHeld);
