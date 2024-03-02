@@ -34,9 +34,11 @@ public class Climber extends Subsystem {
             ConfigMap.TRAP_IN,
             ConfigMap.TRAP_OUT);
 
-    private SparkLimitSwitch mLeftLimitSwitch = mLeftClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
-    private SparkLimitSwitch mRightLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
-    private PIDController mRightClimberPID = new PIDController(0.001, 0, 0);
+    private SparkLimitSwitch mLeftReverseLimitSwitch = mLeftClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
+    private SparkLimitSwitch mRightReverseLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
+    private SparkLimitSwitch mLeftForwardLimitSwitch = mLeftClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
+    private SparkLimitSwitch mRightForwardLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
+    private PIDController mRightClimberPID = new PIDController(0.1, 0, 0);
 
     private RelativeEncoder mLeftClimberEncoder = mLeftClimberMotor.getEncoder();
     private RelativeEncoder mRightClimberEncoder = mRightClimberMotor.getEncoder();
@@ -50,8 +52,10 @@ public class Climber extends Subsystem {
         mRightClimberMotor.setIdleMode(IdleMode.kBrake);
         mLeftClimberMotor.setSmartCurrentLimit(40);
         mRightClimberMotor.setSmartCurrentLimit(40);
-        mLeftLimitSwitch = mLeftClimberMotor.getReverseLimitSwitch(Type.kNormallyOpen);
-        mRightLimitSwitch = mRightClimberMotor.getReverseLimitSwitch(Type.kNormallyOpen);
+        mLeftReverseLimitSwitch = mLeftClimberMotor.getReverseLimitSwitch(Type.kNormallyOpen);
+        mRightReverseLimitSwitch = mRightClimberMotor.getReverseLimitSwitch(Type.kNormallyOpen);
+        mLeftForwardLimitSwitch = mLeftClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
+        mRightForwardLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
         mLeftClimberMotor.burnFlash();
         mRightClimberMotor.burnFlash();
     }
@@ -70,15 +74,15 @@ public class Climber extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-        if(mLeftLimitSwitch.isPressed() && mRightLimitSwitch.isPressed() && mLeftHookState == HookState.DOWN) {
+        if(mLeftForwardLimitSwitch.isPressed() && mRightForwardLimitSwitch.isPressed() && mLeftHookState == HookState.DOWN) {
             setHooks(HookState.UP);
         } 
         
-        if(mLeftLimitSwitch.isPressed()) {
+        if(mLeftReverseLimitSwitch.isPressed()) {
             mLeftClimberEncoder.setPosition(0);
         }
 
-        if(mRightLimitSwitch.isPressed()) {
+        if(mRightReverseLimitSwitch.isPressed()) {
             mRightClimberEncoder.setPosition(0);
         }
     }
@@ -142,9 +146,12 @@ public class Climber extends Subsystem {
             leftDutyCycle = dutyCycle * 0.7;
             rightDutyCycle = dutyCycle * 0.7;
         }
-        //double rightDutyCycle = dutyCycle + mRightClimberPID.calculate()
-        //    mLeftClimberMotor.getEncoder().getPosition(), 
-        //    mRightClimberMotor.getEncoder().getPosition());
+
+        rightDutyCycle = dutyCycle + mRightClimberPID.calculate(
+            mRightClimberMotor.getEncoder().getPosition(), 
+            mLeftClimberMotor.getEncoder().getPosition()
+        );
+
         if (Math.abs(dutyCycle) > 0.1) {
            System.out.printf("lc: %.2f  rc: %.2f re: %.2f  le:%.2f\n", 
              leftDutyCycle,
