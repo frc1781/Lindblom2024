@@ -589,10 +589,7 @@ public class ControlSystem {
     }
 
     public void localizationUpdates() {
-        // if (LimelightHelper
-        // .getLatestResults(ConfigMap.FRONT_LIMELIGHT_NAME).targetingResults.targets_Fiducials.length
-        // >= 2) {
-        final double speedTolerance = 0.5;
+        final double speedTolerance = 0.1;
         ChassisSpeeds robotSpeeds = mDriveSystem.getChassisSpeeds();
         boolean driveSystemSlowEnough = robotSpeeds.vxMetersPerSecond <= speedTolerance
                 && robotSpeeds.vyMetersPerSecond <= speedTolerance;
