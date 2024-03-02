@@ -76,6 +76,7 @@ public class ControlSystem {
     private boolean mCollectingHighButton = false;
     private boolean mAmpButton = false;
     private boolean mShootPodiumButton = false;
+    private boolean mSkipNoteButton = false;
 
     private GenericEntry mSeesAprilTagEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Sees AprilTag",
             false, ShuffleboardStyle.SEES_APRILTAG);
@@ -91,7 +92,8 @@ public class ControlSystem {
         COLLECT_RAMP,
         COLLECT_AUTO_SHOOT,
         SYSID,
-        SEEK_NOTE
+        SEEK_NOTE,
+        AUTO_AIM_SHOOT
     }
 
     public ControlSystem() {
@@ -143,7 +145,7 @@ public class ControlSystem {
         // left and right
         double yVelocity = -translation.x * mult;
         // rotation
-        double rotVelocity = -rotation.x * 0.5 + ((triggers.x) - (triggers.y));
+        double rotVelocity = -rotation.x * 0.25 + ((triggers.x) - (triggers.y));
 
         mDriveSystem.driveRaw(
                 mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
@@ -226,6 +228,25 @@ public class ControlSystem {
 
     public void manualAdjustAngle(double diff) {
         mArm.manualAdjustAngle(diff);
+    }
+
+    public void skipNote(boolean isSkipping) {
+        if (mSkipNoteButton == isSkipping) {
+            return;
+        }
+
+        mSkipNoteButton = isSkipping;
+
+        if (!mCollectingButton && !mPrepareToShootButton && !mKeepArmDownButton && !mShootPodiumButton) {
+            if (!mSkipNoteButton) {
+                mArm.setDesiredState(ArmState.SAFE);
+                mScollector.setDesiredState(ScollectorState.IDLE);
+            } else {
+                mArm.setDesiredState(ArmState.SKIP);
+                mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
+            }
+        }
+
     }
 
     public void calibratePosition() {
@@ -357,6 +378,8 @@ public class ControlSystem {
     }
 
     public void centerOnAprilTag(int id) {
+        Limelight.setTargetApriltag(ConfigMap.APRILTAG_LIMELIGHT,
+                isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG);
         double x = Limelight.getTX(ConfigMap.APRILTAG_LIMELIGHT);
 
         if (x != 0.0) {
@@ -375,8 +398,6 @@ public class ControlSystem {
 
         double angle = robotPose.angleBetween(targetPose) - Math.PI;
         angle = normalizeRadians(angle);
-
-        System.out.println(angle + " " + mDriveSystem.getRobotAngle().getRadians());
 
         mAimingAngle = mOdometryController.calculate(mDriveSystem.getRobotAngle().getRadians(), angle);
     }
@@ -500,12 +521,6 @@ public class ControlSystem {
                     mDriveSystem.setOdometry(Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT));
                 }
 
-                if (isRed()) {
-                    Limelight.setTargetApriltag(ConfigMap.APRILTAG_LIMELIGHT, 4);
-                } else {
-                    Limelight.setTargetApriltag(ConfigMap.APRILTAG_LIMELIGHT, 7);
-                }
-
                 break;
             case AUTONOMOUS:
                 break;
@@ -518,10 +533,11 @@ public class ControlSystem {
         mArm.updateAimSpots(mDriveSystem.getRobotPose());
 
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
+
+        localizationUpdates();
         switch (mCurrentOperatingMode) {
             case TELEOP:
                 seesNote();
-                localizationUpdates();
                 EVector driverTriggers = driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT);
                 driverDriving(
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
@@ -546,7 +562,7 @@ public class ControlSystem {
                     seekNote();
                 }
 
-                if (mCurrentAction == Action.COLLECT_AUTO_SHOOT
+                if (mCurrentAction == Action.AUTO_AIM_SHOOT
                         && mDriveSystem.getState() == DriveSystem.DriveSystemState.DRIVE_MANUAL) {
                     centerOnAprilTag(isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG);
                     mDriveSystem.driveRaw(0, 0, mAimingAngle);
@@ -602,7 +618,7 @@ public class ControlSystem {
             if (dist > 2) {
                 mDriveSystem.setOdometry(limelightPose);
             }
-        } else if(tx != 0.0 && tx != 0.0 && limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0){
+        } else if (tx != 0.0 && tx != 0.0 && limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0) {
             mDriveSystem.updateVisionLocalization(limelightPose);
         }
     }
@@ -628,6 +644,11 @@ public class ControlSystem {
                 new SubsystemSetting(mDriveSystem, DriveSystemState.SYSID),
                 new SubsystemSetting(mArm, ArmState.COLLECT),
                 new SubsystemSetting(mScollector, ScollectorState.IDLE));
+
+        defineAction(Action.AUTO_AIM_SHOOT,
+                new SubsystemSetting(mDriveSystem, DriveSystemState.DRIVE_MANUAL),
+                new SubsystemSetting(mArm, ArmState.AUTO_ANGLE),
+                new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
 
         defineAction(Action.COLLECT,
                 new SubsystemSetting(mScollector, ScollectorState.COLLECT),
@@ -701,8 +722,8 @@ public class ControlSystem {
                         mCurrentSeekNoteState = SeekNoteState.COLLECTING;
                     }
                 } else {
-                    final double ROT_SPEED = -0.5;
-                    rotDutyCycle = ROT_SPEED;
+                    final double ROT_SPEED = 0.5;
+                    rotDutyCycle = ROT_SPEED * (isRed() ? 1 : -1);
                 }
 
                 mDriveSystem.driveRaw(0, 0, rotDutyCycle);

@@ -100,7 +100,7 @@ public class ConfigMap {
 
         //Limelight
         public static final String APRILTAG_LIMELIGHT = "limelight-back";
-        public static final String NOTE_LIMELIGHT = "limelight-front";
+        public static final String NOTE_LIMELIGHT = "limelight";
 
         // Controls
         public static final int DRIVER_CONTROLLER_PORT = 0;
@@ -126,6 +126,7 @@ public class ConfigMap {
         public static final String ANGLE_DOWN = "W";
         public static final String SCORE_AMP = "Y";
         public static final String SCORE_PODIUM = "A";
+        public static final String SKIP = "B";
         // public static final String CLIMBER_EXTEND = "N";
         // public static final String CLIMB_RETRACT = "S";
 }

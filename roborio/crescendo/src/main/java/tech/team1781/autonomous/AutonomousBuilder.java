@@ -88,7 +88,8 @@ public class AutonomousBuilder {
         Paths paths = new Paths();
 
         LinkedList<AutoStep> autonomousSteps = new LinkedList<>();
-        final double shootTime = 8;
+        final double shootTime = 5;
+        final double rampedShootTime = 2;
         autonomousSteps.add(new AutoStep(shootTime, Action.COLLECT_AUTO_SHOOT));
 
         Paths.AutonomousPosition previous = positions[0];
@@ -107,12 +108,13 @@ public class AutonomousBuilder {
 
                 final double WAIT_TIME = 2;
                 final double SEEK_TIME = 5; 
+                final double POSITION_WAIT = 6;
                 double toCenterTime = toCenterPath.getTrajectory(new ChassisSpeeds(), new Rotation2d()).getTotalTimeSeconds();
                 double fromCenterTime = fromCenterPath.getTrajectory(new ChassisSpeeds(), new Rotation2d()).getTotalTimeSeconds();
 
                 var toCenter = new AutoStep(toCenterTime + WAIT_TIME, toCenterPath);
                 var seek = new AutoStep(SEEK_TIME, Action.SEEK_NOTE);
-                var toStarting = new AutoStep(WAIT_TIME, EVector.fromPose(toCenterPath.getPreviewStartingHolonomicPose()));
+                var toStarting = new AutoStep(POSITION_WAIT, EVector.fromPose(toCenterPath.getPreviewStartingHolonomicPose()));
                 var toBack = new AutoStep(fromCenterTime + WAIT_TIME, Action.COLLECT_RAMP,fromCenterPath);
 
                 autonomousSteps.add(toCenter);
@@ -122,14 +124,19 @@ public class AutonomousBuilder {
 
             } else {
                 lastNonCenter = current;
-                PathPlannerPath path = Paths.getPath(previous, current);
+                PathPlannerPath path = paths.getPathNonStatic(previous, current);
 
                 PathPlannerTrajectory tempTraj = path.getTrajectory(new ChassisSpeeds(), new Rotation2d());
-                final double shootWaitTimeAfterPath = 2.5;
+                final double shootWaitTimeAfterPath = 0;
                 AutoStep currentStep = new AutoStep(tempTraj.getTotalTimeSeconds() + shootWaitTimeAfterPath,
-                        Action.COLLECT_AUTO_SHOOT, path);
+                        Action.COLLECT_RAMP, path);
                 autonomousSteps.add(currentStep);
             }
+
+            AutoStep shootStep = new AutoStep(rampedShootTime, Action.AUTO_AIM_SHOOT);
+            autonomousSteps.add(shootStep);
+
+            
             previous = positions[i];
         }
 

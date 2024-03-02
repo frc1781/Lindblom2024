@@ -70,6 +70,7 @@ public class Arm extends Subsystem {
         mPositions.put(ArmState.AMP, 43.0);
         mPositions.put(ArmState.COLLECT, 0.0);
         mPositions.put(ArmState.COLLECT_HIGH, 56.0);
+        mPositions.put(ArmState.SKIP, 59.0);
     }
 
     public enum ArmState implements Subsystem.SubsystemState {
@@ -82,6 +83,7 @@ public class Arm extends Subsystem {
         MANUAL,
         AUTO_ANGLE,
         AMP,
+        SKIP
     }
 
     @Override

@@ -124,6 +124,10 @@ public class Robot extends TimedRobot {
       mControlSystem.setCenteringOnAprilTag(isHeld);
     });
 
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SKIP, (isHeld) -> {
+      mControlSystem.skipNote(isHeld);
+    });
+
 
   }
 

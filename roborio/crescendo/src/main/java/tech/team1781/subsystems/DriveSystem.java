@@ -392,7 +392,7 @@ public class DriveSystem extends Subsystem {
     }
 
     public Pose2d getRobotPose() {
-        return mPoseEstimator.getEstimatedPosition();
+        return new Pose2d(mPoseEstimator.getEstimatedPosition().getTranslation(), getRobotAngle());
     }
 
     public ChassisSpeeds getChassisSpeeds() {
