@@ -1,8 +1,6 @@
 
 package tech.team1781;
 
-import javax.print.DocFlavor.STRING;
-
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -99,8 +97,8 @@ public class ConfigMap {
         // First Drivebase
 
         //Limelight
-        public static final String FRONT_LIMELIGHT_NAME = "limelight-front";
-        public static final String BACK_LIMELIGHT_NAME = "limelight";
+        public static final String APRILTAG_LIMELIGHT = "limelight-back";
+        public static final String NOTE_LIMELIGHT = "limelight-front";
 
         // Controls
         public static final int DRIVER_CONTROLLER_PORT = 0;
