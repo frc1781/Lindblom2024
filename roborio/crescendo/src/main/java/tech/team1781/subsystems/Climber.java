@@ -125,14 +125,21 @@ public class Climber extends Subsystem {
         if (Math.abs(dutyCycle) <= 0.1) {
             dutyCycle = 0;
         }
-
-        mLeftClimberMotor.set(dutyCycle);
-        double rightDutyCycle = dutyCycle + mRightClimberPID.calculate(
-            mLeftClimberMotor.getEncoder().getPosition(), 
-            mRightClimberMotor.getEncoder().getPosition());
-        System.out.println("Left: " + mLeftClimberMotor.getEncoder().getPosition() + " Right: " + mRightClimberMotor.getEncoder().getPosition());
-        System.out.println("Right duty cycle: " + rightDutyCycle);
-        // mRightClimberMotor.set(rightDutyCycle);
+        double leftDutyCycle = 0.7 * dutyCycle;
+        double rightDutyCycle = 0.7 * dutyCycle;
+        //double rightDutyCycle = dutyCycle + mRightClimberPID.calculate(
+        //    mLeftClimberMotor.getEncoder().getPosition(), 
+        //    mRightClimberMotor.getEncoder().getPosition());
+            if (Math.abs(dutyCycle) > 0.1) {
+               System.out.printf("lc: %.2f  rc: %.2f\n", 
+                 leftDutyCycle,
+                 rightDutyCycle
+               );
+            }
+        //System.out.println("Left: " + mLeftClimberMotor.getEncoder().getPosition() + " Right: " + mRightClimberMotor.getEncoder().getPosition());
+        //System.out.println("Right duty cycle: " + rightDutyCycle);
+        mLeftClimberMotor.set(leftDutyCycle);
+        mRightClimberMotor.set(rightDutyCycle);
     }
 
 }
