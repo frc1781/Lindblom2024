@@ -591,8 +591,8 @@ public class ControlSystem {
     public void localizationUpdates() {
         final double speedTolerance = 0.1;
         ChassisSpeeds robotSpeeds = mDriveSystem.getChassisSpeeds();
-        boolean driveSystemSlowEnough = robotSpeeds.vxMetersPerSecond <= speedTolerance
-                && robotSpeeds.vyMetersPerSecond <= speedTolerance;
+        EVector chassisSpeedsVector = new EVector(robotSpeeds.vxMetersPerSecond, robotSpeeds.vyMetersPerSecond);
+        boolean driveSystemSlowEnough = chassisSpeedsVector.magnitude() <= speedTolerance;
         Pose2d limelightPoseTemp = Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT);
         Pose2d limelightPose = new Pose2d(limelightPoseTemp.getTranslation(), mDriveSystem.getRobotAngle());
         double tx = Limelight.getTX(ConfigMap.APRILTAG_LIMELIGHT);
