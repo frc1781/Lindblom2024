@@ -48,8 +48,12 @@ public class Climber extends Subsystem {
         mRightClimberMotor.setInverted(true);
         mLeftClimberMotor.setIdleMode(IdleMode.kBrake);
         mRightClimberMotor.setIdleMode(IdleMode.kBrake);
-        mLeftLimitSwitch = mLeftClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
-        mRightLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
+        mLeftClimberMotor.setSmartCurrentLimit(40);
+        mRightClimberMotor.setSmartCurrentLimit(40);
+        mLeftLimitSwitch = mLeftClimberMotor.getReverseLimitSwitch(Type.kNormallyOpen);
+        mRightLimitSwitch = mRightClimberMotor.getReverseLimitSwitch(Type.kNormallyOpen);
+        mLeftClimberMotor.burnFlash();
+        mRightClimberMotor.burnFlash();
     }
 
     public enum ClimberState implements Subsystem.SubsystemState {
@@ -67,13 +71,8 @@ public class Climber extends Subsystem {
     @Override
     public void genericPeriodic() {
         if(mLeftLimitSwitch.isPressed() && mRightLimitSwitch.isPressed() && mLeftHookState == HookState.DOWN) {
-            System.out.println("Hooks up");
-            mLeftHookState = HookState.UP;
-            mRightHookState = HookState.UP;
-        } else {
-            mLeftHookState = HookState.DOWN;
-            mRightHookState = HookState.DOWN;
-        }
+            setHooks(HookState.UP);
+        } 
         
         if(mLeftLimitSwitch.isPressed()) {
             mLeftClimberEncoder.setPosition(0);
@@ -110,8 +109,12 @@ public class Climber extends Subsystem {
     }
 
     public void setHooks(HookState h) {
+        if (mLeftHookState == h) {
+            return; 
+        }
         mLeftHookState = h;
         mRightHookState = h;
+        System.out.println(h == HookState.UP ? "Hooks up" : "Hooks Down");
     }
 
     public void setTrap(TrapState t) {
@@ -125,19 +128,31 @@ public class Climber extends Subsystem {
         if (Math.abs(dutyCycle) <= 0.1) {
             dutyCycle = 0;
         }
-        double leftDutyCycle = 0.7 * dutyCycle;
-        double rightDutyCycle = 0.7 * dutyCycle;
-        //double rightDutyCycle = dutyCycle + mRightClimberPID.calculate(
+
+        if (dutyCycle < 0)  {
+          setHooks(HookState.DOWN);
+        }
+        double leftDutyCycle; 
+        double rightDutyCycle; 
+
+        if (dutyCycle < 0) {
+            leftDutyCycle = dutyCycle;
+            rightDutyCycle = dutyCycle;
+        } else {
+            leftDutyCycle = dutyCycle * 0.7;
+            rightDutyCycle = dutyCycle * 0.7;
+        }
+        //double rightDutyCycle = dutyCycle + mRightClimberPID.calculate()
         //    mLeftClimberMotor.getEncoder().getPosition(), 
         //    mRightClimberMotor.getEncoder().getPosition());
-        //    if (Math.abs(dutyCycle) > 0.1) {
-        //       System.out.printf("lc: %.2f  rc: %.2f\n", 
-        //         leftDutyCycle,
-        //         rightDutyCycle
-        //       );
-        //    }
-        //System.out.println("Left: " + mLeftClimberMotor.getEncoder().getPosition() + " Right: " + mRightClimberMotor.getEncoder().getPosition());
-        //System.out.println("Right duty cycle: " + rightDutyCycle);
+        if (Math.abs(dutyCycle) > 0.1) {
+           System.out.printf("lc: %.2f  rc: %.2f re: %.2f  le:%.2f\n", 
+             leftDutyCycle,
+             rightDutyCycle,
+             mLeftClimberMotor.getEncoder().getPosition(),
+             mRightClimberMotor.getEncoder().getPosition()
+           );
+        }
         mLeftClimberMotor.set(leftDutyCycle);
         mRightClimberMotor.set(rightDutyCycle);
     }
