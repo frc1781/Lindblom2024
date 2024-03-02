@@ -612,13 +612,12 @@ public class ControlSystem {
         boolean driveSystemSlowEnough = chassisSpeedsVector.magnitude() <= speedTolerance;
         Pose2d limelightPoseTemp = Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT);
         Pose2d limelightPose = new Pose2d(limelightPoseTemp.getTranslation(), mDriveSystem.getRobotAngle());
-        double tx = Limelight.getTX(ConfigMap.APRILTAG_LIMELIGHT);
-        if (driveSystemSlowEnough && tx != 0.0 && limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0) {
+        if (driveSystemSlowEnough && limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0) {
             double dist = EVector.fromPose(limelightPose).dist(EVector.fromPose(mDriveSystem.getRobotPose()));
             if (dist > 2) {
                 mDriveSystem.setOdometry(limelightPose);
             }
-        } else if (tx != 0.0 && tx != 0.0 && limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0) {
+        } else if (limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0) {
             mDriveSystem.updateVisionLocalization(limelightPose);
         }
     }
