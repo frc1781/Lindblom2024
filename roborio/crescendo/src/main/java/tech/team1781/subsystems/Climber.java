@@ -2,6 +2,7 @@ package tech.team1781.subsystems;
 
 import tech.team1781.utils.NetworkLogger;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkLimitSwitch;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.SparkLimitSwitch.Type;
@@ -44,6 +45,9 @@ public class Climber extends Subsystem {
 
     private PIDController mRightClimberPID = new PIDController(0.1, 0, 0);
 
+    private RelativeEncoder mLeftClimberEncoder = mLeftClimberMotor.getEncoder();
+    private RelativeEncoder mRightClimberEncoder = mRightClimberMotor.getEncoder();
+
 
     public Climber() {
         super("Climber", ClimberState.IDLE);
@@ -77,6 +81,14 @@ public class Climber extends Subsystem {
             mLeftHookState = HookState.DOWN;
             mRightHookState = HookState.DOWN;
         }
+        
+        if(mLeftLimitSwitch.isPressed()) {
+            mLeftClimberEncoder.setPosition(0);
+        }
+
+        if(mRightLimitSwitch.isPressed()) {
+            mRightClimberEncoder.setPosition(0);
+        }
     }
 
     @Override
@@ -86,24 +98,9 @@ public class Climber extends Subsystem {
 
     @Override
     public void getToState() {
-        double dcLeft = 0;
-        double dcRight = 0;
         mLeftHook.set(mLeftHookState == HookState.UP ? DoubleSolenoid.Value.kForward : DoubleSolenoid.Value.kReverse);
         mRightHook.set(mRightHookState == HookState.UP ? DoubleSolenoid.Value.kForward : DoubleSolenoid.Value.kReverse);
         mTrap.set(mTrapState == TrapState.OUT ? DoubleSolenoid.Value.kForward : DoubleSolenoid.Value.kReverse);
-        if (currentState == ClimberState.EXTEND) {
-            dcLeft = 0.7;
-            dcRight = 0.7;
-        }
-        else if (currentState == ClimberState.RETRACT) {
-            dcLeft = -0.7;
-            dcRight = -0.7;
-        } else {
-            dcLeft = 0.0;
-            dcRight = 0.0;
-        }
-        mLeftClimberMotor.set(dcLeft);
-        mRightClimberMotor.set(dcRight);
     }
 
     @Override
@@ -136,9 +133,11 @@ public class Climber extends Subsystem {
             dutyCycle = 0;
         }
 
-        //mLeftClimberMotor.set(dutyCycle);
-        //double rightDutyCycle = mRightClimberPID.calculate(mLeftClimberMotor.getEncoder().getPosition(), mRightClimberMotor.getEncoder().getPosition());
-        //mRightClimberMotor.set(rightDutyCycle);
+        mLeftClimberMotor.set(dutyCycle);
+        double rightDutyCycle = mRightClimberPID.calculate(mLeftClimberMotor.getEncoder().getPosition(), mRightClimberMotor.getEncoder().getPosition());
+        System.out.println("Left: " + mLeftClimberMotor.getEncoder().getPosition() + " Right: " + mRightClimberMotor.getEncoder().getPosition());
+        System.out.println("Right duty cycle: " + rightDutyCycle);
+        // mRightClimberMotor.set(rightDutyCycle);
     }
 
 }
