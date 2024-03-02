@@ -36,7 +36,7 @@ public class Climber extends Subsystem {
 
     private SparkLimitSwitch mLeftLimitSwitch = mLeftClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
     private SparkLimitSwitch mRightLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
-    private PIDController mRightClimberPID = new PIDController(0.1, 0, 0);
+    private PIDController mRightClimberPID = new PIDController(0.001, 0, 0);
 
     private RelativeEncoder mLeftClimberEncoder = mLeftClimberMotor.getEncoder();
     private RelativeEncoder mRightClimberEncoder = mRightClimberMotor.getEncoder();
@@ -127,7 +127,9 @@ public class Climber extends Subsystem {
         }
 
         mLeftClimberMotor.set(dutyCycle);
-        double rightDutyCycle = mRightClimberPID.calculate(mLeftClimberMotor.getEncoder().getPosition(), mRightClimberMotor.getEncoder().getPosition());
+        double rightDutyCycle = dutyCycle + mRightClimberPID.calculate(
+            mLeftClimberMotor.getEncoder().getPosition(), 
+            mRightClimberMotor.getEncoder().getPosition());
         System.out.println("Left: " + mLeftClimberMotor.getEncoder().getPosition() + " Right: " + mRightClimberMotor.getEncoder().getPosition());
         System.out.println("Right duty cycle: " + rightDutyCycle);
         // mRightClimberMotor.set(rightDutyCycle);
