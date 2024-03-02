@@ -604,6 +604,8 @@ public class ControlSystem {
             if (dist > 2) {
                 mDriveSystem.setOdometry(limelightPose);
             }
+        } else if(tx != 0.0 && tx != 0.0 && limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0){
+            mDriveSystem.updateVisionLocalization(limelightPose);
         }
     }
 
