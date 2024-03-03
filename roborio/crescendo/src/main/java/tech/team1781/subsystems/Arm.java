@@ -22,7 +22,7 @@ import tech.team1781.utils.EVector;
 import com.revrobotics.SparkLimitSwitch;
 
 public class Arm extends Subsystem {
-    private final double KICKSTAND_OFF_POSITION = 64;
+    private final double KICKSTAND_OFF_POSITION;
 
     private CANSparkMax mRightMotor;
     private CANSparkMax mLeftMotor;
@@ -60,10 +60,11 @@ public class Arm extends Subsystem {
         // System.out.println("initialized arm moters for following...");
         // System.out.println("ENSURE ARM IN ZERO POSITION!!!!! Just set encoder to zero");
         // mLeftEncoder.setPosition(0);
-        final double KICKSTAND_POSITION = 62;
+        final double KICKSTAND_POSITION = 68.8;
+        KICKSTAND_OFF_POSITION = KICKSTAND_POSITION + 2;
         mLeftEncoder.setPosition(KICKSTAND_POSITION);
-        this.setDesiredState(ArmState.KICKSTAND);
-        mKickstandOff = true;
+        this.currentState = ArmState.KICKSTAND;
+        mKickstandOff = false;
 
 
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
@@ -159,7 +160,7 @@ public class Arm extends Subsystem {
 
     @Override
     public void setDesiredState(SubsystemState state) {
-        if(mKickstandOff && state == ArmState.KICKSTAND) {
+        if(!mKickstandOff && state == ArmState.KICKSTAND) {
             return;
         }
 
