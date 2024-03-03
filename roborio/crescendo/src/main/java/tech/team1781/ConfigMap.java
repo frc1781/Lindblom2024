@@ -122,7 +122,6 @@ public class ConfigMap {
         public static final String COLLECT = "RB";
         public static final String AUTO_AIM = "A";
         public static final String COLLECT_HIGH = "B";
-// b nax x center
         // Co-pilot controls
         public static final int CO_PILOT_PORT = 1;
         public static final String TRAP_OUT_BUTTON = "B";
@@ -137,6 +136,7 @@ public class ConfigMap {
         public static final String SCORE_PODIUM = "A";
         public static final String CLIMBER_EXTEND = "N";
         public static final String CLIMB_RETRACT = "S";
+        public static final String TOGGLE_TRAP = "LT";
 
         /*
          * ##############################

@@ -175,6 +175,10 @@ public class ControlSystem {
         }
     }
 
+    public void toggleTrap() {
+        mClimber.toggleTrap();
+    }
+
     public void setCollecting(boolean pushingCollect) {
         if (mCollectingButton == pushingCollect) {
             return; // no change in state

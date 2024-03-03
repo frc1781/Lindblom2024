@@ -38,7 +38,7 @@ public class Climber extends Subsystem {
     private SparkLimitSwitch mRightReverseLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
     private SparkLimitSwitch mLeftForwardLimitSwitch = mLeftClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
     private SparkLimitSwitch mRightForwardLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
-    private PIDController mRightClimberPID = new PIDController(0.1, 0, 0);
+    private PIDController mRightClimberPID = new PIDController(0.2, 0, 0);
 
     private RelativeEncoder mLeftClimberEncoder = mLeftClimberMotor.getEncoder();
     private RelativeEncoder mRightClimberEncoder = mRightClimberMotor.getEncoder();
@@ -90,6 +90,7 @@ public class Climber extends Subsystem {
     @Override
     public void init() {
         mRightClimberPID.reset();
+        mTrapState = TrapState.IN;
     }
 
     @Override
@@ -97,6 +98,10 @@ public class Climber extends Subsystem {
         mLeftHook.set(mLeftHookState == HookState.UP ? DoubleSolenoid.Value.kForward : DoubleSolenoid.Value.kReverse);
         mRightHook.set(mRightHookState == HookState.UP ? DoubleSolenoid.Value.kForward : DoubleSolenoid.Value.kReverse);
         mTrap.set(mTrapState == TrapState.OUT ? DoubleSolenoid.Value.kReverse : DoubleSolenoid.Value.kForward);
+        double rightClimberEncoderPos = mRightClimberEncoder.getPosition();
+        double leftClimberEncoderPos = mLeftClimberEncoder.getPosition();
+        double rightClimberDc = mRightClimberPID.calculate(rightClimberEncoderPos, leftClimberEncoderPos);
+        mRightClimberMotor.set(rightClimberDc);
     }
 
     @Override
@@ -110,6 +115,11 @@ public class Climber extends Subsystem {
 
     @Override
     public void teleopPeriodic() {
+    }
+
+    public void toggleTrap() {
+        setTrap(mTrapState == TrapState.IN ? TrapState.OUT : TrapState.IN);
+        System.out.println("????????????????????????????????????");
     }
 
     public void setHooks(HookState h) {
@@ -161,7 +171,8 @@ public class Climber extends Subsystem {
            );
         }
         mLeftClimberMotor.set(leftDutyCycle);
-        mRightClimberMotor.set(rightDutyCycle);
+        
+        
     }
 
 }

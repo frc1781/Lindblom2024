@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -88,9 +89,6 @@ public class Robot extends TimedRobot {
       mControlSystem.setShooting(isPressed);
     });
 
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.TRAP_OUT_BUTTON, (isPressed) -> {
-      mControlSystem.setTrap(isPressed);
-    });
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.PREPARE_TO_SHOOT, (isPressed) -> {
       mControlSystem.setPrepareToShoot(isPressed);
@@ -147,6 +145,10 @@ public class Robot extends TimedRobot {
 
     mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.AUTO_AIM, (isHeld) -> {
       mControlSystem.setCenteringOnAprilTag(isHeld);
+    });
+
+    mDriverInput.addClickListener(ConfigMap.CO_PILOT_PORT, ConfigMap.TOGGLE_TRAP, (isHeld) -> {
+      mControlSystem.toggleTrap();
     });
 
     // // mDriverInput.addClickListener(0, "B", (isPressed) -> {
