@@ -22,6 +22,8 @@ import tech.team1781.utils.EVector;
 import com.revrobotics.SparkLimitSwitch;
 
 public class Arm extends Subsystem {
+    private final double KICKSTAND_OFF_POSITION = 64;
+
     private CANSparkMax mRightMotor;
     private CANSparkMax mLeftMotor;
     private RelativeEncoder mLeftEncoder;
@@ -36,9 +38,10 @@ public class Arm extends Subsystem {
     private double mSpeakerDistance = 0;
     private Pose2d mRobotPose;
     private CURRENT_AIM_SPOT mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
+    private boolean mKickstandOff = false;
 
     public Arm() {
-        super("Arm", ArmState.START);
+        super("Arm", ArmState.KICKSTAND);
         mRightMotor = new CANSparkMax(
                 ConfigMap.ARM_PIVOT_RIGHT_MOTOR,
                 CANSparkMax.MotorType.kBrushless);
@@ -54,9 +57,15 @@ public class Arm extends Subsystem {
         mRightMotor.follow(mLeftMotor, true);
         mLeftMotor.setIdleMode(IdleMode.kBrake);
         mRightMotor.setIdleMode(IdleMode.kBrake);
-        System.out.println("initialized arm moters for following...");
-        System.out.println("ENSURE ARM IN ZERO POSITION!!!!! Just set encoder to zero");
-        mLeftEncoder.setPosition(0);
+        // System.out.println("initialized arm moters for following...");
+        // System.out.println("ENSURE ARM IN ZERO POSITION!!!!! Just set encoder to zero");
+        // mLeftEncoder.setPosition(0);
+        final double KICKSTAND_POSITION = 62;
+        mLeftEncoder.setPosition(KICKSTAND_POSITION);
+        this.setDesiredState(ArmState.KICKSTAND);
+        mKickstandOff = true;
+
+
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
         mLeftMotor.setSmartCurrentLimit(30);
@@ -74,6 +83,7 @@ public class Arm extends Subsystem {
     }
 
     public enum ArmState implements Subsystem.SubsystemState {
+        KICKSTAND,
         START,
         SAFE,
         PODIUM,
@@ -91,7 +101,9 @@ public class Arm extends Subsystem {
         // System.out.println(getAngle());
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
 
-
+        if(mLeftMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed()) {
+            mLeftEncoder.setPosition(0);
+        }
     }
 
     @Override
@@ -105,8 +117,18 @@ public class Arm extends Subsystem {
 
     @Override
     public void getToState() {
-        if (getState() == ArmState.AUTO_ANGLE) {
-            mDesiredPosition = calculateAngleFromDistance();
+        switch((ArmState) getState()) {
+            case KICKSTAND:
+                mDesiredPosition = KICKSTAND_OFF_POSITION + 0.5;
+                if(mLeftEncoder.getPosition() >= KICKSTAND_OFF_POSITION) {
+                    mKickstandOff = true;
+                }
+            case AUTO_ANGLE:
+                mDesiredPosition = calculateAngleFromDistance();
+                break;
+            default:
+                mDesiredPosition = mPositions.get(getState());
+                break;
         }
 
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), mDesiredPosition);
@@ -137,6 +159,10 @@ public class Arm extends Subsystem {
 
     @Override
     public void setDesiredState(SubsystemState state) {
+        if(mKickstandOff && state == ArmState.KICKSTAND) {
+            return;
+        }
+
         super.setDesiredState(state);
 
         if (state != ArmState.MANUAL && state != ArmState.AUTO_ANGLE) {
