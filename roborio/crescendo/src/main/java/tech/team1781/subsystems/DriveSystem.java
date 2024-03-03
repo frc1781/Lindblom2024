@@ -77,6 +77,11 @@ public class DriveSystem extends Subsystem {
     private ProfiledPIDController mRotController = new ProfiledPIDController(4, 0, 0,
             new TrapezoidProfile.Constraints(6.28, 3.14));
 
+    private PIDController mXGoToController = new PIDController(1, 0, 0);
+    private PIDController mYGoToController = new PIDController(1, 0, 0);
+    private ProfiledPIDController mRotGoToController = new ProfiledPIDController(4, 0, 0,
+            new TrapezoidProfile.Constraints(6.28, 3.14));
+
     private HolonomicDriveController mTrajectoryController = new HolonomicDriveController(mXController, mYController,
             mRotController);
 
@@ -95,6 +100,11 @@ public class DriveSystem extends Subsystem {
 
     private Field2d mField = new Field2d();
 
+    private EVector mNotePosition = new EVector(-1,-1);
+    private boolean mSeesNote = false;
+    private Timer mSeekNoteTrajectoryTimer = new Timer();
+    
+
 
     public DriveSystem() {
         super("Drive System", DriveSystemState.DRIVE_MANUAL);
@@ -110,6 +120,7 @@ public class DriveSystem extends Subsystem {
                         (int) ShuffleboardStyle.ROBOT_POSITION_FIELD.position.y)
                 .withSize((int) ShuffleboardStyle.ROBOT_POSITION_FIELD.size.x,
                         (int) ShuffleboardStyle.ROBOT_POSITION_FIELD.size.y);
+        mRotGoToController.enableContinuousInput(0, Math.PI * 2);
     }
 
     public enum DriveSystemState implements Subsystem.SubsystemState {
@@ -133,7 +144,7 @@ public class DriveSystem extends Subsystem {
                 break;
             case DRIVE_MANUAL:
                 if (super.currentMode == OperatingMode.AUTONOMOUS) {
-                    driveRaw(0, 0, 0);
+                    // driveRaw(0, 0, 0);
                 }
                 break;
             case SYSID:
@@ -176,7 +187,6 @@ public class DriveSystem extends Subsystem {
     @Override
     public void genericPeriodic() {
         updateOdometry();
-
         mRobotXEntry.setDouble(getRobotPose().getX());
         mRobotYEntry.setDouble(getRobotPose().getY());
         mRobotXSpeedEntry.setDouble(Math.abs(getChassisSpeeds().vxMetersPerSecond));
@@ -197,6 +207,7 @@ public class DriveSystem extends Subsystem {
         mBackRight.init();
 
 
+
         switch (currentMode) {
             case AUTONOMOUS:
                 mNavX.reset();
@@ -209,6 +220,8 @@ public class DriveSystem extends Subsystem {
                 mHasNavXOffsetBeenSet = false;
                 mIsFieldOriented = true;
                 mIsManual = true;
+
+                setDesiredState(DriveSystemState.DRIVE_MANUAL);
                 break;
             case DISABLED:
                 break;
@@ -230,7 +243,7 @@ public class DriveSystem extends Subsystem {
 
         visionEstimateVector.z = currentPose.z;
 
-        if (Math.abs(currentPose.dist(visionEstimateVector)) >= 1) {
+        if (Math.abs(currentPose.dist(visionEstimateVector)) >= 2 || visionEstimate.getX() == -99.9) {
             return;
         }
 
@@ -286,9 +299,9 @@ public class DriveSystem extends Subsystem {
             return;
         }
 
-        double xDutyCycle = mXController.calculate(robotPose.x, target.x);
-        double yDutyCycle = mYController.calculate(robotPose.y, target.y);
-        double rotDutyCycle = mRotController.calculate(robotPose.z, target.z);
+        double xDutyCycle = mXGoToController.calculate(robotPose.x, target.x);
+        double yDutyCycle = mYGoToController.calculate(robotPose.y, target.y);
+        double rotDutyCycle = mRotGoToController.calculate(getRobotAngle().getRadians(), target.z);
 
         driveRaw(xDutyCycle, yDutyCycle, rotDutyCycle);
     }
@@ -322,6 +335,10 @@ public class DriveSystem extends Subsystem {
         mDesiredPosition = position;
         mDesiredTrajectory = null;
         mIsManual = false;
+
+        mXGoToController.reset();
+        mYGoToController.reset();
+        mRotGoToController.reset(getRobotAngle().getRadians());
     }
 
     public void driveWithChassisSpeds(ChassisSpeeds speeds) {
@@ -341,7 +358,8 @@ public class DriveSystem extends Subsystem {
         final double TOLERANCE = 0.2;
         EVector currentPose = EVector.fromPose(getRobotPose());
         EVector otherPose = EVector.fromPose(other);
-        return currentPose.dist(otherPose) <= TOLERANCE;
+        double dist = currentPose.dist(otherPose); 
+        return dist <= TOLERANCE;
     }
 
     public void driveRaw(double xSpeed, double ySpeed, double rot) {
@@ -374,7 +392,7 @@ public class DriveSystem extends Subsystem {
     }
 
     public Pose2d getRobotPose() {
-        return mPoseEstimator.getEstimatedPosition();
+        return new Pose2d(mPoseEstimator.getEstimatedPosition().getTranslation(), getRobotAngle());
     }
 
     public ChassisSpeeds getChassisSpeeds() {
@@ -391,10 +409,7 @@ public class DriveSystem extends Subsystem {
         return false;
     }
 
-    private void updateOdometry() {
-        // mOdometry.update(getRobotAngle(), getModulePositions());
-        mPoseEstimator.update(getRobotAngle(), getModulePositions());
-    }
+
 
     public void printModules() {
         // ((NEOL1SwerveModule) mFrontLeft).printModuleState();
@@ -402,6 +417,23 @@ public class DriveSystem extends Subsystem {
         // ((NEOL1SwerveModule) mBackLeft).printModuleState();
         // ((NEOL1SwerveModule) mBackRight).printModuleState();
     }
+
+    public void updateNotePosition(boolean seesNote, double dist) {
+        if(seesNote) {
+            mNotePosition = EVector.newVector(
+                Math.cos(getRobotAngle().getRadians()) * dist,
+                Math.sin(getRobotAngle().getRadians()) * dist,
+                getRobotAngle().getRadians()
+            );
+            mSeesNote = true;
+        }
+    }
+
+    private void updateOdometry() {
+        // mOdometry.update(getRobotAngle(), getModulePositions());
+        mPoseEstimator.update(getRobotAngle(), getModulePositions());
+    }
+
 
     private SwerveModulePosition[] getModulePositions() {
         return new SwerveModulePosition[] {
@@ -420,5 +452,22 @@ public class DriveSystem extends Subsystem {
                 mFrontLeft.getCurrentState()
         };
     }
+
+    public void followTrajectory(double time) {
+        if (mIsManual && mDesiredTrajectory == null) {
+            return;
+        }
+
+        var pathplannerState = mDesiredTrajectory.sample(time);
+
+        ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(
+                getRobotPose(),
+                new Pose2d(pathplannerState.positionMeters, pathplannerState.heading),
+                pathplannerState.velocityMps,
+                pathplannerState.getTargetHolonomicPose().getRotation());
+        driveWithChassisSpeds(desiredChassisSpeeds);
+    }
+
+
 
 }

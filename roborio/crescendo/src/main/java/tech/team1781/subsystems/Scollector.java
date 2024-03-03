@@ -70,15 +70,19 @@ public class Scollector extends Subsystem {
         mBottomPID = mBottomShooterMotor.getPIDController();
         mTopPID.setFeedbackDevice(mTopShooterMotor.getEncoder());
         mBottomPID.setFeedbackDevice(mBottomShooterMotor.getEncoder());
-        mTopPID.setP(0.5);
-        mTopPID.setI(0);
-        mTopPID.setD(0.01);
-        mTopPID.setFF(1.0 / 9.8);
 
-        mBottomPID.setP(0.5);
-        mBottomPID.setI(0);
-        mBottomPID.setD(0.01);
-        mBottomPID.setFF(1.0 / 9.8);
+        final EVector SHOOTER_PID = EVector.newVector(0.5,0,0.1);
+        final double SHOOTER_FF = 1/9.8;
+
+        mTopPID.setP(SHOOTER_PID.x);
+        mTopPID.setI(SHOOTER_PID.y);
+        mTopPID.setD(SHOOTER_PID.z);
+        mTopPID.setFF(SHOOTER_FF);
+
+        mBottomPID.setP(SHOOTER_PID.x);
+        mBottomPID.setI(SHOOTER_PID.y);
+        mBottomPID.setD(SHOOTER_PID.z);
+        mBottomPID.setFF(SHOOTER_FF);
         mBottomShooterMotor.burnFlash();
         mTopShooterMotor.burnFlash();
         mCollectorMotor.burnFlash();
@@ -103,7 +107,7 @@ public class Scollector extends Subsystem {
         mArmInPosition = false;
         mShooterTimer.reset();
         mShooterTimer.stop();
-    }
+    }   
 
     @Override
     public void getToState() {
@@ -199,7 +203,7 @@ public class Scollector extends Subsystem {
         double rightDiff = Math.abs(rightSpeed - ConfigMap.MAX_SHOOTER_SPEED);
         final double TOLERANCE = 0.1;
 
-        return leftDiff <= TOLERANCE && rightDiff <= TOLERANCE;
+        return leftSpeed >= ConfigMap.MAX_SHOOTER_SPEED && rightSpeed >= ConfigMap.MAX_SHOOTER_SPEED;
         
     }
 

@@ -1,8 +1,6 @@
 
 package tech.team1781;
 
-import javax.print.DocFlavor.STRING;
-
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -21,6 +19,8 @@ public class ConfigMap {
         public static final EVector BLUE_PODIUM = EVector.newVector(3,4.7);
         public static final EVector RED_PODIUM = EVector.newVector(13.6,3.6);
 
+        public static final int RED_SPEAKER_APRILTAG = 4;
+        public static final int BLUE_SPEAKER_APRILTAG = 7;
 
         public static final double MAX_SHOOTER_SPEED = 7;
         public static final double MIN_SHOOTER_SPEED = 6;
@@ -99,8 +99,8 @@ public class ConfigMap {
         // First Drivebase
 
         //Limelight
-        public static final String FRONT_LIMELIGHT_NAME = "limelight-front";
-        public static final String BACK_LIMELIGHT_NAME = "limelight";
+        public static final String APRILTAG_LIMELIGHT = "limelight-back";
+        public static final String NOTE_LIMELIGHT = "limelight-front";
 
         // Controls
         public static final int DRIVER_CONTROLLER_PORT = 0;
@@ -126,6 +126,7 @@ public class ConfigMap {
         public static final String ANGLE_DOWN = "W";
         public static final String SCORE_AMP = "Y";
         public static final String SCORE_PODIUM = "A";
+        public static final String SKIP = "B";
         // public static final String CLIMBER_EXTEND = "N";
         // public static final String CLIMB_RETRACT = "S";
 }
