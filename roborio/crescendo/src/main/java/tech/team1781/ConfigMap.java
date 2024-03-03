@@ -127,6 +127,7 @@ public class ConfigMap {
         public static final String SCORE_AMP = "Y";
         public static final String SCORE_PODIUM = "A";
         public static final String SKIP = "B";
+        public static final String TOGGLE_TRAP = "LT";
         // public static final String CLIMBER_EXTEND = "N";
         // public static final String CLIMB_RETRACT = "S";
 }
