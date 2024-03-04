@@ -74,7 +74,7 @@ public class Arm extends Subsystem {
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
         mLeftMotor.setSmartCurrentLimit(30);
-        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 90);
+        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 64);
         mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, 0);
         mLeftMotor.burnFlash();
         mPositions.put(ArmState.SAFE, 63.0);
@@ -136,7 +136,8 @@ public class Arm extends Subsystem {
 
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), mDesiredPosition);
         mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
-        mLeftMotor.set(armDutyCycle);
+        //mLeftMotor.set(armDutyCycle);
+        mLeftMotor.set(0.0);
     }
 
     @Override
