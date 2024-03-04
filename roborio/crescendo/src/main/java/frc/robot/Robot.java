@@ -56,7 +56,6 @@ public class Robot extends TimedRobot {
     
     mControlSystem = new ControlSystem();
     mAutonomousHandler = new AutonomousHandler(mControlSystem, 
-      new FourNoteRoutine(),
       new DriverCustomAuto(),
       new ExampleRoutine());
     mDriverInput = new DriverInput();
