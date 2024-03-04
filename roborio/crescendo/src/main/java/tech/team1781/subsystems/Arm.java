@@ -57,12 +57,16 @@ public class Arm extends Subsystem {
         mRightMotor.follow(mLeftMotor, true);
         mLeftMotor.setIdleMode(IdleMode.kBrake);
         mRightMotor.setIdleMode(IdleMode.kBrake);
-        // System.out.println("initialized arm moters for following...");
-        // System.out.println("ENSURE ARM IN ZERO POSITION!!!!! Just set encoder to zero");
         // mLeftEncoder.setPosition(0);
-        final double KICKSTAND_POSITION = 68.8;
+        final double KICKSTAND_POSITION = 58.0;
         KICKSTAND_OFF_POSITION = KICKSTAND_POSITION + 2;
         mLeftEncoder.setPosition(KICKSTAND_POSITION);
+        System.out.println("+-------------------------------------------------+");
+        System.out.println("|   ARM SET TO KICKSTAND ENCODER POSITION         |");
+        System.out.println("|                                                 |");
+        System.out.println("|         insure that kick stand is on            |");
+        System.out.println("|                                                 |");
+        System.out.println("+-------------------------------------------------+");
         this.currentState = ArmState.KICKSTAND;
         mKickstandOff = false;
 
@@ -73,7 +77,6 @@ public class Arm extends Subsystem {
         mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 90);
         mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, 0);
         mLeftMotor.burnFlash();
-        mPositions.put(ArmState.START, 0.0); // Temporary, used to be 71.9
         mPositions.put(ArmState.SAFE, 63.0);
         mPositions.put(ArmState.PODIUM, CURRENT_AIM_SPOT.PODIUM.getPosition());
         mPositions.put(ArmState.SUBWOOFER, 40.0);
@@ -85,7 +88,6 @@ public class Arm extends Subsystem {
 
     public enum ArmState implements Subsystem.SubsystemState {
         KICKSTAND,
-        START,
         SAFE,
         PODIUM,
         SUBWOOFER,
@@ -102,14 +104,14 @@ public class Arm extends Subsystem {
         // System.out.println(getAngle());
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
 
-        if(mLeftMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed()) {
+        if(mLeftMotor.getReverseLimitSwitch(Type.kNormallyOpen).isPressed()) {
             mLeftEncoder.setPosition(0);
         }
     }
 
     @Override
     public void init() {
-
+        setDesiredState(ArmState.SAFE);
         mDesiredPosition = mLeftEncoder.getPosition();
         if (currentMode == OperatingMode.DISABLED) {
         }
@@ -140,8 +142,6 @@ public class Arm extends Subsystem {
     @Override
     public boolean matchesDesiredState() {
         switch ((ArmState) getState()) {
-            case START:
-                return true;
             default:
                 return matchesPosition();
         }
