@@ -260,7 +260,7 @@ public class ControlSystem {
     }
 
     public void calibratePosition() {
-        mDriveSystem.setOdometry(Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT));
+        mDriveSystem.setOdometry(new Pose2d(Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT).getTranslation(), mDriveSystem.getRobotAngle()));
     }
 
     public void setPrepareToShoot(boolean pushingPrepare) {
