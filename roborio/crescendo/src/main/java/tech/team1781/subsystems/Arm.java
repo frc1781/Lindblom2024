@@ -22,11 +22,10 @@ import tech.team1781.utils.EVector;
 import com.revrobotics.SparkLimitSwitch;
 
 public class Arm extends Subsystem {
-    private final double KICKSTAND_OFF_POSITION;
-
     private CANSparkMax mRightMotor;
     private CANSparkMax mLeftMotor;
-    private RelativeEncoder mLeftEncoder;
+    
+    private RelativeEncoder mLeftEncoder; 
     private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.05, 0, 0,
             new TrapezoidProfile.Constraints(80, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
@@ -38,10 +37,9 @@ public class Arm extends Subsystem {
     private double mSpeakerDistance = 0;
     private Pose2d mRobotPose;
     private CURRENT_AIM_SPOT mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
-    private boolean mKickstandOff = false;
-
+    private double KICKSTAND_POSITION = 62.0;
     public Arm() {
-        super("Arm", ArmState.KICKSTAND);
+        super("Arm", ArmState.SAFE);
         mRightMotor = new CANSparkMax(
                 ConfigMap.ARM_PIVOT_RIGHT_MOTOR,
                 CANSparkMax.MotorType.kBrushless);
@@ -49,7 +47,8 @@ public class Arm extends Subsystem {
         mLeftMotor = new CANSparkMax(
                 ConfigMap.ARM_PIVOT_LEFT_MOTOR,
                 CANSparkMax.MotorType.kBrushless);
-
+        mLeftMotor.setSmartCurrentLimit(40);
+        mRightMotor.setSmartCurrentLimit(40);
         mLeftEncoder = mLeftMotor.getEncoder();
         mLeftEncoder.setVelocityConversionFactor((ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2) / 60);
         mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2); // will tell us angle in
@@ -57,26 +56,24 @@ public class Arm extends Subsystem {
         mRightMotor.follow(mLeftMotor, true);
         mLeftMotor.setIdleMode(IdleMode.kBrake);
         mRightMotor.setIdleMode(IdleMode.kBrake);
-        final double KICKSTAND_POSITION = 58.0;
-        KICKSTAND_OFF_POSITION = KICKSTAND_POSITION + 2;
+        mLeftMotor.burnFlash();
+        mRightMotor.burnFlash();
         mLeftEncoder.setPosition(KICKSTAND_POSITION);
+        mPositionPID.reset(KICKSTAND_POSITION);
         System.out.println("+-------------------------------------------------+");
         System.out.println("|   ARM SET TO KICKSTAND ENCODER POSITION         |");
         System.out.println("|                                                 |");
         System.out.println("|         insure that kick stand is on            |");
         System.out.println("|                                                 |");
         System.out.println("+-------------------------------------------------+");
-        this.currentState = ArmState.KICKSTAND;
-        mKickstandOff = false;
-
 
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
         mLeftMotor.setSmartCurrentLimit(30);
-        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 64);
+        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 72);
         mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, 0);
         mLeftMotor.burnFlash();
-        mPositions.put(ArmState.SAFE, 63.0);
+        mPositions.put(ArmState.SAFE, 68.0);
         mPositions.put(ArmState.PODIUM, CURRENT_AIM_SPOT.PODIUM.getPosition());
         mPositions.put(ArmState.SUBWOOFER, 40.0);
         mPositions.put(ArmState.AMP, 43.0);
@@ -86,7 +83,6 @@ public class Arm extends Subsystem {
     }
 
     public enum ArmState implements Subsystem.SubsystemState {
-        KICKSTAND,
         SAFE,
         PODIUM,
         SUBWOOFER,
@@ -100,11 +96,12 @@ public class Arm extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-        // System.out.println(getAngle());
+        System.out.printf("state %s arm encoder: %.2f desiredSetPoint: %.2f\n", getState(), getAngle(), mDesiredPosition);
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
 
         if(mLeftMotor.getReverseLimitSwitch(Type.kNormallyOpen).isPressed()) {
-            mLeftEncoder.setPosition(0);
+            System.out.println("Hit reverse limit on arm resetting encoder to 0");
+            //mLeftEncoder.setPosition(0);
         }
     }
 
@@ -119,15 +116,11 @@ public class Arm extends Subsystem {
     @Override
     public void getToState() {
         switch((ArmState) getState()) {
-            case KICKSTAND:
-                mDesiredPosition = KICKSTAND_OFF_POSITION + 0.5;
-                if(mLeftEncoder.getPosition() >= KICKSTAND_OFF_POSITION) {
-                    mKickstandOff = true;
-                    setDesiredState(ArmState.SAFE);
-                }
             case AUTO_ANGLE:
                 mDesiredPosition = calculateAngleFromDistance();
                 break;
+            case MANUAL:
+            break;
             default:
                 mDesiredPosition = mPositions.get(getState());
                 break;
@@ -135,8 +128,8 @@ public class Arm extends Subsystem {
 
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), mDesiredPosition);
         mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
-        //mLeftMotor.set(armDutyCycle);
-        mLeftMotor.set(0.0);
+        System.out.printf("%.2f %.2f %.2f \n", mLeftEncoder.getPosition(), mDesiredPosition, armDutyCycle);
+        mLeftMotor.set(armDutyCycle);
     }
 
     @Override
@@ -160,11 +153,6 @@ public class Arm extends Subsystem {
 
     @Override
     public void setDesiredState(SubsystemState state) {
-        if(!mKickstandOff && getState() == ArmState.KICKSTAND) {
-
-            return;
-        }
-
         super.setDesiredState(state);
 
         if (state != ArmState.MANUAL && state != ArmState.AUTO_ANGLE) {
@@ -196,7 +184,7 @@ public class Arm extends Subsystem {
     }
 
     private double calculateAngleFromDistance() {
-
+        System.out.println("I didn't type sysout and VIncent is annoyed");
         if(mCurrentAimSpot != CURRENT_AIM_SPOT.UNDEFEINED) {
             return mCurrentAimSpot.getPosition();
         }
