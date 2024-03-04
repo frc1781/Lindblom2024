@@ -60,17 +60,15 @@ public class Arm extends Subsystem {
         mRightMotor.burnFlash();
         mLeftEncoder.setPosition(KICKSTAND_POSITION);
         mPositionPID.reset(KICKSTAND_POSITION);
-        System.out.println("+-------------------------------------------------+");
-        System.out.println("|   ARM SET TO KICKSTAND ENCODER POSITION         |");
-        System.out.println("|                                                 |");
-        System.out.println("|         insure that kick stand is on            |");
-        System.out.println("|                                                 |");
-        System.out.println("+-------------------------------------------------+");
+        System.out.println("-------------------------------------------------");
+        System.out.println("   ARM SET TO KICKSTAND ENCODER POSITION         ");
+        System.out.println("         insure that kick stand is on            ");
+        System.out.println("-------------------------------------------------");
 
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
         mLeftMotor.setSmartCurrentLimit(30);
-        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 66);
+        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 68);
         mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, 0);
         mLeftMotor.burnFlash();
         mPositions.put(ArmState.SAFE, 64.0);
@@ -96,12 +94,12 @@ public class Arm extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-        System.out.printf("state %s arm encoder: %.2f desiredSetPoint: %.2f\n", getState(), getAngle(), mDesiredPosition);
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
-
-        if(mLeftMotor.getReverseLimitSwitch(Type.kNormallyOpen).isPressed() && mLeftEncoder.getPosition() < 6.0) {
-            System.out.println("Hit reverse limit on arm resetting encoder to 0");
-            //mLeftEncoder.setPosition(0);
+        if (mLeftEncoder.getPosition() == 0.0)  {
+            System.out.println("======================SparkMax reporting encoder position 0.0");
+            if (mLeftMotor.getReverseLimitSwitch(Type.kNormallyOpen).isPressed()) {
+                System.out.println("Reverse limit switch is hit");
+            } 
         }
     }
 
@@ -128,7 +126,6 @@ public class Arm extends Subsystem {
 
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), mDesiredPosition);
         mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
-        System.out.printf("%.2f %.2f %.2f \n", mLeftEncoder.getPosition(), mDesiredPosition, armDutyCycle);
         mLeftMotor.set(armDutyCycle);
     }
 
@@ -147,8 +144,6 @@ public class Arm extends Subsystem {
 
     @Override
     public void teleopPeriodic() {
-        // System.out.printf("arm left encoder %.3f\n", getAngle());
-        // mLeftMotor.set(0); //temp
     }
 
     @Override
@@ -184,7 +179,6 @@ public class Arm extends Subsystem {
     }
 
     private double calculateAngleFromDistance() {
-        System.out.println("I didn't type sysout and VIncent is annoyed");
         if(mCurrentAimSpot != CURRENT_AIM_SPOT.UNDEFEINED) {
             return mCurrentAimSpot.getPosition();
         }
