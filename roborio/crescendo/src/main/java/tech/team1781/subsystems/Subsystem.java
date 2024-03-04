@@ -48,7 +48,7 @@ public abstract class Subsystem {
    }
 
    public final void restoreDefault() {
-      currentState = defaultState;
+      setDesiredState(defaultState);
    }
 
    public abstract void init();

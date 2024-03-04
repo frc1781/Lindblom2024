@@ -111,7 +111,6 @@ public class Arm extends Subsystem {
     public void init() {
 
         mDesiredPosition = mLeftEncoder.getPosition();
-        setDesiredState(ArmState.START);
         if (currentMode == OperatingMode.DISABLED) {
         }
     }
@@ -123,6 +122,7 @@ public class Arm extends Subsystem {
                 mDesiredPosition = KICKSTAND_OFF_POSITION + 0.5;
                 if(mLeftEncoder.getPosition() >= KICKSTAND_OFF_POSITION) {
                     mKickstandOff = true;
+                    setDesiredState(ArmState.SAFE);
                 }
             case AUTO_ANGLE:
                 mDesiredPosition = calculateAngleFromDistance();
@@ -160,7 +160,8 @@ public class Arm extends Subsystem {
 
     @Override
     public void setDesiredState(SubsystemState state) {
-        if(!mKickstandOff && state == ArmState.KICKSTAND) {
+        if(!mKickstandOff && getState() == ArmState.KICKSTAND) {
+
             return;
         }
 
