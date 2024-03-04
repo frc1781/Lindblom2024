@@ -57,7 +57,6 @@ public class Arm extends Subsystem {
         mRightMotor.follow(mLeftMotor, true);
         mLeftMotor.setIdleMode(IdleMode.kBrake);
         mRightMotor.setIdleMode(IdleMode.kBrake);
-        // mLeftEncoder.setPosition(0);
         final double KICKSTAND_POSITION = 58.0;
         KICKSTAND_OFF_POSITION = KICKSTAND_POSITION + 2;
         mLeftEncoder.setPosition(KICKSTAND_POSITION);
