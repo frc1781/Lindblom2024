@@ -6,8 +6,6 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.SparkLimitSwitch.Type;
 import tech.team1781.ConfigMap;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 
 public class Climber extends Subsystem {
     private HookState mRightHookState = HookState.DOWN;
@@ -18,31 +16,13 @@ public class Climber extends Subsystem {
             CANSparkMax.MotorType.kBrushless);
     private CANSparkMax mRightClimberMotor = new CANSparkMax(ConfigMap.RIGHT_CLIMBER_MOTOR,
             CANSparkMax.MotorType.kBrushless);
-    private static DoubleSolenoid mLeftHook = new DoubleSolenoid(
-            ConfigMap.FIRST_PCM_ID,
-            PneumaticsModuleType.REVPH,
-            ConfigMap.LEFT_HOOK_OPEN,
-            ConfigMap.LEFT_HOOK_CLOSE);
-    private static DoubleSolenoid mRightHook = new DoubleSolenoid(
-            ConfigMap.FIRST_PCM_ID,
-            PneumaticsModuleType.REVPH,
-            ConfigMap.RIGHT_HOOK_OPEN,
-            ConfigMap.RIGHT_HOOK_CLOSE);
-    // private static DoubleSolenoid mTrap = new DoubleSolenoid(
-    //         ConfigMap.FIRST_PCM_ID,
-    //         PneumaticsModuleType.REVPH,
-    //         ConfigMap.TRAP_IN,
-    //         ConfigMap.TRAP_OUT);
-
     private SparkLimitSwitch mLeftReverseLimitSwitch = mLeftClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
     private SparkLimitSwitch mRightReverseLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
     private SparkLimitSwitch mLeftForwardLimitSwitch = mLeftClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
     private SparkLimitSwitch mRightForwardLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
-    private PIDController mRightClimberPID = new PIDController(0.2, 0, 0);
-
+    private PIDController mRightClimberPID = new PIDController(0.1, 0, 0);
     private RelativeEncoder mLeftClimberEncoder = mLeftClimberMotor.getEncoder();
     private RelativeEncoder mRightClimberEncoder = mRightClimberMotor.getEncoder();
-
 
     public Climber() {
         super("Climber", ClimberState.IDLE);
@@ -74,10 +54,6 @@ public class Climber extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-        if(mLeftForwardLimitSwitch.isPressed() && mRightForwardLimitSwitch.isPressed() && mLeftHookState == HookState.DOWN) {
-            setHooks(HookState.UP);
-        } 
-        
         if(mLeftReverseLimitSwitch.isPressed()) {
             mLeftClimberEncoder.setPosition(0);
         }
@@ -95,13 +71,7 @@ public class Climber extends Subsystem {
 
     @Override
     public void getToState() {
-        mLeftHook.set(mLeftHookState == HookState.UP ? DoubleSolenoid.Value.kForward : DoubleSolenoid.Value.kReverse);
-        mRightHook.set(mRightHookState == HookState.UP ? DoubleSolenoid.Value.kForward : DoubleSolenoid.Value.kReverse);
-        // mTrap.set(mTrapState == TrapState.OUT ? DoubleSolenoid.Value.kReverse : DoubleSolenoid.Value.kForward);
-        double rightClimberEncoderPos = mRightClimberEncoder.getPosition();
-        double leftClimberEncoderPos = mLeftClimberEncoder.getPosition();
-        double rightClimberDc = mRightClimberPID.calculate(rightClimberEncoderPos, leftClimberEncoderPos);
-        mRightClimberMotor.set(rightClimberDc);
+   
     }
 
     @Override
@@ -143,9 +113,6 @@ public class Climber extends Subsystem {
             dutyCycle = 0;
         }
 
-        if (dutyCycle < 0)  {
-          setHooks(HookState.DOWN);
-        }
         double leftDutyCycle; 
         double rightDutyCycle; 
 
@@ -171,8 +138,6 @@ public class Climber extends Subsystem {
            );
         }
         mLeftClimberMotor.set(leftDutyCycle);
-        
-        
+        mRightClimberMotor.set(rightDutyCycle);
     }
-
 }
