@@ -37,7 +37,7 @@ public class Arm extends Subsystem {
     private double mSpeakerDistance = 0;
     private Pose2d mRobotPose;
     private CURRENT_AIM_SPOT mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
-    private double KICKSTAND_POSITION = 62.0;
+    private double KICKSTAND_POSITION = 58.0;
     public Arm() {
         super("Arm", ArmState.SAFE);
         mRightMotor = new CANSparkMax(
@@ -70,10 +70,10 @@ public class Arm extends Subsystem {
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
         mLeftMotor.setSmartCurrentLimit(30);
-        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 72);
+        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 66);
         mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, 0);
         mLeftMotor.burnFlash();
-        mPositions.put(ArmState.SAFE, 68.0);
+        mPositions.put(ArmState.SAFE, 64.0);
         mPositions.put(ArmState.PODIUM, CURRENT_AIM_SPOT.PODIUM.getPosition());
         mPositions.put(ArmState.SUBWOOFER, 40.0);
         mPositions.put(ArmState.AMP, 43.0);
@@ -99,7 +99,7 @@ public class Arm extends Subsystem {
         System.out.printf("state %s arm encoder: %.2f desiredSetPoint: %.2f\n", getState(), getAngle(), mDesiredPosition);
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
 
-        if(mLeftMotor.getReverseLimitSwitch(Type.kNormallyOpen).isPressed()) {
+        if(mLeftMotor.getReverseLimitSwitch(Type.kNormallyOpen).isPressed() && mLeftEncoder.getPosition() < 6.0) {
             System.out.println("Hit reverse limit on arm resetting encoder to 0");
             //mLeftEncoder.setPosition(0);
         }
