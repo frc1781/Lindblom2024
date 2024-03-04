@@ -94,7 +94,8 @@ public class ControlSystem {
         COLLECT_AUTO_SHOOT,
         SYSID,
         SEEK_NOTE,
-        AUTO_AIM_SHOOT
+        AUTO_AIM_SHOOT,
+        OFF_KICKSTAND
     }
 
     public ControlSystem() {
@@ -259,7 +260,7 @@ public class ControlSystem {
     }
 
     public void calibratePosition() {
-        mDriveSystem.setOdometry(Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT));
+        mDriveSystem.setOdometry(new Pose2d(Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT).getTranslation(), mDriveSystem.getRobotAngle()));
     }
 
     public void setPrepareToShoot(boolean pushingPrepare) {
@@ -672,6 +673,11 @@ public class ControlSystem {
         defineAction(Action.COLLECT_AUTO_SHOOT,
                 new SubsystemSetting(mArm, ArmState.AUTO_ANGLE),
                 new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
+        
+        defineAction(Action.OFF_KICKSTAND, 
+                new SubsystemSetting(mArm, ArmState.SAFE),
+                new SubsystemSetting(mScollector, ScollectorState.RAMP_SHOOTER)
+        );
 
     }
 
