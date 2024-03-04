@@ -111,6 +111,10 @@ public class Arm extends Subsystem {
         }
         if (mLeftMotor.getReverseLimitSwitch(Type.kNormallyOpen).isPressed()) {
             System.out.println("Reverse limit switch is hit for real");
+            if (getAngle() < 6.0) {
+                //mLeftEncoder.setPosition(0.0);
+                System.out.println("***************************reset encoder to zero*******************");
+            }
         } 
     }
 
