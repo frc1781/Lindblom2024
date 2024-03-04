@@ -201,27 +201,6 @@ public class Arm extends Subsystem {
         }
 
         return CURRENT_AIM_SPOT.SUBWOOFER.getPosition();
-
-        // final double start = 32;
-        // final double coefficient = 18.3;
-        // // double dist = LimelightHelper.getDistanceOfApriltag(4);
-        // // double dist = mSpeakerDistance - ConfigMap.DRIVETRAIN_TRACKWIDTH/2;
-        // double dist = mSpeakerDistance;
-        // dist = Math.abs(dist);
-        // double angle = 32.0;
-        // if (dist < 0.5) {// can not see april tag
-        //     angle = 32.0;
-        // } else {
-        //     angle = Math.log(dist) * coefficient + start;
-        // }
-
-        // System.out.printf("dist %.2f, angle %.2f\n", dist, angle);
-        // if (angle > 51) {
-        //     angle = 51;
-        // }
-
-        // return angle;
-        // return 32.0;
     }
 
     public void manualAdjustAngle(double d) {
@@ -235,7 +214,6 @@ public class Arm extends Subsystem {
         if (mDesiredPosition < ConfigMap.MIN_THRESHOLD_ARM) {
             mDesiredPosition = ConfigMap.MIN_THRESHOLD_ARM;
         }
-
     }
 
     public void setSpeakerDistance(double d) {
@@ -246,8 +224,6 @@ public class Arm extends Subsystem {
         return Math.abs(mLeftEncoder.getPosition() - mDesiredPosition) < 1;
     }
 
-
-    //44.4 for n3
     private enum CURRENT_AIM_SPOT {
         UNDEFEINED(0.0, EVector.newVector(), EVector.newVector(), 0.0),
         SUBWOOFER(35, ConfigMap.RED_SPEAKER_LOCATION, ConfigMap.BLUE_SPEAKER_LOCATION, 2.5),
@@ -280,5 +256,4 @@ public class Arm extends Subsystem {
             return position;
         }
     }
-
 }

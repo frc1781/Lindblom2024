@@ -26,6 +26,7 @@ public class ConfigMap {
         public static final double MIN_SHOOTER_SPEED = 6;
 
         // CAN IDs
+        public static final int FIRST_PCM_ID = 2;
 
         // 20-24 Drive train left
         public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 21;
@@ -86,11 +87,18 @@ public class ConfigMap {
         // // -0.077;
         // public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.8688;
         // //-0.272; // -0.735;
-
+          
+        //RALPH's offsets
         public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.9755;
         public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.8167;
         public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.670;
         public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.116;
+
+        //RUFUS's offset
+        // public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.039;
+        // public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.115;
+        // public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.010;
+        // public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.291;
 
         // Constants
         public static final double MIN_THRESHOLD_ARM = 0;
@@ -114,9 +122,9 @@ public class ConfigMap {
         public static final String COLLECT = "RB";
         public static final String AUTO_AIM = "A";
         public static final String COLLECT_HIGH = "B";
-// b nax x center
         // Co-pilot controls
         public static final int CO_PILOT_PORT = 1;
+        public static final String TRAP_OUT_BUTTON = "B";
 
         public static final String NOTE_COLLECTION = "X";
         public static final String SPIT = "LB";
@@ -128,6 +136,17 @@ public class ConfigMap {
         public static final String SCORE_PODIUM = "A";
         public static final String SKIP = "B";
         public static final String TOGGLE_TRAP = "LT";
-        // public static final String CLIMBER_EXTEND = "N";
-        // public static final String CLIMB_RETRACT = "S";
+
+        /*
+         * ##############################
+         * ## SOLENOID CHANNELS
+         * ##############################
+         */
+
+        public static final int LEFT_HOOK_OPEN = 3;
+        public static final int LEFT_HOOK_CLOSE = 10;
+        public static final int RIGHT_HOOK_OPEN = 5;
+        public static final int RIGHT_HOOK_CLOSE = 8;
+        public static final int TRAP_IN = 0;
+        public static final int TRAP_OUT = 9;
 }
