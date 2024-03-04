@@ -395,7 +395,7 @@ public class ControlSystem {
         if (x != 0.0) {
             mAimingAngle = mLimelightAimController.calculate(x, 0);
         } else {
-            odometryAlignment(id);
+            // odometryAlignment(id);
         }
 
     }
