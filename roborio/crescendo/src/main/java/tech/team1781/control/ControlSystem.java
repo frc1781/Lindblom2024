@@ -34,9 +34,7 @@ import tech.team1781.utils.EVector;
 import tech.team1781.DriverInput;
 import tech.team1781.ShuffleboardStyle;
 import tech.team1781.utils.Limelight;
-import tech.team1781.subsystems.Climber.TrapState;
-import tech.team1781.subsystems.Climber.HookState;
-
+// import tech.team1781.subsystems.Climber.TrapState;
 
 public class ControlSystem {
     private HashMap<Action, SubsystemSetting[]> mActions = new HashMap<Action, SubsystemSetting[]>();
@@ -206,9 +204,9 @@ public class ControlSystem {
         }
     }
 
-    public void setTrap(boolean pushingTrapButton) {
-      mClimber.setTrap(pushingTrapButton ? TrapState.OUT : TrapState.IN);    
-    }
+    // public void setTrap(boolean pushingTrapButton) {
+    //   mClimber.setTrap(pushingTrapButton ? TrapState.OUT : TrapState.IN);    
+    // }
 
     public void setSpit(boolean pushingSpit) {
         if (mSpitButton == pushingSpit) {

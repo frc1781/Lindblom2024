@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 public class Climber extends Subsystem {
     private HookState mRightHookState = HookState.DOWN;
     private HookState mLeftHookState = HookState.DOWN;
-    private TrapState mTrapState = TrapState.IN;
+    // private TrapState mTrapState = TrapState.IN;
 
     private CANSparkMax mLeftClimberMotor = new CANSparkMax(ConfigMap.LEFT_CLIMBER_MOTOR,
             CANSparkMax.MotorType.kBrushless);
@@ -28,11 +28,11 @@ public class Climber extends Subsystem {
             PneumaticsModuleType.REVPH,
             ConfigMap.RIGHT_HOOK_OPEN,
             ConfigMap.RIGHT_HOOK_CLOSE);
-    private static DoubleSolenoid mTrap = new DoubleSolenoid(
-            ConfigMap.FIRST_PCM_ID,
-            PneumaticsModuleType.REVPH,
-            ConfigMap.TRAP_IN,
-            ConfigMap.TRAP_OUT);
+    // private static DoubleSolenoid mTrap = new DoubleSolenoid(
+    //         ConfigMap.FIRST_PCM_ID,
+    //         PneumaticsModuleType.REVPH,
+    //         ConfigMap.TRAP_IN,
+    //         ConfigMap.TRAP_OUT);
 
     private SparkLimitSwitch mLeftReverseLimitSwitch = mLeftClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
     private SparkLimitSwitch mRightReverseLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
@@ -68,9 +68,9 @@ public class Climber extends Subsystem {
         UP, DOWN
     }
 
-    public enum TrapState implements Subsystem.SubsystemState {
-        IN, OUT
-    }
+    // public enum TrapState implements Subsystem.SubsystemState {
+    //     IN, OUT
+    // }
 
     @Override
     public void genericPeriodic() {
@@ -90,14 +90,14 @@ public class Climber extends Subsystem {
     @Override
     public void init() {
         mRightClimberPID.reset();
-        mTrapState = TrapState.IN;
+        // mTrapState = TrapState.IN;
     }
 
     @Override
     public void getToState() {
         mLeftHook.set(mLeftHookState == HookState.UP ? DoubleSolenoid.Value.kForward : DoubleSolenoid.Value.kReverse);
         mRightHook.set(mRightHookState == HookState.UP ? DoubleSolenoid.Value.kForward : DoubleSolenoid.Value.kReverse);
-        mTrap.set(mTrapState == TrapState.OUT ? DoubleSolenoid.Value.kReverse : DoubleSolenoid.Value.kForward);
+        // mTrap.set(mTrapState == TrapState.OUT ? DoubleSolenoid.Value.kReverse : DoubleSolenoid.Value.kForward);
         double rightClimberEncoderPos = mRightClimberEncoder.getPosition();
         double leftClimberEncoderPos = mLeftClimberEncoder.getPosition();
         double rightClimberDc = mRightClimberPID.calculate(rightClimberEncoderPos, leftClimberEncoderPos);
@@ -118,7 +118,7 @@ public class Climber extends Subsystem {
     }
 
     public void toggleTrap() {
-        setTrap(mTrapState == TrapState.IN ? TrapState.OUT : TrapState.IN);
+        // setTrap(mTrapState == TrapState.IN ? TrapState.OUT : TrapState.IN);
         System.out.println("????????????????????????????????????");
     }
 
@@ -131,12 +131,12 @@ public class Climber extends Subsystem {
         System.out.println(h == HookState.UP ? "Hooks up" : "Hooks Down");
     }
 
-    public void setTrap(TrapState t) {
-        if (mTrapState != t) {
-          mTrapState = t;
-          System.out.println("Trap set to " + mTrapState);
-        }
-    }
+    // public void setTrap(TrapState t) {
+    //     if (mTrapState != t) {
+    //       mTrapState = t;
+    //       System.out.println("Trap set to " + mTrapState);
+    //     }
+    // }
 
     public void manualClimb(double dutyCycle) {
         if (Math.abs(dutyCycle) <= 0.1) {
