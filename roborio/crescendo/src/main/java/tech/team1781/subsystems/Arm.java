@@ -37,7 +37,7 @@ public class Arm extends Subsystem {
     private double mSpeakerDistance = 0;
     private Pose2d mRobotPose;
     private CURRENT_AIM_SPOT mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
-    private double KICKSTAND_POSITION = 58.0;
+    private double KICKSTAND_POSITION = 56.0;
     public Arm() {
         super("Arm", ArmState.SAFE);
         mRightMotor = new CANSparkMax(
@@ -62,16 +62,16 @@ public class Arm extends Subsystem {
         mPositionPID.reset(KICKSTAND_POSITION);
         System.out.println("-------------------------------------------------");
         System.out.println("   ARM SET TO KICKSTAND ENCODER POSITION         ");
-        System.out.println("         insure that kick stand is on            ");
+        System.out.println("         ensure that kick stand is on            ");
         System.out.println("-------------------------------------------------");
 
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
         mLeftMotor.setSmartCurrentLimit(30);
-        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 68);
+        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 70);
         mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, 0);
         mLeftMotor.burnFlash();
-        mPositions.put(ArmState.SAFE, 64.0);
+        mPositions.put(ArmState.SAFE, 66.0);
         mPositions.put(ArmState.PODIUM, CURRENT_AIM_SPOT.PODIUM.getPosition());
         mPositions.put(ArmState.SUBWOOFER, 40.0);
         mPositions.put(ArmState.AMP, 43.0);
@@ -96,11 +96,22 @@ public class Arm extends Subsystem {
     public void genericPeriodic() {
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
         if (mLeftEncoder.getPosition() == 0.0)  {
+            System.out.println("========");
+            System.out.println("========");
+            System.out.println("========");
+            System.out.println("========");
             System.out.println("======================SparkMax reporting encoder position 0.0");
+            System.out.println("========");
+            System.out.println("========");
+            System.out.println("========");
+            System.out.println("========");
             if (mLeftMotor.getReverseLimitSwitch(Type.kNormallyOpen).isPressed()) {
                 System.out.println("Reverse limit switch is hit");
             } 
         }
+        if (mLeftMotor.getReverseLimitSwitch(Type.kNormallyOpen).isPressed()) {
+            System.out.println("Reverse limit switch is hit for real");
+        } 
     }
 
     @Override
