@@ -105,29 +105,7 @@ public class Arm extends Subsystem {
         }
 
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
-        if (mLeftEncoder.getPosition() == 0.0 || mLeftEncoder.getPosition() == -0.0)  {
-            System.out.println("========");
-            System.out.println("========");
-            System.out.println("========");
-            System.out.println("========");
-            System.out.println("======================SparkMax reporting encoder position 0.0");
-            System.out.println("========");
-            System.out.println("========");
-            System.out.println("========");
-            System.out.println("========");
-            if (mLeftMotor.getReverseLimitSwitch(Type.kNormallyOpen).isPressed()) {
-                System.out.println("Reverse limit switch is hit");
-            } 
-        }
-        else if (mLeftMotor.getReverseLimitSwitch(Type.kNormallyOpen).isPressed()) {
-            //System.out.println("Reverse limit switch is hit for real");
-            if (getAngle() < 6.0 && !mResetPosition) {
-                mLeftEncoder.setPosition(0.0);
-                System.out.println("***************************reset encoder to zero*******************");
-                mResetPosition = true;
-            }
-        } 
-        else if (mLeftMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed()) {
+        if (mLeftEncoder.getPosition() > 10.0 && mLeftMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed()) {
             mLeftEncoder.setPosition(FORWARD_LIMIT_POSITION); 
             System.out.println("***************************reset after hitting forward limit*******************");
         }
@@ -246,7 +224,7 @@ public class Arm extends Subsystem {
     private enum CURRENT_AIM_SPOT {
         UNDEFEINED(0.0, EVector.newVector(), EVector.newVector(), 0.0),
         SUBWOOFER(31, ConfigMap.RED_SPEAKER_LOCATION, ConfigMap.BLUE_SPEAKER_LOCATION, 2.5),
-        PODIUM(39, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1),
+        PODIUM(41, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1),
         NOTE_3(40.4, EVector.newVector(14.5, 4.27) ,EVector.newVector(2.48, 4.27), 0.5),
         NOTE_2(40, EVector.newVector(14.13, 5.53) ,EVector.newVector(2.48, 5.53), 0.5),
         NOTE_1(44, EVector.newVector(14.06, 6.74),EVector.newVector(2.48, 6.74), 0.5);
