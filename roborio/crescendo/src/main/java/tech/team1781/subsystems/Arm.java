@@ -32,7 +32,7 @@ public class Arm extends Subsystem {
     private GenericEntry mArmPositionEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Angle", -1,
             ShuffleboardStyle.ARM_ANGLE);
     private GenericEntry mArmAimSpotEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Aim Spot", "N/A", ShuffleboardStyle.ARM_AIM_SPOT);
-
+    private boolean mResetPosition = false;
     private double mDesiredPosition = 0;
     private double mSpeakerDistance = 0;
     private Pose2d mRobotPose;
@@ -111,9 +111,10 @@ public class Arm extends Subsystem {
         }
         if (mLeftMotor.getReverseLimitSwitch(Type.kNormallyOpen).isPressed()) {
             System.out.println("Reverse limit switch is hit for real");
-            if (getAngle() < 6.0) {
-                //mLeftEncoder.setPosition(0.0);
+            if (getAngle() < 6.0 && !mResetPosition) {
+                mLeftEncoder.setPosition(0.0);
                 System.out.println("***************************reset encoder to zero*******************");
+                mResetPosition = true;
             }
         } 
     }
