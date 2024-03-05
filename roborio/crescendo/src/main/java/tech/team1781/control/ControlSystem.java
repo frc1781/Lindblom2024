@@ -34,6 +34,7 @@ import tech.team1781.utils.EVector;
 import tech.team1781.DriverInput;
 import tech.team1781.ShuffleboardStyle;
 import tech.team1781.utils.Limelight;
+// import tech.team1781.subsystems.Climber.TrapState;
 
 public class ControlSystem {
     private HashMap<Action, SubsystemSetting[]> mActions = new HashMap<Action, SubsystemSetting[]>();
@@ -93,7 +94,8 @@ public class ControlSystem {
         COLLECT_AUTO_SHOOT,
         SYSID,
         SEEK_NOTE,
-        AUTO_AIM_SHOOT
+        AUTO_AIM_SHOOT,
+        OFF_KICKSTAND
     }
 
     public ControlSystem() {
@@ -174,6 +176,10 @@ public class ControlSystem {
         }
     }
 
+    public void toggleTrap() {
+        mClimber.toggleTrap();
+    }
+
     public void setCollecting(boolean pushingCollect) {
         if (mCollectingButton == pushingCollect) {
             return; // no change in state
@@ -198,6 +204,10 @@ public class ControlSystem {
             }
         }
     }
+
+    // public void setTrap(boolean pushingTrapButton) {
+    //   mClimber.setTrap(pushingTrapButton ? TrapState.OUT : TrapState.IN);    
+    // }
 
     public void setSpit(boolean pushingSpit) {
         if (mSpitButton == pushingSpit) {
@@ -250,7 +260,7 @@ public class ControlSystem {
     }
 
     public void calibratePosition() {
-        mDriveSystem.setOdometry(Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT));
+        mDriveSystem.setOdometry(new Pose2d(Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT).getTranslation(), mDriveSystem.getRobotAngle()));
     }
 
     public void setPrepareToShoot(boolean pushingPrepare) {
@@ -385,7 +395,8 @@ public class ControlSystem {
         if (x != 0.0) {
             mAimingAngle = mLimelightAimController.calculate(x, 0);
         } else {
-            odometryAlignment(id);
+            // odometryAlignment(id);
+            mAimingAngle = 0.0;
         }
 
     }
@@ -449,6 +460,8 @@ public class ControlSystem {
         double x = Limelight.getTX(ConfigMap.NOTE_LIMELIGHT);
         if (x != 0.0) {
             mAimingAngle = mNoteAimController.calculate(x, 0);
+        } else {
+            mAimingAngle = 0.0;
         }
     }
 
@@ -565,6 +578,9 @@ public class ControlSystem {
                         && mDriveSystem.getState() == DriveSystem.DriveSystemState.DRIVE_MANUAL) {
                     centerOnAprilTag(isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG);
                     mDriveSystem.driveRaw(0, 0, mAimingAngle);
+                } else if(mDriveSystem.getState() == DriveSystemState.DRIVE_MANUAL && mCurrentAction != Action.SEEK_NOTE) {
+                    mDriveSystem.driveRaw(0, 0, 0);
+                    mAimingAngle = 0.0;
                 }
 
                 break;
@@ -611,9 +627,9 @@ public class ControlSystem {
         boolean driveSystemSlowEnough = chassisSpeedsVector.magnitude() <= speedTolerance;
         Pose2d limelightPoseTemp = Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT);
         Pose2d limelightPose = new Pose2d(limelightPoseTemp.getTranslation(), mDriveSystem.getRobotAngle());
-        if (driveSystemSlowEnough && limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0) {
+        if (driveSystemSlowEnough && limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0 && Limelight.getNumberOfApriltags(ConfigMap.APRILTAG_LIMELIGHT) > 1) {
             double dist = EVector.fromPose(limelightPose).dist(EVector.fromPose(mDriveSystem.getRobotPose()));
-            if (dist > 2) {
+            if (dist > 0.5) {
                 mDriveSystem.setOdometry(limelightPose);
             }
         } else if (limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0) {
@@ -663,6 +679,11 @@ public class ControlSystem {
         defineAction(Action.COLLECT_AUTO_SHOOT,
                 new SubsystemSetting(mArm, ArmState.AUTO_ANGLE),
                 new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
+        
+        defineAction(Action.OFF_KICKSTAND, 
+                new SubsystemSetting(mArm, ArmState.KICKSTAND),
+                new SubsystemSetting(mScollector, ScollectorState.RAMP_SHOOTER)
+        );
 
     }
 
@@ -750,8 +771,8 @@ public class ControlSystem {
 }
 
 class SubsystemSetting {
-    private Subsystem mSubsystem;
-    private SubsystemState mState;
+    public Subsystem mSubsystem;
+    public SubsystemState mState;
 
     public SubsystemSetting(Subsystem subsystem, SubsystemState state) {
         mSubsystem = subsystem;

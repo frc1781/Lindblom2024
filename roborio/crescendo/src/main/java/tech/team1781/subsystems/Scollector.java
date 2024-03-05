@@ -164,9 +164,11 @@ public class Scollector extends Subsystem {
             case SHOOT:
                 return !hasNote();
             case COLLECT_RAMP:
-                return hasNote();
+                return true;
             case COLLECT_AUTO_SHOOT:
-                return false;
+                return !hasNote() && !noteCloseToShooter();
+            case RAMP_SHOOTER:
+                return true;
             default:
                 return false;
         }

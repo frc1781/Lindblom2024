@@ -2,6 +2,8 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/Autonomous/SendableChooser[0]": "String Chooser",
+      "/Shuffleboard/Electric Eagles/Field": "Field2d",
       "/Shuffleboard/Electric Eagles/SendableChooser[0]": "String Chooser"
     }
   },

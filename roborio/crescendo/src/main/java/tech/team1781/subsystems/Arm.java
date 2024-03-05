@@ -24,21 +24,23 @@ import com.revrobotics.SparkLimitSwitch;
 public class Arm extends Subsystem {
     private CANSparkMax mRightMotor;
     private CANSparkMax mLeftMotor;
-    private RelativeEncoder mLeftEncoder;
+    
+    private RelativeEncoder mLeftEncoder; 
     private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.05, 0, 0,
             new TrapezoidProfile.Constraints(80, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
     private GenericEntry mArmPositionEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Angle", -1,
             ShuffleboardStyle.ARM_ANGLE);
     private GenericEntry mArmAimSpotEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Aim Spot", "N/A", ShuffleboardStyle.ARM_AIM_SPOT);
-
+    private boolean mResetPosition = false;
     private double mDesiredPosition = 0;
     private double mSpeakerDistance = 0;
     private Pose2d mRobotPose;
     private CURRENT_AIM_SPOT mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
-
+    private double KICKSTAND_POSITION = 62.0;
+    private double FORWARD_LIMIT_POSITION = 69.0;
     public Arm() {
-        super("Arm", ArmState.START);
+        super("Arm", ArmState.SAFE);
         mRightMotor = new CANSparkMax(
                 ConfigMap.ARM_PIVOT_RIGHT_MOTOR,
                 CANSparkMax.MotorType.kBrushless);
@@ -46,7 +48,8 @@ public class Arm extends Subsystem {
         mLeftMotor = new CANSparkMax(
                 ConfigMap.ARM_PIVOT_LEFT_MOTOR,
                 CANSparkMax.MotorType.kBrushless);
-
+        mLeftMotor.setSmartCurrentLimit(40);
+        mRightMotor.setSmartCurrentLimit(40);
         mLeftEncoder = mLeftMotor.getEncoder();
         mLeftEncoder.setVelocityConversionFactor((ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2) / 60);
         mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2); // will tell us angle in
@@ -54,27 +57,33 @@ public class Arm extends Subsystem {
         mRightMotor.follow(mLeftMotor, true);
         mLeftMotor.setIdleMode(IdleMode.kBrake);
         mRightMotor.setIdleMode(IdleMode.kBrake);
-        System.out.println("initialized arm moters for following...");
-        System.out.println("ENSURE ARM IN ZERO POSITION!!!!! Just set encoder to zero");
-        mLeftEncoder.setPosition(0);
+        mLeftMotor.burnFlash();
+        mRightMotor.burnFlash();
+        mLeftEncoder.setPosition(KICKSTAND_POSITION);
+        mPositionPID.reset(KICKSTAND_POSITION);
+        System.out.println("-------------------------------------------------");
+        System.out.println("   ARM SET TO KICKSTAND ENCODER POSITION         ");
+        System.out.println("         ensure that kick stand is on            ");
+        System.out.println("-------------------------------------------------");
+
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
         mLeftMotor.setSmartCurrentLimit(30);
-        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 90);
+        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 70);
         mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, 0);
         mLeftMotor.burnFlash();
-        mPositions.put(ArmState.START, 0.0); // Temporary, used to be 71.9
-        mPositions.put(ArmState.SAFE, 63.0);
+        mPositions.put(ArmState.SAFE, 66.0);
         mPositions.put(ArmState.PODIUM, CURRENT_AIM_SPOT.PODIUM.getPosition());
-        mPositions.put(ArmState.SUBWOOFER, 40.0);
-        mPositions.put(ArmState.AMP, 43.0);
+        mPositions.put(ArmState.SUBWOOFER, 36.0);
+        mPositions.put(ArmState.AMP, 46.0);
         mPositions.put(ArmState.COLLECT, 0.0);
-        mPositions.put(ArmState.COLLECT_HIGH, 56.0);
-        mPositions.put(ArmState.SKIP, 59.0);
-    }
+        mPositions.put(ArmState.COLLECT_HIGH, 58.0);
+        mPositions.put(ArmState.SKIP, 55.0);
+        mPositions.put(ArmState.KICKSTAND, 69.0);
+    } //58 
 
     public enum ArmState implements Subsystem.SubsystemState {
-        START,
+        KICKSTAND,
         SAFE,
         PODIUM,
         SUBWOOFER,
@@ -88,38 +97,59 @@ public class Arm extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-        // System.out.println(getAngle());
+        if (mLeftEncoder.getPosition() < 6) {
+          mLeftMotor.setIdleMode(IdleMode.kCoast);
+          mRightMotor.setIdleMode(IdleMode.kCoast);
+        }
+        else{
+          mLeftMotor.setIdleMode(IdleMode.kBrake);
+          mRightMotor.setIdleMode(IdleMode.kBrake);
+        }
+
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
-
-
+        if (mLeftEncoder.getPosition() > 10.0 && mLeftMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed()) {
+            mLeftEncoder.setPosition(FORWARD_LIMIT_POSITION); 
+            System.out.println("***************************reset after hitting forward limit*******************");
+        }
     }
 
     @Override
     public void init() {
-
+        setDesiredState(ArmState.SAFE);
         mDesiredPosition = mLeftEncoder.getPosition();
-        setDesiredState(ArmState.START);
         if (currentMode == OperatingMode.DISABLED) {
         }
     }
 
     @Override
     public void getToState() {
-        if (getState() == ArmState.AUTO_ANGLE) {
-            mDesiredPosition = calculateAngleFromDistance();
+        switch((ArmState) getState()) {
+            case AUTO_ANGLE:
+                mDesiredPosition = calculateAngleFromDistance();
+                break;
+            case MANUAL:
+            break;
+            default:
+                mDesiredPosition = mPositions.get(getState());
+                break;
         }
 
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), mDesiredPosition);
         mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
+        if (getState() == ArmState.COLLECT && getAngle() < 4.0) {
+          armDutyCycle = 0.0;
+          mLeftEncoder.setPosition(0.0);
+        } 
         mLeftMotor.set(armDutyCycle);
     }
 
     @Override
     public boolean matchesDesiredState() {
         switch ((ArmState) getState()) {
-            case START:
-                return true;
+            case COLLECT:
+                return mLeftEncoder.getPosition() <= 0.0;
             default:
+                //System.out.println(matchesPosition());
                 return matchesPosition();
         }
     }
@@ -131,8 +161,6 @@ public class Arm extends Subsystem {
 
     @Override
     public void teleopPeriodic() {
-        // System.out.printf("arm left encoder %.3f\n", getAngle());
-        // mLeftMotor.set(0); //temp
     }
 
     @Override
@@ -168,33 +196,11 @@ public class Arm extends Subsystem {
     }
 
     private double calculateAngleFromDistance() {
-
         if(mCurrentAimSpot != CURRENT_AIM_SPOT.UNDEFEINED) {
             return mCurrentAimSpot.getPosition();
         }
 
         return CURRENT_AIM_SPOT.SUBWOOFER.getPosition();
-
-        // final double start = 32;
-        // final double coefficient = 18.3;
-        // // double dist = LimelightHelper.getDistanceOfApriltag(4);
-        // // double dist = mSpeakerDistance - ConfigMap.DRIVETRAIN_TRACKWIDTH/2;
-        // double dist = mSpeakerDistance;
-        // dist = Math.abs(dist);
-        // double angle = 32.0;
-        // if (dist < 0.5) {// can not see april tag
-        //     angle = 32.0;
-        // } else {
-        //     angle = Math.log(dist) * coefficient + start;
-        // }
-
-        // System.out.printf("dist %.2f, angle %.2f\n", dist, angle);
-        // if (angle > 51) {
-        //     angle = 51;
-        // }
-
-        // return angle;
-        // return 32.0;
     }
 
     public void manualAdjustAngle(double d) {
@@ -208,7 +214,6 @@ public class Arm extends Subsystem {
         if (mDesiredPosition < ConfigMap.MIN_THRESHOLD_ARM) {
             mDesiredPosition = ConfigMap.MIN_THRESHOLD_ARM;
         }
-
     }
 
     public void setSpeakerDistance(double d) {
@@ -216,17 +221,16 @@ public class Arm extends Subsystem {
     }
 
     private boolean matchesPosition() {
-        return Math.abs(mLeftEncoder.getPosition() - mDesiredPosition) < 1;
+        //System.out.println("diff: " + Math.abs(mLeftEncoder.getPosition() - mDesiredPosition));
+        return Math.abs(mLeftEncoder.getPosition() - mDesiredPosition) < 0.6;
     }
 
-
-    //44.4 for n3
     private enum CURRENT_AIM_SPOT {
         UNDEFEINED(0.0, EVector.newVector(), EVector.newVector(), 0.0),
-        SUBWOOFER(35, ConfigMap.RED_SPEAKER_LOCATION, ConfigMap.BLUE_SPEAKER_LOCATION, 2.5),
-        PODIUM(48, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1),
+        SUBWOOFER(31, ConfigMap.RED_SPEAKER_LOCATION, ConfigMap.BLUE_SPEAKER_LOCATION, 2.5),
+        PODIUM(45, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1),
         NOTE_3(44.4, EVector.newVector(14.5, 4.27) ,EVector.newVector(2.48, 4.27), 0.5),
-        NOTE_2(44, EVector.newVector(14.13, 5.53) ,EVector.newVector(2.48, 5.53), 0.5),
+        NOTE_2(48, EVector.newVector(14.13, 5.53) ,EVector.newVector(2.48, 5.53), 0.5),
         NOTE_1(48, EVector.newVector(14.06, 6.74),EVector.newVector(2.48, 6.74), 0.5);
 
         private double position;
@@ -253,5 +257,4 @@ public class Arm extends Subsystem {
             return position;
         }
     }
-
 }

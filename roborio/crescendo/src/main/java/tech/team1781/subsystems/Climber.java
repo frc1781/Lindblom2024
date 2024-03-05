@@ -1,14 +1,17 @@
 package tech.team1781.subsystems;
-import tech.team1781.utils.NetworkLogger;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkLimitSwitch;
+import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.SparkLimitSwitch.Type;
 import tech.team1781.ConfigMap;
 import edu.wpi.first.math.controller.PIDController;
-import com.revrobotics.SparkLimitSwitch.Type;
-import com.revrobotics.SparkLimitSwitch;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.CANSparkBase.IdleMode;
 
 public class Climber extends Subsystem {
+    private HookState mRightHookState = HookState.DOWN;
+    private HookState mLeftHookState = HookState.DOWN;
+    // private TrapState mTrapState = TrapState.IN;
+
     private CANSparkMax mLeftClimberMotor = new CANSparkMax(ConfigMap.LEFT_CLIMBER_MOTOR,
             CANSparkMax.MotorType.kBrushless);
     private CANSparkMax mRightClimberMotor = new CANSparkMax(ConfigMap.RIGHT_CLIMBER_MOTOR,
@@ -33,6 +36,8 @@ public class Climber extends Subsystem {
         mRightReverseLimitSwitch = mRightClimberMotor.getReverseLimitSwitch(Type.kNormallyOpen);
         mLeftForwardLimitSwitch = mLeftClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
         mRightForwardLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
+        mRightClimberEncoder.setPosition(0);
+        mLeftClimberEncoder.setPosition(0);
         mLeftClimberMotor.burnFlash();
         mRightClimberMotor.burnFlash();
     }
@@ -40,6 +45,14 @@ public class Climber extends Subsystem {
     public enum ClimberState implements Subsystem.SubsystemState {
         IDLE, EXTEND, RETRACT
     }
+
+    public enum HookState implements Subsystem.SubsystemState {
+        UP, DOWN
+    }
+
+    // public enum TrapState implements Subsystem.SubsystemState {
+    //     IN, OUT
+    // }
 
     @Override
     public void genericPeriodic() {
@@ -54,6 +67,8 @@ public class Climber extends Subsystem {
 
     @Override
     public void init() {
+        mRightClimberPID.reset();
+        // mTrapState = TrapState.IN;
     }
 
     @Override
@@ -73,6 +88,27 @@ public class Climber extends Subsystem {
     @Override
     public void teleopPeriodic() {
     }
+
+    public void toggleTrap() {
+        // setTrap(mTrapState == TrapState.IN ? TrapState.OUT : TrapState.IN);
+        System.out.println("????????????????????????????????????");
+    }
+
+    public void setHooks(HookState h) {
+        if (mLeftHookState == h) {
+            return; 
+        }
+        mLeftHookState = h;
+        mRightHookState = h;
+        System.out.println(h == HookState.UP ? "Hooks up" : "Hooks Down");
+    }
+
+    // public void setTrap(TrapState t) {
+    //     if (mTrapState != t) {
+    //       mTrapState = t;
+    //       System.out.println("Trap set to " + mTrapState);
+    //     }
+    // }
 
     public void manualClimb(double dutyCycle) {
         if (Math.abs(dutyCycle) <= 0.1) {
@@ -107,4 +143,3 @@ public class Climber extends Subsystem {
         mRightClimberMotor.set(rightDutyCycle);
     }
 }
-

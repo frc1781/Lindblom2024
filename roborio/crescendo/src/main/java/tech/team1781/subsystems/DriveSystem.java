@@ -169,7 +169,7 @@ public class DriveSystem extends Subsystem {
                 return matchesPosition(mDesiredTrajectory.getEndState().getTargetHolonomicPose())
                         && (currentTime >= mDesiredTrajectory.getTotalTimeSeconds());
             case DRIVE_MANUAL:
-                return false;
+                return true;
             // return mIsManual;
             default:
                 return false;

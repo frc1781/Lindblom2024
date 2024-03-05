@@ -90,6 +90,8 @@ public class AutonomousBuilder {
         LinkedList<AutoStep> autonomousSteps = new LinkedList<>();
         final double shootTime = 5;
         final double rampedShootTime = 2;
+        autonomousSteps.add(new AutoStep(100, Action.OFF_KICKSTAND));
+        autonomousSteps.add(new AutoStep(100, Action.COLLECT_RAMP));
         autonomousSteps.add(new AutoStep(shootTime, Action.COLLECT_AUTO_SHOOT));
 
         Paths.AutonomousPosition previous = positions[0];

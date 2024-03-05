@@ -4,11 +4,13 @@
 
 package frc.robot;
 
+
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.WidgetType;
 import tech.team1781.ConfigMap;
+import edu.wpi.first.wpilibj.Compressor;
 import tech.team1781.DriverInput;
 import tech.team1781.autonomous.AutonomousHandler;
 import tech.team1781.autonomous.RoutineOverException;
@@ -21,6 +23,7 @@ import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
 import tech.team1781.utils.PreferenceHandler;
 import tech.team1781.utils.PreferenceHandler.ValueHolder;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -39,6 +42,7 @@ public class Robot extends TimedRobot {
    */
 
   // control and autonomous
+  private Compressor mCompressor;
   private ControlSystem mControlSystem;
   private AutonomousHandler mAutonomousHandler;
   private DriverInput mDriverInput;
@@ -46,9 +50,12 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
+    mCompressor = new Compressor(ConfigMap.FIRST_PCM_ID,
+        PneumaticsModuleType.REVPH);
+    mCompressor.enableDigital();
+    
     mControlSystem = new ControlSystem();
     mAutonomousHandler = new AutonomousHandler(mControlSystem, 
-      new FourNoteRoutine(),
       new DriverCustomAuto(),
       new ExampleRoutine());
     mDriverInput = new DriverInput();
@@ -80,6 +87,7 @@ public class Robot extends TimedRobot {
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SHOOT, (isPressed) -> {
       mControlSystem.setShooting(isPressed);
     });
+
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.PREPARE_TO_SHOOT, (isPressed) -> {
       mControlSystem.setPrepareToShoot(isPressed);
