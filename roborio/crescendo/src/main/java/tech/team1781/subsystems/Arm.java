@@ -79,9 +79,11 @@ public class Arm extends Subsystem {
         mPositions.put(ArmState.COLLECT, 0.0);
         mPositions.put(ArmState.COLLECT_HIGH, 52.0);
         mPositions.put(ArmState.SKIP, 55.0);
+        mPositions.put(ArmState.KICKSTAND, 69.0);
     }
 
     public enum ArmState implements Subsystem.SubsystemState {
+        KICKSTAND,
         SAFE,
         PODIUM,
         SUBWOOFER,
@@ -144,6 +146,8 @@ public class Arm extends Subsystem {
     @Override
     public boolean matchesDesiredState() {
         switch ((ArmState) getState()) {
+            case COLLECT:
+                return mLeftEncoder.getPosition() <= 0.0;
             default:
                 //System.out.println(matchesPosition());
                 return matchesPosition();
