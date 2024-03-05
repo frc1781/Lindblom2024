@@ -37,7 +37,7 @@ public class Arm extends Subsystem {
     private double mSpeakerDistance = 0;
     private Pose2d mRobotPose;
     private CURRENT_AIM_SPOT mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
-    private double KICKSTAND_POSITION = 60.0;
+    private double KICKSTAND_POSITION = 62.0;
     public Arm() {
         super("Arm", ArmState.SAFE);
         mRightMotor = new CANSparkMax(
@@ -94,6 +94,15 @@ public class Arm extends Subsystem {
 
     @Override
     public void genericPeriodic() {
+        if (mLeftEncoder.getPosition() < 6) {
+          mLeftMotor.setIdleMode(IdleMode.kCoast);
+          mRightMotor.setIdleMode(IdleMode.kCoast);
+        }
+        else{
+          mLeftMotor.setIdleMode(IdleMode.kBrake);
+          mRightMotor.setIdleMode(IdleMode.kBrake);
+        }
+
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
         if (mLeftEncoder.getPosition() == 0.0 || mLeftEncoder.getPosition() == -0.0)  {
             System.out.println("========");
@@ -142,6 +151,9 @@ public class Arm extends Subsystem {
 
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), mDesiredPosition);
         mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
+        if (getState() == ArmState.COLLECT && getAngle() < 6.0) {
+          armDutyCycle = 0.0;
+        } 
         mLeftMotor.set(armDutyCycle);
     }
 
