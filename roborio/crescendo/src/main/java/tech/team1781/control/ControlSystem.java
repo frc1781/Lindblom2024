@@ -594,6 +594,7 @@ public class ControlSystem {
             boolean hasUnfinishedSubsystem = false;
             for (SubsystemSetting setting : mCurrentSettings) {
                 if (!setting.isFinished()) {
+                    System.out.println(setting.mSubsystem.getName() + " isnt finished");
                     hasUnfinishedSubsystem = true;
                 }
             }
@@ -765,8 +766,8 @@ public class ControlSystem {
 }
 
 class SubsystemSetting {
-    private Subsystem mSubsystem;
-    private SubsystemState mState;
+    public Subsystem mSubsystem;
+    public SubsystemState mState;
 
     public SubsystemSetting(Subsystem subsystem, SubsystemState state) {
         mSubsystem = subsystem;

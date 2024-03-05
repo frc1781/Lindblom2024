@@ -148,6 +148,7 @@ public class Arm extends Subsystem {
     public boolean matchesDesiredState() {
         switch ((ArmState) getState()) {
             default:
+                System.out.println(matchesPosition());
                 return matchesPosition();
         }
     }
@@ -219,6 +220,7 @@ public class Arm extends Subsystem {
     }
 
     private boolean matchesPosition() {
+        System.out.println("diff: " + Math.abs(mLeftEncoder.getPosition() - mDesiredPosition));
         return Math.abs(mLeftEncoder.getPosition() - mDesiredPosition) < 0.6;
     }
 
