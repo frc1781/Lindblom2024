@@ -36,6 +36,8 @@ public class Climber extends Subsystem {
         mRightReverseLimitSwitch = mRightClimberMotor.getReverseLimitSwitch(Type.kNormallyOpen);
         mLeftForwardLimitSwitch = mLeftClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
         mRightForwardLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
+        mRightClimberEncoder.setPosition(0);
+        mLeftClimberEncoder.setPosition(0);
         mLeftClimberMotor.burnFlash();
         mRightClimberMotor.burnFlash();
     }

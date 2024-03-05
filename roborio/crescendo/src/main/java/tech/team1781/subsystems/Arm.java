@@ -75,12 +75,12 @@ public class Arm extends Subsystem {
         mPositions.put(ArmState.SAFE, 66.0);
         mPositions.put(ArmState.PODIUM, CURRENT_AIM_SPOT.PODIUM.getPosition());
         mPositions.put(ArmState.SUBWOOFER, 36.0);
-        mPositions.put(ArmState.AMP, 39.0);
+        mPositions.put(ArmState.AMP, 46.0);
         mPositions.put(ArmState.COLLECT, 0.0);
-        mPositions.put(ArmState.COLLECT_HIGH, 52.0);
+        mPositions.put(ArmState.COLLECT_HIGH, 58.0);
         mPositions.put(ArmState.SKIP, 55.0);
         mPositions.put(ArmState.KICKSTAND, 69.0);
-    }
+    } //58 
 
     public enum ArmState implements Subsystem.SubsystemState {
         KICKSTAND,
@@ -228,10 +228,10 @@ public class Arm extends Subsystem {
     private enum CURRENT_AIM_SPOT {
         UNDEFEINED(0.0, EVector.newVector(), EVector.newVector(), 0.0),
         SUBWOOFER(31, ConfigMap.RED_SPEAKER_LOCATION, ConfigMap.BLUE_SPEAKER_LOCATION, 2.5),
-        PODIUM(41, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1),
+        PODIUM(45, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1),
         NOTE_3(40.4, EVector.newVector(14.5, 4.27) ,EVector.newVector(2.48, 4.27), 0.5),
         NOTE_2(40, EVector.newVector(14.13, 5.53) ,EVector.newVector(2.48, 5.53), 0.5),
-        NOTE_1(44, EVector.newVector(14.06, 6.74),EVector.newVector(2.48, 6.74), 0.5);
+        NOTE_1(48, EVector.newVector(14.06, 6.74),EVector.newVector(2.48, 6.74), 0.5);
 
         private double position;
         private EVector redPosition;
