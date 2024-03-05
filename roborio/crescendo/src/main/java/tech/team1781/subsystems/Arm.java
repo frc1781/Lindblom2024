@@ -37,7 +37,7 @@ public class Arm extends Subsystem {
     private double mSpeakerDistance = 0;
     private Pose2d mRobotPose;
     private CURRENT_AIM_SPOT mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
-    private double KICKSTAND_POSITION = 56.0;
+    private double KICKSTAND_POSITION = 60.0;
     public Arm() {
         super("Arm", ArmState.SAFE);
         mRightMotor = new CANSparkMax(
@@ -95,7 +95,7 @@ public class Arm extends Subsystem {
     @Override
     public void genericPeriodic() {
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
-        if (mLeftEncoder.getPosition() == 0.0)  {
+        if (mLeftEncoder.getPosition() == 0.0 || mLeftEncoder.getPosition() == -0.0)  {
             System.out.println("========");
             System.out.println("========");
             System.out.println("========");
@@ -109,8 +109,8 @@ public class Arm extends Subsystem {
                 System.out.println("Reverse limit switch is hit");
             } 
         }
-        if (mLeftMotor.getReverseLimitSwitch(Type.kNormallyOpen).isPressed()) {
-            System.out.println("Reverse limit switch is hit for real");
+        else if (mLeftMotor.getReverseLimitSwitch(Type.kNormallyOpen).isPressed()) {
+            //System.out.println("Reverse limit switch is hit for real");
             if (getAngle() < 6.0 && !mResetPosition) {
                 mLeftEncoder.setPosition(0.0);
                 System.out.println("***************************reset encoder to zero*******************");
@@ -149,7 +149,7 @@ public class Arm extends Subsystem {
     public boolean matchesDesiredState() {
         switch ((ArmState) getState()) {
             default:
-                System.out.println(matchesPosition());
+                //System.out.println(matchesPosition());
                 return matchesPosition();
         }
     }
@@ -221,7 +221,7 @@ public class Arm extends Subsystem {
     }
 
     private boolean matchesPosition() {
-        System.out.println("diff: " + Math.abs(mLeftEncoder.getPosition() - mDesiredPosition));
+        //System.out.println("diff: " + Math.abs(mLeftEncoder.getPosition() - mDesiredPosition));
         return Math.abs(mLeftEncoder.getPosition() - mDesiredPosition) < 0.6;
     }
 
