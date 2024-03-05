@@ -38,6 +38,7 @@ public class Arm extends Subsystem {
     private Pose2d mRobotPose;
     private CURRENT_AIM_SPOT mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
     private double KICKSTAND_POSITION = 62.0;
+    private double FORWARD_LIMIT_POSITION = 69.0;
     public Arm() {
         super("Arm", ArmState.SAFE);
         mRightMotor = new CANSparkMax(
@@ -126,6 +127,10 @@ public class Arm extends Subsystem {
                 mResetPosition = true;
             }
         } 
+        else if (mLeftMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed()) {
+            mLeftEncoder.setPosition(FORWARD_LIMIT_POSITION); 
+            System.out.println("***************************reset after hitting forward limit*******************");
+        }
     }
 
     @Override
@@ -151,8 +156,9 @@ public class Arm extends Subsystem {
 
         var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), mDesiredPosition);
         mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
-        if (getState() == ArmState.COLLECT && getAngle() < 6.0) {
+        if (getState() == ArmState.COLLECT && getAngle() < 4.0) {
           armDutyCycle = 0.0;
+          mLeftEncoder.setPosition(0.0);
         } 
         mLeftMotor.set(armDutyCycle);
     }
@@ -240,7 +246,7 @@ public class Arm extends Subsystem {
     private enum CURRENT_AIM_SPOT {
         UNDEFEINED(0.0, EVector.newVector(), EVector.newVector(), 0.0),
         SUBWOOFER(31, ConfigMap.RED_SPEAKER_LOCATION, ConfigMap.BLUE_SPEAKER_LOCATION, 2.5),
-        PODIUM(44, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1),
+        PODIUM(39, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1),
         NOTE_3(40.4, EVector.newVector(14.5, 4.27) ,EVector.newVector(2.48, 4.27), 0.5),
         NOTE_2(40, EVector.newVector(14.13, 5.53) ,EVector.newVector(2.48, 5.53), 0.5),
         NOTE_1(44, EVector.newVector(14.06, 6.74),EVector.newVector(2.48, 6.74), 0.5);
