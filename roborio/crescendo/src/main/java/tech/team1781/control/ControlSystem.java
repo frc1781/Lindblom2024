@@ -396,6 +396,7 @@ public class ControlSystem {
             mAimingAngle = mLimelightAimController.calculate(x, 0);
         } else {
             // odometryAlignment(id);
+            mAimingAngle = 0.0;
         }
 
     }
@@ -459,6 +460,8 @@ public class ControlSystem {
         double x = Limelight.getTX(ConfigMap.NOTE_LIMELIGHT);
         if (x != 0.0) {
             mAimingAngle = mNoteAimController.calculate(x, 0);
+        } else {
+            mAimingAngle = 0.0;
         }
     }
 
@@ -575,6 +578,9 @@ public class ControlSystem {
                         && mDriveSystem.getState() == DriveSystem.DriveSystemState.DRIVE_MANUAL) {
                     centerOnAprilTag(isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG);
                     mDriveSystem.driveRaw(0, 0, mAimingAngle);
+                } else if(mDriveSystem.getState() == DriveSystemState.DRIVE_MANUAL && mCurrentAction != Action.SEEK_NOTE) {
+                    mDriveSystem.driveRaw(0, 0, 0);
+                    mAimingAngle = 0.0;
                 }
 
                 break;
@@ -594,7 +600,6 @@ public class ControlSystem {
             boolean hasUnfinishedSubsystem = false;
             for (SubsystemSetting setting : mCurrentSettings) {
                 if (!setting.isFinished()) {
-                    System.out.println(setting.mSubsystem.getName() + " isnt finished");
                     hasUnfinishedSubsystem = true;
                 }
             }
@@ -676,7 +681,7 @@ public class ControlSystem {
                 new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
         
         defineAction(Action.OFF_KICKSTAND, 
-                new SubsystemSetting(mArm, ArmState.SAFE),
+                new SubsystemSetting(mArm, ArmState.KICKSTAND),
                 new SubsystemSetting(mScollector, ScollectorState.RAMP_SHOOTER)
         );
 
