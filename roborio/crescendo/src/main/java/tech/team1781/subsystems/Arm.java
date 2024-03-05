@@ -230,7 +230,7 @@ public class Arm extends Subsystem {
         SUBWOOFER(31, ConfigMap.RED_SPEAKER_LOCATION, ConfigMap.BLUE_SPEAKER_LOCATION, 2.5),
         PODIUM(45, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1),
         NOTE_3(44.4, EVector.newVector(14.5, 4.27) ,EVector.newVector(2.48, 4.27), 0.5),
-        NOTE_2(44, EVector.newVector(14.13, 5.53) ,EVector.newVector(2.48, 5.53), 0.5),
+        NOTE_2(48, EVector.newVector(14.13, 5.53) ,EVector.newVector(2.48, 5.53), 0.5),
         NOTE_1(48, EVector.newVector(14.06, 6.74),EVector.newVector(2.48, 6.74), 0.5);
 
         private double position;
