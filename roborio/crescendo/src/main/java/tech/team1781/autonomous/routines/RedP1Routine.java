@@ -15,6 +15,8 @@ public class RedP1Routine implements AutoRoutine{
 
     @Override
     public AutoStep[] getSteps() {
+        RedP3Routine.areWeFucked = true;
+
         return new AutoStep[] {
             new AutoStep(100, Action.OFF_KICKSTAND),
             new AutoStep(10, Action.COLLECT_AUTO_SHOOT),
