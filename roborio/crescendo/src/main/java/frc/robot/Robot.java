@@ -14,6 +14,8 @@ import edu.wpi.first.wpilibj.Compressor;
 import tech.team1781.DriverInput;
 import tech.team1781.autonomous.AutonomousHandler;
 import tech.team1781.autonomous.RoutineOverException;
+import tech.team1781.autonomous.routines.BlueP1Routine;
+import tech.team1781.autonomous.routines.BlueP3Routine;
 import tech.team1781.autonomous.routines.DriverCustomAuto;
 import tech.team1781.autonomous.routines.ExampleRoutine;
 import tech.team1781.autonomous.routines.FourNoteRoutine;
@@ -57,7 +59,8 @@ public class Robot extends TimedRobot {
     mControlSystem = new ControlSystem();
     mAutonomousHandler = new AutonomousHandler(mControlSystem, 
       new DriverCustomAuto(),
-      new ExampleRoutine());
+      new BlueP1Routine(),
+      new BlueP3Routine());
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
 

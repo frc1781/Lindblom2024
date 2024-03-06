@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput.ControllerSide;
 import tech.team1781.autonomous.AutoStep;
+import tech.team1781.autonomous.routines.BlueP3Routine;
 import tech.team1781.subsystems.Climber;
 import tech.team1781.subsystems.DriveSystem;
 import tech.team1781.subsystems.Scollector;
@@ -547,9 +548,9 @@ public class ControlSystem {
 
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
 
-        localizationUpdates();
         switch (mCurrentOperatingMode) {
             case TELEOP:
+                localizationUpdates();
                 seesNote();
                 EVector driverTriggers = driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT);
                 driverDriving(
@@ -560,6 +561,9 @@ public class ControlSystem {
                 autoAimingInputs();
                 break;
             case AUTONOMOUS:
+                if(!BlueP3Routine.areWeFucked) {
+                    localizationUpdates();
+                } 
                 if (mScollector.getState() == ScollectorState.COLLECT
                         || mScollector.getState() == ScollectorState.COLLECT_RAMP
                         || mScollector.getState() == ScollectorState.COLLECT_AUTO_SHOOT) {
