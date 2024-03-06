@@ -19,8 +19,8 @@ public class BlueP3Routine implements AutoRoutine{
         areWeFucked = true;
         return new AutoStep[] {
             new AutoStep(100, Action.OFF_KICKSTAND),
-            new AutoStep(10, Action.COLLECT_AUTO_SHOOT),
-            new AutoStep(10, Action.COLLECT_AUTO_SHOOT ,Paths.getPath(AutonomousPosition.POSITION_3, AutonomousPosition.NOTE_3)),
+            new AutoStep(10, Action.COLLECT_RAMP),
+            new AutoStep(10, Action.COLLECT_RAMP ,Paths.getPath(AutonomousPosition.POSITION_3, AutonomousPosition.NOTE_3)),
             new AutoStep(10, Action.AUTO_AIM_SHOOT)
         };
     }
