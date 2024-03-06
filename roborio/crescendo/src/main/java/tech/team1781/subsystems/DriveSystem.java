@@ -279,6 +279,7 @@ public class DriveSystem extends Subsystem {
         }
 
         var pathplannerState = mDesiredTrajectory.sample(currentTime);
+        System.out.println(pathplannerState.positionMeters);
 
         ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(
                 getRobotPose(),
@@ -299,10 +300,12 @@ public class DriveSystem extends Subsystem {
             return;
         }
 
+
         double xDutyCycle = mXGoToController.calculate(robotPose.x, target.x);
         double yDutyCycle = mYGoToController.calculate(robotPose.y, target.y);
         double rotDutyCycle = mRotGoToController.calculate(getRobotAngle().getRadians(), target.z);
 
+        System.out.println(target + " " + robotPose + " " + xDutyCycle + " " + yDutyCycle);
         driveRaw(xDutyCycle, yDutyCycle, rotDutyCycle);
     }
 
