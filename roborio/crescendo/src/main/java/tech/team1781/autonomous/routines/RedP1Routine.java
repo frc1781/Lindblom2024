@@ -17,9 +17,9 @@ public class RedP1Routine implements AutoRoutine{
     public AutoStep[] getSteps() {
         return new AutoStep[] {
             new AutoStep(100, Action.OFF_KICKSTAND),
-            new AutoStep(10, Action.COLLECT_RAMP),
+            new AutoStep(10, Action.COLLECT_AUTO_SHOOT),
             new AutoStep(10, Action.COLLECT_RAMP, new EVector(1.32, 1.63, Math.PI * (1/3))),
-            new AutoStep(10, Action.AUTO_AIM_SHOOT),
+            new AutoStep(10, Action.AUTO_AIM_SHOOT)
         };
     }
     
