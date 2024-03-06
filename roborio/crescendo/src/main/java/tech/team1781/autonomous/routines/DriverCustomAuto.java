@@ -31,6 +31,7 @@ public class DriverCustomAuto implements AutoRoutine {
 
     @Override
     public AutoStep[] getSteps() {
+        RedP3Routine.areWeFucked = false;
         // return AutonomousBuilder.buildFromString(mPositionString.getString(""));
         return AutonomousBuilder.buildFromLinkedHashMap(mPositionEntries);
     }

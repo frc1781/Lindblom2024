@@ -1,27 +1,25 @@
 package tech.team1781.autonomous.routines;
 
-import tech.team1781.Paths;
-import tech.team1781.Paths.AutonomousPosition;
 import tech.team1781.autonomous.AutoStep;
 import tech.team1781.autonomous.AutonomousHandler.AutoRoutine;
 import tech.team1781.control.ControlSystem.Action;
+import tech.team1781.utils.EVector;
+import tech.team1781.Paths;
 
-public class BlueP3Routine implements AutoRoutine{
-    public static boolean areWeFucked = false;
+public class RedP1Routine implements AutoRoutine{
 
     @Override
     public String getName() {
-        return "BlueP3Routine";
+        return "RedP1Routine";
     }
 
     @Override
     public AutoStep[] getSteps() {
-        areWeFucked = true;
         return new AutoStep[] {
             new AutoStep(100, Action.OFF_KICKSTAND),
             new AutoStep(10, Action.COLLECT_RAMP),
-            new AutoStep(10, Action.COLLECT_RAMP ,Paths.getPath(AutonomousPosition.POSITION_3, AutonomousPosition.NOTE_3)),
-            new AutoStep(10, Action.AUTO_AIM_SHOOT)
+            new AutoStep(10, Action.COLLECT_RAMP, new EVector(1.32, 1.63, Math.PI * (1/3))),
+            new AutoStep(10, Action.AUTO_AIM_SHOOT),
         };
     }
     

@@ -20,7 +20,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput.ControllerSide;
 import tech.team1781.autonomous.AutoStep;
-import tech.team1781.autonomous.routines.BlueP3Routine;
+import tech.team1781.autonomous.routines.RedP1Routine;
+import tech.team1781.autonomous.routines.RedP3Routine;
 import tech.team1781.subsystems.Climber;
 import tech.team1781.subsystems.DriveSystem;
 import tech.team1781.subsystems.Scollector;
@@ -561,7 +562,7 @@ public class ControlSystem {
                 autoAimingInputs();
                 break;
             case AUTONOMOUS:
-                if(!BlueP3Routine.areWeFucked) {
+                if(!RedP3Routine.areWeFucked) {
                     localizationUpdates();
                 } 
                 if (mScollector.getState() == ScollectorState.COLLECT

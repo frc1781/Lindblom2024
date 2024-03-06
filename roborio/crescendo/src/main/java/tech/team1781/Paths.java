@@ -202,10 +202,6 @@ public class Paths {
 
     public static PathPlannerPath getPathFromName(String name) {
         var ret_val = PathPlannerPath.fromPathFile(name);
-        ret_val.preventFlipping = false;
-        if(ControlSystem.isRed()) {
-            ret_val = ret_val.flipPath();
-        }
 
         return ret_val;
     }
