@@ -144,6 +144,8 @@ public class Paths {
         POSITION_1(1, 1, "p1"),
         POSITION_2(2, 1, "p2"),
         POSITION_3(3, 1, "p3"),
+        POSITION_1_RED(4,1, "rp1"),
+        POSITION_3_RED(5,1, "rp3"),
         NOTE_1(1, 2, "n1"),
         NOTE_2(2, 2, "n2"),
         NOTE_3(3, 2, "n3"),
@@ -152,6 +154,7 @@ public class Paths {
         CENTER_3(3, 3, "c3"),
         CENTER_4(4, 3, "c4"),
         CENTER_5(5, 3, "c5");
+
 
         private int xpos;
         private int ypos;
@@ -194,7 +197,7 @@ public class Paths {
             ret_val = PathPlannerPath.fromPathFile(concatenatePositions(start, end));
         }
         ret_val.preventFlipping = false;
-        if(ControlSystem.isRed()) {
+        if(ControlSystem.isRed() && !start.getName().contains("r")) {
             ret_val = ret_val.flipPath();
         }
         return ret_val;
