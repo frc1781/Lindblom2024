@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -31,6 +32,7 @@ public class Arm extends Subsystem {
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
     private GenericEntry mArmPositionEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Angle", -1,
             ShuffleboardStyle.ARM_ANGLE);
+    private GenericEntry mSparkErrorEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Spark Max Errored", false, ShuffleboardStyle.ARM_ERROR);
     private GenericEntry mArmAimSpotEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Aim Spot", "N/A", ShuffleboardStyle.ARM_AIM_SPOT);
     private boolean mResetPosition = false;
     private double mDesiredPosition = 0;
@@ -74,7 +76,7 @@ public class Arm extends Subsystem {
         mLeftMotor.burnFlash();
         mPositions.put(ArmState.SAFE, 66.0);
         mPositions.put(ArmState.PODIUM, CURRENT_AIM_SPOT.PODIUM.getPosition());
-        mPositions.put(ArmState.SUBWOOFER, 36.0);
+        mPositions.put(ArmState.SUBWOOFER, 38.0); //was 36
         mPositions.put(ArmState.AMP, 46.0);
         mPositions.put(ArmState.COLLECT, 0.0);
         mPositions.put(ArmState.COLLECT_HIGH, 58.0);
@@ -106,6 +108,8 @@ public class Arm extends Subsystem {
           mRightMotor.setIdleMode(IdleMode.kBrake);
         }
 
+
+
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
         if (mLeftEncoder.getPosition() > 10.0 && mLeftMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed()) {
             mLeftEncoder.setPosition(FORWARD_LIMIT_POSITION); 
@@ -134,13 +138,20 @@ public class Arm extends Subsystem {
                 break;
         }
 
-        var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), mDesiredPosition);
-        mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
-        if (getState() == ArmState.COLLECT && getAngle() < 4.0) {
-          armDutyCycle = 0.0;
-          mLeftEncoder.setPosition(0.0);
-        } 
-        mLeftMotor.set(armDutyCycle);
+        double currentArmAngle = mLeftEncoder.getPosition();
+        mArmPositionEntry.setDouble(currentArmAngle);
+        if (currentArmAngle != 0.0) {
+            var armDutyCycle = mPositionPID.calculate(currentArmAngle, mDesiredPosition);
+            mSparkErrorEntry.setBoolean(false);
+        
+            if (getState() == ArmState.COLLECT && getAngle() < 4.0) {
+                armDutyCycle = 0.0;
+                mLeftEncoder.setPosition(0.00001);
+            } 
+            mLeftMotor.set(armDutyCycle);
+        } else {
+            mSparkErrorEntry.setBoolean(true);
+        }
     }
 
     @Override
@@ -227,7 +238,7 @@ public class Arm extends Subsystem {
 
     private enum CURRENT_AIM_SPOT {
         UNDEFEINED(0.0, EVector.newVector(), EVector.newVector(), 0.0),
-        SUBWOOFER(31, ConfigMap.RED_SPEAKER_LOCATION, ConfigMap.BLUE_SPEAKER_LOCATION, 2.5),
+        SUBWOOFER(33, ConfigMap.RED_SPEAKER_LOCATION, ConfigMap.BLUE_SPEAKER_LOCATION, 2.5),
         PODIUM(45, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1),
         NOTE_3(44.4, EVector.newVector(14.5, 4.27) ,EVector.newVector(2.48, 4.27), 0.5),
         NOTE_2(48, EVector.newVector(14.13, 5.53) ,EVector.newVector(2.48, 5.53), 0.5),

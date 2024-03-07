@@ -6,11 +6,14 @@ package frc.robot;
 
 
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.WidgetType;
 import tech.team1781.ConfigMap;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import tech.team1781.DriverInput;
 import tech.team1781.autonomous.AutonomousHandler;
 import tech.team1781.autonomous.RoutineOverException;
@@ -60,9 +63,12 @@ public class Robot extends TimedRobot {
     mAutonomousHandler = new AutonomousHandler(mControlSystem, 
       new DriverCustomAuto(),
       new RedP1Routine(),
-      new RedP3Routine());
+      new RedP3Routine(),
+      new ExampleRoutine());
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
+    DataLogManager.start();
+    DriverStation.startDataLog(DataLogManager.getLog());
 
     // PreferenceHandler.addValue("frontLeftOffset", ConfigMap.FRONT_LEFT_MODULE_STEER_OFFSET);
     // PreferenceHandler.addValue("frontRightOffset", ConfigMap.FRONT_RIGHT_MODULE_STEER_OFFSET);
@@ -179,6 +185,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
+    DataLogManager.stop();
   }
 
   @Override

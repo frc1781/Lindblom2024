@@ -31,6 +31,9 @@ public class ShuffleboardStyle {
         .withProperty("Min", 0)
         .withProperty("Max", 60);
     public static final Style ARM_AIM_SPOT = new Style(1,1, 8,3, BuiltInWidgets.kTextView);
+        public static final Style ARM_ERROR = new Style(1,1,5,3, BuiltInWidgets.kBooleanBox)
+        .withProperty("Color when false", "#ff0000") //Maroon
+        .withProperty("Color when true", "#000000"); //Gold
 
     //DriveSystem
     public static final Style SEES_APRILTAG = new Style(1,1,5,3, BuiltInWidgets.kBooleanBox)
