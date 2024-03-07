@@ -7,7 +7,7 @@ import tech.team1781.autonomous.AutonomousHandler.AutoRoutine;
 import tech.team1781.control.ControlSystem.Action;
 import tech.team1781.utils.EVector;
 
-public class RedP3Routine implements AutoRoutine{
+public class RedP3SeekRoutine implements AutoRoutine{
     public static boolean areWeFucked = false;
 
     @Override
@@ -21,8 +21,9 @@ public class RedP3Routine implements AutoRoutine{
         return new AutoStep[] {
             new AutoStep(100, Action.OFF_KICKSTAND),
             new AutoStep(5, Action.COLLECT_AUTO_SHOOT),
-            new AutoStep(5, Action.COLLECT_RAMP ,new EVector(1.32, -1.63, 5.3)), //52 64
-            new AutoStep(10, Action.SHOOT_NOTE_THREE)
+            new AutoStep(5, Action.COLLECT_RAMP ,new EVector(1.32, 0, 0)), //52 64 5.3
+            new AutoStep(10, Action.SEEK_NOTE),
+            new AutoStep(10, Action.AUTO_AIM_SHOOT)
         };
     }
     

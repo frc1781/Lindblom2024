@@ -97,7 +97,9 @@ public class ControlSystem {
         SYSID,
         SEEK_NOTE,
         AUTO_AIM_SHOOT,
-        OFF_KICKSTAND
+        OFF_KICKSTAND,
+        SHOOT_NOTE_ONE,
+        SHOOT_NOTE_THREE
     }
 
     public ControlSystem() {
@@ -579,7 +581,7 @@ public class ControlSystem {
                     seekNote();
                 }
 
-                if (mCurrentAction == Action.AUTO_AIM_SHOOT
+                if ((mCurrentAction == Action.AUTO_AIM_SHOOT || mCurrentAction == Action.SHOOT_NOTE_ONE || mCurrentAction == Action.SHOOT_NOTE_THREE)
                         && mDriveSystem.getState() == DriveSystem.DriveSystemState.DRIVE_MANUAL) {
                     centerOnAprilTag(isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG);
                     mDriveSystem.driveRaw(0, 0, mAimingAngle);
@@ -690,6 +692,14 @@ public class ControlSystem {
                 new SubsystemSetting(mScollector, ScollectorState.RAMP_SHOOTER)
         );
 
+        defineAction(Action.SHOOT_NOTE_ONE, 
+            new SubsystemSetting(mArm, ArmState.NOTE_ONE),
+            new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
+
+        defineAction(Action.SHOOT_NOTE_THREE, 
+            new SubsystemSetting(mArm, ArmState.NOTE_THREE),
+            new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
+        
     }
 
     private void defineAction(Action action, SubsystemSetting... settings) {
@@ -746,7 +756,7 @@ public class ControlSystem {
                         mCurrentSeekNoteState = SeekNoteState.COLLECTING;
                     }
                 } else {
-                    final double ROT_SPEED = 0.5;
+                    final double ROT_SPEED = 1;
                     rotDutyCycle = ROT_SPEED * (isRed() ? 1 : -1);
                 }
 
