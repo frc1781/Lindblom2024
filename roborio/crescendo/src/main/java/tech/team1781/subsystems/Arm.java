@@ -3,6 +3,7 @@ package tech.team1781.subsystems;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
 import com.revrobotics.AbsoluteEncoder;
@@ -33,6 +34,7 @@ public class Arm extends Subsystem {
     private GenericEntry mArmPositionEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Angle", -1,
             ShuffleboardStyle.ARM_ANGLE);
     private GenericEntry mSparkErrorEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Spark Max Errored", false, ShuffleboardStyle.ARM_ERROR);
+        private GenericEntry mSparkDataNotSentEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "encoder", false, ShuffleboardStyle.ARM_ERROR);
     private GenericEntry mArmAimSpotEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Aim Spot", "N/A", ShuffleboardStyle.ARM_AIM_SPOT);
     private boolean mResetPosition = false;
     private double mDesiredPosition = 0;
@@ -61,7 +63,7 @@ public class Arm extends Subsystem {
         mRightMotor.setIdleMode(IdleMode.kBrake);
         mLeftMotor.burnFlash();
         mRightMotor.burnFlash();
-        mLeftEncoder.setPosition(KICKSTAND_POSITION);
+        mSparkDataNotSentEntry.setBoolean(mLeftEncoder.setPosition(KICKSTAND_POSITION) != REVLibError.kOk);
         mPositionPID.reset(KICKSTAND_POSITION);
         System.out.println("-------------------------------------------------");
         System.out.println("   ARM SET TO KICKSTAND ENCODER POSITION         ");
@@ -121,7 +123,8 @@ public class Arm extends Subsystem {
     public void init() {
         setDesiredState(ArmState.SAFE);
         mDesiredPosition = mLeftEncoder.getPosition();
-        if (currentMode == OperatingMode.DISABLED) {
+        if (currentMode == OperatingMode.AUTONOMOUS) {
+            mSparkDataNotSentEntry.setBoolean(mLeftEncoder.setPosition(KICKSTAND_POSITION) != REVLibError.kOk);
         }
     }
 
@@ -141,12 +144,17 @@ public class Arm extends Subsystem {
         double currentArmAngle = mLeftEncoder.getPosition();
         mArmPositionEntry.setDouble(currentArmAngle);
         if (currentArmAngle != 0.0) {
+
+            if (getState() == ArmState.KICKSTAND) {
+
+            }
+            
             var armDutyCycle = mPositionPID.calculate(currentArmAngle, mDesiredPosition);
             mSparkErrorEntry.setBoolean(false);
         
             if (getState() == ArmState.COLLECT && getAngle() < 4.0) {
                 armDutyCycle = 0.0;
-                mLeftEncoder.setPosition(0.00001);
+                mLeftEncoder.setPosition(0.01);
             } 
             mLeftMotor.set(armDutyCycle);
         } else {

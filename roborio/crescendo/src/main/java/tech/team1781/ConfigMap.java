@@ -11,6 +11,7 @@ public class ConfigMap {
         public static final ShuffleboardTab SHUFFLEBOARD_TAB = Shuffleboard.getTab("Electric Eagles");
         public static final ShuffleboardTab AUTONOMOUS_TAB = Shuffleboard.getTab("Autonomous");
 
+        public static final ShuffleboardTab LOG_TAB = Shuffleboard.getTab("Logs");
         public static final ShuffleboardTab CONFIG_TAB = Shuffleboard.getTab("Config");
 
         public static final EVector RED_SPEAKER_LOCATION = EVector.newVector(16.77, 5.54);

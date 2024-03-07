@@ -53,6 +53,9 @@ public class Robot extends TimedRobot {
   private DriverInput mDriverInput;
   private GenericEntry mSaveConfigButton = ConfigMap.CONFIG_TAB.add("Save Config", false).withWidget(BuiltInWidgets.kToggleButton).getEntry();
 
+  private boolean ranTeleop = false;
+  private boolean ranAuto = false;
+
   @Override
   public void robotInit() {
     mCompressor = new Compressor(ConfigMap.FIRST_PCM_ID,
@@ -160,6 +163,7 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     mControlSystem.init(OperatingMode.AUTONOMOUS);
     mAutonomousHandler.init();
+    ranAuto = true;
   }
 
   @Override
@@ -176,6 +180,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     mControlSystem.init(OperatingMode.TELEOP);
+    ranTeleop = true;
   }
 
   @Override
@@ -185,7 +190,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
-    DataLogManager.stop();
+    if(ranAuto && ranTeleop) {
+      DataLogManager.stop();
+    }
   }
 
   @Override
