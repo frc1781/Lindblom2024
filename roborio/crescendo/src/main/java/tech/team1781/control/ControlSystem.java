@@ -560,7 +560,10 @@ public class ControlSystem {
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverTriggers);
-                mClimber.manualClimb(-driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y);
+                //mClimber.manualClimb(-driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y);
+                mClimber.twoThumbClimb(
+                    -driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y,
+                    -driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.CO_PILOT_PORT).y);
                 autoAimingInputs();
                 break;
             case AUTONOMOUS:

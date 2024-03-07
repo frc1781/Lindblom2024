@@ -138,4 +138,17 @@ public class Climber extends Subsystem {
         mLeftClimberMotor.set(leftDutyCycle);
         mRightClimberMotor.set(rightDutyCycle);
     }
+
+
+    public void twoThumbClimb(double dutyCycleLeft, double dutyCycleRight) {
+        if (Math.abs(dutyCycleLeft) <= 0.1 || Math.abs(dutyCycleRight) <= 0.1) {
+            dutyCycleLeft = dutyCycleRight = 0;
+        }
+
+        dutyCycleLeft = dutyCycleLeft < 0 ? dutyCycleLeft: dutyCycleLeft * 0.7; 
+        dutyCycleRight = dutyCycleRight < 0 ? dutyCycleRight: dutyCycleRight * 0.7; 
+
+        mLeftClimberMotor.set(dutyCycleLeft);
+        mRightClimberMotor.set(dutyCycleRight);
+    }
 }
