@@ -120,7 +120,7 @@ public class Climber extends Subsystem {
         double rightDutyCycle; 
 
         if (dutyCycle < 0) {
-            leftDutyCycle = dutyCycle;
+            leftDutyCycle = dutyCycle  * 0.9;
             rightDutyCycle = dutyCycle + mRightClimberPID.calculate(
                 mRightClimberMotor.getEncoder().getPosition(),
                 mLeftClimberMotor.getEncoder().getPosition()
