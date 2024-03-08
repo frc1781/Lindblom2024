@@ -20,6 +20,7 @@ public class Climber extends Subsystem {
     private SparkLimitSwitch mRightReverseLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
     private SparkLimitSwitch mLeftForwardLimitSwitch = mLeftClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
     private SparkLimitSwitch mRightForwardLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
+    private PIDController mLeftClimberPID = new PIDController(0.1, 0, 0);
     private PIDController mRightClimberPID = new PIDController(0.1, 0, 0);
     private RelativeEncoder mLeftClimberEncoder = mLeftClimberMotor.getEncoder();
     private RelativeEncoder mRightClimberEncoder = mRightClimberMotor.getEncoder();
@@ -49,10 +50,6 @@ public class Climber extends Subsystem {
     public enum HookState implements Subsystem.SubsystemState {
         UP, DOWN
     }
-
-    // public enum TrapState implements Subsystem.SubsystemState {
-    //     IN, OUT
-    // }
 
     @Override
     public void genericPeriodic() {
@@ -114,17 +111,21 @@ public class Climber extends Subsystem {
         if (Math.abs(dutyCycle) <= 0.1) {
             dutyCycle = 0;
             mRightClimberPID.reset();
+            mLeftClimberPID.reset();
         }
 
         double leftDutyCycle; 
         double rightDutyCycle; 
 
         if (dutyCycle < 0) {
-            leftDutyCycle = dutyCycle;
+            leftDutyCycle = dutyCycle + mLeftClimberPID.calculate(
+                mLeftClimberMotor.getEncoder().getPosition(),
+                mRightClimberMotor.getEncoder().getPosition()
+            );
             rightDutyCycle = dutyCycle + mRightClimberPID.calculate(
                 mRightClimberMotor.getEncoder().getPosition(),
                 mLeftClimberMotor.getEncoder().getPosition()
-                );
+            );
         } else {
             leftDutyCycle = dutyCycle * 0.7;
             rightDutyCycle = dutyCycle * 0.7;
