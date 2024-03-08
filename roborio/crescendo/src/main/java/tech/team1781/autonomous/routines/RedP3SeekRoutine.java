@@ -8,16 +8,16 @@ import tech.team1781.control.ControlSystem.Action;
 import tech.team1781.utils.EVector;
 
 public class RedP3SeekRoutine implements AutoRoutine{
-    public static boolean areWeFucked = false;
 
     @Override
     public String getName() {
-        return "RedP3Routine";
+        return "Red P3 Seek";
     }
 
     @Override
     public AutoStep[] getSteps() {
-        areWeFucked = true;
+        RedP3Routine.areWeFucked = true;
+
         return new AutoStep[] {
             new AutoStep(100, Action.OFF_KICKSTAND),
             new AutoStep(5, Action.COLLECT_AUTO_SHOOT),

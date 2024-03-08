@@ -300,9 +300,9 @@ public class DriveSystem extends Subsystem {
             return;
         }
 
-
-        double xDutyCycle = mXGoToController.calculate(robotPose.x, target.x);
-        double yDutyCycle = mYGoToController.calculate(robotPose.y, target.y);
+        final double CLAMP_AMT = 0.5;
+        double xDutyCycle = clamp(mXGoToController.calculate(robotPose.x, target.x), CLAMP_AMT);
+        double yDutyCycle = clamp(mYGoToController.calculate(robotPose.y, target.y), CLAMP_AMT);
         double rotDutyCycle = mRotGoToController.calculate(getRobotAngle().getRadians(), target.z);
 
         System.out.println(target + " " + robotPose + " " + xDutyCycle + " " + yDutyCycle);
@@ -454,6 +454,18 @@ public class DriveSystem extends Subsystem {
                 mBackLeft.getCurrentState(),
                 mFrontLeft.getCurrentState()
         };
+    }
+
+    private static double clamp(double input, double clampVal) {
+        double sig = Math.signum(input);
+        double abs = Math.abs(input);
+
+        if(abs >= clampVal) {
+            return clampVal * sig;
+        }
+
+        return input;
+        
     }
 
     public void followTrajectory(double time) {

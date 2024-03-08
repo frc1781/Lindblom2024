@@ -113,6 +113,7 @@ public class Climber extends Subsystem {
     public void manualClimb(double dutyCycle) {
         if (Math.abs(dutyCycle) <= 0.1) {
             dutyCycle = 0;
+            mRightClimberPID.reset();
         }
 
         double leftDutyCycle; 
@@ -120,7 +121,10 @@ public class Climber extends Subsystem {
 
         if (dutyCycle < 0) {
             leftDutyCycle = dutyCycle;
-            rightDutyCycle = dutyCycle;
+            rightDutyCycle = dutyCycle + mRightClimberPID.calculate(
+                mRightClimberMotor.getEncoder().getPosition(),
+                mLeftClimberMotor.getEncoder().getPosition()
+                );
         } else {
             leftDutyCycle = dutyCycle * 0.7;
             rightDutyCycle = dutyCycle * 0.7;
@@ -141,8 +145,11 @@ public class Climber extends Subsystem {
 
 
     public void twoThumbClimb(double dutyCycleLeft, double dutyCycleRight) {
-        if (Math.abs(dutyCycleLeft) <= 0.1 || Math.abs(dutyCycleRight) <= 0.1) {
-            dutyCycleLeft = dutyCycleRight = 0;
+        if (Math.abs(dutyCycleLeft) <= 0.1) {
+            dutyCycleLeft = 0;
+        } 
+        if(Math.abs(dutyCycleRight) <= 0.1) {
+            dutyCycleRight = 0;
         }
 
         dutyCycleLeft = dutyCycleLeft < 0 ? dutyCycleLeft: dutyCycleLeft * 0.7; 

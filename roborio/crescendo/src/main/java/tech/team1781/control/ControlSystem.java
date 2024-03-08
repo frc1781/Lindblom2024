@@ -88,6 +88,7 @@ public class ControlSystem {
     private Action mCurrentAction = null;
     private SeekNoteState mCurrentSeekNoteState = SeekNoteState.SEEKING;
     private EVector mSeekNoteTargetPose = EVector.newVector(-1, -1, -1);
+    private Timer mSeekTimer = new Timer();
 
     public enum Action {
         COLLECT,
@@ -99,7 +100,8 @@ public class ControlSystem {
         AUTO_AIM_SHOOT,
         OFF_KICKSTAND,
         SHOOT_NOTE_ONE,
-        SHOOT_NOTE_THREE
+        SHOOT_NOTE_THREE,
+        RAMP_SHOOTER
     }
 
     public ControlSystem() {
@@ -476,6 +478,9 @@ public class ControlSystem {
     public void setAutoStep(Action desiredAction, EVector position, PathPlannerPath path) {
         mStepTime.reset();
         mStepTime.start();
+        
+        mSeekTimer.reset();
+        mSeekTimer.start();
 
         if (desiredAction != null) {
             mCurrentSettings = mActions.get(desiredAction);
@@ -560,10 +565,10 @@ public class ControlSystem {
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverTriggers);
-                //mClimber.manualClimb(-driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y);
-                mClimber.twoThumbClimb(
-                    -driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y,
-                    -driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.CO_PILOT_PORT).y);
+                mClimber.manualClimb(-driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y);
+                // mClimber.twoThumbClimb(
+                //     -driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y,
+                //     -driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.CO_PILOT_PORT).y);
                 autoAimingInputs();
                 break;
             case AUTONOMOUS:
@@ -664,6 +669,11 @@ public class ControlSystem {
     }
 
     private void initActions() {
+        defineAction(Action.RAMP_SHOOTER, 
+            new SubsystemSetting(mArm, ArmState.SAFE),
+            new SubsystemSetting(mScollector, ScollectorState.RAMP_SHOOTER)
+        );
+
         defineAction(Action.SYSID,
                 new SubsystemSetting(mDriveSystem, DriveSystemState.SYSID),
                 new SubsystemSetting(mArm, ArmState.COLLECT),
@@ -725,6 +735,7 @@ public class ControlSystem {
     }
 
     private void seekNote() {
+
         switch (mCurrentSeekNoteState) {
             case SEEKING:
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
@@ -744,7 +755,7 @@ public class ControlSystem {
 
                         double noteDistance = getNoteDistance();
 
-                        if (noteDistance != -1) {
+                        if (noteDistance != -1 && noteDistance <= 2.5) {
                             double EXTRA_DISTANCE = 0.25;
                             noteDistance += EXTRA_DISTANCE;
                             EVector notePose = EVector.newVector(
@@ -754,6 +765,7 @@ public class ControlSystem {
 
                             mDriveSystem.setPosition(notePose);
                             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
+                            mSeekTimer.reset();
                         }
 
                         mCurrentSeekNoteState = SeekNoteState.COLLECTING;
@@ -763,6 +775,12 @@ public class ControlSystem {
                     rotDutyCycle = ROT_SPEED * (isRed() ? 1 : -1);
                 }
 
+                if(mSeekTimer.get() >= 3) {
+                    mCurrentSeekNoteState = SeekNoteState.DONE;
+                    mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
+                    mDriveSystem.driveRaw(0, 0, 0);
+                }
+
                 mDriveSystem.driveRaw(0, 0, rotDutyCycle);
 
                 break;
@@ -770,8 +788,16 @@ public class ControlSystem {
                 mArm.setDesiredState(ArmState.COLLECT);
                 mScollector.setDesiredState(ScollectorState.COLLECT);
 
-                if (mScollector.hasNote()) {
-                    // mCurrentSeekNoteState = SeekNoteState.DONE;
+                if (mScollector.hasNote() || mDriveSystem.matchesDesiredState()) {
+                    mCurrentSeekNoteState = SeekNoteState.DONE;
+                    mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
+                    mDriveSystem.driveRaw(0, 0, 0);
+                }
+
+                if(mSeekTimer.get() >= 2) {
+                    mCurrentSeekNoteState = SeekNoteState.DONE;
+                    mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
+                    mDriveSystem.driveRaw(0, 0, 0);
                 }
                 break;
             default:

@@ -10,7 +10,7 @@ public class RedP1SeekRoutine implements AutoRoutine{
 
     @Override
     public String getName() {
-        return "RedP1Routine";
+        return "Red P1 Seek";
     }
 
     @Override
@@ -20,7 +20,7 @@ public class RedP1SeekRoutine implements AutoRoutine{
         return new AutoStep[] {
             new AutoStep(100, Action.OFF_KICKSTAND),
             new AutoStep(5, Action.COLLECT_AUTO_SHOOT),
-            new AutoStep(5, Action.COLLECT_RAMP, new EVector(1.32, 0, 0)), // 
+            new AutoStep(5, Action.RAMP_SHOOTER, new EVector(1.32, 0, 0)), // 
             new AutoStep(10, Action.SEEK_NOTE),
             new AutoStep(10, Action.SHOOT_NOTE_ONE)
         };
