@@ -19,7 +19,7 @@ public class Match45Routine implements AutoRoutine{
             new AutoStep(5, Action.COLLECT_AUTO_SHOOT),
             new AutoStep(5, Action.COLLECT_RAMP, new EVector(1.64, 0, 0)),
             new AutoStep(5, Action.COLLECT_RAMP, new EVector(0, 0, 0)),
-            new AutoStep(10, Action.COLLECT_AUTO_SHOOT)
+            new AutoStep(10, Action.SHOOT_SUBWOOFER)
         };
     }
     

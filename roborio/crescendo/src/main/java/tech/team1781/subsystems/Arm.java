@@ -78,7 +78,7 @@ public class Arm extends Subsystem {
         mLeftMotor.burnFlash();
         mPositions.put(ArmState.SAFE, 66.0);
         mPositions.put(ArmState.PODIUM, CURRENT_AIM_SPOT.PODIUM.getPosition());
-        mPositions.put(ArmState.SUBWOOFER, 38.0); //was 36
+        mPositions.put(ArmState.SUBWOOFER, CURRENT_AIM_SPOT.SUBWOOFER.getPosition()); //was 36
         mPositions.put(ArmState.AMP, 46.0);
         mPositions.put(ArmState.COLLECT, 0.0);
         mPositions.put(ArmState.COLLECT_HIGH, 58.0);

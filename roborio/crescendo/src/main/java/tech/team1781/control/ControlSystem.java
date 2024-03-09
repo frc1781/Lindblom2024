@@ -101,7 +101,8 @@ public class ControlSystem {
         OFF_KICKSTAND,
         SHOOT_NOTE_ONE,
         SHOOT_NOTE_THREE,
-        RAMP_SHOOTER
+        RAMP_SHOOTER,
+        SHOOT_SUBWOOFER
     }
 
     public ControlSystem() {
@@ -672,6 +673,11 @@ public class ControlSystem {
         defineAction(Action.RAMP_SHOOTER, 
             new SubsystemSetting(mArm, ArmState.SAFE),
             new SubsystemSetting(mScollector, ScollectorState.RAMP_SHOOTER)
+        );
+
+        defineAction(Action.SHOOT_SUBWOOFER, 
+            new SubsystemSetting(mArm, ArmState.SUBWOOFER),
+            new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT)
         );
 
         defineAction(Action.SYSID,

@@ -22,7 +22,7 @@ public class RedP1Routine implements AutoRoutine{
             new AutoStep(5, Action.COLLECT_AUTO_SHOOT),
             new AutoStep(5, Action.COLLECT_RAMP, new EVector(1.32, 1.63, 0.58)),
             new AutoStep(5, new EVector(0,0,0)),
-            new AutoStep(10, Action.COLLECT_AUTO_SHOOT)
+            new AutoStep(10, Action.SHOOT_SUBWOOFER)
         };
     }
     
