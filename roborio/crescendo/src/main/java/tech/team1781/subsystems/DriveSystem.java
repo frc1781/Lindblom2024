@@ -163,8 +163,8 @@ public class DriveSystem extends Subsystem {
 
         switch ((DriveSystemState) getState()) {
             case DRIVE_SETPOINT:
-                // return matchesDesiredPosition();
-                return false;
+                return matchesDesiredPosition();
+                // return false;
             case DRIVE_TRAJECTORY:
                 return matchesPosition(mDesiredTrajectory.getEndState().getTargetHolonomicPose())
                         && (currentTime >= mDesiredTrajectory.getTotalTimeSeconds());
@@ -293,7 +293,7 @@ public class DriveSystem extends Subsystem {
         if (mIsManual && mDesiredPosition == null) {
             return;
         }
-        final double DISTANCE_TOLERANCE = 0.1;
+        final double DISTANCE_TOLERANCE = 0.6;
         EVector robotPose = EVector.fromPose(getRobotPose());
         double diff = target.dist(robotPose);
         if (diff < DISTANCE_TOLERANCE) {

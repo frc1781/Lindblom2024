@@ -14,11 +14,13 @@ public class Match45Routine implements AutoRoutine{
 
     @Override
     public AutoStep[] getSteps() {
+        RedP3Routine.areWeFucked = true;
+
         return new AutoStep[] {
             new AutoStep(100, Action.OFF_KICKSTAND),
             new AutoStep(5, Action.COLLECT_AUTO_SHOOT),
-            new AutoStep(5, Action.COLLECT_RAMP, new EVector(1.64, 0, 0)),
-            new AutoStep(5, Action.COLLECT_RAMP, new EVector(0, 0, 0)),
+            new AutoStep(2, Action.COLLECT_RAMP, new EVector(1.64, 0, 0)),
+            new AutoStep(2.5, Action.COLLECT_RAMP, new EVector(0, 0, 0)),
             new AutoStep(10, Action.SHOOT_SUBWOOFER)
         };
     }
