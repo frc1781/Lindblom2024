@@ -22,7 +22,8 @@ public class RedP3Routine implements AutoRoutine{
             new AutoStep(100, Action.OFF_KICKSTAND),
             new AutoStep(5, Action.COLLECT_AUTO_SHOOT),
             new AutoStep(5, Action.COLLECT_RAMP ,new EVector(1.32, -1.63, 5.3)), //52 64
-            new AutoStep(10, Action.SHOOT_NOTE_THREE)
+            new AutoStep(2, new EVector(1.32, -1.55, 5.3)),
+            new AutoStep(10, Action.SHOOT_NOTE_THREE)  
         };
     }
     

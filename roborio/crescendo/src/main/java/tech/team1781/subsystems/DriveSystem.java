@@ -300,7 +300,7 @@ public class DriveSystem extends Subsystem {
             return;
         }
 
-        final double CLAMP_AMT = 0.5;
+        final double CLAMP_AMT = 1;
         double xDutyCycle = clamp(mXGoToController.calculate(robotPose.x, target.x), CLAMP_AMT);
         double yDutyCycle = clamp(mYGoToController.calculate(robotPose.y, target.y), CLAMP_AMT);
         double rotDutyCycle = mRotGoToController.calculate(getRobotAngle().getRadians(), target.z);
