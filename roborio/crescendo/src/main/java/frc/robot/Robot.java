@@ -26,6 +26,7 @@ import tech.team1781.autonomous.routines.RedP1SeekRoutine;
 import tech.team1781.autonomous.routines.RedP3Routine;
 import tech.team1781.autonomous.routines.RedP3SeekRoutine;
 import tech.team1781.autonomous.routines.SYSIDRoutine;
+import tech.team1781.autonomous.routines.ShootAndOut;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
@@ -71,6 +72,7 @@ public class Robot extends TimedRobot {
       new RedP1Routine(),
       new RedP3Routine(),
       new Match45Routine(),
+      new ShootAndOut(),
       new ExampleRoutine());
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
