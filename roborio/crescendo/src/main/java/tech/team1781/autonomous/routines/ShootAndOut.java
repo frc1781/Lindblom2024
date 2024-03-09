@@ -19,7 +19,7 @@ public class ShootAndOut implements AutoRoutine{
         return new AutoStep[] {
             new AutoStep(100, Action.OFF_KICKSTAND),
             new AutoStep(5, Action.COLLECT_AUTO_SHOOT),
-            new AutoStep(2, Action.COLLECT_RAMP, new EVector(4.2, 0, 0)),
+            new AutoStep(2, new EVector(4.2, 0, 0)),
             // .75 4.5 :: 3.2 1.1
         };
     }
