@@ -11,36 +11,49 @@ public class AutoStep {
     private Action mAction = null;
     private EVector mPosition = null;
     private PathPlannerPath mPath = null;
+    private StepType mType = null; 
 
     public AutoStep(double maxTime, Action action, EVector position) {
         mMaxTime = maxTime;
         mAction = action;
         mPosition = position;
+
+        mType = StepType.POSITION_AND_ACTION;
     }
 
     public AutoStep(double maxTime, Action action, PathPlannerPath path) {
         mMaxTime = maxTime;
         mAction = action;
         mPath = path;
+
+        mType = StepType.PATH_AND_ACTION;
     }
 
     public AutoStep(double maxTime, Action action) {
         mMaxTime = maxTime;
         mAction = action;
+
+        mType = StepType.ACTION;
     }
 
     public AutoStep(double maxTime, EVector position) {
         mMaxTime = maxTime;
         mPosition = position;
+
+        mType = StepType.POSITION;
     }
 
     public AutoStep(double maxTime, PathPlannerPath path) {
         mMaxTime = maxTime;
         mPath = path;
+
+        mType = StepType.PATH;
     }
 
     public AutoStep(double maxTime) {
         mMaxTime = maxTime;
+
+        mType = StepType.WAIT;
     }
 
     public double getMaxTime() {
@@ -58,6 +71,10 @@ public class AutoStep {
     public PathPlannerPath getPath() {
         return mPath;
     }
+
+    public StepType getType() {
+        return mType;
+    }
     
     @Override 
     public String toString() {
@@ -65,6 +82,15 @@ public class AutoStep {
             return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Position " + mPosition;
         }
         return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Position " + mPosition + ", Path Starting Pose: " + mPath.getPreviewStartingHolonomicPose();
+    }
+
+    public enum StepType {
+        ACTION,
+        POSITION,
+        PATH,
+        WAIT,
+        POSITION_AND_ACTION,
+        PATH_AND_ACTION
     }
 
 }

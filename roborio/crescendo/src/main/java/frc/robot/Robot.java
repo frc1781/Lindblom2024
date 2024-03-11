@@ -5,6 +5,7 @@
 package frc.robot;
 
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -17,19 +18,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import tech.team1781.DriverInput;
 import tech.team1781.autonomous.AutonomousHandler;
 import tech.team1781.autonomous.RoutineOverException;
-import tech.team1781.autonomous.routines.DriverCustomAuto;
-import tech.team1781.autonomous.routines.ExampleRoutine;
-import tech.team1781.autonomous.routines.FourNoteRoutine;
-import tech.team1781.autonomous.routines.Match45Routine;
-import tech.team1781.autonomous.routines.RedP1Routine;
-import tech.team1781.autonomous.routines.RedP1SeekRoutine;
-import tech.team1781.autonomous.routines.RedP3Routine;
-import tech.team1781.autonomous.routines.RedP3SeekRoutine;
-import tech.team1781.autonomous.routines.SYSIDRoutine;
-import tech.team1781.autonomous.routines.ShootAndOut;
+import tech.team1781.autonomous.routines.*;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
+import tech.team1781.utils.EEGeometryUtil;
+import tech.team1781.utils.EVector;
 import tech.team1781.utils.PreferenceHandler;
 import tech.team1781.utils.PreferenceHandler.ValueHolder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -68,13 +62,13 @@ public class Robot extends TimedRobot {
     
     mControlSystem = new ControlSystem();
     mAutonomousHandler = new AutonomousHandler(mControlSystem, 
-      new DriverCustomAuto(),
-      new RedP1Routine(),
-      new RedP3Routine(),
-      new Match45Routine(),
-      new ShootAndOut(),
+      // new DriverCustomAuto(),
+      // new RedP1Routine(),
+      // new RedP3Routine(),
+      // new Match45Routine(),
+      // new ShootAndOut(),
       // new ShootAndOutBlue()
-      new ExampleRoutine());
+      new TestRoutine());
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
     DataLogManager.start();
@@ -164,6 +158,7 @@ public class Robot extends TimedRobot {
       // PreferenceHandler.updateValues();
       mSaveConfigButton.setBoolean(false);
     }
+
   }
 
   @Override

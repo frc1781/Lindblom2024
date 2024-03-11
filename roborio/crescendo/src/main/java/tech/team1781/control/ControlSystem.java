@@ -20,8 +20,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput.ControllerSide;
 import tech.team1781.autonomous.AutoStep;
-import tech.team1781.autonomous.routines.RedP1Routine;
-import tech.team1781.autonomous.routines.RedP3Routine;
 import tech.team1781.subsystems.Climber;
 import tech.team1781.subsystems.DriveSystem;
 import tech.team1781.subsystems.Scollector;
@@ -472,49 +470,107 @@ public class ControlSystem {
         }
     }
 
-    public void setAction(Action desiredAction) {
-        setAutoStep(desiredAction, null, null);
+    // public void setAction(Action desiredAction) {
+    //     setAutoStep(desiredAction, null, null);
+    // }
+
+    // public void setAutoStep(Action desiredAction, EVector position, PathPlannerPath path) {
+    //     mStepTime.reset();
+    //     mStepTime.start();
+        
+    //     mSeekTimer.reset();
+    //     mSeekTimer.start();
+
+    //     if (desiredAction != null) {
+    //         mCurrentSettings = mActions.get(desiredAction);
+    //         try {
+    //             for (SubsystemSetting setting : mCurrentSettings) {
+    //                 setting.setState();
+    //             }
+    //         } catch (NullPointerException e) {
+    //         }
+
+    //         mCurrentAction = desiredAction;
+
+    //         if (mCurrentAction == Action.SEEK_NOTE) {
+    //             mCurrentSeekNoteState = SeekNoteState.SEEKING;
+    //             mSeekNoteTargetPose = EVector.newVector(-1, -1, -1);
+    //         }
+    //     } else {
+    //         mCurrentSettings = null;
+    //     }
+
+    //     if (position != null) {
+    //         mDriveSystem.setPosition(position);
+    //         mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
+    //     } else if (path != null) {
+    //         mDriveSystem.setTrajectoryFromPath(path);
+    //         mDriveSystem.setDesiredState(DriveSystemState.DRIVE_TRAJECTORY);
+    //     } else if (desiredAction != Action.SYSID && desiredAction != Action.SEEK_NOTE) {
+    //         mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
+    //     }
+
+    //     System.out.println(mDriveSystem.getName() + " :: " + mDriveSystem.getState().toString() + " || "
+    //             + mScollector.getName() + " :: " + mScollector.getState().toString() + " || " + mClimber.getName()
+    //             + " :: " + mClimber.getState().toString());
+    // }
+
+    public void setAutoStep(AutoStep step) {
+        if (step == null) {
+            return;
+        }
+
+        mCurrentSettings = null;
+        
+        switch(step.getType()) {
+            case ACTION:
+                setAction(step.getAction());
+                break;
+            case PATH:
+                mDriveSystem.setTrajectoryFromPath(step.getPath());
+                mDriveSystem.setDesiredState(DriveSystemState.DRIVE_TRAJECTORY);
+                break;
+            case POSITION:
+                mDriveSystem.setPosition(step.getPosition().flipIfRed());
+                mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
+                break;
+            case PATH_AND_ACTION:
+                mDriveSystem.setTrajectoryFromPath(step.getPath());
+                mDriveSystem.setDesiredState(DriveSystemState.DRIVE_TRAJECTORY);
+                setAction(step.getAction());
+                break;
+            case POSITION_AND_ACTION:
+                mDriveSystem.setPosition(step.getPosition().flipIfRed());
+                mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
+                setAction(step.getAction());
+                break;
+            case WAIT:
+                break;
+        }
     }
 
-    public void setAutoStep(Action desiredAction, EVector position, PathPlannerPath path) {
-        mStepTime.reset();
-        mStepTime.start();
-        
+    public void setAction(Action desiredAction) {
         mSeekTimer.reset();
         mSeekTimer.start();
 
-        if (desiredAction != null) {
-            mCurrentSettings = mActions.get(desiredAction);
-            try {
-                for (SubsystemSetting setting : mCurrentSettings) {
-                    setting.setState();
-                }
-            } catch (NullPointerException e) {
+        mCurrentSettings = mActions.get(desiredAction);
+        try {
+            for (SubsystemSetting setting : mCurrentSettings) {
+                setting.setState();
             }
-
-            mCurrentAction = desiredAction;
-
-            if (mCurrentAction == Action.SEEK_NOTE) {
-                mCurrentSeekNoteState = SeekNoteState.SEEKING;
-                mSeekNoteTargetPose = EVector.newVector(-1, -1, -1);
-            }
-        } else {
-            mCurrentSettings = null;
+        } catch (NullPointerException e) {
         }
 
-        if (position != null) {
-            mDriveSystem.setPosition(position);
-            mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
-        } else if (path != null) {
-            mDriveSystem.setTrajectoryFromPath(path);
-            mDriveSystem.setDesiredState(DriveSystemState.DRIVE_TRAJECTORY);
-        } else if (desiredAction != Action.SYSID && desiredAction != Action.SEEK_NOTE) {
+        mCurrentAction = desiredAction;
+
+        if (mCurrentAction == Action.SEEK_NOTE) {
+            mCurrentSeekNoteState = SeekNoteState.SEEKING;
+            mSeekNoteTargetPose = EVector.newVector(-1, -1, -1);
+        } else if (mCurrentAction == Action.AUTO_AIM_SHOOT) {
             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
         }
 
-        System.out.println(mDriveSystem.getName() + " :: " + mDriveSystem.getState().toString() + " || "
-                + mScollector.getName() + " :: " + mScollector.getState().toString() + " || " + mClimber.getName()
-                + " :: " + mClimber.getState().toString());
+        
     }
 
     public boolean stepIsFinished() {
@@ -573,9 +629,7 @@ public class ControlSystem {
                 autoAimingInputs();
                 break;
             case AUTONOMOUS:
-                if(!RedP3Routine.areWeFucked) {
-                    localizationUpdates();
-                } 
+                    // localizationUpdates();
                 if (mScollector.getState() == ScollectorState.COLLECT
                         || mScollector.getState() == ScollectorState.COLLECT_RAMP
                         || mScollector.getState() == ScollectorState.COLLECT_AUTO_SHOOT) {

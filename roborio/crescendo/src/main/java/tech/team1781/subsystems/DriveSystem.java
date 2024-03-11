@@ -135,6 +135,7 @@ public class DriveSystem extends Subsystem {
         switch ((DriveSystemState) getState()) {
             case DRIVE_SETPOINT:
                 goTo(mDesiredPosition);
+                System.out.println(mDesiredPosition + " :: " + EVector.fromPose(getRobotPose()));
                 break;
             case DRIVE_TRAJECTORY:
                 var trajectoryInitialPose = mDesiredTrajectory.getInitialState().getTargetHolonomicPose();
@@ -251,6 +252,7 @@ public class DriveSystem extends Subsystem {
     }
 
     public void setOdometry(Pose2d pose) {
+        System.out.println("SETTING ODOMETRY: " + pose);
         mPoseEstimator.resetPosition(getRobotAngle(), getModulePositions(), pose);
     }
 
@@ -342,6 +344,12 @@ public class DriveSystem extends Subsystem {
         mXGoToController.reset();
         mYGoToController.reset();
         mRotGoToController.reset(getRobotAngle().getRadians());
+
+        if (!mOdometryBeenSet) {
+            setOdometry(position.toPose2d());
+            setNavXOffset(Rotation2d.fromRadians(position.z));
+            mOdometryBeenSet = true;
+        }
     }
 
     public void driveWithChassisSpeds(ChassisSpeeds speeds) {

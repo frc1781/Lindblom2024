@@ -2,6 +2,7 @@ package tech.team1781.utils;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import tech.team1781.control.ControlSystem;
 
 /**
  * Very similar to the PVector class, except it has an E in it.
@@ -122,6 +123,17 @@ public class EVector {
 
     public EVector rotate(double angle) {
         return new EVector(x * Math.cos(angle) - y * Math.sin(angle), x * Math.sin(angle) + y * Math.cos(angle), z);
+    }
+
+    public EVector flipIfRed() {
+        if(ControlSystem.isRed()) {
+
+            System.out.println("FLIPPING: " + this);
+            return EEGeometryUtil.flipPosition(this);
+        } else {
+            System.out.println("NOT FLIPPING: " + this);
+            return this;
+        }
     }
 
     @Override

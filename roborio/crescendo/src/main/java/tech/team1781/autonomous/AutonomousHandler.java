@@ -3,8 +3,6 @@ package tech.team1781.autonomous;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import tech.team1781.ConfigMap;
-import tech.team1781.autonomous.routines.FourNoteRoutine;
-import tech.team1781.autonomous.routines.PIDTuningRoutine;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.subsystems.Subsystem;
 
@@ -67,7 +65,8 @@ public class AutonomousHandler {
     private void startStep(AutoStep step) {
         System.out.println("new step! " + step.toString());
         System.out.println(step.toString() + " ==================================================================== " + mStepIndex);
-        mControlSystem.setAutoStep(step.getAction(), step.getPosition(), step.getPath());
+        // mControlSystem.setAutoStep(step.getAction(), step.getPosition(), step.getPath());
+        mControlSystem.setAutoStep(step);
     }
 
     public interface AutoRoutine {
