@@ -78,10 +78,26 @@ public class AutoStep {
     
     @Override 
     public String toString() {
-        if(mPath == null) {
-            return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Position " + mPosition;
+        // if(mPath == null) {
+        //     return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Position " + mPosition;
+        // }
+        // return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Position " + mPosition + ", Path Starting Pose: " + mPath.getPreviewStartingHolonomicPose();
+        switch(mType) {
+            case ACTION:
+                return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ")";
+            case POSITION:
+                return "AutoStep: ( Time: " + mMaxTime + ", Position: " + mPosition + ")";
+            case PATH:
+                return "AutoStep: ( Time: " + mMaxTime + ", Path: " + mPath + ")";
+            case WAIT:
+                return "AutoStep: ( Time: " + mMaxTime + ")";
+            case POSITION_AND_ACTION:
+                return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Position: " + mPosition + ")";
+            case PATH_AND_ACTION:
+                return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Path: " + mPath + ")";
+            default:
+                return "AutoStep: ( Time: " + mMaxTime + ")";
         }
-        return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Position " + mPosition + ", Path Starting Pose: " + mPath.getPreviewStartingHolonomicPose();
     }
 
     public enum StepType {

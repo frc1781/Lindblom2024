@@ -521,10 +521,12 @@ public class ControlSystem {
         }
 
         mCurrentSettings = null;
+        mCurrentAction = null;
         
         switch(step.getType()) {
             case ACTION:
                 setAction(step.getAction());
+                mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
                 break;
             case PATH:
                 mDriveSystem.setTrajectoryFromPath(step.getPath());
@@ -545,6 +547,7 @@ public class ControlSystem {
                 setAction(step.getAction());
                 break;
             case WAIT:
+                mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
                 break;
         }
     }
@@ -574,6 +577,9 @@ public class ControlSystem {
     }
 
     public boolean stepIsFinished() {
+        if(mCurrentAction == null && mDriveSystem.getState() == DriveSystemState.DRIVE_MANUAL) {
+            return false;
+        }
         if (mCurrentAction == Action.SEEK_NOTE) {
             return mCurrentSeekNoteState == SeekNoteState.DONE;
         }

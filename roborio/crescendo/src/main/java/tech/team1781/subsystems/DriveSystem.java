@@ -135,7 +135,6 @@ public class DriveSystem extends Subsystem {
         switch ((DriveSystemState) getState()) {
             case DRIVE_SETPOINT:
                 goTo(mDesiredPosition);
-                System.out.println(mDesiredPosition + " :: " + EVector.fromPose(getRobotPose()));
                 break;
             case DRIVE_TRAJECTORY:
                 var trajectoryInitialPose = mDesiredTrajectory.getInitialState().getTargetHolonomicPose();
@@ -252,7 +251,6 @@ public class DriveSystem extends Subsystem {
     }
 
     public void setOdometry(Pose2d pose) {
-        System.out.println("SETTING ODOMETRY: " + pose);
         mPoseEstimator.resetPosition(getRobotAngle(), getModulePositions(), pose);
     }
 
@@ -281,7 +279,6 @@ public class DriveSystem extends Subsystem {
         }
 
         var pathplannerState = mDesiredTrajectory.sample(currentTime);
-        System.out.println(pathplannerState.positionMeters);
 
         ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(
                 getRobotPose(),
@@ -307,7 +304,6 @@ public class DriveSystem extends Subsystem {
         double yDutyCycle = clamp(mYGoToController.calculate(robotPose.y, target.y), CLAMP_AMT);
         double rotDutyCycle = mRotGoToController.calculate(getRobotAngle().getRadians(), target.z);
 
-        System.out.println(target + " " + robotPose + " " + xDutyCycle + " " + yDutyCycle);
         driveRaw(xDutyCycle, yDutyCycle, rotDutyCycle);
     }
 
