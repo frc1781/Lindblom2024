@@ -62,14 +62,13 @@ public class Robot extends TimedRobot {
     
     mControlSystem = new ControlSystem();
     mAutonomousHandler = new AutonomousHandler(mControlSystem, 
-      // new DriverCustomAuto(),
-      // new RedP1Routine(),
-      // new RedP3Routine(),
-      // new Match45Routine(),
-      // new ShootAndOut(),
-      // new ShootAndOutBlue()
-      new P1N1CSubwoofer(),
-      new TestRoutine());
+      new P1Leave(),
+      new P1N1DCSubwoofer(),
+      new P2N2DCSubwoofer(),
+      new P3N3DCSubwoofer(),
+      new P3Leave()
+    );
+
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
     DataLogManager.start();
