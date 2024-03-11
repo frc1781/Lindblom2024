@@ -68,6 +68,7 @@ public class Robot extends TimedRobot {
       // new Match45Routine(),
       // new ShootAndOut(),
       // new ShootAndOutBlue()
+      new P1N1CSubwoofer(),
       new TestRoutine());
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
