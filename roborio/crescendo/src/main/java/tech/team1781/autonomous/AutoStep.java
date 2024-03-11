@@ -11,7 +11,7 @@ public class AutoStep {
     private Action mAction = null;
     private EVector mPosition = null;
     private PathPlannerPath mPath = null;
-    private StepType mType = null; 
+    private StepType mType = null;
 
     public AutoStep(double maxTime, Action action, EVector position) {
         mMaxTime = maxTime;
@@ -19,6 +19,17 @@ public class AutoStep {
         mPosition = position;
 
         mType = StepType.POSITION_AND_ACTION;
+    }
+
+    public AutoStep(double maxTime, Action action, EVector position, boolean isNotePosition) {
+        mMaxTime = maxTime;
+        mAction = action;
+        mPosition = position;
+
+        if(isNotePosition)
+            mType = StepType.NOTE_POSITION;
+        else 
+            mType = StepType.POSITION_AND_ACTION;
     }
 
     public AutoStep(double maxTime, Action action, PathPlannerPath path) {
@@ -75,14 +86,17 @@ public class AutoStep {
     public StepType getType() {
         return mType;
     }
-    
-    @Override 
+
+    @Override
     public String toString() {
         // if(mPath == null) {
-        //     return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Position " + mPosition;
+        // return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Position
+        // " + mPosition;
         // }
-        // return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Position " + mPosition + ", Path Starting Pose: " + mPath.getPreviewStartingHolonomicPose();
-        switch(mType) {
+        // return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Position
+        // " + mPosition + ", Path Starting Pose: " +
+        // mPath.getPreviewStartingHolonomicPose();
+        switch (mType) {
             case ACTION:
                 return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ")";
             case POSITION:
@@ -92,6 +106,7 @@ public class AutoStep {
             case WAIT:
                 return "AutoStep: ( Time: " + mMaxTime + ")";
             case POSITION_AND_ACTION:
+            case NOTE_POSITION:
                 return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Position: " + mPosition + ")";
             case PATH_AND_ACTION:
                 return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Path: " + mPath + ")";
@@ -103,6 +118,7 @@ public class AutoStep {
     public enum StepType {
         ACTION,
         POSITION,
+        NOTE_POSITION,
         PATH,
         WAIT,
         POSITION_AND_ACTION,

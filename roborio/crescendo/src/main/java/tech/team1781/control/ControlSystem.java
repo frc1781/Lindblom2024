@@ -536,7 +536,7 @@ public class ControlSystem {
                 mDriveSystem.setPosition(step.getPosition().flipIfRed());
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
                 break;
-            case PATH_AND_ACTION:
+            case PATH_AND_ACTION: case NOTE_POSITION:
                 mDriveSystem.setTrajectoryFromPath(step.getPath());
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_TRAJECTORY);
                 setAction(step.getAction());

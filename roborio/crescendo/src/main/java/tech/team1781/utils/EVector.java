@@ -90,6 +90,10 @@ public class EVector {
         return new Pose2d(x,y, new Rotation2d(z));
     }
 
+    public EVector rotate2d(double angle) {
+        return new EVector(x * Math.cos(angle) - y * Math.sin(angle), x * Math.sin(angle) + y * Math.cos(angle), z);
+    }
+
     public double magnitude(){
         return Math.sqrt(
             Math.pow(x, 2) + Math.pow(y,2)

@@ -32,6 +32,7 @@ import tech.team1781.swerve.KrakenL2SwerveModule;
 import tech.team1781.swerve.NEOL1SwerveModule;
 import tech.team1781.swerve.SwerveModule;
 import tech.team1781.utils.EVector;
+import tech.team1781.utils.Limelight;
 import tech.team1781.utils.NetworkLogger;
 
 import java.util.concurrent.Executors;
@@ -125,6 +126,7 @@ public class DriveSystem extends Subsystem {
 
     public enum DriveSystemState implements Subsystem.SubsystemState {
         DRIVE_SETPOINT,
+        DRIVE_NOTE,
         DRIVE_TRAJECTORY,
         DRIVE_MANUAL,
         SYSID
@@ -136,6 +138,10 @@ public class DriveSystem extends Subsystem {
             case DRIVE_SETPOINT:
                 goTo(mDesiredPosition);
                 break;
+            case DRIVE_NOTE:
+                goTo(mDesiredPosition);
+                changePositiontoNote();
+            break;
             case DRIVE_TRAJECTORY:
                 var trajectoryInitialPose = mDesiredTrajectory.getInitialState().getTargetHolonomicPose();
                 // System.out.println(mDesiredTrajectory.hashCode() + " :: " +
@@ -487,6 +493,15 @@ public class DriveSystem extends Subsystem {
         driveWithChassisSpeds(desiredChassisSpeeds);
     }
 
+    private void changePositiontoNote() {
+        double tx = Limelight.getTX(ConfigMap.NOTE_LIMELIGHT);
 
+        if(tx == 0.0) {
+            return;
+        }
+
+        double txRad = -Math.toRadians(tx);
+        mDesiredPosition.rotate2d(txRad);
+    }
 
 }
