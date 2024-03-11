@@ -113,6 +113,31 @@ public class EVector {
         return new EVector(x, y, z);
     }
 
+    public EVector withX(double x) {
+        EVector ret_val = this.copy();
+        ret_val.x = x;
+
+        return ret_val;
+    }
+
+    public EVector withY(double y) {
+        EVector ret_val = this.copy();
+        ret_val.y = y;
+
+        return ret_val;
+    }
+
+    public EVector withZ(double z) {
+        EVector ret_val = this.copy();
+        ret_val.z = z;
+
+        return ret_val;
+    }
+
+    public EVector withZDegrees(double z) {
+        return this.withZ(Math.toRadians(z));
+    }
+
     public EVector add(EVector vector) {
         return new EVector(x + vector.x, y + vector.y, z + vector.z);
     }

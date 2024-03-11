@@ -18,7 +18,7 @@ public class P3Leave implements AutoRoutine{
         return new AutoStep[] {
             new AutoStep(100, Action.OFF_KICKSTAND, Positions.P3),
             new AutoStep(5, Action.SHOOT_SUBWOOFER),
-            new AutoStep(2, EVector.newVector(2.82, 1.85, 0))
+            // new AutoStep(2, EVector.newVector(2.82, 1.85, 0))
         };
     }
     

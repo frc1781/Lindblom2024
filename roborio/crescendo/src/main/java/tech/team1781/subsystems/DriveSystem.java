@@ -309,6 +309,8 @@ public class DriveSystem extends Subsystem {
         double xDutyCycle = clamp(mXGoToController.calculate(robotPose.x, target.x), CLAMP_AMT);
         double yDutyCycle = clamp(mYGoToController.calculate(robotPose.y, target.y), CLAMP_AMT);
         double rotDutyCycle = mRotGoToController.calculate(getRobotAngle().getRadians(), target.z);
+        
+        System.out.println("x: " + xDutyCycle + " y: " + yDutyCycle + " z: " + rotDutyCycle);
 
         driveRaw(xDutyCycle, yDutyCycle, rotDutyCycle);
     }
@@ -368,7 +370,7 @@ public class DriveSystem extends Subsystem {
     }
 
     public boolean matchesPosition(Pose2d other) {
-        final double TOLERANCE = 0.2;
+        final double TOLERANCE = 0.1;
         EVector currentPose = EVector.fromPose(getRobotPose());
         EVector otherPose = EVector.fromPose(other);
         double dist = currentPose.dist(otherPose); 

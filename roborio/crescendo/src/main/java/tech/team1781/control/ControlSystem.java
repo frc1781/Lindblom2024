@@ -635,7 +635,7 @@ public class ControlSystem {
                 autoAimingInputs();
                 break;
             case AUTONOMOUS:
-                    // localizationUpdates();
+                    localizationUpdates();
                 if (mScollector.getState() == ScollectorState.COLLECT
                         || mScollector.getState() == ScollectorState.COLLECT_RAMP
                         || mScollector.getState() == ScollectorState.COLLECT_AUTO_SHOOT) {
