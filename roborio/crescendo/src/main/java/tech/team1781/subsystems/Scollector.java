@@ -101,7 +101,6 @@ public class Scollector extends Subsystem {
         mReadyToShootEntry.setBoolean(shooterAtSpeed());
         mHasNoteEntry.setBoolean(hasNote());
     }
-
     @Override
     public void init() {
         mArmInPosition = false;
@@ -137,9 +136,13 @@ public class Scollector extends Subsystem {
             case COLLECT_AUTO_SHOOT:
                 if (!hasNote()) {
                     collect();
+                    System.out.println("COLLECTING ============");
                 } else if (mArmInPosition && (noteCloseToShooter() || hasNote()) && shooterAtSpeed()) {
+                    System.out.println("SHOOTING: " + mArmInPosition + " :: " + noteCloseToShooter() + " :: " + hasNote() + " :: " + shooterAtSpeed());
                     shoot();
                 } else {
+                    System.out.println("NOTHING");
+                    System.out.println(mArmInPosition + " :: " + noteCloseToShooter() + " :: " + hasNote() + " :: " + shooterAtSpeed());
                     mCollectorMotor.set(0);
                 }
 
@@ -203,9 +206,10 @@ public class Scollector extends Subsystem {
         double rightSpeed = mTopShooterMotor.getEncoder().getVelocity();
         double leftDiff = Math.abs(leftSpeed - ConfigMap.MAX_SHOOTER_SPEED);
         double rightDiff = Math.abs(rightSpeed - ConfigMap.MAX_SHOOTER_SPEED);
+        double point = ConfigMap.MAX_SHOOTER_SPEED - 1;
         final double TOLERANCE = 0.1;
 
-        return leftSpeed >= ConfigMap.MAX_SHOOTER_SPEED && rightSpeed >= ConfigMap.MAX_SHOOTER_SPEED;
+        return leftSpeed >= point && rightSpeed >= point; 
         
     }
 

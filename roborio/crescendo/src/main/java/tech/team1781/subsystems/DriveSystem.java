@@ -31,6 +31,7 @@ import tech.team1781.control.ControlSystem;
 import tech.team1781.swerve.KrakenL2SwerveModule;
 import tech.team1781.swerve.NEOL1SwerveModule;
 import tech.team1781.swerve.SwerveModule;
+import tech.team1781.utils.EEGeometryUtil;
 import tech.team1781.utils.EVector;
 import tech.team1781.utils.Limelight;
 import tech.team1781.utils.NetworkLogger;
@@ -77,6 +78,7 @@ public class DriveSystem extends Subsystem {
     private PIDController mYController = new PIDController(1, 0, 0);
     private ProfiledPIDController mRotController = new ProfiledPIDController(4, 0, 0,
             new TrapezoidProfile.Constraints(6.28, 3.14));
+    private PIDController mNoteAimController = new PIDController(1, 0, 0);
 
     private PIDController mXGoToController = new PIDController(1, 0, 0);
     private PIDController mYGoToController = new PIDController(1, 0, 0);
@@ -101,11 +103,9 @@ public class DriveSystem extends Subsystem {
 
     private Field2d mField = new Field2d();
 
-    private EVector mNotePosition = new EVector(-1,-1);
+    private EVector mNotePosition = new EVector(-1, -1);
     private boolean mSeesNote = false;
     private Timer mSeekNoteTrajectoryTimer = new Timer();
-    
-
 
     public DriveSystem() {
         super("Drive System", DriveSystemState.DRIVE_MANUAL);
@@ -135,13 +135,9 @@ public class DriveSystem extends Subsystem {
     @Override
     public void getToState() {
         switch ((DriveSystemState) getState()) {
-            case DRIVE_SETPOINT:
+            case DRIVE_SETPOINT: case DRIVE_NOTE:
                 goTo(mDesiredPosition);
                 break;
-            case DRIVE_NOTE:
-                goTo(mDesiredPosition);
-                changePositiontoNote();
-            break;
             case DRIVE_TRAJECTORY:
                 var trajectoryInitialPose = mDesiredTrajectory.getInitialState().getTargetHolonomicPose();
                 // System.out.println(mDesiredTrajectory.hashCode() + " :: " +
@@ -166,11 +162,12 @@ public class DriveSystem extends Subsystem {
 
     @Override
     public boolean matchesDesiredState() {
+        System.out.println(getState());
 
         switch ((DriveSystemState) getState()) {
-            case DRIVE_SETPOINT:
+            case DRIVE_SETPOINT: case DRIVE_NOTE: 
                 return matchesDesiredPosition();
-                // return false;
+            // return false;
             case DRIVE_TRAJECTORY:
                 return matchesPosition(mDesiredTrajectory.getEndState().getTargetHolonomicPose())
                         && (currentTime >= mDesiredTrajectory.getTotalTimeSeconds());
@@ -212,8 +209,6 @@ public class DriveSystem extends Subsystem {
         mBackLeft.init();
         mBackRight.init();
 
-
-
         switch (currentMode) {
             case AUTONOMOUS:
                 mNavX.reset();
@@ -238,7 +233,6 @@ public class DriveSystem extends Subsystem {
             default:
                 break;
         }
-
 
         mRotController.enableContinuousInput(0, 2 * Math.PI);
     }
@@ -298,10 +292,9 @@ public class DriveSystem extends Subsystem {
         if (mIsManual && mDesiredPosition == null) {
             return;
         }
-        final double DISTANCE_TOLERANCE = 0.6;
         EVector robotPose = EVector.fromPose(getRobotPose());
-        double diff = target.dist(robotPose);
-        if (diff < DISTANCE_TOLERANCE) {
+        if (matchesDesiredPosition()) {
+            driveRaw(0, 0, 0);
             return;
         }
 
@@ -309,8 +302,17 @@ public class DriveSystem extends Subsystem {
         double xDutyCycle = clamp(mXGoToController.calculate(robotPose.x, target.x), CLAMP_AMT);
         double yDutyCycle = clamp(mYGoToController.calculate(robotPose.y, target.y), CLAMP_AMT);
         double rotDutyCycle = mRotGoToController.calculate(getRobotAngle().getRadians(), target.z);
-        
-        System.out.println("x: " + xDutyCycle + " y: " + yDutyCycle + " z: " + rotDutyCycle);
+
+        double x = Math.toRadians(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT));
+
+        if (getState() == DriveSystemState.DRIVE_NOTE) {
+            if (x != 0.0) {
+                double aimingAngle = mNoteAimController.calculate(x, 0);
+                rotDutyCycle = aimingAngle;
+                mDesiredPosition.z = getRobotAngle().getRadians();
+            }
+        }
+
 
         driveRaw(xDutyCycle, yDutyCycle, rotDutyCycle);
     }
@@ -323,7 +325,7 @@ public class DriveSystem extends Subsystem {
             mXController = new PIDController(1, 0, 0);
             mYController = new PIDController(1, 0, 0);
             mRotController = new ProfiledPIDController(4, 0, 0,
-                new TrapezoidProfile.Constraints(6.28, 3.14));
+                    new TrapezoidProfile.Constraints(6.28, 3.14));
             mTrajectoryController = new HolonomicDriveController(mXController, mYController, mRotController);
             setOdometry(initialPose);
             mOdometryBeenSet = true;
@@ -362,7 +364,6 @@ public class DriveSystem extends Subsystem {
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
 
-
         mFrontLeft.setDesiredState(moduleStates[0]);
         mFrontRight.setDesiredState(moduleStates[1]);
         mBackLeft.setDesiredState(moduleStates[2]);
@@ -373,7 +374,7 @@ public class DriveSystem extends Subsystem {
         final double TOLERANCE = 0.1;
         EVector currentPose = EVector.fromPose(getRobotPose());
         EVector otherPose = EVector.fromPose(other);
-        double dist = currentPose.dist(otherPose); 
+        double dist = currentPose.dist(otherPose);
         return dist <= TOLERANCE;
     }
 
@@ -381,10 +382,10 @@ public class DriveSystem extends Subsystem {
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(
                 mIsFieldOriented
                         ? ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
-                            xSpeed, 
-                            ySpeed,
+                                xSpeed,
+                                ySpeed,
                                 rot),
-                            getRobotAngle())
+                                getRobotAngle())
                         : new ChassisSpeeds(xSpeed, ySpeed, rot));
 
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
@@ -424,7 +425,10 @@ public class DriveSystem extends Subsystem {
         return false;
     }
 
-
+    public void setDesiredState(SubsystemState desiredState) {
+        super.setDesiredState(desiredState);
+        mNoteAimController.reset();
+    }
 
     public void printModules() {
         // ((NEOL1SwerveModule) mFrontLeft).printModuleState();
@@ -434,21 +438,23 @@ public class DriveSystem extends Subsystem {
     }
 
     public void updateNotePosition(boolean seesNote, double dist) {
-        if(seesNote) {
+        if (seesNote) {
             mNotePosition = EVector.newVector(
-                Math.cos(getRobotAngle().getRadians()) * dist,
-                Math.sin(getRobotAngle().getRadians()) * dist,
-                getRobotAngle().getRadians()
-            );
+                    Math.cos(getRobotAngle().getRadians()) * dist,
+                    Math.sin(getRobotAngle().getRadians()) * dist,
+                    getRobotAngle().getRadians());
             mSeesNote = true;
         }
+    }
+
+    public void centerNote() {
+
     }
 
     private void updateOdometry() {
         // mOdometry.update(getRobotAngle(), getModulePositions());
         mPoseEstimator.update(getRobotAngle(), getModulePositions());
     }
-
 
     private SwerveModulePosition[] getModulePositions() {
         return new SwerveModulePosition[] {
@@ -472,12 +478,12 @@ public class DriveSystem extends Subsystem {
         double sig = Math.signum(input);
         double abs = Math.abs(input);
 
-        if(abs >= clampVal) {
+        if (abs >= clampVal) {
             return clampVal * sig;
         }
 
         return input;
-        
+
     }
 
     public void followTrajectory(double time) {
@@ -496,14 +502,6 @@ public class DriveSystem extends Subsystem {
     }
 
     private void changePositiontoNote() {
-        double tx = Limelight.getTX(ConfigMap.NOTE_LIMELIGHT);
-
-        if(tx == 0.0) {
-            return;
-        }
-
-        double txRad = -Math.toRadians(tx);
-        mDesiredPosition = mDesiredPosition.rotate2d(txRad);
     }
 
 }

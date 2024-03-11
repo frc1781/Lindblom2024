@@ -66,7 +66,8 @@ public class Robot extends TimedRobot {
       new P1N1DCSubwoofer(),
       new P2N2DCSubwoofer(),
       new P3N3DCSubwoofer(),
-      new P3Leave()
+      new P3Leave(),
+      new TestRoutine()
     );
 
     mDriverInput = new DriverInput();

@@ -160,7 +160,7 @@ public class Arm extends Subsystem {
                 armDutyCycle = 0.0;
                 mLeftEncoder.setPosition(0.01);
             } 
-            // mLeftMotor.set(armDutyCycle);
+            mLeftMotor.set(armDutyCycle);
         } else {
             mSparkErrorEntry.setBoolean(true);
         }
@@ -168,11 +168,11 @@ public class Arm extends Subsystem {
 
     @Override
     public boolean matchesDesiredState() {
+        System.out.println("arm state: " + getState());
         switch ((ArmState) getState()) {
             case COLLECT:
-                return mLeftEncoder.getPosition() <= 0.0;
+                return mLeftEncoder.getPosition() <= 0.01;
             default:
-                //System.out.println(matchesPosition());
                 return matchesPosition();
         }
     }
@@ -245,7 +245,8 @@ public class Arm extends Subsystem {
 
     private boolean matchesPosition() {
         //System.out.println("diff: " + Math.abs(mLeftEncoder.getPosition() - mDesiredPosition));
-        return Math.abs(mLeftEncoder.getPosition() - mDesiredPosition) < 0.6;
+        System.out.println("EncoderPos: " + mLeftEncoder.getPosition() + " :: " + mDesiredPosition + " :: " + Math.abs(mLeftEncoder.getPosition() - mDesiredPosition));
+        return Math.abs(mLeftEncoder.getPosition() - mDesiredPosition) < 0.7;
     }
 
     private enum CURRENT_AIM_SPOT {

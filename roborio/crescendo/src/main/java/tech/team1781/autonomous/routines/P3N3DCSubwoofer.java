@@ -16,11 +16,12 @@ public class P3N3DCSubwoofer implements AutoRoutine{
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-            new AutoStep(2, Action.OFF_KICKSTAND, Positions.P3),
-            new AutoStep(5, Action.SHOOT_SUBWOOFER),
-            new AutoStep(2, Action.COLLECT_RAMP, Positions.N3), 
+            new AutoStep(100, Action.OFF_KICKSTAND, Positions.P3),
+            new AutoStep(100, Action.COLLECT_RAMP),
+            new AutoStep(6, Action.SHOOT_SUBWOOFER),
+            new AutoStep(2, Action.COLLECT_RAMP, Positions.N3, true), 
             new AutoStep(3, Action.COLLECT_RAMP, Positions.P3),
-            new AutoStep(2, Action.SHOOT_SUBWOOFER),
+            new AutoStep(4, Action.AUTO_AIM_SHOOT),
             // new AutoStep(2, EVector.positionWithDegrees(2.82, 1.85, 0)),j
             // new AutoStep(2, EVector.positionWithDegrees(7.56, 0.8, 0))
         };

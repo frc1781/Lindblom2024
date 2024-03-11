@@ -16,7 +16,7 @@ public class P1Leave implements AutoRoutine{
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-            new AutoStep(2, Action.OFF_KICKSTAND, Positions.P1),
+            new AutoStep(100, Action.OFF_KICKSTAND, Positions.P1),
             new AutoStep(5, Action.SHOOT_SUBWOOFER),
             // new AutoStep(2, EVector.positionWithDegrees(1.37, 7.55, 0)),
             new AutoStep(5),

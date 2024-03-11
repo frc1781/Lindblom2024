@@ -536,16 +536,21 @@ public class ControlSystem {
                 mDriveSystem.setPosition(step.getPosition().flipIfRed());
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
                 break;
-            case PATH_AND_ACTION: case NOTE_POSITION:
+            case PATH_AND_ACTION: 
                 mDriveSystem.setTrajectoryFromPath(step.getPath());
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_TRAJECTORY);
                 setAction(step.getAction());
                 break;
-            case POSITION_AND_ACTION:
+            case POSITION_AND_ACTION: 
                 mDriveSystem.setPosition(step.getPosition().flipIfRed());
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
                 setAction(step.getAction());
                 break;
+            case NOTE_POSITION:
+                mDriveSystem.setPosition(step.getPosition().flipIfRed());
+                mDriveSystem.setDesiredState(DriveSystemState.DRIVE_NOTE);
+                setAction(step.getAction());
+            break;
             case WAIT:
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
                 break;
@@ -637,7 +642,6 @@ public class ControlSystem {
             case AUTONOMOUS:
                     localizationUpdates();
                 if (mScollector.getState() == ScollectorState.COLLECT
-                        || mScollector.getState() == ScollectorState.COLLECT_RAMP
                         || mScollector.getState() == ScollectorState.COLLECT_AUTO_SHOOT) {
                     if (mScollector.hasNote()) {
                         mArm.setDesiredState(ArmState.AUTO_ANGLE);
