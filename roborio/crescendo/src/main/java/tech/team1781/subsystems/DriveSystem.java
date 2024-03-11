@@ -501,7 +501,7 @@ public class DriveSystem extends Subsystem {
         }
 
         double txRad = -Math.toRadians(tx);
-        mDesiredPosition.rotate2d(txRad);
+        mDesiredPosition = mDesiredPosition.rotate2d(txRad);
     }
 
 }
