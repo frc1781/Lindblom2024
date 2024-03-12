@@ -2,6 +2,9 @@ package tech.team1781.control;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Stack;
 
 import com.pathplanner.lib.path.PathPlannerPath;
 
@@ -64,21 +67,24 @@ public class ControlSystem {
     private double mAimingAngle = 0.0;
 
     // CURRENT STATE OF INPUT for HOLD DOWN BUTTONS
-    private boolean mKeepArmDownButton = false;
-    private boolean mCollectingButton = false;
-    private boolean mPrepareToShootButton = false;
-    private boolean mShootButton = false;
-    private boolean mSpitButton = false;
-    private boolean mClimberRetractButton = false;
-    private boolean mClimberExtendButton = false;
+    // private boolean mKeepArmDownButton = false;
+    // private boolean mCollectingButton = false;
+    // private boolean mPrepareToShootButton = false;
+    // private boolean mShootButton = false;
+    // private boolean mSpitButton = false;
+    // private boolean mClimberRetractButton = false;
+    // private boolean mClimberExtendButton = false;
     private boolean mCenterOnAprilTagButton = false;
     private boolean mAutoCollectionButton = false;
-    private boolean mSeekSpeakerButton = false;
-    private boolean mCollectingHighButton = false;
-    private boolean mAmpButton = false;
-    private boolean mShootPodiumButton = false;
-    private boolean mSkipNoteButton = false;
-    private boolean mLobButton = false;
+    // private boolean mSeekSpeakerButton = false;
+    // private boolean mCollectingHighButton = false;
+    // private boolean mAmpButton = false;
+    // private boolean mShootPodiumButton = false;
+    // private boolean mSkipNoteButton = false;
+    // private boolean mLobButton = false;
+
+    private Stack<SubsystemSetting> mSettingStack = new Stack<>();
+        
 
     private GenericEntry mSeesAprilTagEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Sees AprilTag",
             false, ShuffleboardStyle.SEES_APRILTAG);
@@ -165,21 +171,9 @@ public class ControlSystem {
     }
 
     public void keepArmDown(boolean pushingKeepDown) {
-        if (mKeepArmDownButton == pushingKeepDown) {
-            return; // already set, do nothing
-        }
-
-        mKeepArmDownButton = pushingKeepDown;
-        if (mKeepArmDownButton) {
-            mArm.setDesiredState(ArmState.COLLECT);
-        } else {
-            if (!mPrepareToShootButton && !mCollectingButton) {
-                mArm.setDesiredState(ArmState.SAFE);
-            }
-            if (mPrepareToShootButton) {
-                mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
-                mArm.setDesiredState(ArmState.AUTO_ANGLE);
-            }
+        if(pushingKeepDown) {
+            mSettingStack.add(new SubsystemSetting(mArm, ArmState.COLLECT));
+            mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.IDLE));
         }
     }
 
@@ -188,59 +182,23 @@ public class ControlSystem {
     }
 
     public void setCollecting(boolean pushingCollect) {
-        if (mCollectingButton == pushingCollect) {
-            return; // no change in state
-        }
-
-        mCollectingButton = pushingCollect;
-        if (mCollectingButton) {
-            mScollector.setDesiredState(ScollectorState.COLLECT);
-            mArm.setDesiredState(ArmState.COLLECT);
-        } else {
-            if (!mKeepArmDownButton && !mPrepareToShootButton) {
-                mArm.setDesiredState(ArmState.SAFE);
-            }
-            if (mPrepareToShootButton) {
-                mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
-
-                if (!mKeepArmDownButton && !mCollectingButton) {
-                    mArm.setDesiredState(ArmState.AUTO_ANGLE);
-                }
-            } else {
-                mScollector.setDesiredState(ScollectorState.IDLE);
-            }
+        if(pushingCollect) {
+            mSettingStack.add(new SubsystemSetting(mArm, ArmState.COLLECT));
+            mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.COLLECT));
         }
     }
 
-    // public void setTrap(boolean pushingTrapButton) {
-    //   mClimber.setTrap(pushingTrapButton ? TrapState.OUT : TrapState.IN);    
-    // }
-
     public void setSpit(boolean pushingSpit) {
-        if (mSpitButton == pushingSpit) {
-            return; // no change in state
-        }
-
-        mSpitButton = pushingSpit;
-        if (mSpitButton) {
-            mScollector.setDesiredState(ScollectorState.SPIT);
-        } else {
-            mScollector.setDesiredState(ScollectorState.IDLE);
+        if(pushingSpit) {
+            mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.SPIT));
         }
     }
 
     public void setShooting(boolean pushingShoot) {
-        if (mShootButton == pushingShoot) {
-            return; // no change in state
+        if(pushingShoot) {
+            mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.SHOOT));
         }
-
-        mShootButton = pushingShoot;
-        if (mShootButton) {
-            mScollector.setDesiredState(ScollectorState.SHOOT);
-        } else if (!mKeepArmDownButton && !mCollectingButton) {
-            mArm.setDesiredState(ArmState.SAFE);
-            mScollector.setDesiredState(ScollectorState.IDLE);
-        }
+        
     }
 
     public void manualAdjustAngle(double diff) {
@@ -248,22 +206,10 @@ public class ControlSystem {
     }
 
     public void skipNote(boolean isSkipping) {
-        if (mSkipNoteButton == isSkipping) {
-            return;
+        if(isSkipping) {
+            mSettingStack.add(new SubsystemSetting(mArm, ArmState.SKIP));
+            mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.IDLE));
         }
-
-        mSkipNoteButton = isSkipping;
-
-        if (!mCollectingButton && !mPrepareToShootButton && !mKeepArmDownButton && !mShootPodiumButton) {
-            if (!mSkipNoteButton) {
-                mArm.setDesiredState(ArmState.SAFE);
-                mScollector.setDesiredState(ScollectorState.IDLE);
-            } else {
-                mArm.setDesiredState(ArmState.SKIP);
-                mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
-            }
-        }
-
     }
 
     public void calibratePosition() {
@@ -271,87 +217,73 @@ public class ControlSystem {
     }
 
     public void setPrepareToShoot(boolean pushingPrepare) {
-        if (mPrepareToShootButton == pushingPrepare) {
-            return; // no change in state
-        }
-        mPrepareToShootButton = pushingPrepare;
-        if (mPrepareToShootButton) {
-            if (mCollectingButton || mKeepArmDownButton) {
-                mScollector.setDesiredState(ScollectorState.COLLECT_RAMP);
-            } else if (!mKeepArmDownButton) {
-                mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
+        // if (mPrepareToShootButton == pushingPrepare) {
+        //     return; // no change in state
+        // }
+        // mPrepareToShootButton = pushingPrepare;
+        // if (mPrepareToShootButton) {
+        //     if (mCollectingButton || mKeepArmDownButton) {
+        //         mScollector.setDesiredState(ScollectorState.COLLECT_RAMP);
+        //     } else if (!mKeepArmDownButton) {
+        //         mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
 
-                mArm.setDesiredState(ArmState.AUTO_ANGLE);
-            }
-        } else {
-            if (!mCollectingButton && !mKeepArmDownButton) {
-                mArm.setDesiredState(ArmState.SAFE);
-            }
-            if (mCollectingButton) {
-                mScollector.setDesiredState(ScollectorState.COLLECT);
-            } else {
-                mScollector.setDesiredState(ScollectorState.IDLE);
-            }
+        //         mArm.setDesiredState(ArmState.AUTO_ANGLE);
+        //     }
+        // } else {
+        //     if (!mCollectingButton && !mKeepArmDownButton) {
+        //         mArm.setDesiredState(ArmState.SAFE);
+        //     }
+        //     if (mCollectingButton) {
+        //         mScollector.setDesiredState(ScollectorState.COLLECT);
+        //     } else {
+        //         mScollector.setDesiredState(ScollectorState.IDLE);
+        //     }
+        // }
+        if(pushingPrepare) {
+            mSettingStack.add(new SubsystemSetting(mArm, ArmState.AUTO_ANGLE));
+            mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
         }
     }
 
-    public void setClimberRetract(boolean pushingRetract) {
-        if (mClimberRetractButton == pushingRetract) {
-            return; // no change in state
-        }
-
-        mClimberRetractButton = pushingRetract;
-        if (mClimberRetractButton) {
-            mClimber.setDesiredState(Climber.ClimberState.RETRACT);
-        } else if (!mClimberExtendButton) {
-            mClimber.setDesiredState(Climber.ClimberState.IDLE);
-        }
-    }
-
-    public void setClimberExtend(boolean pushingExtend) {
-        if (mClimberExtendButton == pushingExtend) {
-            return; // no change in state
-        }
-
-        mClimberExtendButton = pushingExtend;
-        if (mClimberExtendButton) {
-            mClimber.setDesiredState(Climber.ClimberState.EXTEND);
-        } else if (!mClimberRetractButton) {
-            mClimber.setDesiredState(Climber.ClimberState.IDLE);
-        }
-    }
 
     public void setCollectHigh(boolean collectingHigh) {
-        if (mCollectingHighButton == collectingHigh) {
-            return;
-        }
+        // if (mCollectingHighButton == collectingHigh) {
+        //     return;
+        // }
 
-        mCollectingHighButton = collectingHigh;
+        // mCollectingHighButton = collectingHigh;
 
-        if (!mCollectingButton && collectingHigh && !mKeepArmDownButton) {
-            mArm.setDesiredState(ArmState.COLLECT_HIGH);
-            mScollector.setDesiredState(ScollectorState.COLLECT);
-        }
+        // if (!mCollectingButton && collectingHigh && !mKeepArmDownButton) {
+        //     mArm.setDesiredState(ArmState.COLLECT_HIGH);
+        //     mScollector.setDesiredState(ScollectorState.COLLECT);
+        // }
 
-        if (!collectingHigh && !mKeepArmDownButton && !mPrepareToShootButton && !mCollectingButton) {
-            mArm.setDesiredState(ArmState.SAFE);
-            mScollector.setDesiredState(ScollectorState.IDLE);
+        // if (!collectingHigh && !mKeepArmDownButton && !mPrepareToShootButton && !mCollectingButton) {
+        //     mArm.setDesiredState(ArmState.SAFE);
+        //     mScollector.setDesiredState(ScollectorState.IDLE);
+        // }
+        if(collectingHigh) {
+            mSettingStack.add(new SubsystemSetting(mArm, ArmState.COLLECT_HIGH));
+            mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.COLLECT));
         }
     }
 
     public void setAmp(boolean isAmp) {
-        if (mAmpButton == isAmp) {
-            return;
-        }
+        // if (mAmpButton == isAmp) {
+        //     return;
+        // }
 
-        mAmpButton = isAmp;
+        // mAmpButton = isAmp;
 
-        if (!mCollectingButton && !mCollectingHighButton && !mKeepArmDownButton && !mPrepareToShootButton
-                && mAmpButton) {
-            mArm.setDesiredState(ArmState.AMP);
-        } else if (!mCollectingButton && !mCollectingHighButton && !mKeepArmDownButton && !mPrepareToShootButton
-                && !mAmpButton) {
-            mArm.setDesiredState(ArmState.SAFE);
+        // if (!mCollectingButton && !mCollectingHighButton && !mKeepArmDownButton && !mPrepareToShootButton
+        //         && mAmpButton) {
+        //     mArm.setDesiredState(ArmState.AMP);
+        // } else if (!mCollectingButton && !mCollectingHighButton && !mKeepArmDownButton && !mPrepareToShootButton
+        //         && !mAmpButton) {
+        //     mArm.setDesiredState(ArmState.SAFE);
+        // }
+        if(isAmp) {
+            mSettingStack.add(new SubsystemSetting(mArm, ArmState.AMP));
         }
     }
 
@@ -432,21 +364,25 @@ public class ControlSystem {
     }
 
     public void shootPodium(boolean isShooting) {
-        if (isShooting == mShootPodiumButton) {
-            return;
-        }
+        // if (isShooting == mShootPodiumButton) {
+        //     return;
+        // }
 
-        mShootPodiumButton = isShooting;
+        // mShootPodiumButton = isShooting;
 
-        if (mShootPodiumButton && !mCollectingButton && !mPrepareToShootButton) {
-            if (!mKeepArmDownButton)
-                mArm.setDesiredState(ArmState.PODIUM);
-            mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
+        // if (mShootPodiumButton && !mCollectingButton && !mPrepareToShootButton) {
+        //     if (!mKeepArmDownButton)
+        //         mArm.setDesiredState(ArmState.PODIUM);
+        //     mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
 
-        } else if (!mCollectingButton && !mPrepareToShootButton) {
-            if (!mKeepArmDownButton)
-                mArm.setDesiredState(ArmState.SAFE);
-            mScollector.setDesiredState(ScollectorState.IDLE);
+        // } else if (!mCollectingButton && !mPrepareToShootButton) {
+        //     if (!mKeepArmDownButton)
+        //         mArm.setDesiredState(ArmState.SAFE);
+        //     mScollector.setDesiredState(ScollectorState.IDLE);
+        // }
+        if(isShooting) {
+            mSettingStack.add(new SubsystemSetting(mArm, ArmState.PODIUM));
+            mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.RAMP_SHOOTER));
         }
     }
 
@@ -629,6 +565,11 @@ public class ControlSystem {
 
         switch (mCurrentOperatingMode) {
             case TELEOP:
+                while(!mSettingStack.isEmpty()) {
+                    mSettingStack.pop().setState();
+                }
+
+
                 localizationUpdates();
                 seesNote();
                 EVector driverTriggers = driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT);

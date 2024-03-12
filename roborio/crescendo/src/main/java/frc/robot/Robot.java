@@ -62,7 +62,7 @@ public class Robot extends TimedRobot {
     
     mControlSystem = new ControlSystem();
     mAutonomousHandler = new AutonomousHandler(mControlSystem, 
-      new P1Leave(),
+      new P1WaitLeave(),
       new P1N1Subwoofer(),
       new P2N2Subwoofer(),
       new P3N3Subwoofer(),
