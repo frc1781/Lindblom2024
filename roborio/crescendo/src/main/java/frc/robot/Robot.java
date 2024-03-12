@@ -83,6 +83,14 @@ public class Robot extends TimedRobot {
     // PreferenceHandler.addValue("backRightOffset",
     // ConfigMap.BACK_RIGHT_MODULE_STEER_OFFSET);
 
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.KEEP_DOWN, (isPressed) -> {
+      mControlSystem.keepArmDown(isPressed);
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT, (isPressed) -> {
+      mControlSystem.setCollecting(isPressed);
+    });
+
     mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.RESET_NAVX, (isPressed) -> {
       if (isPressed) {
         mControlSystem.zeroNavX();
@@ -143,13 +151,7 @@ public class Robot extends TimedRobot {
       mControlSystem.skipNote(isHeld);
     });
 
-    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.KEEP_DOWN, (isPressed) -> {
-      mControlSystem.keepArmDown(isPressed);
-    });
-
-    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT, (isPressed) -> {
-      mControlSystem.setCollecting(isPressed);
-    });
+    
 
   }
 
