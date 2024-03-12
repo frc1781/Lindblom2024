@@ -173,7 +173,6 @@ public class ControlSystem {
     public void keepArmDown(boolean pushingKeepDown) {
         if(pushingKeepDown) {
             mSettingStack.add(new SubsystemSetting(mArm, ArmState.COLLECT));
-            mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.IDLE));
         }
     }
 
@@ -207,7 +206,7 @@ public class ControlSystem {
     public void skipNote(boolean isSkipping) {
         if(isSkipping) {
             mSettingStack.add(new SubsystemSetting(mArm, ArmState.SKIP));
-            mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.IDLE));
+            mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.RAMP_SHOOTER));
         }
     }
 
@@ -240,7 +239,7 @@ public class ControlSystem {
         // }
         if(pushingPrepare) {
             mSettingStack.add(new SubsystemSetting(mArm, ArmState.AUTO_ANGLE));
-            mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
+            mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.RAMP_SHOOTER));
         }
     }
 
@@ -564,7 +563,8 @@ public class ControlSystem {
 
         switch (mCurrentOperatingMode) {
             case TELEOP:
-                mSettingStack.add(new SubsystemSetting(mArm, ArmState.SAFE));
+                if(mArm.getState() != ArmState.MANUAL)
+                    mSettingStack.add(new SubsystemSetting(mArm, ArmState.SAFE));
                 mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.IDLE));
                 while(!mSettingStack.isEmpty()) {
                     mSettingStack.pop().setState();

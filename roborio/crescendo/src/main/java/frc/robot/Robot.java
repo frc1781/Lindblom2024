@@ -83,12 +83,12 @@ public class Robot extends TimedRobot {
     // PreferenceHandler.addValue("backRightOffset",
     // ConfigMap.BACK_RIGHT_MODULE_STEER_OFFSET);
 
-    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.KEEP_DOWN, (isPressed) -> {
-      mControlSystem.keepArmDown(isPressed);
-    });
-
     mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT, (isPressed) -> {
       mControlSystem.setCollecting(isPressed);
+    });
+    
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.KEEP_DOWN, (isPressed) -> {
+      mControlSystem.keepArmDown(isPressed);
     });
 
     mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.RESET_NAVX, (isPressed) -> {
@@ -121,14 +121,16 @@ public class Robot extends TimedRobot {
       }
     });
 
-    // mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.NOTE_COLLECTION, (isHeld) -> {
-    //   mControlSystem.setAutoCollectionButton(isHeld);
+    // mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT,
+    // ConfigMap.NOTE_COLLECTION, (isHeld) -> {
+    // mControlSystem.setAutoCollectionButton(isHeld);
     // });
 
-    // mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.CALIBRATE_POSITION, (isPressed) -> {
-    //   if (isPressed) {
-    //     mControlSystem.calibratePosition();
-    //   }
+    // mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT,
+    // ConfigMap.CALIBRATE_POSITION, (isPressed) -> {
+    // if (isPressed) {
+    // mControlSystem.calibratePosition();
+    // }
     // });
 
     mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT_HIGH, (isPressed) -> {
@@ -150,8 +152,6 @@ public class Robot extends TimedRobot {
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SKIP, (isHeld) -> {
       mControlSystem.skipNote(isHeld);
     });
-
-    
 
   }
 
