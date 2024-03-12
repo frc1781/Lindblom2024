@@ -164,7 +164,7 @@ public class DriveSystem extends Subsystem {
     public boolean matchesDesiredState() {
 
         switch ((DriveSystemState) getState()) {
-            case DRIVE_SETPOINT: 
+            case DRIVE_SETPOINT: case DRIVE_NOTE: 
                 return matchesDesiredPosition();
             // return false;
             case DRIVE_TRAJECTORY:
@@ -172,8 +172,8 @@ public class DriveSystem extends Subsystem {
                         && (currentTime >= mDesiredTrajectory.getTotalTimeSeconds());
             case DRIVE_MANUAL:
                 return true;
-            case DRIVE_NOTE:
-                return true;
+            // case DRIVE_NOTE:
+                // return true;
             // return mIsManual;
             default:
                 return false;

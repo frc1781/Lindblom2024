@@ -62,12 +62,18 @@ public class Robot extends TimedRobot {
 
     mControlSystem = new ControlSystem();
     mAutonomousHandler = new AutonomousHandler(mControlSystem,
-        new P1WaitLeave(),
         new P1N1Subwoofer(),
         new P2N2Subwoofer(),
-        new P3N3Subwoofer(),
+        new P3N3C5Subwoofer(),
+        new P1N1C1Subwoofer(),
+        new P2N2C2Subwoofer(),
+        new P3N3C5Subwoofer(),
         new P3Leave(),
-        new TestRoutine());
+        new P1WaitLeave(),
+        new P2N2N3Subwoofer(),
+        new P2N2N1Subwoofer(),
+        new Hockey()
+      );
 
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
@@ -86,7 +92,7 @@ public class Robot extends TimedRobot {
     mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT, (isPressed) -> {
       mControlSystem.setCollecting(isPressed);
     });
-    
+
     mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.KEEP_DOWN, (isPressed) -> {
       mControlSystem.keepArmDown(isPressed);
     });
