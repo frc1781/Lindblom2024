@@ -84,6 +84,7 @@ public class Arm extends Subsystem {
         mPositions.put(ArmState.COLLECT_HIGH, 55.7);
         mPositions.put(ArmState.SKIP, 55.0);
         mPositions.put(ArmState.KICKSTAND, 69.0);
+        mPositions.put(ArmState.LOB, 10.0);
         mPositions.put(ArmState.NOTE_ONE, CURRENT_AIM_SPOT.NOTE_1.getPosition());
         mPositions.put(ArmState.NOTE_THREE, CURRENT_AIM_SPOT.NOTE_3.getPosition());
     } //58 
@@ -100,7 +101,8 @@ public class Arm extends Subsystem {
         AMP,
         SKIP,
         NOTE_ONE,
-        NOTE_THREE
+        NOTE_THREE,
+        LOB
     }
 
     @Override

@@ -6,19 +6,21 @@ import tech.team1781.autonomous.AutonomousHandler.AutoRoutine;
 import tech.team1781.control.ControlSystem.Action;
 import tech.team1781.utils.EVector;
 
-public class P3Leave implements AutoRoutine{
+public class P1WaitLeave implements AutoRoutine{
 
     @Override
     public String getName() {
-        return "P3Leave";
+        return "P1WaitLeave";
     }
 
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-            new AutoStep(100, Action.OFF_KICKSTAND, Positions.P3, true),
+            new AutoStep(100, Action.OFF_KICKSTAND, Positions.P1),
             new AutoStep(5, Action.SHOOT_SUBWOOFER),
-            new AutoStep(2, EVector.newVector(2.82, 1.85, 0))
+            new AutoStep(2, EVector.positionWithDegrees(1.37, 7.55, 0)),
+            new AutoStep(5),
+            new AutoStep(2, EVector.positionWithDegrees(7.24, 7.53, 0))
         };
     }
     

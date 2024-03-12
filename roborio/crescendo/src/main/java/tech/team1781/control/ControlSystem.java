@@ -78,6 +78,7 @@ public class ControlSystem {
     private boolean mAmpButton = false;
     private boolean mShootPodiumButton = false;
     private boolean mSkipNoteButton = false;
+    private boolean mLobButton = false;
 
     private GenericEntry mSeesAprilTagEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Sees AprilTag",
             false, ShuffleboardStyle.SEES_APRILTAG);
@@ -100,7 +101,8 @@ public class ControlSystem {
         SHOOT_NOTE_ONE,
         SHOOT_NOTE_THREE,
         RAMP_SHOOTER,
-        SHOOT_SUBWOOFER
+        SHOOT_SUBWOOFER,
+        REJECT_NOTE
     }
 
     public ControlSystem() {
@@ -368,6 +370,7 @@ public class ControlSystem {
     public void setAutoCollectionButton(boolean isHeld) {
         mAutoCollectionButton = isHeld;
     }
+
 
     public void autoAimingInputs() {
         mSeesAprilTagEntry.setBoolean(Limelight.getTX(ConfigMap.APRILTAG_LIMELIGHT) != 0.0);
@@ -735,6 +738,11 @@ public class ControlSystem {
     }
 
     private void initActions() {
+        defineAction(Action.REJECT_NOTE,
+            new SubsystemSetting(mArm, ArmState.COLLECT),
+            new SubsystemSetting(mScollector, ScollectorState.SPIT)
+        );
+
         defineAction(Action.RAMP_SHOOTER, 
             new SubsystemSetting(mArm, ArmState.SAFE),
             new SubsystemSetting(mScollector, ScollectorState.RAMP_SHOOTER)

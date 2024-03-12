@@ -307,7 +307,7 @@ public class DriveSystem extends Subsystem {
         double x = Math.toRadians(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT));
 
         if (getState() == DriveSystemState.DRIVE_NOTE) {
-            final double DIST_TOLERANCE = 0.5;
+            final double DIST_TOLERANCE = 1;
             double dist = robotPose.withZ(0).dist(
                 target.withZ(0)
             );

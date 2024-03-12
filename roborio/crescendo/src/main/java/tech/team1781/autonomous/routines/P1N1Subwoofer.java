@@ -6,11 +6,11 @@ import tech.team1781.autonomous.AutonomousHandler.AutoRoutine;
 import tech.team1781.control.ControlSystem.Action;
 import tech.team1781.utils.EVector;
 
-public class P1N1DCSubwoofer implements AutoRoutine {
+public class P1N1Subwoofer implements AutoRoutine {
 
     @Override
     public String getName() {
-        return "P1N1DCSubwoofer";
+        return "P1N1Subwoofer";
     }
 
     @Override
@@ -22,7 +22,6 @@ public class P1N1DCSubwoofer implements AutoRoutine {
                 new AutoStep(2, Action.COLLECT_RAMP,Positions.N1, true), 
                 new AutoStep(3, Action.COLLECT_RAMP, Positions.P1),
                 new AutoStep(2, Action.AUTO_AIM_SHOOT),
-                // new AutoStep(2, EVector.positionWithDegrees(7.57, 7.42, 0)),
                 
 
         };
