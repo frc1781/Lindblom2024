@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.util.datalog.DataLog;
@@ -49,7 +48,8 @@ public class Robot extends TimedRobot {
   private ControlSystem mControlSystem;
   private AutonomousHandler mAutonomousHandler;
   private DriverInput mDriverInput;
-  private GenericEntry mSaveConfigButton = ConfigMap.CONFIG_TAB.add("Save Config", false).withWidget(BuiltInWidgets.kToggleButton).getEntry();
+  private GenericEntry mSaveConfigButton = ConfigMap.CONFIG_TAB.add("Save Config", false)
+      .withWidget(BuiltInWidgets.kToggleButton).getEntry();
 
   private boolean ranTeleop = false;
   private boolean ranAuto = false;
@@ -59,39 +59,34 @@ public class Robot extends TimedRobot {
     mCompressor = new Compressor(ConfigMap.FIRST_PCM_ID,
         PneumaticsModuleType.REVPH);
     mCompressor.enableDigital();
-    
+
     mControlSystem = new ControlSystem();
-    mAutonomousHandler = new AutonomousHandler(mControlSystem, 
-      new P1WaitLeave(),
-      new P1N1Subwoofer(),
-      new P2N2Subwoofer(),
-      new P3N3Subwoofer(),
-      new P3Leave(),
-      new TestRoutine()
-    );
+    mAutonomousHandler = new AutonomousHandler(mControlSystem,
+        new P1WaitLeave(),
+        new P1N1Subwoofer(),
+        new P2N2Subwoofer(),
+        new P3N3Subwoofer(),
+        new P3Leave(),
+        new TestRoutine());
 
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
     DataLogManager.start();
     DriverStation.startDataLog(DataLogManager.getLog());
 
-    // PreferenceHandler.addValue("frontLeftOffset", ConfigMap.FRONT_LEFT_MODULE_STEER_OFFSET);
-    // PreferenceHandler.addValue("frontRightOffset", ConfigMap.FRONT_RIGHT_MODULE_STEER_OFFSET);
-    // PreferenceHandler.addValue("backLeftOffset", ConfigMap.BACK_LEFT_MODULE_STEER_OFFSET);
-    // PreferenceHandler.addValue("backRightOffset", ConfigMap.BACK_RIGHT_MODULE_STEER_OFFSET);
+    // PreferenceHandler.addValue("frontLeftOffset",
+    // ConfigMap.FRONT_LEFT_MODULE_STEER_OFFSET);
+    // PreferenceHandler.addValue("frontRightOffset",
+    // ConfigMap.FRONT_RIGHT_MODULE_STEER_OFFSET);
+    // PreferenceHandler.addValue("backLeftOffset",
+    // ConfigMap.BACK_LEFT_MODULE_STEER_OFFSET);
+    // PreferenceHandler.addValue("backRightOffset",
+    // ConfigMap.BACK_RIGHT_MODULE_STEER_OFFSET);
 
-    mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.RESET_NAVX, (isPressed)->{
-      if(isPressed) {
+    mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.RESET_NAVX, (isPressed) -> {
+      if (isPressed) {
         mControlSystem.zeroNavX();
       }
-    });
-
-    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.KEEP_DOWN, (isPressed) -> {
-      mControlSystem.keepArmDown(isPressed);
-    });
-
-    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT, (isPressed) -> {
-      mControlSystem.setCollecting(isPressed);
     });
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SPIT, (isPressed) -> {
@@ -102,45 +97,43 @@ public class Robot extends TimedRobot {
       mControlSystem.setShooting(isPressed);
     });
 
-
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.PREPARE_TO_SHOOT, (isPressed) -> {
       mControlSystem.setPrepareToShoot(isPressed);
     });
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.ANGLE_UP, (isPressed) -> {
-      if(isPressed) {
+      if (isPressed) {
         mControlSystem.manualAdjustAngle(1);
       }
     });
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.ANGLE_DOWN, (isPressed) -> {
-      if(isPressed) {
+      if (isPressed) {
         mControlSystem.manualAdjustAngle(-1);
       }
     });
 
-    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.NOTE_COLLECTION, (isHeld) -> {
-        mControlSystem.setAutoCollectionButton(isHeld);
-    });
+    // mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.NOTE_COLLECTION, (isHeld) -> {
+    //   mControlSystem.setAutoCollectionButton(isHeld);
+    // });
 
-    mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.CALIBRATE_POSITION, (isPressed)-> {
-      if(isPressed){
-        mControlSystem.calibratePosition();
-      }
-    });
+    // mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.CALIBRATE_POSITION, (isPressed) -> {
+    //   if (isPressed) {
+    //     mControlSystem.calibratePosition();
+    //   }
+    // });
 
-    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT_HIGH, (isPressed)-> {
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT_HIGH, (isPressed) -> {
       mControlSystem.setCollectHigh(isPressed);
     });
 
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SCORE_AMP, (isPressed)->{
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SCORE_AMP, (isPressed) -> {
       mControlSystem.setAmp(isPressed);
     });
 
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SCORE_PODIUM, (isPressed)->{
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SCORE_PODIUM, (isPressed) -> {
       mControlSystem.shootPodium(isPressed);
     });
-
 
     mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.AUTO_AIM, (isHeld) -> {
       mControlSystem.setCenteringOnAprilTag(isHeld);
@@ -150,12 +143,19 @@ public class Robot extends TimedRobot {
       mControlSystem.skipNote(isHeld);
     });
 
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.KEEP_DOWN, (isPressed) -> {
+      mControlSystem.keepArmDown(isPressed);
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT, (isPressed) -> {
+      mControlSystem.setCollecting(isPressed);
+    });
 
   }
 
   @Override
   public void robotPeriodic() {
-    if(mSaveConfigButton.getBoolean(false)) {
+    if (mSaveConfigButton.getBoolean(false)) {
       // PreferenceHandler.updateValues();
       mSaveConfigButton.setBoolean(false);
     }
@@ -193,23 +193,28 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
-    if(ranAuto && ranTeleop) {
+    if (ranAuto && ranTeleop) {
       DataLogManager.stop();
     }
   }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+  }
 
   @Override
-  public void testInit() {}
+  public void testInit() {
+  }
 
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+  }
 
   @Override
-  public void simulationInit() {}
+  public void simulationInit() {
+  }
 
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+  }
 }

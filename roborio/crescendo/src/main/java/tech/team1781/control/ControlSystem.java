@@ -198,7 +198,6 @@ public class ControlSystem {
         if(pushingShoot) {
             mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.SHOOT));
         }
-        
     }
 
     public void manualAdjustAngle(double diff) {
