@@ -162,16 +162,17 @@ public class DriveSystem extends Subsystem {
 
     @Override
     public boolean matchesDesiredState() {
-        System.out.println(getState());
 
         switch ((DriveSystemState) getState()) {
-            case DRIVE_SETPOINT: case DRIVE_NOTE: 
+            case DRIVE_SETPOINT: 
                 return matchesDesiredPosition();
             // return false;
             case DRIVE_TRAJECTORY:
                 return matchesPosition(mDesiredTrajectory.getEndState().getTargetHolonomicPose())
                         && (currentTime >= mDesiredTrajectory.getTotalTimeSeconds());
             case DRIVE_MANUAL:
+                return true;
+            case DRIVE_NOTE:
                 return true;
             // return mIsManual;
             default:
@@ -306,7 +307,11 @@ public class DriveSystem extends Subsystem {
         double x = Math.toRadians(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT));
 
         if (getState() == DriveSystemState.DRIVE_NOTE) {
-            if (x != 0.0) {
+            final double DIST_TOLERANCE = 0.5;
+            double dist = robotPose.withZ(0).dist(
+                target.withZ(0)
+            );
+            if (x != 0.0 && dist < DIST_TOLERANCE) {
                 double aimingAngle = mNoteAimController.calculate(x, 0);
                 rotDutyCycle = aimingAngle;
                 mDesiredPosition.z = getRobotAngle().getRadians();

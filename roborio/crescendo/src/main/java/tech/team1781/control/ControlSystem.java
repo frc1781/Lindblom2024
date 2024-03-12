@@ -642,6 +642,7 @@ public class ControlSystem {
             case AUTONOMOUS:
                     localizationUpdates();
                 if (mScollector.getState() == ScollectorState.COLLECT
+                        || mScollector.getState() == ScollectorState.COLLECT_RAMP
                         || mScollector.getState() == ScollectorState.COLLECT_AUTO_SHOOT) {
                     if (mScollector.hasNote()) {
                         mArm.setDesiredState(ArmState.AUTO_ANGLE);
