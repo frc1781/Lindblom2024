@@ -565,6 +565,8 @@ public class ControlSystem {
 
         switch (mCurrentOperatingMode) {
             case TELEOP:
+                mSettingStack.add(new SubsystemSetting(mArm, ArmState.SAFE));
+                mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.IDLE));
                 while(!mSettingStack.isEmpty()) {
                     mSettingStack.pop().setState();
                 }
