@@ -572,12 +572,30 @@ public class ControlSystem {
 
         switch (mCurrentOperatingMode) {
             case TELEOP:
+                ScollectorState finalScollectorState = ScollectorState.IDLE;
+                ArmState finalArmState = ArmState.SAFE;
+                DriveSystemState finalDriveState = DriveSystemState.DRIVE_MANUAL;
                 if (mArm.getState() != ArmState.MANUAL)
                     mSettingStack.add(new SubsystemSetting(mArm, ArmState.SAFE));
                 mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.IDLE));
+
                 while (!mSettingStack.isEmpty()) {
-                    mSettingStack.pop().setState();
+                    SubsystemSetting setting = mSettingStack.pop();
+                    Subsystem subsystem = setting.getSubsystem();
+                    SubsystemState state = setting.getState();
+                    
+                    if (subsystem == mDriveSystem) {
+                        finalDriveState = (DriveSystemState) state;
+                    } else if (subsystem == mScollector) {
+                        finalScollectorState = (ScollectorState) state;
+                    } else if (subsystem == mArm) {
+                        finalArmState = (ArmState) state;
+                    }
                 }
+
+                mDriveSystem.setDesiredState(finalDriveState);
+                mScollector.setDesiredState(finalScollectorState);
+                mArm.setDesiredState(finalArmState);
 
                 localizationUpdates();
                 seesNote();
@@ -861,6 +879,14 @@ class SubsystemSetting {
 
     public void setState() {
         mSubsystem.setDesiredState(mState);
+    }
+
+    public SubsystemState getState() {
+        return mState;
+    }
+
+    public Subsystem getSubsystem() {
+        return mSubsystem;
     }
 
     public boolean isFinished() {
