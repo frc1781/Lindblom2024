@@ -205,6 +205,8 @@ public class Robot extends TimedRobot {
     if (ranAuto && ranTeleop) {
       DataLogManager.stop();
     }
+
+    mControlSystem.disabledLighting();
   }
 
   @Override
