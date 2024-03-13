@@ -1,5 +1,6 @@
 package tech.team1781.control;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -575,9 +576,13 @@ public class ControlSystem {
                 ScollectorState finalScollectorState = ScollectorState.IDLE;
                 ArmState finalArmState = ArmState.SAFE;
                 DriveSystemState finalDriveState = DriveSystemState.DRIVE_MANUAL;
+
+                long time = System.currentTimeMillis();
                 if (mArm.getState() != ArmState.MANUAL)
                     mSettingStack.add(new SubsystemSetting(mArm, ArmState.SAFE));
                 mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.IDLE));
+                long newTime = System.currentTimeMillis();
+                System.out.println("Time to read stack: " + (newTime - time));
 
                 while (!mSettingStack.isEmpty()) {
                     SubsystemSetting setting = mSettingStack.pop();
