@@ -161,7 +161,7 @@ public class ControlSystem {
         // left and right
         double yVelocity = -translation.x * mult;
         // rotation
-        double rotVelocity = -rotation.x * 0.25 + ((triggers.x) - (triggers.y));
+        double rotVelocity = -rotation.x * ConfigMap.DRIVER_ROTATION_INPUT_MULTIPIER + ((triggers.x) - (triggers.y));
 
         mDriveSystem.driveRaw(
                 mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
