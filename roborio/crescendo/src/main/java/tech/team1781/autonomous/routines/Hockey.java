@@ -10,7 +10,7 @@ public class Hockey implements AutoRoutine{
 
     @Override
     public String getName() {
-        return "Hockey";
+        return "11: Hockey";
     }
 
     @Override

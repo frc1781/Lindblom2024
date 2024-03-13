@@ -10,7 +10,7 @@ public class P2N2Subwoofer implements AutoRoutine{
 
     @Override
     public String getName() {
-        return "P2N2Subwoofer";
+        return "2: P2N2Subwoofer";
     }
 
     @Override
