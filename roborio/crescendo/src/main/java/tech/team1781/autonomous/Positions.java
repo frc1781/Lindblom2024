@@ -9,7 +9,7 @@ public class Positions {
 
    public static final EVector N1 = EVector.positionWithDegrees(2.9, 7, 0);
    public static final EVector N2 = EVector.positionWithDegrees(2.9, 5.54, 0);
-   public static final EVector N3 = EVector.positionWithDegrees(2.3, 4.1, 0);
+   public static final EVector N3 = EVector.positionWithDegrees(2.4, 4.1, 0);
 
    public static final EVector C1 = EVector.positionWithDegrees(8.28, 7.43, 0);
    public static final EVector C2 = EVector.positionWithDegrees(8.28, 5.78, 0);

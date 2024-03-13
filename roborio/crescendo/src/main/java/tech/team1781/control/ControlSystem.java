@@ -577,7 +577,6 @@ public class ControlSystem {
                 SubsystemState finalArmState = ArmState.SAFE;
                 SubsystemState finalDriveState = DriveSystemState.DRIVE_MANUAL;
 
-                long time = System.currentTimeMillis();
                 if (mArm.getState() != ArmState.MANUAL)
                     mSettingStack.add(new SubsystemSetting(mArm, ArmState.SAFE));
                 mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.IDLE));
@@ -595,8 +594,6 @@ public class ControlSystem {
                         finalArmState = state;
                     }
                 }
-                long newTime = System.currentTimeMillis();
-                System.out.println("Time to read stack: " + (newTime - time));
 
                 mDriveSystem.setDesiredState(finalDriveState);
                 mScollector.setDesiredState(finalScollectorState);
@@ -617,12 +614,13 @@ public class ControlSystem {
                 autoAimingInputs();
                 break;
             case AUTONOMOUS:
+                System.out.println(mArm.getState());
                 localizationUpdates();
                 if (mScollector.getState() == ScollectorState.COLLECT
                         || (mScollector.getState() == ScollectorState.COLLECT_RAMP
                                 && (mDriveSystem.getState() == DriveSystemState.DRIVE_NOTE
                                         || mDriveSystem.getState() == DriveSystemState.DRIVE_SETPOINT))
-                        || mScollector.getState() == ScollectorState.COLLECT_AUTO_SHOOT) {
+                        || (mScollector.getState() == ScollectorState.COLLECT_AUTO_SHOOT && (mArm.getState() != ArmState.NOTE_ONE && mArm.getState() != ArmState.NOTE_THREE)) ) {
                     if (mScollector.hasNote()) {
                         mArm.setDesiredState(ArmState.AUTO_ANGLE);
                     } else {

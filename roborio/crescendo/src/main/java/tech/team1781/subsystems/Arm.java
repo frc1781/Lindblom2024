@@ -159,7 +159,7 @@ public class Arm extends Subsystem {
                 armDutyCycle = 0.0;
                 mLeftEncoder.setPosition(0.01);
             } 
-            mLeftMotor.set(0.0); //armDutyCycle);  TEMPORARY!
+            mLeftMotor.set(armDutyCycle);  
         } else {
             mSparkErrorEntry.setBoolean(true);
         }
@@ -251,9 +251,9 @@ public class Arm extends Subsystem {
 
     private enum CURRENT_AIM_SPOT {
         UNDEFEINED(0.0, EVector.newVector(), EVector.newVector(), 0.0),
-        SUBWOOFER(33, ConfigMap.RED_SPEAKER_LOCATION, ConfigMap.BLUE_SPEAKER_LOCATION, 2.5),
+        SUBWOOFER(32.5, ConfigMap.RED_SPEAKER_LOCATION, ConfigMap.BLUE_SPEAKER_LOCATION, 2.5),
         PODIUM(45, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1),
-        NOTE_3(42.4, EVector.newVector(14.5, 4.27) ,EVector.newVector(2.48, 4.27), 0.5),
+        NOTE_3(42.4, EVector.newVector(14.5, 4.27) ,EVector.newVector(2.48, 4.27), 1),
         NOTE_2(50, EVector.newVector(14.13, 5.53) ,EVector.newVector(2.48, 5.53), 0.5),
         NOTE_1(50, EVector.newVector(14.06, 6.74),EVector.newVector(2.48, 6.74), 0.5);
 

@@ -16,7 +16,9 @@ public class P1WaitLeave implements AutoRoutine{
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-            new AutoStep(100, Action.OFF_KICKSTAND, Positions.P1),
+            new AutoStep(100, Action.OFF_KICKSTAND),
+            new AutoStep(100, Action.COLLECT_RAMP),
+            new AutoStep(0.1, Positions.P1),
             new AutoStep(5, Action.SHOOT_SUBWOOFER),
             new AutoStep(2, EVector.positionWithDegrees(1.37, 7.55, 0)),
             new AutoStep(5),
