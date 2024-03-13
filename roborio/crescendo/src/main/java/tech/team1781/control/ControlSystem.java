@@ -581,14 +581,12 @@ public class ControlSystem {
                 if (mArm.getState() != ArmState.MANUAL)
                     mSettingStack.add(new SubsystemSetting(mArm, ArmState.SAFE));
                 mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.IDLE));
-                long newTime = System.currentTimeMillis();
-                System.out.println("Time to read stack: " + (newTime - time));
 
                 while (!mSettingStack.isEmpty()) {
                     SubsystemSetting setting = mSettingStack.pop();
                     Subsystem subsystem = setting.getSubsystem();
                     SubsystemState state = setting.getState();
-                    
+
                     if (subsystem == mDriveSystem) {
                         finalDriveState = (DriveSystemState) state;
                     } else if (subsystem == mScollector) {
@@ -597,6 +595,8 @@ public class ControlSystem {
                         finalArmState = (ArmState) state;
                     }
                 }
+                long newTime = System.currentTimeMillis();
+                System.out.println("Time to read stack: " + (newTime - time));
 
                 mDriveSystem.setDesiredState(finalDriveState);
                 mScollector.setDesiredState(finalScollectorState);
