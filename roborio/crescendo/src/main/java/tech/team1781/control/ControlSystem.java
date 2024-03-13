@@ -573,9 +573,9 @@ public class ControlSystem {
 
         switch (mCurrentOperatingMode) {
             case TELEOP:
-                ScollectorState finalScollectorState = ScollectorState.IDLE;
-                ArmState finalArmState = ArmState.SAFE;
-                DriveSystemState finalDriveState = DriveSystemState.DRIVE_MANUAL;
+                SubsystemState finalScollectorState = ScollectorState.IDLE;
+                SubsystemState finalArmState = ArmState.SAFE;
+                SubsystemState finalDriveState = DriveSystemState.DRIVE_MANUAL;
 
                 long time = System.currentTimeMillis();
                 if (mArm.getState() != ArmState.MANUAL)
@@ -588,11 +588,11 @@ public class ControlSystem {
                     SubsystemState state = setting.getState();
 
                     if (subsystem == mDriveSystem) {
-                        finalDriveState = (DriveSystemState) state;
+                        finalDriveState = state;
                     } else if (subsystem == mScollector) {
-                        finalScollectorState = (ScollectorState) state;
+                        finalScollectorState = state;
                     } else if (subsystem == mArm) {
-                        finalArmState = (ArmState) state;
+                        finalArmState = state;
                     }
                 }
                 long newTime = System.currentTimeMillis();
@@ -603,7 +603,6 @@ public class ControlSystem {
                 mArm.setDesiredState(finalArmState);
 
                 localizationUpdates();
-                seesNote();
                 EVector driverTriggers = driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT);
                 driverDriving(
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),

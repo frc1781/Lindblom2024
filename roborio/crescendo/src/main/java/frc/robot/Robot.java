@@ -72,7 +72,8 @@ public class Robot extends TimedRobot {
         new P1WaitLeave(),
         new P2N2N3Subwoofer(),
         new P2N2N1Subwoofer(),
-        new Hockey()
+        new Hockey(),
+        new TestRoutine()
       );
 
     mDriverInput = new DriverInput();

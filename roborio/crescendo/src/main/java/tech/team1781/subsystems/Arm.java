@@ -151,12 +151,9 @@ public class Arm extends Subsystem {
         mArmPositionEntry.setDouble(currentArmAngle);
         if (currentArmAngle != 0.0) {
 
-            if (getState() == ArmState.KICKSTAND) {
-
-            }
-            
             var armDutyCycle = mPositionPID.calculate(currentArmAngle, mDesiredPosition);
-            mSparkErrorEntry.setBoolean(false);
+            if(mSparkErrorEntry.getBoolean(false))
+                mSparkErrorEntry.setBoolean(false);
         
             if (getState() == ArmState.COLLECT && getAngle() < 4.0) {
                 armDutyCycle = 0.0;
@@ -203,11 +200,16 @@ public class Arm extends Subsystem {
     }
 
     public void updateAimSpots(Pose2d robotPose) {
+        mRobotPose = robotPose;
+        
+    }
+
+    private double calculateAngleFromDistance() {
         boolean foundAimSpot = false;
 
         for(CURRENT_AIM_SPOT aimSpot : CURRENT_AIM_SPOT.values()) {
             if(aimSpot == CURRENT_AIM_SPOT.UNDEFEINED) continue;
-            if(aimSpot.atPosition(robotPose)) {
+            if(aimSpot.atPosition(mRobotPose)) {
                 mCurrentAimSpot = aimSpot;
                 foundAimSpot = true;
                 break;
@@ -217,9 +219,7 @@ public class Arm extends Subsystem {
         if(!foundAimSpot) {
             mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
         }
-    }
 
-    private double calculateAngleFromDistance() {
         if(mCurrentAimSpot != CURRENT_AIM_SPOT.UNDEFEINED) {
             return mCurrentAimSpot.getPosition();
         }
