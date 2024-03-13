@@ -162,7 +162,7 @@ public class Arm extends Subsystem {
                 armDutyCycle = 0.0;
                 mLeftEncoder.setPosition(0.01);
             } 
-            mLeftMotor.set(armDutyCycle);
+            mLeftMotor.set(0.0); //armDutyCycle);  TEMPORARY!
         } else {
             mSparkErrorEntry.setBoolean(true);
         }
