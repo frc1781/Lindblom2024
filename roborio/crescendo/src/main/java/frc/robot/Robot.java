@@ -163,10 +163,10 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    if (mSaveConfigButton.getBoolean(false)) {
+    // if (mSaveConfigButton.getBoolean(false)) {
       // PreferenceHandler.updateValues();
-      mSaveConfigButton.setBoolean(false);
-    }
+      // mSaveConfigButton.setBoolean(false);
+    // }
 
   }
 
