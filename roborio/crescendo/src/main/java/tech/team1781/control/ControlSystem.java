@@ -84,7 +84,6 @@ public class ControlSystem {
     // private boolean mLobButton = false;
 
     private Stack<SubsystemSetting> mSettingStack = new Stack<>();
-        
 
     private GenericEntry mSeesAprilTagEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Sees AprilTag",
             false, ShuffleboardStyle.SEES_APRILTAG);
@@ -108,7 +107,8 @@ public class ControlSystem {
         SHOOT_NOTE_THREE,
         RAMP_SHOOTER,
         SHOOT_SUBWOOFER,
-        REJECT_NOTE
+        REJECT_NOTE,
+        COLLECT_RAMP_STAY_DOWN
     }
 
     public ControlSystem() {
@@ -171,7 +171,7 @@ public class ControlSystem {
     }
 
     public void keepArmDown(boolean pushingKeepDown) {
-        if(pushingKeepDown) {
+        if (pushingKeepDown) {
             mSettingStack.add(new SubsystemSetting(mArm, ArmState.COLLECT));
         }
     }
@@ -181,20 +181,20 @@ public class ControlSystem {
     }
 
     public void setCollecting(boolean pushingCollect) {
-        if(pushingCollect) {
+        if (pushingCollect) {
             mSettingStack.add(new SubsystemSetting(mArm, ArmState.COLLECT));
             mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.COLLECT));
         }
     }
 
     public void setSpit(boolean pushingSpit) {
-        if(pushingSpit) {
+        if (pushingSpit) {
             mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.SPIT));
         }
     }
 
     public void setShooting(boolean pushingShoot) {
-        if(pushingShoot) {
+        if (pushingShoot) {
             mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.SHOOT));
         }
     }
@@ -204,63 +204,64 @@ public class ControlSystem {
     }
 
     public void skipNote(boolean isSkipping) {
-        if(isSkipping) {
+        if (isSkipping) {
             mSettingStack.add(new SubsystemSetting(mArm, ArmState.SKIP));
             mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.RAMP_SHOOTER));
         }
     }
 
     public void calibratePosition() {
-        mDriveSystem.setOdometry(new Pose2d(Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT).getTranslation(), mDriveSystem.getRobotAngle()));
+        mDriveSystem.setOdometry(new Pose2d(Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT).getTranslation(),
+                mDriveSystem.getRobotAngle()));
     }
 
     public void setPrepareToShoot(boolean pushingPrepare) {
         // if (mPrepareToShootButton == pushingPrepare) {
-        //     return; // no change in state
+        // return; // no change in state
         // }
         // mPrepareToShootButton = pushingPrepare;
         // if (mPrepareToShootButton) {
-        //     if (mCollectingButton || mKeepArmDownButton) {
-        //         mScollector.setDesiredState(ScollectorState.COLLECT_RAMP);
-        //     } else if (!mKeepArmDownButton) {
-        //         mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
+        // if (mCollectingButton || mKeepArmDownButton) {
+        // mScollector.setDesiredState(ScollectorState.COLLECT_RAMP);
+        // } else if (!mKeepArmDownButton) {
+        // mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
 
-        //         mArm.setDesiredState(ArmState.AUTO_ANGLE);
-        //     }
-        // } else {
-        //     if (!mCollectingButton && !mKeepArmDownButton) {
-        //         mArm.setDesiredState(ArmState.SAFE);
-        //     }
-        //     if (mCollectingButton) {
-        //         mScollector.setDesiredState(ScollectorState.COLLECT);
-        //     } else {
-        //         mScollector.setDesiredState(ScollectorState.IDLE);
-        //     }
+        // mArm.setDesiredState(ArmState.AUTO_ANGLE);
         // }
-        if(pushingPrepare) {
+        // } else {
+        // if (!mCollectingButton && !mKeepArmDownButton) {
+        // mArm.setDesiredState(ArmState.SAFE);
+        // }
+        // if (mCollectingButton) {
+        // mScollector.setDesiredState(ScollectorState.COLLECT);
+        // } else {
+        // mScollector.setDesiredState(ScollectorState.IDLE);
+        // }
+        // }
+        if (pushingPrepare) {
             mSettingStack.add(new SubsystemSetting(mArm, ArmState.AUTO_ANGLE));
             mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.RAMP_SHOOTER));
         }
     }
 
-
     public void setCollectHigh(boolean collectingHigh) {
         // if (mCollectingHighButton == collectingHigh) {
-        //     return;
+        // return;
         // }
 
         // mCollectingHighButton = collectingHigh;
 
         // if (!mCollectingButton && collectingHigh && !mKeepArmDownButton) {
-        //     mArm.setDesiredState(ArmState.COLLECT_HIGH);
-        //     mScollector.setDesiredState(ScollectorState.COLLECT);
+        // mArm.setDesiredState(ArmState.COLLECT_HIGH);
+        // mScollector.setDesiredState(ScollectorState.COLLECT);
         // }
 
-        // if (!collectingHigh && !mKeepArmDownButton && !mPrepareToShootButton && !mCollectingButton) {
-        //     mArm.setDesiredState(ArmState.SAFE);
-        //     mScollector.setDesiredState(ScollectorState.IDLE);
+        // if (!collectingHigh && !mKeepArmDownButton && !mPrepareToShootButton &&
+        // !mCollectingButton) {
+        // mArm.setDesiredState(ArmState.SAFE);
+        // mScollector.setDesiredState(ScollectorState.IDLE);
         // }
-        if(collectingHigh) {
+        if (collectingHigh) {
             mSettingStack.add(new SubsystemSetting(mArm, ArmState.COLLECT_HIGH));
             mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.COLLECT));
         }
@@ -268,19 +269,21 @@ public class ControlSystem {
 
     public void setAmp(boolean isAmp) {
         // if (mAmpButton == isAmp) {
-        //     return;
+        // return;
         // }
 
         // mAmpButton = isAmp;
 
-        // if (!mCollectingButton && !mCollectingHighButton && !mKeepArmDownButton && !mPrepareToShootButton
-        //         && mAmpButton) {
-        //     mArm.setDesiredState(ArmState.AMP);
-        // } else if (!mCollectingButton && !mCollectingHighButton && !mKeepArmDownButton && !mPrepareToShootButton
-        //         && !mAmpButton) {
-        //     mArm.setDesiredState(ArmState.SAFE);
+        // if (!mCollectingButton && !mCollectingHighButton && !mKeepArmDownButton &&
+        // !mPrepareToShootButton
+        // && mAmpButton) {
+        // mArm.setDesiredState(ArmState.AMP);
+        // } else if (!mCollectingButton && !mCollectingHighButton &&
+        // !mKeepArmDownButton && !mPrepareToShootButton
+        // && !mAmpButton) {
+        // mArm.setDesiredState(ArmState.SAFE);
         // }
-        if(isAmp) {
+        if (isAmp) {
             mSettingStack.add(new SubsystemSetting(mArm, ArmState.AMP));
         }
     }
@@ -300,7 +303,6 @@ public class ControlSystem {
     public void setAutoCollectionButton(boolean isHeld) {
         mAutoCollectionButton = isHeld;
     }
-
 
     public void autoAimingInputs() {
         mSeesAprilTagEntry.setBoolean(Limelight.getTX(ConfigMap.APRILTAG_LIMELIGHT) != 0.0);
@@ -363,22 +365,22 @@ public class ControlSystem {
 
     public void shootPodium(boolean isShooting) {
         // if (isShooting == mShootPodiumButton) {
-        //     return;
+        // return;
         // }
 
         // mShootPodiumButton = isShooting;
 
         // if (mShootPodiumButton && !mCollectingButton && !mPrepareToShootButton) {
-        //     if (!mKeepArmDownButton)
-        //         mArm.setDesiredState(ArmState.PODIUM);
-        //     mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
+        // if (!mKeepArmDownButton)
+        // mArm.setDesiredState(ArmState.PODIUM);
+        // mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
 
         // } else if (!mCollectingButton && !mPrepareToShootButton) {
-        //     if (!mKeepArmDownButton)
-        //         mArm.setDesiredState(ArmState.SAFE);
-        //     mScollector.setDesiredState(ScollectorState.IDLE);
+        // if (!mKeepArmDownButton)
+        // mArm.setDesiredState(ArmState.SAFE);
+        // mScollector.setDesiredState(ScollectorState.IDLE);
         // }
-        if(isShooting) {
+        if (isShooting) {
             mSettingStack.add(new SubsystemSetting(mArm, ArmState.PODIUM));
             mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.RAMP_SHOOTER));
         }
@@ -408,48 +410,52 @@ public class ControlSystem {
     }
 
     // public void setAction(Action desiredAction) {
-    //     setAutoStep(desiredAction, null, null);
+    // setAutoStep(desiredAction, null, null);
     // }
 
-    // public void setAutoStep(Action desiredAction, EVector position, PathPlannerPath path) {
-    //     mStepTime.reset();
-    //     mStepTime.start();
-        
-    //     mSeekTimer.reset();
-    //     mSeekTimer.start();
+    // public void setAutoStep(Action desiredAction, EVector position,
+    // PathPlannerPath path) {
+    // mStepTime.reset();
+    // mStepTime.start();
 
-    //     if (desiredAction != null) {
-    //         mCurrentSettings = mActions.get(desiredAction);
-    //         try {
-    //             for (SubsystemSetting setting : mCurrentSettings) {
-    //                 setting.setState();
-    //             }
-    //         } catch (NullPointerException e) {
-    //         }
+    // mSeekTimer.reset();
+    // mSeekTimer.start();
 
-    //         mCurrentAction = desiredAction;
+    // if (desiredAction != null) {
+    // mCurrentSettings = mActions.get(desiredAction);
+    // try {
+    // for (SubsystemSetting setting : mCurrentSettings) {
+    // setting.setState();
+    // }
+    // } catch (NullPointerException e) {
+    // }
 
-    //         if (mCurrentAction == Action.SEEK_NOTE) {
-    //             mCurrentSeekNoteState = SeekNoteState.SEEKING;
-    //             mSeekNoteTargetPose = EVector.newVector(-1, -1, -1);
-    //         }
-    //     } else {
-    //         mCurrentSettings = null;
-    //     }
+    // mCurrentAction = desiredAction;
 
-    //     if (position != null) {
-    //         mDriveSystem.setPosition(position);
-    //         mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
-    //     } else if (path != null) {
-    //         mDriveSystem.setTrajectoryFromPath(path);
-    //         mDriveSystem.setDesiredState(DriveSystemState.DRIVE_TRAJECTORY);
-    //     } else if (desiredAction != Action.SYSID && desiredAction != Action.SEEK_NOTE) {
-    //         mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
-    //     }
+    // if (mCurrentAction == Action.SEEK_NOTE) {
+    // mCurrentSeekNoteState = SeekNoteState.SEEKING;
+    // mSeekNoteTargetPose = EVector.newVector(-1, -1, -1);
+    // }
+    // } else {
+    // mCurrentSettings = null;
+    // }
 
-    //     System.out.println(mDriveSystem.getName() + " :: " + mDriveSystem.getState().toString() + " || "
-    //             + mScollector.getName() + " :: " + mScollector.getState().toString() + " || " + mClimber.getName()
-    //             + " :: " + mClimber.getState().toString());
+    // if (position != null) {
+    // mDriveSystem.setPosition(position);
+    // mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
+    // } else if (path != null) {
+    // mDriveSystem.setTrajectoryFromPath(path);
+    // mDriveSystem.setDesiredState(DriveSystemState.DRIVE_TRAJECTORY);
+    // } else if (desiredAction != Action.SYSID && desiredAction !=
+    // Action.SEEK_NOTE) {
+    // mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
+    // }
+
+    // System.out.println(mDriveSystem.getName() + " :: " +
+    // mDriveSystem.getState().toString() + " || "
+    // + mScollector.getName() + " :: " + mScollector.getState().toString() + " || "
+    // + mClimber.getName()
+    // + " :: " + mClimber.getState().toString());
     // }
 
     public void setAutoStep(AutoStep step) {
@@ -459,8 +465,8 @@ public class ControlSystem {
 
         mCurrentSettings = null;
         mCurrentAction = null;
-        
-        switch(step.getType()) {
+
+        switch (step.getType()) {
             case ACTION:
                 setAction(step.getAction());
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
@@ -473,12 +479,12 @@ public class ControlSystem {
                 mDriveSystem.setPosition(step.getPosition().flipIfRed());
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
                 break;
-            case PATH_AND_ACTION: 
+            case PATH_AND_ACTION:
                 mDriveSystem.setTrajectoryFromPath(step.getPath());
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_TRAJECTORY);
                 setAction(step.getAction());
                 break;
-            case POSITION_AND_ACTION: 
+            case POSITION_AND_ACTION:
                 mDriveSystem.setPosition(step.getPosition().flipIfRed());
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
                 setAction(step.getAction());
@@ -487,7 +493,7 @@ public class ControlSystem {
                 mDriveSystem.setPosition(step.getPosition().flipIfRed());
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_NOTE);
                 setAction(step.getAction());
-            break;
+                break;
             case WAIT:
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
                 break;
@@ -515,15 +521,18 @@ public class ControlSystem {
             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
         }
 
-        
     }
 
     public boolean stepIsFinished() {
-        if(mCurrentAction == null && mDriveSystem.getState() == DriveSystemState.DRIVE_MANUAL) {
+        if (mCurrentAction == null && mDriveSystem.getState() == DriveSystemState.DRIVE_MANUAL) {
             return false;
         }
         if (mCurrentAction == Action.SEEK_NOTE) {
             return mCurrentSeekNoteState == SeekNoteState.DONE;
+        }
+
+        if (mDriveSystem.getState() == DriveSystemState.DRIVE_NOTE) {
+            return mScollector.hasNote() || mScollector.noteCloseToShooter();
         }
         return !isRunningAction() && mDriveSystem.matchesDesiredState();
     }
@@ -563,13 +572,12 @@ public class ControlSystem {
 
         switch (mCurrentOperatingMode) {
             case TELEOP:
-                if(mArm.getState() != ArmState.MANUAL)
+                if (mArm.getState() != ArmState.MANUAL)
                     mSettingStack.add(new SubsystemSetting(mArm, ArmState.SAFE));
                 mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.IDLE));
-                while(!mSettingStack.isEmpty()) {
+                while (!mSettingStack.isEmpty()) {
                     mSettingStack.pop().setState();
                 }
-
 
                 localizationUpdates();
                 seesNote();
@@ -580,14 +588,18 @@ public class ControlSystem {
                         driverTriggers);
                 mClimber.manualClimb(-driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y);
                 // mClimber.twoThumbClimb(
-                //     -driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y,
-                //     -driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.CO_PILOT_PORT).y);
+                // -driverInput.getControllerJoyAxis(ControllerSide.LEFT,
+                // ConfigMap.CO_PILOT_PORT).y,
+                // -driverInput.getControllerJoyAxis(ControllerSide.RIGHT,
+                // ConfigMap.CO_PILOT_PORT).y);
                 autoAimingInputs();
                 break;
             case AUTONOMOUS:
-                    localizationUpdates();
+                localizationUpdates();
                 if (mScollector.getState() == ScollectorState.COLLECT
-                        || mScollector.getState() == ScollectorState.COLLECT_RAMP
+                        || (mScollector.getState() == ScollectorState.COLLECT_RAMP
+                                && (mDriveSystem.getState() == DriveSystemState.DRIVE_NOTE
+                                        || mDriveSystem.getState() == DriveSystemState.DRIVE_SETPOINT))
                         || mScollector.getState() == ScollectorState.COLLECT_AUTO_SHOOT) {
                     if (mScollector.hasNote()) {
                         mArm.setDesiredState(ArmState.AUTO_ANGLE);
@@ -600,11 +612,13 @@ public class ControlSystem {
                     seekNote();
                 }
 
-                if ((mCurrentAction == Action.AUTO_AIM_SHOOT || mCurrentAction == Action.SHOOT_NOTE_ONE || mCurrentAction == Action.SHOOT_NOTE_THREE)
+                if ((mCurrentAction == Action.AUTO_AIM_SHOOT || mCurrentAction == Action.SHOOT_NOTE_ONE
+                        || mCurrentAction == Action.SHOOT_NOTE_THREE)
                         && mDriveSystem.getState() == DriveSystem.DriveSystemState.DRIVE_MANUAL) {
                     centerOnAprilTag(isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG);
                     mDriveSystem.driveRaw(0, 0, mAimingAngle);
-                } else if(mDriveSystem.getState() == DriveSystemState.DRIVE_MANUAL && mCurrentAction != Action.SEEK_NOTE) {
+                } else if (mDriveSystem.getState() == DriveSystemState.DRIVE_MANUAL
+                        && mCurrentAction != Action.SEEK_NOTE) {
                     mDriveSystem.driveRaw(0, 0, 0);
                     mAimingAngle = 0.0;
                 }
@@ -653,7 +667,8 @@ public class ControlSystem {
         boolean driveSystemSlowEnough = chassisSpeedsVector.magnitude() <= speedTolerance;
         Pose2d limelightPoseTemp = Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT);
         Pose2d limelightPose = new Pose2d(limelightPoseTemp.getTranslation(), mDriveSystem.getRobotAngle());
-        if (driveSystemSlowEnough && limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0 && Limelight.getNumberOfApriltags(ConfigMap.APRILTAG_LIMELIGHT) > 1) {
+        if (driveSystemSlowEnough && limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0
+                && Limelight.getNumberOfApriltags(ConfigMap.APRILTAG_LIMELIGHT) > 1) {
             double dist = EVector.fromPose(limelightPose).dist(EVector.fromPose(mDriveSystem.getRobotPose()));
             if (dist > 0.5) {
                 mDriveSystem.setOdometry(limelightPose);
@@ -681,19 +696,16 @@ public class ControlSystem {
 
     private void initActions() {
         defineAction(Action.REJECT_NOTE,
-            new SubsystemSetting(mArm, ArmState.COLLECT),
-            new SubsystemSetting(mScollector, ScollectorState.SPIT)
-        );
+                new SubsystemSetting(mArm, ArmState.COLLECT),
+                new SubsystemSetting(mScollector, ScollectorState.SPIT));
 
-        defineAction(Action.RAMP_SHOOTER, 
-            new SubsystemSetting(mArm, ArmState.SAFE),
-            new SubsystemSetting(mScollector, ScollectorState.RAMP_SHOOTER)
-        );
+        defineAction(Action.RAMP_SHOOTER,
+                new SubsystemSetting(mArm, ArmState.SAFE),
+                new SubsystemSetting(mScollector, ScollectorState.RAMP_SHOOTER));
 
-        defineAction(Action.SHOOT_SUBWOOFER, 
-            new SubsystemSetting(mArm, ArmState.SUBWOOFER),
-            new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT)
-        );
+        defineAction(Action.SHOOT_SUBWOOFER,
+                new SubsystemSetting(mArm, ArmState.SUBWOOFER),
+                new SubsystemSetting(mScollector, ScollectorState.SHOOT_ASAP));
 
         defineAction(Action.SYSID,
                 new SubsystemSetting(mDriveSystem, DriveSystemState.SYSID),
@@ -720,20 +732,23 @@ public class ControlSystem {
         defineAction(Action.COLLECT_AUTO_SHOOT,
                 new SubsystemSetting(mArm, ArmState.AUTO_ANGLE),
                 new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
-        
-        defineAction(Action.OFF_KICKSTAND, 
+
+        defineAction(Action.OFF_KICKSTAND,
                 new SubsystemSetting(mArm, ArmState.KICKSTAND),
-                new SubsystemSetting(mScollector, ScollectorState.RAMP_SHOOTER)
-        );
+                new SubsystemSetting(mScollector, ScollectorState.RAMP_SHOOTER));
 
-        defineAction(Action.SHOOT_NOTE_ONE, 
-            new SubsystemSetting(mArm, ArmState.NOTE_ONE),
-            new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
+        defineAction(Action.SHOOT_NOTE_ONE,
+                new SubsystemSetting(mArm, ArmState.NOTE_ONE),
+                new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
 
-        defineAction(Action.SHOOT_NOTE_THREE, 
-            new SubsystemSetting(mArm, ArmState.NOTE_THREE),
-            new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
-        
+        defineAction(Action.SHOOT_NOTE_THREE,
+                new SubsystemSetting(mArm, ArmState.NOTE_THREE),
+                new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
+
+        defineAction(Action.COLLECT_RAMP_STAY_DOWN,
+                new SubsystemSetting(mArm, ArmState.COLLECT),
+                new SubsystemSetting(mScollector, ScollectorState.COLLECT_RAMP));
+
     }
 
     private void defineAction(Action action, SubsystemSetting... settings) {
@@ -796,7 +811,7 @@ public class ControlSystem {
                     rotDutyCycle = ROT_SPEED * (isRed() ? 1 : -1);
                 }
 
-                if(mSeekTimer.get() >= 3) {
+                if (mSeekTimer.get() >= 3) {
                     mCurrentSeekNoteState = SeekNoteState.DONE;
                     mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
                     mDriveSystem.driveRaw(0, 0, 0);
@@ -815,7 +830,7 @@ public class ControlSystem {
                     mDriveSystem.driveRaw(0, 0, 0);
                 }
 
-                if(mSeekTimer.get() >= 2) {
+                if (mSeekTimer.get() >= 2) {
                     mCurrentSeekNoteState = SeekNoteState.DONE;
                     mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
                     mDriveSystem.driveRaw(0, 0, 0);

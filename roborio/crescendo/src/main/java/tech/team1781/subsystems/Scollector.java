@@ -91,7 +91,7 @@ public class Scollector extends Subsystem {
     }
 
     public enum ScollectorState implements SubsystemState {
-        IDLE, COLLECT, SPIT, SHOOT, COLLECT_RAMP, COLLECT_AUTO_SHOOT, RAMP_SHOOTER, LOB
+        IDLE, COLLECT, SPIT, SHOOT, COLLECT_RAMP, COLLECT_AUTO_SHOOT, RAMP_SHOOTER, LOB, SHOOT_ASAP
     }
 
     @Override
@@ -136,13 +136,10 @@ public class Scollector extends Subsystem {
             case COLLECT_AUTO_SHOOT:
                 if (!hasNote()) {
                     collect();
-                    System.out.println("COLLECTING ============");
                 } else if (mArmInPosition && (noteCloseToShooter() || hasNote()) && shooterAtSpeed()) {
-                    System.out.println("SHOOTING: " + mArmInPosition + " :: " + noteCloseToShooter() + " :: " + hasNote() + " :: " + shooterAtSpeed());
+                    System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
                     shoot();
                 } else {
-                    System.out.println("NOTHING");
-                    System.out.println(mArmInPosition + " :: " + noteCloseToShooter() + " :: " + hasNote() + " :: " + shooterAtSpeed());
                     mCollectorMotor.set(0);
                 }
 
@@ -154,6 +151,15 @@ public class Scollector extends Subsystem {
                 break;
             case LOB: 
                 driveMotors(ConfigMap.MIN_SHOOTER_SPEED);
+                break;
+            case SHOOT_ASAP:
+                if(mArmInPosition) {
+                    shoot();
+                } else {
+                    System.out.println("((((((((((((((((((((((((((()))))))))))))))))))))))))))");
+                }
+
+                driveMotors();
                 break;
         }
     }
@@ -169,7 +175,7 @@ public class Scollector extends Subsystem {
                 return mCollectorMotor.get() == -1;
             case COLLECT_RAMP:
                 return true;
-            case COLLECT_AUTO_SHOOT: case SHOOT: case LOB:
+            case COLLECT_AUTO_SHOOT: case SHOOT: case LOB: case SHOOT_ASAP:
                 return !hasNote() && !noteCloseToShooter();
             case RAMP_SHOOTER:
                 return true;

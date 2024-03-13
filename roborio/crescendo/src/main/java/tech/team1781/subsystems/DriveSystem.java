@@ -80,8 +80,12 @@ public class DriveSystem extends Subsystem {
             new TrapezoidProfile.Constraints(6.28, 3.14));
     private PIDController mNoteAimController = new PIDController(1, 0, 0);
 
-    private PIDController mXGoToController = new PIDController(1, 0, 0);
-    private PIDController mYGoToController = new PIDController(1, 0, 0);
+    private final EVector GO_TO_PID = EVector.newVector(1.2, 0, 0);
+    private final double MAX_ACCELERATION = 5.2;
+    private ProfiledPIDController mXGoToController = new ProfiledPIDController(GO_TO_PID.x, GO_TO_PID.y, GO_TO_PID.z, 
+        new TrapezoidProfile.Constraints(ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, MAX_ACCELERATION));
+    private ProfiledPIDController mYGoToController = new ProfiledPIDController(GO_TO_PID.x, GO_TO_PID.y, GO_TO_PID.z,
+        new TrapezoidProfile.Constraints(ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, MAX_ACCELERATION));
     private ProfiledPIDController mRotGoToController = new ProfiledPIDController(4, 0, 0,
             new TrapezoidProfile.Constraints(6.28, 3.14));
 
@@ -122,6 +126,7 @@ public class DriveSystem extends Subsystem {
                 .withSize((int) ShuffleboardStyle.ROBOT_POSITION_FIELD.size.x,
                         (int) ShuffleboardStyle.ROBOT_POSITION_FIELD.size.y);
         mRotGoToController.enableContinuousInput(0, Math.PI * 2);
+
     }
 
     public enum DriveSystemState implements Subsystem.SubsystemState {
@@ -135,7 +140,8 @@ public class DriveSystem extends Subsystem {
     @Override
     public void getToState() {
         switch ((DriveSystemState) getState()) {
-            case DRIVE_SETPOINT: case DRIVE_NOTE:
+            case DRIVE_SETPOINT:
+            case DRIVE_NOTE:
                 goTo(mDesiredPosition);
                 break;
             case DRIVE_TRAJECTORY:
@@ -164,7 +170,8 @@ public class DriveSystem extends Subsystem {
     public boolean matchesDesiredState() {
 
         switch ((DriveSystemState) getState()) {
-            case DRIVE_SETPOINT: case DRIVE_NOTE: 
+            case DRIVE_SETPOINT:
+            case DRIVE_NOTE:
                 return matchesDesiredPosition();
             // return false;
             case DRIVE_TRAJECTORY:
@@ -173,7 +180,7 @@ public class DriveSystem extends Subsystem {
             case DRIVE_MANUAL:
                 return true;
             // case DRIVE_NOTE:
-                // return true;
+            // return true;
             // return mIsManual;
             default:
                 return false;
@@ -295,6 +302,7 @@ public class DriveSystem extends Subsystem {
         }
         EVector robotPose = EVector.fromPose(getRobotPose());
         if (matchesDesiredPosition()) {
+            System.out.println("matches position **********************************************");
             driveRaw(0, 0, 0);
             return;
         }
@@ -309,15 +317,13 @@ public class DriveSystem extends Subsystem {
         if (getState() == DriveSystemState.DRIVE_NOTE) {
             final double DIST_TOLERANCE = 1;
             double dist = robotPose.withZ(0).dist(
-                target.withZ(0)
-            );
+                    target.withZ(0));
             if (x != 0.0 && dist < DIST_TOLERANCE) {
                 double aimingAngle = mNoteAimController.calculate(x, 0);
                 rotDutyCycle = aimingAngle;
                 mDesiredPosition.z = getRobotAngle().getRadians();
             }
         }
-
 
         driveRaw(xDutyCycle, yDutyCycle, rotDutyCycle);
     }
@@ -352,15 +358,15 @@ public class DriveSystem extends Subsystem {
         mDesiredTrajectory = null;
         mIsManual = false;
 
-        mXGoToController.reset();
-        mYGoToController.reset();
-        mRotGoToController.reset(getRobotAngle().getRadians());
-
         if (!mOdometryBeenSet) {
             setOdometry(position.toPose2d());
             setNavXOffset(Rotation2d.fromRadians(position.z));
             mOdometryBeenSet = true;
         }
+
+        mXGoToController.reset(getRobotPose().getX());
+        mYGoToController.reset(getRobotPose().getY());
+        mRotGoToController.reset(getRobotAngle().getRadians());
     }
 
     public void driveWithChassisSpeds(ChassisSpeeds speeds) {

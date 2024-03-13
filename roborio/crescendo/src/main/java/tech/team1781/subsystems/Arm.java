@@ -170,7 +170,6 @@ public class Arm extends Subsystem {
 
     @Override
     public boolean matchesDesiredState() {
-        System.out.println("arm state: " + getState());
         switch ((ArmState) getState()) {
             case COLLECT:
                 return mLeftEncoder.getPosition() <= 0.01;
@@ -247,15 +246,14 @@ public class Arm extends Subsystem {
 
     private boolean matchesPosition() {
         //System.out.println("diff: " + Math.abs(mLeftEncoder.getPosition() - mDesiredPosition));
-        System.out.println("EncoderPos: " + mLeftEncoder.getPosition() + " :: " + mDesiredPosition + " :: " + Math.abs(mLeftEncoder.getPosition() - mDesiredPosition));
-        return Math.abs(mLeftEncoder.getPosition() - mDesiredPosition) < 0.7;
+        return Math.abs(mLeftEncoder.getPosition() - mDesiredPosition) < 0.8;
     }
 
     private enum CURRENT_AIM_SPOT {
         UNDEFEINED(0.0, EVector.newVector(), EVector.newVector(), 0.0),
         SUBWOOFER(33, ConfigMap.RED_SPEAKER_LOCATION, ConfigMap.BLUE_SPEAKER_LOCATION, 2.5),
         PODIUM(45, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1),
-        NOTE_3(44.4, EVector.newVector(14.5, 4.27) ,EVector.newVector(2.48, 4.27), 0.5),
+        NOTE_3(42.4, EVector.newVector(14.5, 4.27) ,EVector.newVector(2.48, 4.27), 0.5),
         NOTE_2(50, EVector.newVector(14.13, 5.53) ,EVector.newVector(2.48, 5.53), 0.5),
         NOTE_1(50, EVector.newVector(14.06, 6.74),EVector.newVector(2.48, 6.74), 0.5);
 

@@ -16,7 +16,7 @@ public class P3N3C5Subwoofer implements AutoRoutine{
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-            new AutoStep(100, Action.OFF_KICKSTAND, Positions.P3),
+            new AutoStep(100, Action.OFF_KICKSTAND),
             new AutoStep(100, Action.COLLECT_RAMP),
             new AutoStep(6, Action.SHOOT_SUBWOOFER),
             new AutoStep(2, Action.COLLECT_RAMP, Positions.N3, true), 
