@@ -307,11 +307,9 @@ public class DriveSystem extends Subsystem {
             return;
         }
 
-        final double CLAMP_AMT = 4.2;
-        double xDutyCycle = clamp(mXGoToController.calculate(robotPose.x, target.x), CLAMP_AMT);
-        double yDutyCycle = clamp(mYGoToController.calculate(robotPose.y, target.y), CLAMP_AMT);
-        double rotDutyCycle = mRotGoToController.calculate(getRobotAngle().getRadians(), target.z);
-
+        double xMPS = clamp(mXGoToController.calculate(robotPose.x, target.x), ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
+        double yMPS = clamp(mYGoToController.calculate(robotPose.y, target.y), ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
+        double rotRPS = mRotGoToController.calculate(getRobotAngle().getRadians(), target.z);
         double x = Math.toRadians(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT));
 
         if (getState() == DriveSystemState.DRIVE_NOTE) {
@@ -320,12 +318,12 @@ public class DriveSystem extends Subsystem {
                     target.withZ(0));
             if (x != 0.0 && dist < DIST_TOLERANCE) {
                 double aimingAngle = mNoteAimController.calculate(x, 0);
-                rotDutyCycle = aimingAngle;
+                rotRPS = aimingAngle;
                 mDesiredPosition.z = getRobotAngle().getRadians();
             }
         }
 
-        driveRaw(xDutyCycle, yDutyCycle, rotDutyCycle);
+        driveRaw(xMPS, yMPS, rotRPS);
     }
 
     public void setTrajectory(PathPlannerTrajectory trajectory) {
