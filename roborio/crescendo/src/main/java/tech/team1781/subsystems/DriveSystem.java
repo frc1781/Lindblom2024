@@ -80,7 +80,7 @@ public class DriveSystem extends Subsystem {
             new TrapezoidProfile.Constraints(6.28, 3.14));
     private PIDController mNoteAimController = new PIDController(1, 0, 0);
 
-    private final EVector GO_TO_PID = EVector.newVector(0.1, 0, 0);
+    private final EVector GO_TO_PID = EVector.newVector(0.5, 0, 0);
     private final double MAX_ACCELERATION = 5.2;
     private ProfiledPIDController mXGoToController = new ProfiledPIDController(GO_TO_PID.x, GO_TO_PID.y, GO_TO_PID.z, 
         new TrapezoidProfile.Constraints(ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, MAX_ACCELERATION));
