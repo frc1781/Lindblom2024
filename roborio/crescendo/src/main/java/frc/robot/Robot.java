@@ -205,10 +205,13 @@ public class Robot extends TimedRobot {
     if (ranAuto && ranTeleop) {
       DataLogManager.stop();
     }
+
+    mControlSystem.disabledLighting();
   }
 
   @Override
   public void disabledPeriodic() {
+    mControlSystem.disabledPeriodic();
   }
 
   @Override

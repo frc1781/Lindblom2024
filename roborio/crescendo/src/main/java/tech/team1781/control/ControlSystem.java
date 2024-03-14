@@ -24,16 +24,13 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput.ControllerSide;
 import tech.team1781.autonomous.AutoStep;
-import tech.team1781.subsystems.Climber;
-import tech.team1781.subsystems.DriveSystem;
-import tech.team1781.subsystems.Scollector;
-import tech.team1781.subsystems.Arm;
-import tech.team1781.subsystems.Subsystem;
+import tech.team1781.subsystems.*;
 import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.DriveSystem.DriveSystemState;
 import tech.team1781.subsystems.Scollector.ScollectorState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
 import tech.team1781.subsystems.Subsystem.SubsystemState;
+import tech.team1781.subsystems.LEDs.ledState;
 import tech.team1781.utils.EVector;
 import tech.team1781.DriverInput;
 import tech.team1781.ShuffleboardStyle;
@@ -50,6 +47,7 @@ public class ControlSystem {
     private Scollector mScollector;
     private Climber mClimber;
     private Arm mArm;
+    private LEDs mLEDs;
 
     private OperatingMode mCurrentOperatingMode;
 
@@ -117,12 +115,14 @@ public class ControlSystem {
         mScollector = new Scollector();
         mClimber = new Climber();
         mArm = new Arm();
+        mLEDs = new LEDs();
 
         mSubsystems = new ArrayList<>();
         mSubsystems.add(mDriveSystem);
         mSubsystems.add(mScollector);
         mSubsystems.add(mClimber);
         mSubsystems.add(mArm);
+        mSubsystems.add(mLEDs);
 
         aprilTagCoords.put(1, new Pose2d(15.078597, 0.245597, new Rotation2d()));
         aprilTagCoords.put(2, new Pose2d(16.184259, 0.883391, new Rotation2d()));
@@ -573,6 +573,12 @@ public class ControlSystem {
 
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
 
+        if (mScollector.hasNote()) {
+            mLEDs.setDesiredState(ledState.HAS_NOTE);
+        } else {
+            mLEDs.setDesiredState(ledState.NO_NOTE);
+        }
+
         switch (mCurrentOperatingMode) {
             case TELEOP:
                 SubsystemState finalScollectorState = ScollectorState.IDLE;
@@ -655,6 +661,12 @@ public class ControlSystem {
             subsystem.getToState();
             subsystem.feedStateTime(mStepTime.get());
             runSubsystemPeriodic(subsystem);
+        }
+    }
+
+    public void disabledPeriodic() {
+        for (Subsystem subsystem : mSubsystems) {
+            subsystem.disabledPeriodic();
         }
     }
 
@@ -863,6 +875,10 @@ public class ControlSystem {
                 break;
         }
 
+    }
+
+    public void disabledLighting() {
+        mLEDs.setDesiredState(ledState.DEFAULT);
     }
 
     private enum SeekNoteState {
