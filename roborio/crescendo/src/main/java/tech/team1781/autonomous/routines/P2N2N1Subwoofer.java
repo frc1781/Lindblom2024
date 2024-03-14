@@ -22,10 +22,10 @@ public class P2N2N1Subwoofer implements AutoRoutine{
             new AutoStep(6, Action.SHOOT_SUBWOOFER),
             new AutoStep(3, Action.COLLECT_RAMP, Positions.N2,true), 
             new AutoStep(2, Action.COLLECT_RAMP, Positions.P2),
-            new AutoStep(2, Action.AUTO_AIM_SHOOT),
-            new AutoStep(3, Action.COLLECT_RAMP, Positions.N1,true), 
+            new AutoStep(2, Action.SHOOT_SUBWOOFER),
+            new AutoStep(3, Action.COLLECT_RAMP, Positions.N1.withZ(0.7),true), 
             new AutoStep(2, Action.COLLECT_RAMP, Positions.P2),
-            new AutoStep(2, Action.AUTO_AIM_SHOOT),
+            new AutoStep(2, Action.SHOOT_SUBWOOFER),
         };
     }
     

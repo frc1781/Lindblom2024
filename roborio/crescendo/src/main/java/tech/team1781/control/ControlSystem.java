@@ -204,10 +204,10 @@ public class ControlSystem {
         mArm.manualAdjustAngle(diff);
     }
 
-    public void skipNote(boolean isSkipping) {
-        if (isSkipping) {
-            mSettingStack.add(new SubsystemSetting(mArm, ArmState.SKIP));
-            mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.RAMP_SHOOTER));
+    public void lobNote(boolean isLobbing) {
+        if (isLobbing) {
+            mSettingStack.add(new SubsystemSetting(mArm, ArmState.LOB));
+            mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.LOB));
         }
     }
 
@@ -549,6 +549,7 @@ public class ControlSystem {
 
         switch (operatingMode) {
             case TELEOP:
+                mSettingStack.clear();
                 mXDriveLimiter.reset(0);
                 mYDriveLimiter.reset(0);
                 mRotDriveLimiter.reset(0);
@@ -577,8 +578,11 @@ public class ControlSystem {
                 SubsystemState finalArmState = ArmState.SAFE;
                 SubsystemState finalDriveState = DriveSystemState.DRIVE_MANUAL;
 
-                if (mArm.getState() != ArmState.MANUAL)
+                if (mArm.getState() != ArmState.MANUAL) {
                     mSettingStack.add(new SubsystemSetting(mArm, ArmState.SAFE));
+                } else {
+                    System.out.println("not changing state cause manual mode");
+                }
                 mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.IDLE));
 
                 while (!mSettingStack.isEmpty()) {
@@ -614,7 +618,6 @@ public class ControlSystem {
                 autoAimingInputs();
                 break;
             case AUTONOMOUS:
-                System.out.println(mArm.getState());
                 localizationUpdates();
                 if (mScollector.getState() == ScollectorState.COLLECT
                         || (mScollector.getState() == ScollectorState.COLLECT_RAMP
