@@ -7,6 +7,8 @@ public class LEDs extends Subsystem{
     private AddressableLED ledController = null;
     private AddressableLEDBuffer ledBuffer = null;
 
+    private int rainbowFirstPixelHue = 1;
+
     public LEDs() {
         super("LEDs", ledState.DEFAULT);
     }
@@ -29,13 +31,9 @@ public class LEDs extends Subsystem{
             ledBuffer = new AddressableLEDBuffer(151);
 
             ledController.setLength(ledBuffer.getLength());
+            ledController.setData(ledBuffer);
+            ledController.start();
         }
-
-        for (var i = 0; i < ledBuffer.getLength(); i++) {
-            ledBuffer.setRGB(i, 0, 0, 255);
-        }
-        ledController.setData(ledBuffer);
-        ledController.start();
     }
 
     @Override
@@ -43,16 +41,6 @@ public class LEDs extends Subsystem{
         if ((ledBuffer == null || ledController == null)) { return; }
 
         switch ((ledState) getState()) {
-            case DEFAULT:
-                for (var i = 0; i < ledBuffer.getLength(); i++) {
-                    if (i == 0 || i % 2 == 0) {
-                        ledBuffer.setRGB(i, 0, 128, 0);
-                    } else {
-                        ledBuffer.setRGB(i, 297, 255, 0);
-                    }
-                }
-                ledController.setData(ledBuffer);
-                break;
             case NO_NOTE:
                 for (var i = 0; i < ledBuffer.getLength(); i++) {
                     ledBuffer.setRGB(i, 0, 255, 0);
@@ -82,4 +70,23 @@ public class LEDs extends Subsystem{
     public void teleopPeriodic() {
 
     }
+
+    private void rainbow() {
+        for (var i = 0; i < ledBuffer.getLength(); i++) {
+
+            final var hue = (rainbowFirstPixelHue + (i * 180 / ledBuffer.getLength())) % 180;
+            ledBuffer.setHSV(i, hue, 255, 128);
+        }
+
+        rainbowFirstPixelHue += 3;
+
+        rainbowFirstPixelHue %= 180;
+    }
+
+    @Override
+    public void disabledPeriodic() {
+        rainbow();
+        ledController.setData(ledBuffer);
+    }
+
 }
