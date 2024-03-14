@@ -201,6 +201,7 @@ public class ControlSystem {
     }
 
     public void manualAdjustAngle(double diff) {
+        mSettingStack.add(new SubsystemSetting(mArm, ArmState.MANUAL));
         mArm.manualAdjustAngle(diff);
     }
 

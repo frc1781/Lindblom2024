@@ -238,7 +238,6 @@ public class Arm extends Subsystem {
         if (mDesiredPosition < ConfigMap.MIN_THRESHOLD_ARM) {
             mDesiredPosition = ConfigMap.MIN_THRESHOLD_ARM;
         }
-        System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     }
 
     public void setSpeakerDistance(double d) {
