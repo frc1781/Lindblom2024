@@ -211,6 +211,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
+    mControlSystem.disabledPeriodic();
   }
 
   @Override

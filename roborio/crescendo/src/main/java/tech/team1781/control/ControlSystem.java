@@ -664,6 +664,12 @@ public class ControlSystem {
         }
     }
 
+    public void disabledPeriodic() {
+        for (Subsystem subsystem : mSubsystems) {
+            subsystem.disabledPeriodic();
+        }
+    }
+
     public boolean isRunningAction() {
         try {
             boolean hasUnfinishedSubsystem = false;

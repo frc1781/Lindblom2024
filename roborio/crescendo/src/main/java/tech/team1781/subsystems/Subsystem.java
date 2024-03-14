@@ -63,6 +63,10 @@ public abstract class Subsystem {
 
    public abstract void teleopPeriodic();
 
+   public void disabledPeriodic() {
+      
+   }
+
    public interface SubsystemState {
 
    }

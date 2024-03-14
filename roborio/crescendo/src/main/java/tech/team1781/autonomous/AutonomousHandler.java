@@ -22,7 +22,7 @@ public class AutonomousHandler {
             mAutoChooser.addOption(routine.getName(), routine);
         }
         
-        ConfigMap.AUTONOMOUS_TAB.add(mAutoChooser);
+        ConfigMap.AUTONOMOUS_TAB.add(mAutoChooser).withSize(2, 1);
 
         mControlSystem = controlSystem;
     }
