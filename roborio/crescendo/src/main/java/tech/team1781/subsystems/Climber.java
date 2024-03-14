@@ -113,23 +113,23 @@ public class Climber extends Subsystem {
     public void manualClimb(double dutyCycle) {
         if (Math.abs(dutyCycle) <= 0.1) {
             dutyCycle = 0;
+            mRightClimberPID.reset();
         }
 
         double leftDutyCycle; 
         double rightDutyCycle; 
 
         if (dutyCycle < 0) {
-            leftDutyCycle = dutyCycle;
-            rightDutyCycle = dutyCycle;
+            leftDutyCycle = dutyCycle  * 0.9;
+            rightDutyCycle = dutyCycle + mRightClimberPID.calculate(
+                mRightClimberMotor.getEncoder().getPosition(),
+                mLeftClimberMotor.getEncoder().getPosition()
+                );
         } else {
             leftDutyCycle = dutyCycle * 0.7;
             rightDutyCycle = dutyCycle * 0.7;
         }
 
-        rightDutyCycle = dutyCycle + mRightClimberPID.calculate(
-            mRightClimberMotor.getEncoder().getPosition(), 
-            mLeftClimberMotor.getEncoder().getPosition()
-        );
 
         if (Math.abs(dutyCycle) > 0.1) {
            System.out.printf("lc: %.2f  rc: %.2f re: %.2f  le:%.2f\n", 
@@ -141,5 +141,21 @@ public class Climber extends Subsystem {
         }
         mLeftClimberMotor.set(leftDutyCycle);
         mRightClimberMotor.set(rightDutyCycle);
+    }
+
+
+    public void twoThumbClimb(double dutyCycleLeft, double dutyCycleRight) {
+        if (Math.abs(dutyCycleLeft) <= 0.1) {
+            dutyCycleLeft = 0;
+        } 
+        if(Math.abs(dutyCycleRight) <= 0.1) {
+            dutyCycleRight = 0;
+        }
+
+        dutyCycleLeft = dutyCycleLeft < 0 ? dutyCycleLeft: dutyCycleLeft * 0.7; 
+        dutyCycleRight = dutyCycleRight < 0 ? dutyCycleRight: dutyCycleRight * 0.7; 
+
+        mLeftClimberMotor.set(dutyCycleLeft);
+        mRightClimberMotor.set(dutyCycleRight);
     }
 }

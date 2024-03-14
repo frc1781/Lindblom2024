@@ -3,7 +3,9 @@ package tech.team1781.subsystems;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
+import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -31,6 +33,8 @@ public class Arm extends Subsystem {
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
     private GenericEntry mArmPositionEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Angle", -1,
             ShuffleboardStyle.ARM_ANGLE);
+    private GenericEntry mSparkErrorEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Spark Max Errored", false, ShuffleboardStyle.ARM_ERROR);
+        private GenericEntry mSparkDataNotSentEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "encoder", false, ShuffleboardStyle.ARM_ERROR);
     private GenericEntry mArmAimSpotEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Aim Spot", "N/A", ShuffleboardStyle.ARM_AIM_SPOT);
     private boolean mResetPosition = false;
     private double mDesiredPosition = 0;
@@ -59,7 +63,7 @@ public class Arm extends Subsystem {
         mRightMotor.setIdleMode(IdleMode.kBrake);
         mLeftMotor.burnFlash();
         mRightMotor.burnFlash();
-        mLeftEncoder.setPosition(KICKSTAND_POSITION);
+        mSparkDataNotSentEntry.setBoolean(mLeftEncoder.setPosition(KICKSTAND_POSITION) != REVLibError.kOk);
         mPositionPID.reset(KICKSTAND_POSITION);
         System.out.println("-------------------------------------------------");
         System.out.println("   ARM SET TO KICKSTAND ENCODER POSITION         ");
@@ -74,12 +78,15 @@ public class Arm extends Subsystem {
         mLeftMotor.burnFlash();
         mPositions.put(ArmState.SAFE, 66.0);
         mPositions.put(ArmState.PODIUM, CURRENT_AIM_SPOT.PODIUM.getPosition());
-        mPositions.put(ArmState.SUBWOOFER, 36.0);
+        mPositions.put(ArmState.SUBWOOFER, CURRENT_AIM_SPOT.SUBWOOFER.getPosition()); //was 36
         mPositions.put(ArmState.AMP, 46.0);
         mPositions.put(ArmState.COLLECT, 0.0);
-        mPositions.put(ArmState.COLLECT_HIGH, 58.0);
+        mPositions.put(ArmState.COLLECT_HIGH, 55.7);
         mPositions.put(ArmState.SKIP, 55.0);
         mPositions.put(ArmState.KICKSTAND, 69.0);
+        mPositions.put(ArmState.LOB, CURRENT_AIM_SPOT.SUBWOOFER.getPosition());
+        mPositions.put(ArmState.NOTE_ONE, CURRENT_AIM_SPOT.NOTE_1.getPosition());
+        mPositions.put(ArmState.NOTE_THREE, CURRENT_AIM_SPOT.NOTE_3.getPosition());
     } //58 
 
     public enum ArmState implements Subsystem.SubsystemState {
@@ -92,7 +99,10 @@ public class Arm extends Subsystem {
         MANUAL,
         AUTO_ANGLE,
         AMP,
-        SKIP
+        SKIP,
+        NOTE_ONE,
+        NOTE_THREE,
+        LOB
     }
 
     @Override
@@ -106,6 +116,8 @@ public class Arm extends Subsystem {
           mRightMotor.setIdleMode(IdleMode.kBrake);
         }
 
+
+
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
         if (mLeftEncoder.getPosition() > 10.0 && mLeftMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed()) {
             mLeftEncoder.setPosition(FORWARD_LIMIT_POSITION); 
@@ -117,7 +129,8 @@ public class Arm extends Subsystem {
     public void init() {
         setDesiredState(ArmState.SAFE);
         mDesiredPosition = mLeftEncoder.getPosition();
-        if (currentMode == OperatingMode.DISABLED) {
+        if (currentMode == OperatingMode.AUTONOMOUS) {
+            mSparkDataNotSentEntry.setBoolean(mLeftEncoder.setPosition(KICKSTAND_POSITION) != REVLibError.kOk);
         }
     }
 
@@ -134,22 +147,30 @@ public class Arm extends Subsystem {
                 break;
         }
 
-        var armDutyCycle = mPositionPID.calculate(mLeftEncoder.getPosition(), mDesiredPosition);
-        mArmPositionEntry.setDouble(mLeftEncoder.getPosition());
-        if (getState() == ArmState.COLLECT && getAngle() < 4.0) {
-          armDutyCycle = 0.0;
-          mLeftEncoder.setPosition(0.0);
-        } 
-        mLeftMotor.set(armDutyCycle);
+        double currentArmAngle = mLeftEncoder.getPosition();
+        mArmPositionEntry.setDouble(currentArmAngle);
+        if (currentArmAngle != 0.0) {
+
+            var armDutyCycle = mPositionPID.calculate(currentArmAngle, mDesiredPosition);
+            if(mSparkErrorEntry.getBoolean(false))
+                mSparkErrorEntry.setBoolean(false);
+        
+            if (getState() == ArmState.COLLECT && getAngle() < 4.0) {
+                armDutyCycle = 0.0;
+                mLeftEncoder.setPosition(0.01);
+            } 
+            mLeftMotor.set(armDutyCycle);  
+        } else {
+            mSparkErrorEntry.setBoolean(true);
+        }
     }
 
     @Override
     public boolean matchesDesiredState() {
         switch ((ArmState) getState()) {
             case COLLECT:
-                return mLeftEncoder.getPosition() <= 0.0;
+                return mLeftEncoder.getPosition() <= 0.01;
             default:
-                //System.out.println(matchesPosition());
                 return matchesPosition();
         }
     }
@@ -165,6 +186,9 @@ public class Arm extends Subsystem {
 
     @Override
     public void setDesiredState(SubsystemState state) {
+        if(state == ArmState.SAFE && state == ArmState.MANUAL) {
+            return;
+        }
         super.setDesiredState(state);
 
         if (state != ArmState.MANUAL && state != ArmState.AUTO_ANGLE) {
@@ -179,11 +203,16 @@ public class Arm extends Subsystem {
     }
 
     public void updateAimSpots(Pose2d robotPose) {
+        mRobotPose = robotPose;
+        
+    }
+
+    private double calculateAngleFromDistance() {
         boolean foundAimSpot = false;
 
         for(CURRENT_AIM_SPOT aimSpot : CURRENT_AIM_SPOT.values()) {
             if(aimSpot == CURRENT_AIM_SPOT.UNDEFEINED) continue;
-            if(aimSpot.atPosition(robotPose)) {
+            if(aimSpot.atPosition(mRobotPose)) {
                 mCurrentAimSpot = aimSpot;
                 foundAimSpot = true;
                 break;
@@ -193,9 +222,7 @@ public class Arm extends Subsystem {
         if(!foundAimSpot) {
             mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
         }
-    }
 
-    private double calculateAngleFromDistance() {
         if(mCurrentAimSpot != CURRENT_AIM_SPOT.UNDEFEINED) {
             return mCurrentAimSpot.getPosition();
         }
@@ -222,16 +249,16 @@ public class Arm extends Subsystem {
 
     private boolean matchesPosition() {
         //System.out.println("diff: " + Math.abs(mLeftEncoder.getPosition() - mDesiredPosition));
-        return Math.abs(mLeftEncoder.getPosition() - mDesiredPosition) < 0.6;
+        return Math.abs(mLeftEncoder.getPosition() - mDesiredPosition) < 0.8;
     }
 
     private enum CURRENT_AIM_SPOT {
         UNDEFEINED(0.0, EVector.newVector(), EVector.newVector(), 0.0),
-        SUBWOOFER(31, ConfigMap.RED_SPEAKER_LOCATION, ConfigMap.BLUE_SPEAKER_LOCATION, 2.5),
+        SUBWOOFER(32.5, ConfigMap.RED_SPEAKER_LOCATION, ConfigMap.BLUE_SPEAKER_LOCATION, 2.5),
         PODIUM(45, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1),
-        NOTE_3(44.4, EVector.newVector(14.5, 4.27) ,EVector.newVector(2.48, 4.27), 0.5),
-        NOTE_2(48, EVector.newVector(14.13, 5.53) ,EVector.newVector(2.48, 5.53), 0.5),
-        NOTE_1(48, EVector.newVector(14.06, 6.74),EVector.newVector(2.48, 6.74), 0.5);
+        NOTE_3(42.4, EVector.newVector(14.5, 4.27) ,EVector.newVector(2.48, 4.27), 1),
+        NOTE_2(50, EVector.newVector(14.13, 5.53) ,EVector.newVector(2.48, 5.53), 0.5),
+        NOTE_1(50, EVector.newVector(14.06, 6.74),EVector.newVector(2.48, 6.74), 0.5);
 
         private double position;
         private EVector redPosition;

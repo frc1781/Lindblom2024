@@ -1,0 +1,198 @@
+Timestamp,Name,Value
+0.84063,"NT:/FMSInfo/.type","FMSInfo"
+0.842819,"NT:/FMSInfo/GameSpecificMessage",""
+0.843004,"NT:/FMSInfo/EventName",""
+0.860979,"NT:/FMSInfo/MatchNumber",0
+0.86122,"NT:/FMSInfo/ReplayNumber",0
+0.861387,"NT:/FMSInfo/MatchType",0
+0.879808,"NT:/FMSInfo/IsRedAlliance",true
+0.900175,"NT:/FMSInfo/StationNumber",3
+0.880253,"NT:/FMSInfo/FMSControlData",0
+1.040469,"NT:/LiveWindow/.status/LW Enabled",false
+1.397445,"NT:/Shuffleboard/.metadata/Tabs","Electric Eagles;Autonomous;Config"
+1.398762,"NT:/Shuffleboard/Electric Eagles/.type","ShuffleboardTab"
+1.399133,"NT:/Shuffleboard/Autonomous/.type","ShuffleboardTab"
+1.399393,"NT:/Shuffleboard/Config/.type","ShuffleboardTab"
+1.801279,"NT:/Shuffleboard/.metadata/Config/Save Config/PreferredComponent","Toggle Button"
+4.449662,"NT:/Shuffleboard/Config/Save Config",false
+1.821721,"NT:/Shuffleboard/.metadata/Electric Eagles/Sees AprilTag/PreferredComponent","Boolean Box"
+1.822444,"NT:/Shuffleboard/.metadata/Electric Eagles/Sees AprilTag/Size",1;1
+1.822611,"NT:/Shuffleboard/.metadata/Electric Eagles/Sees AprilTag/Position",5;3
+4.449699,"NT:/Shuffleboard/Electric Eagles/Sees AprilTag",false
+1.831831,"NT:/Shuffleboard/.metadata/Electric Eagles/Sees AprilTag/Properties/Color when false","#800000"
+1.832146,"NT:/Shuffleboard/.metadata/Electric Eagles/Sees AprilTag/Properties/Color when true","#ffbf00"
+1.833649,"NT:/Shuffleboard/Electric Eagles/Drive System","DRIVE_MANUAL"
+3.459129,"NT:/Shuffleboard/.metadata/Electric Eagles/X Position/PreferredComponent","Text View"
+3.459204,"NT:/Shuffleboard/.metadata/Electric Eagles/X Position/Size",1;1
+3.459241,"NT:/Shuffleboard/.metadata/Electric Eagles/X Position/Position",5;0
+4.449792,"NT:/Shuffleboard/Electric Eagles/X Position",-1
+3.460335,"NT:/Shuffleboard/.metadata/Electric Eagles/Y Position/PreferredComponent","Text View"
+3.460391,"NT:/Shuffleboard/.metadata/Electric Eagles/Y Position/Size",1;1
+3.460446,"NT:/Shuffleboard/.metadata/Electric Eagles/Y Position/Position",6;0
+4.449829,"NT:/Shuffleboard/Electric Eagles/Y Position",-1
+3.461652,"NT:/Shuffleboard/.metadata/Electric Eagles/Theta/PreferredComponent","Text View"
+3.461726,"NT:/Shuffleboard/.metadata/Electric Eagles/Theta/Size",1;1
+3.461782,"NT:/Shuffleboard/.metadata/Electric Eagles/Theta/Position",7;0
+4.449866,"NT:/Shuffleboard/Electric Eagles/Theta",-1
+3.462932,"NT:/Shuffleboard/.metadata/Electric Eagles/X Speed/PreferredComponent","Number Bar"
+3.463062,"NT:/Shuffleboard/.metadata/Electric Eagles/X Speed/Size",1;1
+3.463173,"NT:/Shuffleboard/.metadata/Electric Eagles/X Speed/Position",6;3
+4.449903,"NT:/Shuffleboard/Electric Eagles/X Speed",-1
+3.463619,"NT:/Shuffleboard/.metadata/Electric Eagles/X Speed/Properties/Min",0
+3.463785,"NT:/Shuffleboard/.metadata/Electric Eagles/X Speed/Properties/Max",4.5
+3.465103,"NT:/Shuffleboard/.metadata/Electric Eagles/Y Speed/PreferredComponent","Number Bar"
+3.465177,"NT:/Shuffleboard/.metadata/Electric Eagles/Y Speed/Size",1;1
+3.465214,"NT:/Shuffleboard/.metadata/Electric Eagles/Y Speed/Position",7;3
+4.449996,"NT:/Shuffleboard/Electric Eagles/Y Speed",-1
+3.465418,"NT:/Shuffleboard/.metadata/Electric Eagles/Y Speed/Properties/Min",0
+3.465511,"NT:/Shuffleboard/.metadata/Electric Eagles/Y Speed/Properties/Max",4.5
+3.570207,"NT:/Shuffleboard/.metadata/Electric Eagles/Overall Velocity/PreferredComponent","Simple Dial"
+3.5703,"NT:/Shuffleboard/.metadata/Electric Eagles/Overall Velocity/Size",1;1
+3.570355,"NT:/Shuffleboard/.metadata/Electric Eagles/Overall Velocity/Position",8;0
+4.450052,"NT:/Shuffleboard/Electric Eagles/Overall Velocity",-1
+3.570522,"NT:/Shuffleboard/.metadata/Electric Eagles/Overall Velocity/Properties/Min",0
+3.570615,"NT:/Shuffleboard/.metadata/Electric Eagles/Overall Velocity/Properties/Max",4.5
+3.570875,"NT:/Shuffleboard/.metadata/Electric Eagles/Field/Size",3;2
+3.571264,"NT:/Shuffleboard/.metadata/Electric Eagles/Field/Position",5;1
+3.593988,"NT:/Shuffleboard/Electric Eagles/Field/.controllable",true
+3.57631,"NT:/Shuffleboard/Electric Eagles/Field/.type","Field2d"
+4.450126,"NT:/Shuffleboard/Electric Eagles/Field/Robot",0;0;0
+3.595936,"NT:/Shuffleboard/Electric Eagles/Scollector","IDLE"
+3.788911,"NT:/Shuffleboard/.metadata/Electric Eagles/Top Velocity/PreferredComponent","Number Bar"
+3.789004,"NT:/Shuffleboard/.metadata/Electric Eagles/Top Velocity/Size",1;1
+3.789078,"NT:/Shuffleboard/.metadata/Electric Eagles/Top Velocity/Position",4;2
+4.450182,"NT:/Shuffleboard/Electric Eagles/Top Velocity",0
+3.789264,"NT:/Shuffleboard/.metadata/Electric Eagles/Top Velocity/Properties/Min",0
+3.789375,"NT:/Shuffleboard/.metadata/Electric Eagles/Top Velocity/Properties/Max",7
+3.790766,"NT:/Shuffleboard/.metadata/Electric Eagles/Bottom Velocity/PreferredComponent","Number Bar"
+3.790859,"NT:/Shuffleboard/.metadata/Electric Eagles/Bottom Velocity/Size",1;1
+3.790915,"NT:/Shuffleboard/.metadata/Electric Eagles/Bottom Velocity/Position",4;3
+4.450237,"NT:/Shuffleboard/Electric Eagles/Bottom Velocity",0
+3.7911,"NT:/Shuffleboard/.metadata/Electric Eagles/Bottom Velocity/Properties/Min",0
+3.79123,"NT:/Shuffleboard/.metadata/Electric Eagles/Bottom Velocity/Properties/Max",7
+3.79277,"NT:/Shuffleboard/.metadata/Electric Eagles/Ready To Shoot/PreferredComponent","Boolean Box"
+3.792862,"NT:/Shuffleboard/.metadata/Electric Eagles/Ready To Shoot/Size",4;4
+3.792918,"NT:/Shuffleboard/.metadata/Electric Eagles/Ready To Shoot/Position",0;0
+4.450293,"NT:/Shuffleboard/Electric Eagles/Ready To Shoot",true
+3.793122,"NT:/Shuffleboard/.metadata/Electric Eagles/Ready To Shoot/Properties/Color when false","#800000"
+3.793233,"NT:/Shuffleboard/.metadata/Electric Eagles/Ready To Shoot/Properties/Color when true","#03fc13"
+3.863186,"NT:/Shuffleboard/.metadata/Electric Eagles/Has Note/PreferredComponent","Boolean Box"
+3.863297,"NT:/Shuffleboard/.metadata/Electric Eagles/Has Note/Size",1;1
+3.863352,"NT:/Shuffleboard/.metadata/Electric Eagles/Has Note/Position",4;1
+4.450349,"NT:/Shuffleboard/Electric Eagles/Has Note",false
+3.863538,"NT:/Shuffleboard/.metadata/Electric Eagles/Has Note/Properties/Color when false","#800000"
+3.863649,"NT:/Shuffleboard/.metadata/Electric Eagles/Has Note/Properties/Color when true","#ffbf00"
+3.864261,"NT:/Shuffleboard/Electric Eagles/Climber","IDLE"
+3.964413,"NT:/Shuffleboard/Electric Eagles/Arm","SAFE"
+3.971536,"NT:/Shuffleboard/.metadata/Electric Eagles/Arm Angle/PreferredComponent","Number Bar"
+3.97161,"NT:/Shuffleboard/.metadata/Electric Eagles/Arm Angle/Size",1;1
+3.97213,"NT:/Shuffleboard/.metadata/Electric Eagles/Arm Angle/Position",4;0
+4.450423,"NT:/Shuffleboard/Electric Eagles/Arm Angle",-1
+3.972705,"NT:/Shuffleboard/.metadata/Electric Eagles/Arm Angle/Properties/Min",0
+3.972853,"NT:/Shuffleboard/.metadata/Electric Eagles/Arm Angle/Properties/Max",60
+3.975914,"NT:/Shuffleboard/.metadata/Electric Eagles/Spark Max Errored/PreferredComponent","Boolean Box"
+3.975988,"NT:/Shuffleboard/.metadata/Electric Eagles/Spark Max Errored/Size",1;1
+3.976044,"NT:/Shuffleboard/.metadata/Electric Eagles/Spark Max Errored/Position",5;3
+4.450534,"NT:/Shuffleboard/Electric Eagles/Spark Max Errored",false
+3.976359,"NT:/Shuffleboard/.metadata/Electric Eagles/Spark Max Errored/Properties/Color when false","#ff0000"
+3.976656,"NT:/Shuffleboard/.metadata/Electric Eagles/Spark Max Errored/Properties/Color when true","#000000"
+4.170633,"NT:/Shuffleboard/.metadata/Electric Eagles/Arm Aim Spot/PreferredComponent","Text View"
+4.170726,"NT:/Shuffleboard/.metadata/Electric Eagles/Arm Aim Spot/Size",1;1
+4.170782,"NT:/Shuffleboard/.metadata/Electric Eagles/Arm Aim Spot/Position",8;3
+4.45059,"NT:/Shuffleboard/Electric Eagles/Arm Aim Spot","N/A"
+4.45059,"NT:/Shuffleboard/Autonomous/Custom Auto Positions",""
+4.179185,"NT:/Shuffleboard/.metadata/Autonomous/POSITION_1/PreferredComponent","Toggle Button"
+4.179278,"NT:/Shuffleboard/.metadata/Autonomous/POSITION_1/Position",1;1
+4.450627,"NT:/Shuffleboard/Autonomous/POSITION_1",false
+4.184713,"NT:/Shuffleboard/.metadata/Autonomous/POSITION_2/PreferredComponent","Toggle Button"
+4.184824,"NT:/Shuffleboard/.metadata/Autonomous/POSITION_2/Position",2;1
+4.450664,"NT:/Shuffleboard/Autonomous/POSITION_2",false
+4.186753,"NT:/Shuffleboard/.metadata/Autonomous/POSITION_3/PreferredComponent","Toggle Button"
+4.186827,"NT:/Shuffleboard/.metadata/Autonomous/POSITION_3/Position",3;1
+4.450683,"NT:/Shuffleboard/Autonomous/POSITION_3",false
+4.188478,"NT:/Shuffleboard/.metadata/Autonomous/POSITION_1_RED/PreferredComponent","Toggle Button"
+4.188553,"NT:/Shuffleboard/.metadata/Autonomous/POSITION_1_RED/Position",4;1
+4.45072,"NT:/Shuffleboard/Autonomous/POSITION_1_RED",false
+4.189944,"NT:/Shuffleboard/.metadata/Autonomous/POSITION_3_RED/PreferredComponent","Toggle Button"
+4.190018,"NT:/Shuffleboard/.metadata/Autonomous/POSITION_3_RED/Position",5;1
+4.450757,"NT:/Shuffleboard/Autonomous/POSITION_3_RED",false
+4.191335,"NT:/Shuffleboard/.metadata/Autonomous/NOTE_1/PreferredComponent","Toggle Button"
+4.191409,"NT:/Shuffleboard/.metadata/Autonomous/NOTE_1/Position",1;2
+4.450794,"NT:/Shuffleboard/Autonomous/NOTE_1",false
+4.192819,"NT:/Shuffleboard/.metadata/Autonomous/NOTE_2/PreferredComponent","Toggle Button"
+4.192893,"NT:/Shuffleboard/.metadata/Autonomous/NOTE_2/Position",2;2
+4.454968,"NT:/Shuffleboard/Autonomous/NOTE_2",false
+4.194284,"NT:/Shuffleboard/.metadata/Autonomous/NOTE_3/PreferredComponent","Toggle Button"
+4.194359,"NT:/Shuffleboard/.metadata/Autonomous/NOTE_3/Position",3;2
+4.454986,"NT:/Shuffleboard/Autonomous/NOTE_3",false
+4.196659,"NT:/Shuffleboard/.metadata/Autonomous/CENTER_1/PreferredComponent","Toggle Button"
+4.196733,"NT:/Shuffleboard/.metadata/Autonomous/CENTER_1/Position",1;3
+4.455023,"NT:/Shuffleboard/Autonomous/CENTER_1",false
+4.198532,"NT:/Shuffleboard/.metadata/Autonomous/CENTER_2/PreferredComponent","Toggle Button"
+4.198718,"NT:/Shuffleboard/.metadata/Autonomous/CENTER_2/Position",2;3
+4.45506,"NT:/Shuffleboard/Autonomous/CENTER_2",false
+4.200165,"NT:/Shuffleboard/.metadata/Autonomous/CENTER_3/PreferredComponent","Toggle Button"
+4.200239,"NT:/Shuffleboard/.metadata/Autonomous/CENTER_3/Position",3;3
+4.455097,"NT:/Shuffleboard/Autonomous/CENTER_3",false
+4.20393,"NT:/Shuffleboard/.metadata/Autonomous/CENTER_4/PreferredComponent","Toggle Button"
+4.204023,"NT:/Shuffleboard/.metadata/Autonomous/CENTER_4/Position",4;3
+4.455172,"NT:/Shuffleboard/Autonomous/CENTER_4",false
+4.455172,"NT:/Shuffleboard/Autonomous/CENTER_5",false
+4.46313,"DS:enabled",false
+4.46313,"DS:autonomous",false
+4.46313,"DS:test",false
+4.46313,"DS:estop",false
+4.46313,"DS:joystick0/buttons",
+4.46313,"DS:joystick0/axes",
+4.46313,"DS:joystick0/povs",
+4.46313,"DS:joystick1/buttons",
+4.46313,"DS:joystick1/axes",
+4.46313,"DS:joystick1/povs",
+4.46313,"DS:joystick2/buttons",
+4.46313,"DS:joystick2/axes",
+4.46313,"DS:joystick2/povs",
+4.46313,"DS:joystick3/buttons",
+4.46313,"DS:joystick3/axes",
+4.46313,"DS:joystick3/povs",
+4.46313,"DS:joystick4/buttons",
+4.46313,"DS:joystick4/axes",
+4.46313,"DS:joystick4/povs",
+4.46313,"DS:joystick5/buttons",
+4.46313,"DS:joystick5/axes",
+4.46313,"DS:joystick5/povs",
+4.611789,"NT:/Shuffleboard/.metadata/Autonomous/CENTER_5/PreferredComponent","Toggle Button"
+4.611919,"NT:/Shuffleboard/.metadata/Autonomous/CENTER_5/Position",5;3
+4.612364,"NT:/Shuffleboard/Autonomous/SendableChooser[0]/.controllable",false
+4.612587,"NT:/Shuffleboard/Autonomous/SendableChooser[0]/.type","String Chooser"
+4.617447,"NT:/Shuffleboard/Autonomous/SendableChooser[0]/.instance",0
+4.611789,"NT:/Shuffleboard/.metadata/Autonomous/CENTER_5/PreferredComponent","Toggle Button"
+4.611919,"NT:/Shuffleboard/.metadata/Autonomous/CENTER_5/Position",5;3
+4.662616,"NT:/Shuffleboard/Autonomous/SendableChooser[0]/.controllable",false
+4.612587,"NT:/Shuffleboard/Autonomous/SendableChooser[0]/.type","String Chooser"
+4.617447,"NT:/Shuffleboard/Autonomous/SendableChooser[0]/.instance",0
+4.690812,"NT:/Shuffleboard/Autonomous/SendableChooser[0]/.controllable",true
+4.690831,"NT:/Shuffleboard/Autonomous/SendableChooser[0]/default","Driver Custom Auto"
+4.690831,"NT:/Shuffleboard/Autonomous/SendableChooser[0]/options","Driver Custom Auto;RedP1Routine;RedP3Routine;Example Routine"
+4.690831,"NT:/Shuffleboard/Autonomous/SendableChooser[0]/active","Driver Custom Auto"
+4.690812,"NT:/Shuffleboard/Autonomous/SendableChooser[0]/.controllable",true
+4.690831,"NT:/Shuffleboard/Autonomous/SendableChooser[0]/default","Driver Custom Auto"
+4.690831,"NT:/Shuffleboard/Autonomous/SendableChooser[0]/options","Driver Custom Auto;RedP1Routine;RedP3Routine;Example Routine"
+4.690831,"NT:/Shuffleboard/Autonomous/SendableChooser[0]/active","Driver Custom Auto"
+13.737499,"NT:/FMSInfo/FMSControlData",32
+13.737517,"DS:joystick0/buttons",0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
+13.737517,"DS:joystick0/axes",0;0;0;0;0;0
+13.737517,"DS:joystick0/povs",-1
+13.737517,"DS:joystick1/buttons",0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
+13.737517,"DS:joystick1/axes",0;0;0;0;0;0
+13.737517,"DS:joystick1/povs",-1
+13.737499,"NT:/FMSInfo/FMSControlData",32
+23.274592,"NT:/FMSInfo/EventName","ARLI"
+23.274592,"NT:/FMSInfo/EventName","ARLI"
+26.293308,"systemTime",2024-03-07 14:19:20.218001
+27.032525,"NTConnection","{""connected"":true,""remote_id"":""shuffleboard@1"",""remote_ip"":""172.22.11.1"",""remote_port"":53023,""protocol_version"":1025}"
+-774.393324,"NT:/Shuffleboard/Autonomous/POSITION_1",false
+-773.915175,"NT:/Shuffleboard/Autonomous/POSITION_2",true
+-3946.847356,"NT:/Shuffleboard/Autonomous/NOTE_1",true
+-768.910641,"NT:/Shuffleboard/Autonomous/NOTE_2",true
+-767.89204,"NT:/Shuffleboard/Autonomous/NOTE_3",true
+-772.129274,"NT:/Shuffleboard/Autonomous/SendableChooser[0]/selected","Driver Custom Auto"

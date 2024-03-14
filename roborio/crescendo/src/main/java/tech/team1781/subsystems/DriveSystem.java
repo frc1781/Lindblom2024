@@ -31,7 +31,9 @@ import tech.team1781.control.ControlSystem;
 import tech.team1781.swerve.KrakenL2SwerveModule;
 import tech.team1781.swerve.NEOL1SwerveModule;
 import tech.team1781.swerve.SwerveModule;
+import tech.team1781.utils.EEGeometryUtil;
 import tech.team1781.utils.EVector;
+import tech.team1781.utils.Limelight;
 import tech.team1781.utils.NetworkLogger;
 
 import java.util.concurrent.Executors;
@@ -76,10 +78,15 @@ public class DriveSystem extends Subsystem {
     private PIDController mYController = new PIDController(1, 0, 0);
     private ProfiledPIDController mRotController = new ProfiledPIDController(4, 0, 0,
             new TrapezoidProfile.Constraints(6.28, 3.14));
+    private PIDController mNoteAimController = new PIDController(2, 0, 0);
 
-    private PIDController mXGoToController = new PIDController(1, 0, 0);
-    private PIDController mYGoToController = new PIDController(1, 0, 0);
-    private ProfiledPIDController mRotGoToController = new ProfiledPIDController(4, 0, 0,
+    private final EVector GO_TO_PID = EVector.newVector(2.5, 0, 0);
+    private final double MAX_ACCELERATION = 8.0;
+    private ProfiledPIDController mXGoToController = new ProfiledPIDController(GO_TO_PID.x, GO_TO_PID.y, GO_TO_PID.z, 
+        new TrapezoidProfile.Constraints(ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, MAX_ACCELERATION));
+    private ProfiledPIDController mYGoToController = new ProfiledPIDController(GO_TO_PID.x, GO_TO_PID.y, GO_TO_PID.z,
+        new TrapezoidProfile.Constraints(ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, MAX_ACCELERATION));
+    private ProfiledPIDController mRotGoToController = new ProfiledPIDController(1, 0, 0,
             new TrapezoidProfile.Constraints(6.28, 3.14));
 
     private HolonomicDriveController mTrajectoryController = new HolonomicDriveController(mXController, mYController,
@@ -100,11 +107,9 @@ public class DriveSystem extends Subsystem {
 
     private Field2d mField = new Field2d();
 
-    private EVector mNotePosition = new EVector(-1,-1);
+    private EVector mNotePosition = new EVector(-1, -1);
     private boolean mSeesNote = false;
     private Timer mSeekNoteTrajectoryTimer = new Timer();
-    
-
 
     public DriveSystem() {
         super("Drive System", DriveSystemState.DRIVE_MANUAL);
@@ -121,10 +126,12 @@ public class DriveSystem extends Subsystem {
                 .withSize((int) ShuffleboardStyle.ROBOT_POSITION_FIELD.size.x,
                         (int) ShuffleboardStyle.ROBOT_POSITION_FIELD.size.y);
         mRotGoToController.enableContinuousInput(0, Math.PI * 2);
+
     }
 
     public enum DriveSystemState implements Subsystem.SubsystemState {
         DRIVE_SETPOINT,
+        DRIVE_NOTE,
         DRIVE_TRAJECTORY,
         DRIVE_MANUAL,
         SYSID
@@ -134,6 +141,7 @@ public class DriveSystem extends Subsystem {
     public void getToState() {
         switch ((DriveSystemState) getState()) {
             case DRIVE_SETPOINT:
+            case DRIVE_NOTE:
                 goTo(mDesiredPosition);
                 break;
             case DRIVE_TRAJECTORY:
@@ -163,13 +171,16 @@ public class DriveSystem extends Subsystem {
 
         switch ((DriveSystemState) getState()) {
             case DRIVE_SETPOINT:
-                // return matchesDesiredPosition();
-                return false;
+            case DRIVE_NOTE:
+                return matchesDesiredPosition();
+            // return false;
             case DRIVE_TRAJECTORY:
                 return matchesPosition(mDesiredTrajectory.getEndState().getTargetHolonomicPose())
                         && (currentTime >= mDesiredTrajectory.getTotalTimeSeconds());
             case DRIVE_MANUAL:
                 return true;
+            // case DRIVE_NOTE:
+            // return true;
             // return mIsManual;
             default:
                 return false;
@@ -206,8 +217,6 @@ public class DriveSystem extends Subsystem {
         mBackLeft.init();
         mBackRight.init();
 
-
-
         switch (currentMode) {
             case AUTONOMOUS:
                 mNavX.reset();
@@ -232,7 +241,6 @@ public class DriveSystem extends Subsystem {
             default:
                 break;
         }
-
 
         mRotController.enableContinuousInput(0, 2 * Math.PI);
     }
@@ -292,18 +300,33 @@ public class DriveSystem extends Subsystem {
         if (mIsManual && mDesiredPosition == null) {
             return;
         }
-        final double DISTANCE_TOLERANCE = 0.1;
         EVector robotPose = EVector.fromPose(getRobotPose());
-        double diff = target.dist(robotPose);
-        if (diff < DISTANCE_TOLERANCE) {
+        if (matchesDesiredPosition()) {
+            System.out.println("matches position **********************************************");
+            driveRaw(0, 0, 0);
             return;
         }
 
-        double xDutyCycle = mXGoToController.calculate(robotPose.x, target.x);
-        double yDutyCycle = mYGoToController.calculate(robotPose.y, target.y);
-        double rotDutyCycle = mRotGoToController.calculate(getRobotAngle().getRadians(), target.z);
+        double xMPS = clamp(mXGoToController.calculate(robotPose.x, target.x), ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
+        double yMPS = clamp(mYGoToController.calculate(robotPose.y, target.y), ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
+        double rotRPS = mRotGoToController.calculate(getRobotAngle().getRadians(), target.z);
+        double x = Math.toRadians(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT));
 
-        driveRaw(xDutyCycle, yDutyCycle, rotDutyCycle);
+        if (getState() == DriveSystemState.DRIVE_NOTE) {
+            final double DIST_TOLERANCE = 1.5;
+            double dist = robotPose.withZ(0).dist(
+                    target.withZ(0));
+            if (x != 0.0 && dist < DIST_TOLERANCE) {
+                double aimingAngle = mNoteAimController.calculate(x, 0);
+                System.out.println("aiming angle: " + aimingAngle + " :: " + mDesiredPosition.z);
+                rotRPS = aimingAngle;
+                mDesiredPosition.z = getRobotAngle().getRadians();
+            }
+        }
+
+        System.out.println("rot rps: " + rotRPS + " :: " + mDesiredPosition.z);
+
+        driveRaw(xMPS, yMPS, rotRPS);
     }
 
     public void setTrajectory(PathPlannerTrajectory trajectory) {
@@ -314,7 +337,7 @@ public class DriveSystem extends Subsystem {
             mXController = new PIDController(1, 0, 0);
             mYController = new PIDController(1, 0, 0);
             mRotController = new ProfiledPIDController(4, 0, 0,
-                new TrapezoidProfile.Constraints(6.28, 3.14));
+                    new TrapezoidProfile.Constraints(6.28, 3.14));
             mTrajectoryController = new HolonomicDriveController(mXController, mYController, mRotController);
             setOdometry(initialPose);
             mOdometryBeenSet = true;
@@ -336,8 +359,14 @@ public class DriveSystem extends Subsystem {
         mDesiredTrajectory = null;
         mIsManual = false;
 
-        mXGoToController.reset();
-        mYGoToController.reset();
+        if (!mOdometryBeenSet) {
+            setOdometry(position.toPose2d());
+            setNavXOffset(Rotation2d.fromRadians(position.z));
+            mOdometryBeenSet = true;
+        }
+
+        mXGoToController.reset(getRobotPose().getX());
+        mYGoToController.reset(getRobotPose().getY());
         mRotGoToController.reset(getRobotAngle().getRadians());
     }
 
@@ -347,7 +376,6 @@ public class DriveSystem extends Subsystem {
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
 
-
         mFrontLeft.setDesiredState(moduleStates[0]);
         mFrontRight.setDesiredState(moduleStates[1]);
         mBackLeft.setDesiredState(moduleStates[2]);
@@ -355,10 +383,10 @@ public class DriveSystem extends Subsystem {
     }
 
     public boolean matchesPosition(Pose2d other) {
-        final double TOLERANCE = 0.2;
+        final double TOLERANCE = 0.1;
         EVector currentPose = EVector.fromPose(getRobotPose());
         EVector otherPose = EVector.fromPose(other);
-        double dist = currentPose.dist(otherPose); 
+        double dist = currentPose.dist(otherPose);
         return dist <= TOLERANCE;
     }
 
@@ -366,10 +394,10 @@ public class DriveSystem extends Subsystem {
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(
                 mIsFieldOriented
                         ? ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
-                            xSpeed, 
-                            ySpeed,
+                                xSpeed,
+                                ySpeed,
                                 rot),
-                            getRobotAngle())
+                                getRobotAngle())
                         : new ChassisSpeeds(xSpeed, ySpeed, rot));
 
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
@@ -409,7 +437,10 @@ public class DriveSystem extends Subsystem {
         return false;
     }
 
-
+    public void setDesiredState(SubsystemState desiredState) {
+        super.setDesiredState(desiredState);
+        mNoteAimController.reset();
+    }
 
     public void printModules() {
         // ((NEOL1SwerveModule) mFrontLeft).printModuleState();
@@ -419,21 +450,23 @@ public class DriveSystem extends Subsystem {
     }
 
     public void updateNotePosition(boolean seesNote, double dist) {
-        if(seesNote) {
+        if (seesNote) {
             mNotePosition = EVector.newVector(
-                Math.cos(getRobotAngle().getRadians()) * dist,
-                Math.sin(getRobotAngle().getRadians()) * dist,
-                getRobotAngle().getRadians()
-            );
+                    Math.cos(getRobotAngle().getRadians()) * dist,
+                    Math.sin(getRobotAngle().getRadians()) * dist,
+                    getRobotAngle().getRadians());
             mSeesNote = true;
         }
+    }
+
+    public void centerNote() {
+
     }
 
     private void updateOdometry() {
         // mOdometry.update(getRobotAngle(), getModulePositions());
         mPoseEstimator.update(getRobotAngle(), getModulePositions());
     }
-
 
     private SwerveModulePosition[] getModulePositions() {
         return new SwerveModulePosition[] {
@@ -453,6 +486,18 @@ public class DriveSystem extends Subsystem {
         };
     }
 
+    private static double clamp(double input, double clampVal) {
+        double sig = Math.signum(input);
+        double abs = Math.abs(input);
+
+        if (abs >= clampVal) {
+            return clampVal * sig;
+        }
+
+        return input;
+
+    }
+
     public void followTrajectory(double time) {
         if (mIsManual && mDesiredTrajectory == null) {
             return;
@@ -468,6 +513,7 @@ public class DriveSystem extends Subsystem {
         driveWithChassisSpeds(desiredChassisSpeeds);
     }
 
-
+    private void changePositiontoNote() {
+    }
 
 }

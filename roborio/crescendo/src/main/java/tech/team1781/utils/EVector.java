@@ -2,6 +2,7 @@ package tech.team1781.utils;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import tech.team1781.control.ControlSystem;
 
 /**
  * Very similar to the PVector class, except it has an E in it.
@@ -81,8 +82,16 @@ public class EVector {
         return new EVector(Math.cos(angle), Math.sin(angle), 0);
     }
 
+    public static EVector positionWithDegrees(double x, double y, double degrees) {
+        return new EVector(x, y, Math.toRadians(degrees));
+    }
+
     public Pose2d toPose2d() {
         return new Pose2d(x,y, new Rotation2d(z));
+    }
+
+    public EVector rotate2d(double angle) {
+        return new EVector(x * Math.cos(angle) - y * Math.sin(angle), x * Math.sin(angle) + y * Math.cos(angle), z);
     }
 
     public double magnitude(){
@@ -104,6 +113,31 @@ public class EVector {
         return new EVector(x, y, z);
     }
 
+    public EVector withX(double x) {
+        EVector ret_val = this.copy();
+        ret_val.x = x;
+
+        return ret_val;
+    }
+
+    public EVector withY(double y) {
+        EVector ret_val = this.copy();
+        ret_val.y = y;
+
+        return ret_val;
+    }
+
+    public EVector withZ(double z) {
+        EVector ret_val = this.copy();
+        ret_val.z = z;
+
+        return ret_val;
+    }
+
+    public EVector withZDegrees(double z) {
+        return this.withZ(Math.toRadians(z));
+    }
+
     public EVector add(EVector vector) {
         return new EVector(x + vector.x, y + vector.y, z + vector.z);
     }
@@ -122,6 +156,17 @@ public class EVector {
 
     public EVector rotate(double angle) {
         return new EVector(x * Math.cos(angle) - y * Math.sin(angle), x * Math.sin(angle) + y * Math.cos(angle), z);
+    }
+
+    public EVector flipIfRed() {
+        if(ControlSystem.isRed()) {
+
+            System.out.println("FLIPPING: " + this);
+            return EEGeometryUtil.flipPosition(this);
+        } else {
+            System.out.println("NOT FLIPPING: " + this);
+            return this;
+        }
     }
 
     @Override

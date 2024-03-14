@@ -11,6 +11,7 @@ public class ConfigMap {
         public static final ShuffleboardTab SHUFFLEBOARD_TAB = Shuffleboard.getTab("Electric Eagles");
         public static final ShuffleboardTab AUTONOMOUS_TAB = Shuffleboard.getTab("Autonomous");
 
+        public static final ShuffleboardTab LOG_TAB = Shuffleboard.getTab("Logs");
         public static final ShuffleboardTab CONFIG_TAB = Shuffleboard.getTab("Config");
 
         public static final EVector RED_SPEAKER_LOCATION = EVector.newVector(16.77, 5.54);
@@ -23,7 +24,7 @@ public class ConfigMap {
         public static final int BLUE_SPEAKER_APRILTAG = 7;
 
         public static final double MAX_SHOOTER_SPEED = 7;
-        public static final double MIN_SHOOTER_SPEED = 6;
+        public static final double MIN_SHOOTER_SPEED = 4;
 
         // CAN IDs
         public static final int FIRST_PCM_ID = 2;
@@ -66,7 +67,7 @@ public class ConfigMap {
 
         public static final double DRIVETRAIN_TRACKWIDTH = Units.inchesToMeters(30);
         public static final double DRIVETRAIN_WHEELBASE = Units.inchesToMeters(28);
-        public static final double MAX_VELOCITY_METERS_PER_SECOND = 4.5;
+        public static final double MAX_VELOCITY_METERS_PER_SECOND = 4.2;
         public static final double MAX_VELOCITY_FOR_UPDATE = 0.01;
         public static final double MAX_VELOCITY_RADIANS_PER_SECOND = (MAX_VELOCITY_METERS_PER_SECOND /
                         (Math.hypot(DRIVETRAIN_TRACKWIDTH / 2, DRIVETRAIN_WHEELBASE / 2)));
@@ -115,7 +116,8 @@ public class ConfigMap {
 
         public static final double DRIVER_TRANSLATION_RATE_LIMIT = 1.2;
         public static final double DRIVER_ROTATION_RATE_LIMIT = 1.2;
-
+        public static final double DRIVER_ROTATION_INPUT_MULTIPIER = 0.5;
+       
         public static final String RESET_NAVX = "START";
         public static final String CALIBRATE_POSITION = "Y";
         public static final String KEEP_DOWN = "LB";
@@ -134,7 +136,8 @@ public class ConfigMap {
         public static final String ANGLE_DOWN = "W";
         public static final String SCORE_AMP = "Y";
         public static final String SCORE_PODIUM = "A";
-        public static final String SKIP = "B";
+        // public static final String SKIP = "B";
+        public static final String LOB = "B";
         public static final String TOGGLE_TRAP = "LT";
 
         /*
