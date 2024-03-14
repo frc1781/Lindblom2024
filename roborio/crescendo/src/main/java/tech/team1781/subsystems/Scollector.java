@@ -137,7 +137,6 @@ public class Scollector extends Subsystem {
                 if (!hasNote()) {
                     collect();
                 } else if (mArmInPosition && (noteCloseToShooter() || hasNote()) && shooterAtSpeed()) {
-                    System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
                     shoot();
                 } else {
                     mCollectorMotor.set(0);
@@ -156,7 +155,6 @@ public class Scollector extends Subsystem {
                 if(mArmInPosition) {
                     shoot();
                 } else {
-                    System.out.println("((((((((((((((((((((((((((()))))))))))))))))))))))))))");
                 }
 
                 driveMotors();

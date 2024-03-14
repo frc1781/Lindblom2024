@@ -582,7 +582,6 @@ public class ControlSystem {
                 if (mArm.getState() != ArmState.MANUAL) {
                     mSettingStack.add(new SubsystemSetting(mArm, ArmState.SAFE));
                 } else {
-                    System.out.println("not changing state cause manual mode");
                 }
                 mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.IDLE));
 
