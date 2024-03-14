@@ -29,14 +29,13 @@ public class LEDs extends Subsystem{
             ledBuffer = new AddressableLEDBuffer(151);
 
             ledController.setLength(ledBuffer.getLength());
-            ledController.setData(ledBuffer);
-            ledController.start();
         }
 
         for (var i = 0; i < ledBuffer.getLength(); i++) {
-            ledBuffer.setRGB(i, 255, 0, 0);
+            ledBuffer.setRGB(i, 0, 0, 255);
         }
         ledController.setData(ledBuffer);
+        ledController.start();
     }
 
     @Override
@@ -46,9 +45,6 @@ public class LEDs extends Subsystem{
         switch ((ledState) getState()) {
             case DEFAULT:
                 for (var i = 0; i < ledBuffer.getLength(); i++) {
-                    // Sets the specified LED to the RGB values for red
-                    ledBuffer.setRGB(i, 128, 0, 0);
-
                     if (i == 0 || i % 2 == 0) {
                         ledBuffer.setRGB(i, 0, 128, 0);
                     } else {
