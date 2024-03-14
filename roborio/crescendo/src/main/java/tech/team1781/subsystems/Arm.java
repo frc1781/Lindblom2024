@@ -186,6 +186,9 @@ public class Arm extends Subsystem {
 
     @Override
     public void setDesiredState(SubsystemState state) {
+        if(state == ArmState.SAFE && state == ArmState.MANUAL) {
+            return;
+        }
         super.setDesiredState(state);
 
         if (state != ArmState.MANUAL && state != ArmState.AUTO_ANGLE) {
