@@ -84,7 +84,7 @@ public class Arm extends Subsystem {
         mPositions.put(ArmState.COLLECT_HIGH, 55.7);
         mPositions.put(ArmState.SKIP, 55.0);
         mPositions.put(ArmState.KICKSTAND, 69.0);
-        mPositions.put(ArmState.LOB, 10.0);
+        mPositions.put(ArmState.LOB, CURRENT_AIM_SPOT.SUBWOOFER.getPosition());
         mPositions.put(ArmState.NOTE_ONE, CURRENT_AIM_SPOT.NOTE_1.getPosition());
         mPositions.put(ArmState.NOTE_THREE, CURRENT_AIM_SPOT.NOTE_3.getPosition());
     } //58 
@@ -186,6 +186,9 @@ public class Arm extends Subsystem {
 
     @Override
     public void setDesiredState(SubsystemState state) {
+        if(state == ArmState.SAFE && state == ArmState.MANUAL) {
+            return;
+        }
         super.setDesiredState(state);
 
         if (state != ArmState.MANUAL && state != ArmState.AUTO_ANGLE) {

@@ -78,7 +78,7 @@ public class DriveSystem extends Subsystem {
     private PIDController mYController = new PIDController(1, 0, 0);
     private ProfiledPIDController mRotController = new ProfiledPIDController(4, 0, 0,
             new TrapezoidProfile.Constraints(6.28, 3.14));
-    private PIDController mNoteAimController = new PIDController(1, 0, 0);
+    private PIDController mNoteAimController = new PIDController(2, 0, 0);
 
     private final EVector GO_TO_PID = EVector.newVector(2.5, 0, 0);
     private final double MAX_ACCELERATION = 8.0;
@@ -313,15 +313,18 @@ public class DriveSystem extends Subsystem {
         double x = Math.toRadians(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT));
 
         if (getState() == DriveSystemState.DRIVE_NOTE) {
-            final double DIST_TOLERANCE = 1;
+            final double DIST_TOLERANCE = 1.5;
             double dist = robotPose.withZ(0).dist(
                     target.withZ(0));
             if (x != 0.0 && dist < DIST_TOLERANCE) {
                 double aimingAngle = mNoteAimController.calculate(x, 0);
+                System.out.println("aiming angle: " + aimingAngle + " :: " + mDesiredPosition.z);
                 rotRPS = aimingAngle;
                 mDesiredPosition.z = getRobotAngle().getRadians();
             }
         }
+
+        System.out.println("rot rps: " + rotRPS + " :: " + mDesiredPosition.z);
 
         driveRaw(xMPS, yMPS, rotRPS);
     }

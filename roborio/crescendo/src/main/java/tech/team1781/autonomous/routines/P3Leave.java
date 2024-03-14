@@ -20,7 +20,9 @@ public class P3Leave implements AutoRoutine{
             new AutoStep(100, Action.COLLECT_RAMP),
             new AutoStep(0.1, Positions.P3),
             new AutoStep(5, Action.SHOOT_SUBWOOFER),
-            new AutoStep(2, EVector.newVector(2.82, 1.85, 0))
+            new AutoStep(1.6, EVector.positionWithDegrees(3.2, 0.5, 0)),
+            new AutoStep(2, Action.COLLECT_RAMP, Positions.C5, true),
+            new AutoStep(1.6, EVector.positionWithDegrees(3.2, 0.5, 0)),
         };
     }
     

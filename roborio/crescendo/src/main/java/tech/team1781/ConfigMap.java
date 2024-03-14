@@ -24,7 +24,7 @@ public class ConfigMap {
         public static final int BLUE_SPEAKER_APRILTAG = 7;
 
         public static final double MAX_SHOOTER_SPEED = 7;
-        public static final double MIN_SHOOTER_SPEED = 5;
+        public static final double MIN_SHOOTER_SPEED = 4;
 
         // CAN IDs
         public static final int FIRST_PCM_ID = 2;
@@ -136,8 +136,8 @@ public class ConfigMap {
         public static final String ANGLE_DOWN = "W";
         public static final String SCORE_AMP = "Y";
         public static final String SCORE_PODIUM = "A";
-        public static final String SKIP = "B";
-        public static final String LOB = "RT";
+        // public static final String SKIP = "B";
+        public static final String LOB = "B";
         public static final String TOGGLE_TRAP = "LT";
 
         /*

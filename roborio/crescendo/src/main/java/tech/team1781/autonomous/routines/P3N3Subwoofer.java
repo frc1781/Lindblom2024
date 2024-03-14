@@ -23,6 +23,7 @@ public class P3N3Subwoofer implements AutoRoutine{
             new AutoStep(2, Action.COLLECT_RAMP, Positions.N3, true), 
             new AutoStep(3, Action.COLLECT_RAMP, Positions.P3),
             new AutoStep(4, Action.AUTO_AIM_SHOOT),
+
         };
     }
     

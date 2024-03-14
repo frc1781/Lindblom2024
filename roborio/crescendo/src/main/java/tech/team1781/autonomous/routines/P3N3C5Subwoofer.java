@@ -6,7 +6,7 @@ import tech.team1781.autonomous.AutonomousHandler.AutoRoutine;
 import tech.team1781.control.ControlSystem.Action;
 import tech.team1781.utils.EVector;
 
-public class P3N3C5Subwoofer implements AutoRoutine{
+public class P3N3C5Subwoofer implements AutoRoutine {
 
     @Override
     public String getName() {
@@ -16,16 +16,19 @@ public class P3N3C5Subwoofer implements AutoRoutine{
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-            new AutoStep(100, Action.OFF_KICKSTAND),
-            new AutoStep(100, Action.COLLECT_RAMP),
-            new AutoStep(0.1, Positions.P3),
-            new AutoStep(6, Action.SHOOT_SUBWOOFER),
-            new AutoStep(2, Action.COLLECT_RAMP, Positions.N3, true), 
-            new AutoStep(3, Action.COLLECT_RAMP, Positions.P3),
-            new AutoStep(4, Action.AUTO_AIM_SHOOT),
-            new AutoStep(5, EVector.positionWithDegrees(3.2, 1.72, 0)),
-            new AutoStep(10, Action.COLLECT_RAMP, Positions.C5, true)
+                new AutoStep(100, Action.OFF_KICKSTAND),
+                new AutoStep(100, Action.COLLECT_RAMP),
+                new AutoStep(0.1, Positions.P3),
+                new AutoStep(6, Action.SHOOT_SUBWOOFER),
+                new AutoStep(2, Action.COLLECT_RAMP, Positions.N3, true),
+                new AutoStep(3, Action.COLLECT_RAMP, Positions.P3),
+                new AutoStep(4, Action.AUTO_AIM_SHOOT),
+                new AutoStep(1.6, EVector.positionWithDegrees(5.2, 0.5, 0)),
+                new AutoStep(2, Action.COLLECT_RAMP, Positions.C5, true),
+                new AutoStep(1.2, EVector.positionWithDegrees(3.2, 0.5, 0)),
+                new AutoStep(2, Positions.P3),
+                new AutoStep(6, Action.SHOOT_SUBWOOFER),
         };
     }
-    
+
 }
