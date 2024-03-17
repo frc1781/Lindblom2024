@@ -155,7 +155,7 @@ public class Arm extends Subsystem {
             if(mSparkErrorEntry.getBoolean(false))
                 mSparkErrorEntry.setBoolean(false);
         
-            if (getState() == ArmState.COLLECT && getAngle() < 4.0) {
+            if (getState() == ArmState.COLLECT && getAngle() < 10.0) {
                 armDutyCycle = 0.0;
                 mLeftEncoder.setPosition(0.01);
             } 
