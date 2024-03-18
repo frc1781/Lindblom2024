@@ -98,10 +98,13 @@ public class LEDs extends Subsystem {
 
         for (int i = 0; i < halfLength; i++) {
             int diff = Math.abs(i - mFocus);
+            int otherSide = LED_LENGTH - i;
             if (diff <= FOCUS_LENGTH) {
                 ledBuffer.setLED(i, Color.kRed);
+                ledBuffer.setLED(otherSide, Color.kRed);
             } else {
                 ledBuffer.setLED(i, Color.kBlack);
+                ledBuffer.setLED(otherSide, Color.kBlack);
             }
 
         }
