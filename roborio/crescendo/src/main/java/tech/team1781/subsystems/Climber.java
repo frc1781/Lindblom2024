@@ -122,7 +122,7 @@ public class Climber extends Subsystem {
         } else {
             leftDutyCycle = dutyCycle * 0.7;
             rightDutyCycle = dutyCycle * 0.7;
-            trapHookDutyCycle = dutyCycle * 0.1;  //temporary for testing use positive for letting go.
+            trapHookDutyCycle = dutyCycle * 0.5;  //temporary for testing use positive for letting go.
         }
 
 
