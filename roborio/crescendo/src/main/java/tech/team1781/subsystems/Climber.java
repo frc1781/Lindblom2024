@@ -8,9 +8,6 @@ import tech.team1781.ConfigMap;
 import edu.wpi.first.math.controller.PIDController;
 
 public class Climber extends Subsystem {
-    private HookState mLeftHookState = HookState.DOWN;
-    private boolean mEngageTrapHook = false;
-
     private CANSparkMax mLeftClimberMotor = new CANSparkMax(
         ConfigMap.LEFT_CLIMBER_MOTOR,
         CANSparkMax.MotorType.kBrushless);
@@ -137,7 +134,7 @@ public class Climber extends Subsystem {
         }
         mLeftClimberMotor.set(leftDutyCycle);
         mRightClimberMotor.set(rightDutyCycle);
-       // mTrapHookMotor.set(trapHookDutyCycle);
+        mTrapHookMotor.set(trapHookDutyCycle);
         System.out.printf("trap dc: %.2f\n", trapHookDutyCycle);
     }
 
