@@ -58,10 +58,6 @@ public class Climber extends Subsystem {
         IDLE, EXTEND, RETRACT
     }
 
-    public enum HookState implements Subsystem.SubsystemState {
-        UP, DOWN
-    }
-
     @Override
     public void genericPeriodic() {
         if(mLeftReverseLimitSwitch.isPressed()) {
@@ -94,14 +90,6 @@ public class Climber extends Subsystem {
 
     @Override
     public void teleopPeriodic() {
-    }
-
-    public void setHooks(HookState h) {
-        if (mLeftHookState == h) {
-            return; 
-        }
-        mLeftHookState = h;
-        System.out.println(h == HookState.UP ? "Hooks up" : "Hooks Down");
     }
 
     public void manualClimb(double dutyCycle) {
