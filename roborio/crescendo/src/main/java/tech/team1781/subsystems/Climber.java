@@ -34,7 +34,7 @@ public class Climber extends Subsystem {
         super("Climber", ClimberState.IDLE);
         mLeftClimberMotor.setInverted(false);
         mRightClimberMotor.setInverted(true);
-        mTrapHookMotor.setInverted(false); //temporary, we don't know this yet, positive should be letting go up negative pulling down
+        mTrapHookMotor.setInverted(true); //temporary, we don't know this yet, positive should be letting go up negative pulling down
         mLeftClimberMotor.setIdleMode(IdleMode.kBrake);
         mRightClimberMotor.setIdleMode(IdleMode.kBrake);
         mTrapHookMotor.setIdleMode(IdleMode.kBrake);
@@ -107,22 +107,21 @@ public class Climber extends Subsystem {
                 mRightClimberMotor.getEncoder().getPosition(),
                 mLeftClimberMotor.getEncoder().getPosition()
                 );
-            trapHookDutyCycle = dutyCycle * 0.1; //temporary for testing negative would be for pulling down.
-            if (mLeftReverseLimitSwitch.isPressed() && mRightReverseLimitSwitch.isPressed()) { 
-                mEngageTrapHook = true;
+            // trapHookDutyCycle = dutyCycle * 0.1; //temporary for testing negative would be for pulling down.
+            // if (mLeftReverseLimitSwitch.isPressed() && mRightReverseLimitSwitch.isPressed()) { 
+            //     mEngageTrapHook = true;
 
-            } 
-            if (mEngageTrapHook) {
-                trapHookDutyCycle = -0.1 * dutyCycle; // temporay
-               // trapHookDutyCycle = mTrapHookPID.calculate(
-               //     mTrapHookMotor.getEncoder().getPosition(),
-               //     ConfigMap.TRAP_HOOK_DOWN_POSITION
-               // );
-            }
+            // } 
+            // if (mEngageTrapHook) {
+            //     trapHookDutyCycle = -0.1 * dutyCycle; // temporay
+            //    // trapHookDutyCycle = mTrapHookPID.calculate(
+            //    //     mTrapHookMotor.getEncoder().getPosition(),
+            //    //     ConfigMap.TRAP_HOOK_DOWN_POSITION
+            //    // );
+            // }
         } else {
             leftDutyCycle = dutyCycle * 0.7;
             rightDutyCycle = dutyCycle * 0.7;
-            trapHookDutyCycle = dutyCycle * 0.5;  //temporary for testing use positive for letting go.
         }
 
 
@@ -136,8 +135,20 @@ public class Climber extends Subsystem {
         }
         mLeftClimberMotor.set(leftDutyCycle);
         mRightClimberMotor.set(rightDutyCycle);
-        mTrapHookMotor.set(trapHookDutyCycle);
-        System.out.printf("trap dc: %.2f\n", trapHookDutyCycle);
+        // mTrapHookMotor.set(trapHookDutyCycle);
+        // System.out.printf("trap dc: %.2f\n", trapHookDutyCycle);
+    }
+
+    public void manualTrapHooks(double dc) {
+        final double TOLERANCE  = 0.1;
+        if(Math.abs(dc) < TOLERANCE) {
+            mTrapHookMotor.set(0);
+            return;
+        }
+
+        mTrapHookMotor.set(dc);
+
+        System.out.println("trap dc: " + dc + " trap encoder: " + mTrapHookMotor.getEncoder().getPosition());
     }
 
     public void pullTrapHooks() {

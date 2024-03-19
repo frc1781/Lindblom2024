@@ -594,7 +594,13 @@ public class ControlSystem {
                     if (subsystem == mDriveSystem) {
                         finalDriveState = state;
                     } else if (subsystem == mScollector) {
+                        if(finalScollectorState == ScollectorState.RAMP_SHOOTER && state == ScollectorState.COLLECT) {
+                            finalScollectorState = ScollectorState.COLLECT_RAMP;
+                            continue;
+                        }
                         finalScollectorState = state;
+
+
                     } else if (subsystem == mArm) {
                         finalArmState = state;
                     }
@@ -612,6 +618,7 @@ public class ControlSystem {
                         driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverTriggers);
                 mClimber.manualClimb(-driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y);
+                mClimber.manualTrapHooks(-driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.CO_PILOT_PORT).y);
                 // mClimber.twoThumbClimb(
                 // -driverInput.getControllerJoyAxis(ControllerSide.LEFT,
                 // ConfigMap.CO_PILOT_PORT).y,
