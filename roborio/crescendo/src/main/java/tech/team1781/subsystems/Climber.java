@@ -139,9 +139,9 @@ public class Climber extends Subsystem {
         }
         mLeftClimberMotor.set(leftDutyCycle);
         mRightClimberMotor.set(rightDutyCycle);
-        mTrapHookMotor.set(trapHookDutyCycle);
+       // mTrapHookMotor.set(trapHookDutyCycle);
+        System.out.printf("trap dc: %.2f\n", trapHookDutyCycle);
     }
-
 
     public void pullTrapHooks() {
          //Trap hook motor set on reverse power to get the trap hooks to the encoder position that is all the way down

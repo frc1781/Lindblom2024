@@ -177,10 +177,6 @@ public class ControlSystem {
         }
     }
 
-    public void toggleTrap() {
-        mClimber.toggleTrap();
-    }
-
     public void setCollecting(boolean pushingCollect) {
         if (pushingCollect) {
             mSettingStack.add(new SubsystemSetting(mArm, ArmState.COLLECT));
