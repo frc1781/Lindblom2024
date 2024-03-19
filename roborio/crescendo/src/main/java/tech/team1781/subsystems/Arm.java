@@ -28,6 +28,7 @@ public class Arm extends Subsystem {
     private CANSparkMax mLeftMotor;
     
     private RelativeEncoder mLeftEncoder; 
+    private AbsoluteEncoder mArmAbsoluteEncoder;
     private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.05, 0, 0,
             new TrapezoidProfile.Constraints(80, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
@@ -43,6 +44,7 @@ public class Arm extends Subsystem {
     private CURRENT_AIM_SPOT mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
     private double KICKSTAND_POSITION = 62.0;
     private double FORWARD_LIMIT_POSITION = 69.0;
+    private double ABSOLUTE_ENCODER_OFFSET;
     public Arm() {
         super("Arm", ArmState.SAFE);
         mRightMotor = new CANSparkMax(
@@ -58,6 +60,11 @@ public class Arm extends Subsystem {
         mLeftEncoder.setVelocityConversionFactor((ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2) / 60);
         mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2); // will tell us angle in
                                                                                           // degrees
+        mArmAbsoluteEncoder = mLeftMotor.getAbsoluteEncoder();
+        mArmAbsoluteEncoder.setVelocityConversionFactor((ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2) / 60);
+        mArmAbsoluteEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2);
+
+
         mRightMotor.follow(mLeftMotor, true);
         mLeftMotor.setIdleMode(IdleMode.kBrake);
         mRightMotor.setIdleMode(IdleMode.kBrake);
@@ -200,6 +207,10 @@ public class Arm extends Subsystem {
 
     public double getAngle() {
         return mLeftEncoder.getPosition();
+    }
+
+    public double getAngleAbsolute() {
+        return mArmAbsoluteEncoder.getPosition() + ABSOLUTE_ENCODER_OFFSET;
     }
 
     public void updateAimSpots(Pose2d robotPose) {
