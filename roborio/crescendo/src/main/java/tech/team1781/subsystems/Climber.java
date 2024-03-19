@@ -8,9 +8,7 @@ import tech.team1781.ConfigMap;
 import edu.wpi.first.math.controller.PIDController;
 
 public class Climber extends Subsystem {
-    private HookState mRightHookState = HookState.DOWN;
     private HookState mLeftHookState = HookState.DOWN;
-    // private TrapState mTrapState = TrapState.IN;
 
     private CANSparkMax mLeftClimberMotor = new CANSparkMax(
         ConfigMap.LEFT_CLIMBER_MOTOR,
@@ -35,13 +33,13 @@ public class Climber extends Subsystem {
         super("Climber", ClimberState.IDLE);
         mLeftClimberMotor.setInverted(false);
         mRightClimberMotor.setInverted(true);
-        mTrapHookMotor.setInverted(true); //SUBJECT TO CHANGE
+        mTrapHookMotor.setInverted(false); //temporary, we don't know this yet, positive should be letting go up negative pulling down
         mLeftClimberMotor.setIdleMode(IdleMode.kBrake);
         mRightClimberMotor.setIdleMode(IdleMode.kBrake);
         mTrapHookMotor.setIdleMode(IdleMode.kBrake);
         mLeftClimberMotor.setSmartCurrentLimit(40);
         mRightClimberMotor.setSmartCurrentLimit(40);
-        mTrapHookMotor.setSmartCurrentLimit(42);
+        mTrapHookMotor.setSmartCurrentLimit(40);
         mLeftReverseLimitSwitch = mLeftClimberMotor.getReverseLimitSwitch(Type.kNormallyOpen);
         mRightReverseLimitSwitch = mRightClimberMotor.getReverseLimitSwitch(Type.kNormallyOpen);
         mLeftForwardLimitSwitch = mLeftClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
@@ -62,10 +60,6 @@ public class Climber extends Subsystem {
         UP, DOWN
     }
 
-    // public enum TrapState implements Subsystem.SubsystemState {
-    //     IN, OUT
-    // }
-
     @Override
     public void genericPeriodic() {
         if(mLeftReverseLimitSwitch.isPressed()) {
@@ -80,7 +74,6 @@ public class Climber extends Subsystem {
     @Override
     public void init() {
         mRightClimberPID.reset();
-        // mTrapState = TrapState.IN;
     }
 
     @Override
@@ -101,26 +94,13 @@ public class Climber extends Subsystem {
     public void teleopPeriodic() {
     }
 
-    public void toggleTrap() {
-        // setTrap(mTrapState == TrapState.IN ? TrapState.OUT : TrapState.IN);
-        System.out.println("????????????????????????????????????");
-    }
-
     public void setHooks(HookState h) {
         if (mLeftHookState == h) {
             return; 
         }
         mLeftHookState = h;
-        mRightHookState = h;
         System.out.println(h == HookState.UP ? "Hooks up" : "Hooks Down");
     }
-
-    // public void setTrap(TrapState t) {
-    //     if (mTrapState != t) {
-    //       mTrapState = t;
-    //       System.out.println("Trap set to " + mTrapState);
-    //     }
-    // }
 
     public void manualClimb(double dutyCycle) {
         if (Math.abs(dutyCycle) <= 0.1) {
@@ -129,7 +109,8 @@ public class Climber extends Subsystem {
         }
 
         double leftDutyCycle; 
-        double rightDutyCycle; 
+        double rightDutyCycle;
+        double trapHookDutyCycle;
 
         if (dutyCycle < 0) {
             leftDutyCycle = dutyCycle  * 0.9;
@@ -137,9 +118,14 @@ public class Climber extends Subsystem {
                 mRightClimberMotor.getEncoder().getPosition(),
                 mLeftClimberMotor.getEncoder().getPosition()
                 );
+            trapHookDutyCycle = dutyCycle * 0.1; //temporary for testing negative would be for pulling down.
+            if (mLeftReverseLimitSwitch.isPressed() || mRightReverseLimitSwitch.isPressed()) {  //AND OR OR WE HAVE TO DISCUSS!
+                pullTrapHooks();
+            } 
         } else {
             leftDutyCycle = dutyCycle * 0.7;
             rightDutyCycle = dutyCycle * 0.7;
+            trapHookDutyCycle = dutyCycle * 0.1;  //temporary for testing use positive for letting go.
         }
 
 
@@ -153,25 +139,28 @@ public class Climber extends Subsystem {
         }
         mLeftClimberMotor.set(leftDutyCycle);
         mRightClimberMotor.set(rightDutyCycle);
+        mTrapHookMotor.set(trapHookDutyCycle);
     }
 
-
-    public void twoThumbClimb(double dutyCycleLeft, double dutyCycleRight) {
-        if (Math.abs(dutyCycleLeft) <= 0.1) {
-            dutyCycleLeft = 0;
-        } 
-        if(Math.abs(dutyCycleRight) <= 0.1) {
-            dutyCycleRight = 0;
-        }
-
-        dutyCycleLeft = dutyCycleLeft < 0 ? dutyCycleLeft: dutyCycleLeft * 0.7; 
-        dutyCycleRight = dutyCycleRight < 0 ? dutyCycleRight: dutyCycleRight * 0.7; 
-
-        mLeftClimberMotor.set(dutyCycleLeft);
-        mRightClimberMotor.set(dutyCycleRight);
-    }
 
     public void pullTrapHooks() {
-
+         //Trap hook motor set on reverse power to get the trap hooks to the encoder position that is all the way down
+         //and keep it there with a pid, happens when the reverse limit switch is hit and the user is trying to pull down.
+         //so probably not called here at all and done in ...
+         
     }
+    // public void twoThumbClimb(double dutyCycleLeft, double dutyCycleRight) {
+    //     if (Math.abs(dutyCycleLeft) <= 0.1) {
+    //         dutyCycleLeft = 0;
+    //     } 
+    //     if(Math.abs(dutyCycleRight) <= 0.1) {
+    //         dutyCycleRight = 0;
+    //     }
+
+    //     dutyCycleLeft = dutyCycleLeft < 0 ? dutyCycleLeft: dutyCycleLeft * 0.7; 
+    //     dutyCycleRight = dutyCycleRight < 0 ? dutyCycleRight: dutyCycleRight * 0.7; 
+
+    //     mLeftClimberMotor.set(dutyCycleLeft);
+    //     mRightClimberMotor.set(dutyCycleRight);
+    // }
 }
