@@ -5,7 +5,7 @@ import tech.team1781.autonomous.Positions;
 import tech.team1781.autonomous.AutonomousHandler.AutoRoutine;
 import tech.team1781.control.ControlSystem.Action;
 
-class P1N1C1ThreeNote implements AutoRoutine {
+public class P1N1C1ThreeNote implements AutoRoutine {
 
     @Override
     public String getName() {

@@ -2,22 +2,25 @@ package tech.team1781.subsystems;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 
 public class LEDs extends Subsystem {
     private final int LED_LENGTH = 151;
 
-    private AddressableLED ledController = null;
-    private AddressableLEDBuffer ledBuffer = null;
-    private int mFocus = 0;
+    private AddressableLED mLedController = null;
+    private AddressableLEDBuffer mLedBuffer = null;
 
-    private int rainbowFirstPixelHue = 1;
+    private int mFocus = 0;
+    private int mRainbowFirstPixelHue = 1;
+    private boolean mFlashMode = false;
+    private Timer mTimer;
 
     public LEDs() {
-        super("LEDs", ledState.DEFAULT);
+        super("LEDs", LedState.DEFAULT);
     }
 
-    public enum ledState implements SubsystemState {
+    public enum LedState implements SubsystemState {
         HAS_NOTE,
         NO_NOTE,
         DEFAULT
@@ -30,42 +33,35 @@ public class LEDs extends Subsystem {
 
     @Override
     public void init() {
-        if (ledController == null) {
-            ledController = new AddressableLED(9);
-            ledBuffer = new AddressableLEDBuffer(LED_LENGTH);
+        if (mLedController == null) {
+            mLedController = new AddressableLED(9);
+            mLedBuffer = new AddressableLEDBuffer(LED_LENGTH);
 
-            ledController.setLength(ledBuffer.getLength());
-            ledController.setData(ledBuffer);
-            ledController.start();
+            mLedController.setLength(mLedBuffer.getLength());
+            mLedController.setData(mLedBuffer);
+            mLedController.start();
         }
     }
 
     @Override
     public void getToState() {
-        if ((ledBuffer == null || ledController == null)) {
+        if ((mLedBuffer == null || mLedController == null)) {
             return;
         }
 
-        switch ((ledState) getState()) {
+        switch ((LedState) getState()) {
             case NO_NOTE:
-                // for (var i = 0; i < ledBuffer.getLength(); i++) {
-                // ledBuffer.setRGB(i, 0, 255, 0);
-                // }
-                // ledController.setData(ledBuffer);
-                vwoop();
+                vwoop(Color.kRed);
                 break;
             case HAS_NOTE:
-                for (var i = 0; i < ledBuffer.getLength(); i++) {
-                    ledBuffer.setRGB(i, 255, 0, 0);
-                }
-                // ledController.setData(ledBuffer);
+                flashThenSolid(Color.kGreen);
                 break;
             default:
                 rainbow();
                 break;
         }
 
-        ledController.setData(ledBuffer);
+        mLedController.setData(mLedBuffer);
 
     }
 
@@ -87,10 +83,46 @@ public class LEDs extends Subsystem {
     @Override
     public void disabledPeriodic() {
         rainbow();
-        ledController.setData(ledBuffer);
+        mLedController.setData(mLedBuffer);
     }
 
-    private void vwoop() {
+    @Override 
+    public void setDesiredState(SubsystemState desiredState) {
+        if(desiredState == currentState) {
+            return;
+        }
+
+        super.setDesiredState(desiredState);
+
+        mTimer.reset();
+        mTimer.start();
+        mFlashMode = false;
+    }
+
+    private void flashThenSolid(Color color) {
+        final double FLASH_TIME = 1;
+        final double BLINK_INTERVAL = 0.25;
+
+        if(mTimer.get() > FLASH_TIME) {
+            for(int i = 0; i < mLedBuffer.getLength(); i++) {
+                mLedBuffer.setLED(i, color);
+            }
+            return;
+        }
+
+        if(mTimer.get() % BLINK_INTERVAL < BLINK_INTERVAL / 2) {
+            for(int i = 0; i < mLedBuffer.getLength(); i++) {
+                mLedBuffer.setLED(i, Color.kBlack);
+            }
+        } else {
+            for(int i = 0; i < mLedBuffer.getLength(); i++) {
+                mLedBuffer.setLED(i, color);
+            }
+        }
+
+    }
+
+    private void vwoop(Color color) {
         final int SPEED = 1;
         final int FOCUS_LENGTH = 10;
         int evenLength = LED_LENGTH - (LED_LENGTH % 2);
@@ -100,11 +132,11 @@ public class LEDs extends Subsystem {
             int diff = Math.abs(i - mFocus);
             int otherSide = LED_LENGTH - i;
             if (diff <= FOCUS_LENGTH) {
-                ledBuffer.setLED(i, Color.kRed);
-                ledBuffer.setLED(otherSide, Color.kRed);
+                mLedBuffer.setLED(i, color);
+                mLedBuffer.setLED(otherSide, color);
             } else {
-                ledBuffer.setLED(i, Color.kBlack);
-                ledBuffer.setLED(otherSide, Color.kBlack);
+                mLedBuffer.setLED(i, Color.kBlack);
+                mLedBuffer.setLED(otherSide, Color.kBlack);
             }
 
         }
@@ -118,15 +150,15 @@ public class LEDs extends Subsystem {
     }
 
     private void rainbow() {
-        for (var i = 0; i < ledBuffer.getLength(); i++) {
+        for (var i = 0; i < mLedBuffer.getLength(); i++) {
 
-            final var hue = (rainbowFirstPixelHue + (i * 180 / ledBuffer.getLength())) % 180;
-            ledBuffer.setHSV(i, hue, 255, 128);
+            final var hue = (mRainbowFirstPixelHue + (i * 180 / mLedBuffer.getLength())) % 180;
+            mLedBuffer.setHSV(i, hue, 255, 128);
         }
 
-        rainbowFirstPixelHue += 3;
+        mRainbowFirstPixelHue += 3;
 
-        rainbowFirstPixelHue %= 180;
+        mRainbowFirstPixelHue %= 180;
     }
 
 }
