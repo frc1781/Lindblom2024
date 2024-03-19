@@ -8,6 +8,8 @@ import tech.team1781.ConfigMap;
 import edu.wpi.first.math.controller.PIDController;
 
 public class Climber extends Subsystem {
+    private boolean mEngageTrapHook = false;
+
     private CANSparkMax mLeftClimberMotor = new CANSparkMax(
         ConfigMap.LEFT_CLIMBER_MOTOR,
         CANSparkMax.MotorType.kBrushless);
