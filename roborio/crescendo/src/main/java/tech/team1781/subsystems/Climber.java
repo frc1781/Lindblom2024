@@ -9,6 +9,7 @@ import edu.wpi.first.math.controller.PIDController;
 
 public class Climber extends Subsystem {
     private HookState mLeftHookState = HookState.DOWN;
+    private boolean mEngageTrapHook = false;
 
     private CANSparkMax mLeftClimberMotor = new CANSparkMax(
         ConfigMap.LEFT_CLIMBER_MOTOR,
@@ -25,6 +26,7 @@ public class Climber extends Subsystem {
     private SparkLimitSwitch mLeftForwardLimitSwitch = mLeftClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
     private SparkLimitSwitch mRightForwardLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
     private PIDController mRightClimberPID = new PIDController(0.1, 0, 0);
+    private PIDController mTrapHookPID = new PIDController(0.1, 0, 0);
     private RelativeEncoder mLeftClimberEncoder = mLeftClimberMotor.getEncoder();
     private RelativeEncoder mRightClimberEncoder = mRightClimberMotor.getEncoder();
     private RelativeEncoder mTrapHookEncoder = mTrapHookMotor.getEncoder();
@@ -108,9 +110,9 @@ public class Climber extends Subsystem {
             mRightClimberPID.reset();
         }
 
-        double leftDutyCycle; 
-        double rightDutyCycle;
-        double trapHookDutyCycle;
+        double leftDutyCycle = 0; 
+        double rightDutyCycle = 0;
+        double trapHookDutyCycle = 0;
 
         if (dutyCycle < 0) {
             leftDutyCycle = dutyCycle  * 0.9;
@@ -119,9 +121,17 @@ public class Climber extends Subsystem {
                 mLeftClimberMotor.getEncoder().getPosition()
                 );
             trapHookDutyCycle = dutyCycle * 0.1; //temporary for testing negative would be for pulling down.
-            if (mLeftReverseLimitSwitch.isPressed() || mRightReverseLimitSwitch.isPressed()) {  //AND OR OR WE HAVE TO DISCUSS!
-                pullTrapHooks();
+            if (mLeftReverseLimitSwitch.isPressed() && mRightReverseLimitSwitch.isPressed()) { 
+                mEngageTrapHook = true;
+
             } 
+            if (mEngageTrapHook) {
+                trapHookDutyCycle = -0.1 * dutyCycle; // temporay
+               // trapHookDutyCycle = mTrapHookPID.calculate(
+               //     mTrapHookMotor.getEncoder().getPosition(),
+               //     ConfigMap.TRAP_HOOK_DOWN_POSITION
+               // );
+            }
         } else {
             leftDutyCycle = dutyCycle * 0.7;
             rightDutyCycle = dutyCycle * 0.7;
