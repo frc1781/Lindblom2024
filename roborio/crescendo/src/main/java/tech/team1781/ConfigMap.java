@@ -90,7 +90,7 @@ public class ConfigMap {
         // //-0.272; // -0.735;
           
         //RALPH's offsets
-        public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.9755;
+        public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.876221; //-0.9755
         public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.8167;
         public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.670;
         public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.116;
