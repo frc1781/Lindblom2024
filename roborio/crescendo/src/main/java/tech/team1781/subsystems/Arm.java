@@ -17,6 +17,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import tech.team1781.ConfigMap;
 import tech.team1781.ShuffleboardStyle;
 import tech.team1781.control.ControlSystem;
@@ -45,6 +46,8 @@ public class Arm extends Subsystem {
     private CURRENT_AIM_SPOT mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
     private double KICKSTAND_POSITION = 73.0;  // Was 62.0
     private double mPrevAbsoluteAngle = KICKSTAND_POSITION;
+    
+    private GenericEntry testEntry = Shuffleboard.getTab("test").add("test", 0.0).getEntry();
 
     public Arm() {
         super("Arm", ArmState.SAFE);
@@ -63,6 +66,7 @@ public class Arm extends Subsystem {
                                                                                                   // ^ It was the gear ratio, incorrect tooth count values for sprockets used, after fix angles are closer
         mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.27); // will tell us angle in
         mArmAbsoluteEncoder = mRightMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
+        mArmAbsoluteEncoder.setAverageDepth(1);
         mArmAbsoluteEncoder.setInverted(true);
         mRightMotor.follow(mLeftMotor, true);
         mLeftMotor.setIdleMode(IdleMode.kBrake);
@@ -88,7 +92,7 @@ public class Arm extends Subsystem {
         mPositions.put(ArmState.COLLECT, 0.0);
         mPositions.put(ArmState.COLLECT_HIGH, 63.2);    // Was 55.7
         mPositions.put(ArmState.SKIP, 55.0);
-        mPositions.put(ArmState.KICKSTAND, 69.0);
+        mPositions.put(ArmState.KICKSTAND, 84.0);
         mPositions.put(ArmState.LOB, CURRENT_AIM_SPOT.SUBWOOFER.getPosition());
         mPositions.put(ArmState.NOTE_ONE, CURRENT_AIM_SPOT.NOTE_1.getPosition());
         mPositions.put(ArmState.NOTE_THREE, CURRENT_AIM_SPOT.NOTE_3.getPosition());
@@ -112,6 +116,7 @@ public class Arm extends Subsystem {
 
     @Override
     public void genericPeriodic() {
+        testEntry.setDouble(getAngleAbsolute());
         if (mLeftEncoder.getPosition() < 10) {
           mLeftMotor.setIdleMode(IdleMode.kCoast);
           mRightMotor.setIdleMode(IdleMode.kCoast);
@@ -134,9 +139,9 @@ public class Arm extends Subsystem {
         setDesiredState(ArmState.SAFE);
         syncArmEncoder();
         mDesiredPosition = mLeftEncoder.getPosition();
-        if (currentMode == OperatingMode.AUTONOMOUS) {
-            mSparkDataNotSentEntry.setBoolean(mLeftEncoder.setPosition(KICKSTAND_POSITION) != REVLibError.kOk);
-        }
+        // if (currentMode == OperatingMode.AUTONOMOUS) {
+        //     mSparkDataNotSentEntry.setBoolean(mLeftEncoder.setPosition(KICKSTAND_POSITION) != REVLibError.kOk);
+        // }
     }
 
     @Override
