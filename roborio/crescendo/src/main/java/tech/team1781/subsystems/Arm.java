@@ -28,7 +28,7 @@ import com.revrobotics.SparkMaxAlternateEncoder;
 public class Arm extends Subsystem {
     private CANSparkMax mRightMotor;
     private CANSparkMax mLeftMotor;
-    
+        
     private RelativeEncoder mLeftEncoder; 
     private AbsoluteEncoder mArmAbsoluteEncoder;
     private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.03, 0, 0,
@@ -40,15 +40,12 @@ public class Arm extends Subsystem {
     private GenericEntry mSparkDataNotSentEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "encoder", false, ShuffleboardStyle.ARM_ERROR);
     private GenericEntry mArmAimSpotEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Aim Spot", "N/A", ShuffleboardStyle.ARM_AIM_SPOT);
 
-    private boolean mResetPosition = false;
     private double mDesiredPosition = 0;
-    private double mSpeakerDistance = 0;
     private Pose2d mRobotPose;
     private CURRENT_AIM_SPOT mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
     private double KICKSTAND_POSITION = 73.0;  // Was 62.0
-    private double FORWARD_LIMIT_POSITION = 76.0; // Was 69.0
-    private double ABSOLUTE_ENCODER_OFFSET = 0.0;  //would have to be set if this is to work
-    private double mPrevAbsoluteAngle = 73.0;  // Kickstand Angle
+    private double mPrevAbsoluteAngle = KICKSTAND_POSITION;
+
     public Arm() {
         super("Arm", ArmState.SAFE);
         mRightMotor = new CANSparkMax(
@@ -78,12 +75,11 @@ public class Arm extends Subsystem {
         System.out.println("   ARM SET TO KICKSTAND ENCODER POSITION         ");
         System.out.println("         ensure that kick stand is on            ");
         System.out.println("-------------------------------------------------");
-
-        // mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
-        // mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
+        mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
+        mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
+        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 80);
+        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, -10);
         mLeftMotor.setSmartCurrentLimit(30);
-        // mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 70);
-        // mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, 0);
         mLeftMotor.burnFlash();
         mPositions.put(ArmState.SAFE, 75.5);        // Was 66.0
         mPositions.put(ArmState.PODIUM, CURRENT_AIM_SPOT.PODIUM.getPosition());
@@ -262,12 +258,7 @@ public class Arm extends Subsystem {
         }
     }
 
-    public void setSpeakerDistance(double d) {
-        mSpeakerDistance = d;
-    }
-
     private boolean matchesPosition() {
-        //System.out.println("diff: " + Math.abs(mLeftEncoder.getPosition() - mDesiredPosition));
         return Math.abs(mLeftEncoder.getPosition() - mDesiredPosition) < 0.8;
     }
 
