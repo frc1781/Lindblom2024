@@ -7,6 +7,7 @@ import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkLimitSwitch.Type;
@@ -22,6 +23,7 @@ import tech.team1781.control.ControlSystem;
 import tech.team1781.utils.EVector;
 
 import com.revrobotics.SparkLimitSwitch;
+import com.revrobotics.SparkMaxAlternateEncoder;
 
 public class Arm extends Subsystem {
     private CANSparkMax mRightMotor;
@@ -32,11 +34,12 @@ public class Arm extends Subsystem {
     private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.05, 0, 0,
             new TrapezoidProfile.Constraints(80, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
-    private GenericEntry mArmPositionEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Angle", -1,
-            ShuffleboardStyle.ARM_ANGLE);
+
+    private GenericEntry mArmPositionEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Angle", -1, ShuffleboardStyle.ARM_ANGLE);
     private GenericEntry mSparkErrorEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Spark Max Errored", false, ShuffleboardStyle.ARM_ERROR);
-        private GenericEntry mSparkDataNotSentEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "encoder", false, ShuffleboardStyle.ARM_ERROR);
+    private GenericEntry mSparkDataNotSentEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "encoder", false, ShuffleboardStyle.ARM_ERROR);
     private GenericEntry mArmAimSpotEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Aim Spot", "N/A", ShuffleboardStyle.ARM_AIM_SPOT);
+
     private boolean mResetPosition = false;
     private double mDesiredPosition = 0;
     private double mSpeakerDistance = 0;
@@ -44,12 +47,14 @@ public class Arm extends Subsystem {
     private CURRENT_AIM_SPOT mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
     private double KICKSTAND_POSITION = 62.0;
     private double FORWARD_LIMIT_POSITION = 69.0;
-    private double ABSOLUTE_ENCODER_OFFSET;
+    private double ABSOLUTE_ENCODER_OFFSET = 0.0;  //would have to be set if this is to work
+    private double mPrevAbsoluteAngle = 0.0;
     public Arm() {
         super("Arm", ArmState.SAFE);
         mRightMotor = new CANSparkMax(
                 ConfigMap.ARM_PIVOT_RIGHT_MOTOR,
                 CANSparkMax.MotorType.kBrushless);
+        mRightMotor.restoreFactoryDefaults();
 
         mLeftMotor = new CANSparkMax(
                 ConfigMap.ARM_PIVOT_LEFT_MOTOR,
@@ -59,10 +64,8 @@ public class Arm extends Subsystem {
         mLeftEncoder = mLeftMotor.getEncoder();
         mLeftEncoder.setVelocityConversionFactor((ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2) / 60);
         mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2); // will tell us angle in
-        mArmAbsoluteEncoder = mLeftMotor.getAbsoluteEncoder();
-        mArmAbsoluteEncoder.setVelocityConversionFactor((ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2) / 60);
-        mArmAbsoluteEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2);
-        mRightMotor.follow(mLeftMotor, true);
+        mArmAbsoluteEncoder = mRightMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
+        mArmAbsoluteEncoder.setInverted(true);
         mLeftMotor.setIdleMode(IdleMode.kBrake);
         mRightMotor.setIdleMode(IdleMode.kBrake);
         mLeftMotor.burnFlash();
@@ -116,8 +119,8 @@ public class Arm extends Subsystem {
           mRightMotor.setIdleMode(IdleMode.kCoast);
         }
         else{
-          mLeftMotor.setIdleMode(IdleMode.kBrake);
-          mRightMotor.setIdleMode(IdleMode.kBrake);
+         mLeftMotor.setIdleMode(IdleMode.kBrake);
+         mRightMotor.setIdleMode(IdleMode.kBrake);
         }
 
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
@@ -125,6 +128,7 @@ public class Arm extends Subsystem {
             mLeftEncoder.setPosition(FORWARD_LIMIT_POSITION); 
             System.out.println("***************************reset after hitting forward limit*******************");
         }
+        System.out.printf("arm abs: %.3f arm rel %.3f\n", getAngleAbsolute(), getAngle());
     }
 
     @Override
@@ -149,7 +153,7 @@ public class Arm extends Subsystem {
                 break;
         }
 
-        double currentArmAngle = mLeftEncoder.getPosition();
+        double currentArmAngle = getAngle(); 
         mArmPositionEntry.setDouble(currentArmAngle);
         if (currentArmAngle != 0.0) {
 
@@ -205,12 +209,16 @@ public class Arm extends Subsystem {
     }
 
     public double getAngleAbsolute() {
-        return mArmAbsoluteEncoder.getPosition() + ABSOLUTE_ENCODER_OFFSET;
+        double reportedPosition = mArmAbsoluteEncoder.getPosition();
+        if (reportedPosition > 0.5)
+        {
+            mPrevAbsoluteAngle = 360.0*(mArmAbsoluteEncoder.getPosition() - 0.722); 
+        }
+        return mPrevAbsoluteAngle;   
     }
 
     public void updateAimSpots(Pose2d robotPose) {
         mRobotPose = robotPose;
-        
     }
 
     private double calculateAngleFromDistance() {
