@@ -59,12 +59,9 @@ public class Arm extends Subsystem {
         mLeftEncoder = mLeftMotor.getEncoder();
         mLeftEncoder.setVelocityConversionFactor((ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2) / 60);
         mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2); // will tell us angle in
-                                                                                          // degrees
         mArmAbsoluteEncoder = mLeftMotor.getAbsoluteEncoder();
         mArmAbsoluteEncoder.setVelocityConversionFactor((ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2) / 60);
         mArmAbsoluteEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2);
-
-
         mRightMotor.follow(mLeftMotor, true);
         mLeftMotor.setIdleMode(IdleMode.kBrake);
         mRightMotor.setIdleMode(IdleMode.kBrake);
@@ -94,7 +91,7 @@ public class Arm extends Subsystem {
         mPositions.put(ArmState.LOB, CURRENT_AIM_SPOT.SUBWOOFER.getPosition());
         mPositions.put(ArmState.NOTE_ONE, CURRENT_AIM_SPOT.NOTE_1.getPosition());
         mPositions.put(ArmState.NOTE_THREE, CURRENT_AIM_SPOT.NOTE_3.getPosition());
-    } //58 
+    }  
 
     public enum ArmState implements Subsystem.SubsystemState {
         KICKSTAND,
@@ -122,8 +119,6 @@ public class Arm extends Subsystem {
           mLeftMotor.setIdleMode(IdleMode.kBrake);
           mRightMotor.setIdleMode(IdleMode.kBrake);
         }
-
-
 
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
         if (mLeftEncoder.getPosition() > 10.0 && mLeftMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed()) {
