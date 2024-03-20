@@ -116,8 +116,6 @@ public class Arm extends Subsystem {
           mRightMotor.setIdleMode(IdleMode.kBrake);
         }
 
-
-
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
         if (mLeftEncoder.getPosition() > 10.0 && mLeftMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed()) {
             mLeftEncoder.setPosition(FORWARD_LIMIT_POSITION); 
@@ -204,7 +202,6 @@ public class Arm extends Subsystem {
 
     public void updateAimSpots(Pose2d robotPose) {
         mRobotPose = robotPose;
-        
     }
 
     private double calculateAngleFromDistance() {
