@@ -319,6 +319,7 @@ public class DriveSystem extends Subsystem {
             if (x != 0.0 && dist < DIST_TOLERANCE) {
                 double aimingAngle = mNoteAimController.calculate(x, 0);
                 System.out.println("aiming angle: " + aimingAngle + " :: " + mDesiredPosition.z);
+                System.out.printf("req RPS: %.3f llangle: %.3f\n", aimingAngle, x);
                 rotRPS = aimingAngle;
                 mDesiredPosition.z = getRobotAngle().getRadians();
             }
