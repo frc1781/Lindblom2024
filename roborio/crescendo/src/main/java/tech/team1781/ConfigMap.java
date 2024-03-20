@@ -46,7 +46,7 @@ public class ConfigMap {
         public static final int ARM_PIVOT_LEFT_MOTOR = 40;
         public static final int ARM_PIVOT_RIGHT_MOTOR = 41;
         public static final double ARM_POSITION_TOLERANCE = 2.0;
-        public static final double ARM_GEAR_RATIO = (1.0/125.0)*(18.0/56.0);
+        public static final double ARM_GEAR_RATIO = (1.0/125.0)*(24.0/58.0); // was (1.0/125.0)*(18.0/56.0)
 
         // 57 Motors
         public static final int COLLECTOR_MOTOR = 57;

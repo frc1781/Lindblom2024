@@ -62,8 +62,9 @@ public class Arm extends Subsystem {
         mLeftMotor.setSmartCurrentLimit(40);
         mRightMotor.setSmartCurrentLimit(40);
         mLeftEncoder = mLeftMotor.getEncoder();
-        mLeftEncoder.setVelocityConversionFactor((ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.4) / 60);  //why 1.4?  not sure, the gear ratio is off?  it is the closest to the abs encoder
-        mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.4); // will tell us angle in
+        mLeftEncoder.setVelocityConversionFactor((ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.0) / 60);  //why 1.4?  not sure, the gear ratio is off?  it is the closest to the abs encoder
+                                                                                                  // ^ It was the gear ratio, incorrect tooth count values for sprockets used, after fix angles are closer
+        mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.0); // will tell us angle in
         mArmAbsoluteEncoder = mRightMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
         mArmAbsoluteEncoder.setInverted(true);
         mRightMotor.follow(mLeftMotor, true);
