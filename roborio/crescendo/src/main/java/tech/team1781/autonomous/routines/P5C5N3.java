@@ -17,7 +17,6 @@ public class P5C5N3 implements AutoRoutine{
     public AutoStep[] getSteps() {
         return new AutoStep[] {
             new AutoStep(100, Action.OFF_KICKSTAND),
-            new AutoStep(5, Action.COLLECT_RAMP),
             new AutoStep(0.1, Positions.P5),
             new AutoStep(3, Action.SHOOT_SUBWOOFER),
             new AutoStep(5, Action.COLLECT_RAMP, Positions.C5, true),

@@ -78,7 +78,7 @@ public class DriveSystem extends Subsystem {
     private PIDController mYController = new PIDController(1, 0, 0);
     private ProfiledPIDController mRotController = new ProfiledPIDController(4, 0, 0,
             new TrapezoidProfile.Constraints(6.28, 3.14));
-    private PIDController mNoteAimController = new PIDController(2, 0, 0);
+    private PIDController mNoteAimController = new PIDController(4, 0, 0);
 
     private final EVector GO_TO_PID = EVector.newVector(2.5, 0, 0);
     private final double MAX_ACCELERATION = 8.0;

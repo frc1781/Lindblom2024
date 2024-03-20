@@ -79,12 +79,14 @@ public class Arm extends Subsystem {
         System.out.println("   ARM SET TO KICKSTAND ENCODER POSITION         ");
         System.out.println("         ensure that kick stand is on            ");
         System.out.println("-------------------------------------------------");
+
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
         mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 80);
         mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, -10);
         mLeftMotor.setSmartCurrentLimit(30);
         mLeftMotor.burnFlash();
+
         mPositions.put(ArmState.SAFE, 75.5);        // Was 66.0
         mPositions.put(ArmState.PODIUM, CURRENT_AIM_SPOT.PODIUM.getPosition());
         mPositions.put(ArmState.SUBWOOFER, CURRENT_AIM_SPOT.SUBWOOFER.getPosition()); //was 36
@@ -131,7 +133,7 @@ public class Arm extends Subsystem {
             mLeftEncoder.setPosition(getAngleAbsolute()); 
             System.out.println("***************************reset after hitting forward limit*******************");
         }
-        System.out.printf("arm abs: %.3f arm rel %.3f\n", getAngleAbsolute(), getAngle());
+        // System.out.printf("arm abs: %.3f arm rel %.3f\n", getAngleAbsolute(), getAngle());
     }
 
     @Override
@@ -216,6 +218,7 @@ public class Arm extends Subsystem {
     }
 
     private void syncArmEncoder() {
+        System.out.println("synced relative encoder to: " + getAngleAbsolute() + " from: " + mLeftEncoder.getPosition());
         mLeftEncoder.setPosition(getAngleAbsolute());
     }
 

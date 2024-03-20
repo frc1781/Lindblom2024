@@ -14,7 +14,7 @@ public class LEDs extends Subsystem {
     private int mFocus = 0;
     private int mRainbowFirstPixelHue = 1;
     private boolean mFlashMode = false;
-    private Timer mTimer;
+    private Timer mTimer = new Timer();
 
     public LEDs() {
         super("LEDs", LedState.DEFAULT);
@@ -51,10 +51,10 @@ public class LEDs extends Subsystem {
 
         switch ((LedState) getState()) {
             case NO_NOTE:
-                vwoop(Color.kRed);
+                // vwoop(Color.kRed);
                 break;
             case HAS_NOTE:
-                flashThenSolid(Color.kGreen);
+                // flashThenSolid(Color.kGreen);
                 break;
             default:
                 rainbow();
