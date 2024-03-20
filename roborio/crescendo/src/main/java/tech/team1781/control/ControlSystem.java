@@ -330,9 +330,9 @@ public class ControlSystem {
 
         if (mCenterOnAprilTagButton && !mAutoCollectionButton && !mAutoClimbing) {
             if (isRed()) {
-                centerOnAprilTag(ConfigMap.RED_SPEAKER_APRILTAG);
+                centerOnAprilTag(ConfigMap.RED_SPEAKER_APRILTAG, ConfigMap.APRILTAG_LIMELIGHT, false);
             } else {
-                centerOnAprilTag(ConfigMap.BLUE_SPEAKER_APRILTAG);
+                centerOnAprilTag(ConfigMap.BLUE_SPEAKER_APRILTAG, ConfigMap.APRILTAG_LIMELIGHT, false);
             }
             mAutoAiming = true;
         }
@@ -346,23 +346,23 @@ public class ControlSystem {
             int currentTarget = Limelight.getTID(ConfigMap.NOTE_LIMELIGHT);
 
             if((isRed() && redStageAprilTags.contains(currentTarget)) || !isRed() && blueStageAprilTags.contains(currentTarget)) {
-                centerOnAprilTag(currentTarget);
+                centerOnAprilTag(currentTarget, ConfigMap.NOTE_LIMELIGHT, true);
                 mAutoClimbing = true;
             }
 
-
+            
         }
     }
 
-    public void centerOnAprilTag(int id) {
-        Limelight.setTargetApriltag(ConfigMap.APRILTAG_LIMELIGHT, id);
+    public void centerOnAprilTag(int id, String limelightID, boolean isReversed) {
+        Limelight.setTargetApriltag(limelightID, id);
 
-        double x = Limelight.getTX(ConfigMap.APRILTAG_LIMELIGHT);
+        double x = Limelight.getTX(limelightID);
+        double targetAngle = isReversed ? 180 : 0;
 
         if (x != 0.0) {
-            mAimingAngle = mLimelightAimController.calculate(x, 0);
+            mAimingAngle = mLimelightAimController.calculate(x, targetAngle);
         } else {
-            // odometryAlignment(id);
             mAimingAngle = 0.0;
         }
 
@@ -670,7 +670,7 @@ public class ControlSystem {
                 if ((mCurrentAction == Action.AUTO_AIM_SHOOT || mCurrentAction == Action.SHOOT_NOTE_ONE
                         || mCurrentAction == Action.SHOOT_NOTE_THREE)
                         && mDriveSystem.getState() == DriveSystem.DriveSystemState.DRIVE_MANUAL) {
-                    centerOnAprilTag(isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG);
+                    centerOnAprilTag(isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG, ConfigMap.APRILTAG_LIMELIGHT, false);
                     mDriveSystem.driveRaw(0, 0, mAimingAngle);
                 } else if (mDriveSystem.getState() == DriveSystemState.DRIVE_MANUAL
                         && mCurrentAction != Action.SEEK_NOTE) {
