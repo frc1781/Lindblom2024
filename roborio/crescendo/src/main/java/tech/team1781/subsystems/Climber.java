@@ -8,51 +8,54 @@ import tech.team1781.ConfigMap;
 import edu.wpi.first.math.controller.PIDController;
 
 public class Climber extends Subsystem {
-    private HookState mRightHookState = HookState.DOWN;
-    private HookState mLeftHookState = HookState.DOWN;
-    // private TrapState mTrapState = TrapState.IN;
+    private boolean mEngageTrapHook = false;
 
-    private CANSparkMax mLeftClimberMotor = new CANSparkMax(ConfigMap.LEFT_CLIMBER_MOTOR,
-            CANSparkMax.MotorType.kBrushless);
-    private CANSparkMax mRightClimberMotor = new CANSparkMax(ConfigMap.RIGHT_CLIMBER_MOTOR,
-            CANSparkMax.MotorType.kBrushless);
+    private CANSparkMax mLeftClimberMotor = new CANSparkMax(
+        ConfigMap.LEFT_CLIMBER_MOTOR,
+        CANSparkMax.MotorType.kBrushless);
+    private CANSparkMax mRightClimberMotor = new CANSparkMax(
+        ConfigMap.RIGHT_CLIMBER_MOTOR,
+        CANSparkMax.MotorType.kBrushless);
+    private CANSparkMax mTrapHookMotor = new CANSparkMax(
+        ConfigMap.TRAP_HOOK_MOTOR, 
+        CANSparkMax.MotorType.kBrushless);
+
     private SparkLimitSwitch mLeftReverseLimitSwitch = mLeftClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
     private SparkLimitSwitch mRightReverseLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
     private SparkLimitSwitch mLeftForwardLimitSwitch = mLeftClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
     private SparkLimitSwitch mRightForwardLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
     private PIDController mRightClimberPID = new PIDController(0.1, 0, 0);
+    private PIDController mTrapHookPID = new PIDController(0.1, 0, 0);
     private RelativeEncoder mLeftClimberEncoder = mLeftClimberMotor.getEncoder();
     private RelativeEncoder mRightClimberEncoder = mRightClimberMotor.getEncoder();
+    private RelativeEncoder mTrapHookEncoder = mTrapHookMotor.getEncoder();
 
     public Climber() {
         super("Climber", ClimberState.IDLE);
         mLeftClimberMotor.setInverted(false);
         mRightClimberMotor.setInverted(true);
+        mTrapHookMotor.setInverted(true); //temporary, we don't know this yet, positive should be letting go up negative pulling down
         mLeftClimberMotor.setIdleMode(IdleMode.kBrake);
         mRightClimberMotor.setIdleMode(IdleMode.kBrake);
+        mTrapHookMotor.setIdleMode(IdleMode.kBrake);
         mLeftClimberMotor.setSmartCurrentLimit(40);
         mRightClimberMotor.setSmartCurrentLimit(40);
+        mTrapHookMotor.setSmartCurrentLimit(40);
         mLeftReverseLimitSwitch = mLeftClimberMotor.getReverseLimitSwitch(Type.kNormallyOpen);
         mRightReverseLimitSwitch = mRightClimberMotor.getReverseLimitSwitch(Type.kNormallyOpen);
         mLeftForwardLimitSwitch = mLeftClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
         mRightForwardLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
         mRightClimberEncoder.setPosition(0);
         mLeftClimberEncoder.setPosition(0);
+        mTrapHookEncoder.setPosition(0);
         mLeftClimberMotor.burnFlash();
         mRightClimberMotor.burnFlash();
+        mTrapHookMotor.burnFlash();
     }
 
     public enum ClimberState implements Subsystem.SubsystemState {
         IDLE, EXTEND, RETRACT
     }
-
-    public enum HookState implements Subsystem.SubsystemState {
-        UP, DOWN
-    }
-
-    // public enum TrapState implements Subsystem.SubsystemState {
-    //     IN, OUT
-    // }
 
     @Override
     public void genericPeriodic() {
@@ -68,7 +71,6 @@ public class Climber extends Subsystem {
     @Override
     public void init() {
         mRightClimberPID.reset();
-        // mTrapState = TrapState.IN;
     }
 
     @Override
@@ -89,35 +91,15 @@ public class Climber extends Subsystem {
     public void teleopPeriodic() {
     }
 
-    public void toggleTrap() {
-        // setTrap(mTrapState == TrapState.IN ? TrapState.OUT : TrapState.IN);
-        System.out.println("????????????????????????????????????");
-    }
-
-    public void setHooks(HookState h) {
-        if (mLeftHookState == h) {
-            return; 
-        }
-        mLeftHookState = h;
-        mRightHookState = h;
-        System.out.println(h == HookState.UP ? "Hooks up" : "Hooks Down");
-    }
-
-    // public void setTrap(TrapState t) {
-    //     if (mTrapState != t) {
-    //       mTrapState = t;
-    //       System.out.println("Trap set to " + mTrapState);
-    //     }
-    // }
-
     public void manualClimb(double dutyCycle) {
         if (Math.abs(dutyCycle) <= 0.1) {
             dutyCycle = 0;
             mRightClimberPID.reset();
         }
 
-        double leftDutyCycle; 
-        double rightDutyCycle; 
+        double leftDutyCycle = 0; 
+        double rightDutyCycle = 0;
+        double trapHookDutyCycle = 0;
 
         if (dutyCycle < 0) {
             leftDutyCycle = dutyCycle  * 0.9;
@@ -125,6 +107,18 @@ public class Climber extends Subsystem {
                 mRightClimberMotor.getEncoder().getPosition(),
                 mLeftClimberMotor.getEncoder().getPosition()
                 );
+            // trapHookDutyCycle = dutyCycle * 0.1; //temporary for testing negative would be for pulling down.
+            // if (mLeftReverseLimitSwitch.isPressed() && mRightReverseLimitSwitch.isPressed()) { 
+            //     mEngageTrapHook = true;
+
+            // } 
+            // if (mEngageTrapHook) {
+            //     trapHookDutyCycle = -0.1 * dutyCycle; // temporay
+            //    // trapHookDutyCycle = mTrapHookPID.calculate(
+            //    //     mTrapHookMotor.getEncoder().getPosition(),
+            //    //     ConfigMap.TRAP_HOOK_DOWN_POSITION
+            //    // );
+            // }
         } else {
             leftDutyCycle = dutyCycle * 0.7;
             rightDutyCycle = dutyCycle * 0.7;
@@ -141,21 +135,40 @@ public class Climber extends Subsystem {
         }
         mLeftClimberMotor.set(leftDutyCycle);
         mRightClimberMotor.set(rightDutyCycle);
+        // mTrapHookMotor.set(trapHookDutyCycle);
+        // System.out.printf("trap dc: %.2f\n", trapHookDutyCycle);
     }
 
-
-    public void twoThumbClimb(double dutyCycleLeft, double dutyCycleRight) {
-        if (Math.abs(dutyCycleLeft) <= 0.1) {
-            dutyCycleLeft = 0;
-        } 
-        if(Math.abs(dutyCycleRight) <= 0.1) {
-            dutyCycleRight = 0;
+    public void manualTrapHooks(double dc) {
+        final double TOLERANCE  = 0.1;
+        if(Math.abs(dc) < TOLERANCE) {
+            mTrapHookMotor.set(0);
+            return;
         }
 
-        dutyCycleLeft = dutyCycleLeft < 0 ? dutyCycleLeft: dutyCycleLeft * 0.7; 
-        dutyCycleRight = dutyCycleRight < 0 ? dutyCycleRight: dutyCycleRight * 0.7; 
+        mTrapHookMotor.set(dc);
 
-        mLeftClimberMotor.set(dutyCycleLeft);
-        mRightClimberMotor.set(dutyCycleRight);
+        System.out.println("trap dc: " + dc + " trap encoder: " + mTrapHookMotor.getEncoder().getPosition());
     }
+
+    public void pullTrapHooks() {
+         //Trap hook motor set on reverse power to get the trap hooks to the encoder position that is all the way down
+         //and keep it there with a pid, happens when the reverse limit switch is hit and the user is trying to pull down.
+         //so probably not called here at all and done in ...
+         
+    }
+    // public void twoThumbClimb(double dutyCycleLeft, double dutyCycleRight) {
+    //     if (Math.abs(dutyCycleLeft) <= 0.1) {
+    //         dutyCycleLeft = 0;
+    //     } 
+    //     if(Math.abs(dutyCycleRight) <= 0.1) {
+    //         dutyCycleRight = 0;
+    //     }
+
+    //     dutyCycleLeft = dutyCycleLeft < 0 ? dutyCycleLeft: dutyCycleLeft * 0.7; 
+    //     dutyCycleRight = dutyCycleRight < 0 ? dutyCycleRight: dutyCycleRight * 0.7; 
+
+    //     mLeftClimberMotor.set(dutyCycleLeft);
+    //     mRightClimberMotor.set(dutyCycleRight);
+    // }
 }
