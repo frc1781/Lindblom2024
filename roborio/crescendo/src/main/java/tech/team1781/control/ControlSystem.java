@@ -30,7 +30,7 @@ import tech.team1781.subsystems.DriveSystem.DriveSystemState;
 import tech.team1781.subsystems.Scollector.ScollectorState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
 import tech.team1781.subsystems.Subsystem.SubsystemState;
-import tech.team1781.subsystems.LEDs.ledState;
+import tech.team1781.subsystems.LEDs.LedState;
 import tech.team1781.utils.EVector;
 import tech.team1781.DriverInput;
 import tech.team1781.ShuffleboardStyle;
@@ -515,9 +515,9 @@ public class ControlSystem {
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
 
         if (mScollector.hasNote()) {
-            mLEDs.setDesiredState(ledState.HAS_NOTE);
+            mLEDs.setDesiredState(LedState.HAS_NOTE);
         } else {
-            mLEDs.setDesiredState(ledState.NO_NOTE);
+            mLEDs.setDesiredState(LedState.NO_NOTE);
         }
 
         switch (mCurrentOperatingMode) {
@@ -813,7 +813,7 @@ public class ControlSystem {
     }
 
     public void disabledLighting() {
-        mLEDs.setDesiredState(ledState.DEFAULT);
+        mLEDs.setDesiredState(LedState.DEFAULT);
     }
 
     private enum SeekNoteState {
