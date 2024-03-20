@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import tech.team1781.ConfigMap;
 
 public class Limelight {
-
     public static Pose2d getBotPose2d(String limelightName) {
         NetworkTable table = NetworkTableInstance.getDefault().getTable(limelightName);
         double[] values = table.getEntry("botpose").getDoubleArray(new double[6]);
@@ -42,6 +41,16 @@ public class Limelight {
     public static int getTV(String limelightName) {
         NetworkTable table = NetworkTableInstance.getDefault().getTable(limelightName);
         return (int) table.getEntry("tv").getDouble(0.0);
+    }
+
+    public static int getTID(String limelightName) {
+        NetworkTable table = NetworkTableInstance.getDefault().getTable(limelightName);
+        return (int) table.getEntry("tid").getDouble(0.0);
+    }
+
+    public static void setPipeline(String limelightName, double pipelineID) {
+        NetworkTable table = NetworkTableInstance.getDefault().getTable(limelightName);
+        table.getEntry("pipeline").setDouble(pipelineID);
     }
 
     public static double getNumberOfApriltags(String limelightName) {

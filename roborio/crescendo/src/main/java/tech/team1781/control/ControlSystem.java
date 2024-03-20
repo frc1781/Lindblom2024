@@ -9,6 +9,7 @@ import java.util.Stack;
 
 import com.pathplanner.lib.path.PathPlannerPath;
 
+import edu.wpi.first.math.Num;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -74,6 +75,7 @@ public class ControlSystem {
     // private boolean mClimberRetractButton = false;
     // private boolean mClimberExtendButton = false;
     private boolean mCenterOnAprilTagButton = false;
+    private boolean mAutoClimbing = false;
     private boolean mAutoCollectionButton = false;
     // private boolean mSeekSpeakerButton = false;
     // private boolean mCollectingHighButton = false;
@@ -87,6 +89,8 @@ public class ControlSystem {
     private GenericEntry mSeesAprilTagEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Sees AprilTag",
             false, ShuffleboardStyle.SEES_APRILTAG);
     private HashMap<Number, Pose2d> aprilTagCoords = new HashMap<>();
+    private ArrayList<Number> redStageAprilTags = new ArrayList<>();
+    private ArrayList<Number> blueStageAprilTags = new ArrayList<>();
 
     private Action mCurrentAction = null;
     private SeekNoteState mCurrentSeekNoteState = SeekNoteState.SEEKING;
@@ -140,6 +144,14 @@ public class ControlSystem {
         aprilTagCoords.put(14, new Pose2d(5.319917, 4.104873, new Rotation2d()));
         aprilTagCoords.put(15, new Pose2d(4.640467, 4.498065, new Rotation2d()));
         aprilTagCoords.put(16, new Pose2d(4.640467, 3.712951, new Rotation2d()));
+
+        redStageAprilTags.add(11);
+        redStageAprilTags.add(12);
+        redStageAprilTags.add(13);
+
+        blueStageAprilTags.add(14);
+        blueStageAprilTags.add(15);
+        blueStageAprilTags.add(16);
 
         initActions();
 
@@ -302,6 +314,8 @@ public class ControlSystem {
         mCenterOnAprilTagButton = isHeld;
     }
 
+    public void setAutoClimbing(boolean isHeld) { mAutoClimbing = isHeld; }
+
     public void setAutoCollectionButton(boolean isHeld) {
         mAutoCollectionButton = isHeld;
     }
@@ -309,12 +323,12 @@ public class ControlSystem {
     public void autoAimingInputs() {
         mSeesAprilTagEntry.setBoolean(Limelight.getTX(ConfigMap.APRILTAG_LIMELIGHT) != 0.0);
 
-        if (!mAutoCollectionButton && !mCenterOnAprilTagButton) {
+        if (!mAutoCollectionButton && !mCenterOnAprilTagButton && !mAutoClimbing) {
             mAutoAiming = false;
             return;
         }
 
-        if (mCenterOnAprilTagButton && !mAutoCollectionButton) {
+        if (mCenterOnAprilTagButton && !mAutoCollectionButton && !mAutoClimbing) {
             if (isRed()) {
                 centerOnAprilTag(ConfigMap.RED_SPEAKER_APRILTAG);
             } else {
@@ -323,15 +337,26 @@ public class ControlSystem {
             mAutoAiming = true;
         }
 
-        if (mAutoCollectionButton && !mCenterOnAprilTagButton) {
+        if (mAutoCollectionButton && !mCenterOnAprilTagButton && !mAutoClimbing) {
             centerNote();
             mAutoAiming = true;
+        }
+
+        if (mAutoClimbing && !mCenterOnAprilTagButton && !mAutoCollectionButton) {
+            int currentTarget = Limelight.getTID(ConfigMap.NOTE_LIMELIGHT);
+
+            if((isRed() && redStageAprilTags.contains(currentTarget)) || !isRed() && blueStageAprilTags.contains(currentTarget)) {
+                centerOnAprilTag(currentTarget);
+                mAutoClimbing = true;
+            }
+
+
         }
     }
 
     public void centerOnAprilTag(int id) {
-        Limelight.setTargetApriltag(ConfigMap.APRILTAG_LIMELIGHT,
-                isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG);
+        Limelight.setTargetApriltag(ConfigMap.APRILTAG_LIMELIGHT, id);
+
         double x = Limelight.getTX(ConfigMap.APRILTAG_LIMELIGHT);
 
         if (x != 0.0) {
@@ -550,6 +575,7 @@ public class ControlSystem {
 
         switch (operatingMode) {
             case TELEOP:
+                Limelight.setPipeline(ConfigMap.NOTE_LIMELIGHT, 1);
                 mSettingStack.clear();
                 mXDriveLimiter.reset(0);
                 mYDriveLimiter.reset(0);
@@ -559,9 +585,9 @@ public class ControlSystem {
                 if (Limelight.getTX(ConfigMap.APRILTAG_LIMELIGHT) != 0.0) {
                     mDriveSystem.setOdometry(Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT));
                 }
-
                 break;
             case AUTONOMOUS:
+                Limelight.setPipeline(ConfigMap.NOTE_LIMELIGHT, 0);
                 break;
             default:
                 break;
