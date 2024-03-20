@@ -31,7 +31,7 @@ public class Arm extends Subsystem {
     
     private RelativeEncoder mLeftEncoder; 
     private AbsoluteEncoder mArmAbsoluteEncoder;
-    private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.05, 0, 0,
+    private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.03, 0, 0,
             new TrapezoidProfile.Constraints(80, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
 
@@ -46,7 +46,7 @@ public class Arm extends Subsystem {
     private Pose2d mRobotPose;
     private CURRENT_AIM_SPOT mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
     private double KICKSTAND_POSITION = 73.0;  // Was 62.0
-    private double FORWARD_LIMIT_POSITION = 69.0;
+    private double FORWARD_LIMIT_POSITION = 76.0; // Was 69.0
     private double ABSOLUTE_ENCODER_OFFSET = 0.0;  //would have to be set if this is to work
     private double mPrevAbsoluteAngle = 73.0;  // Kickstand Angle
     public Arm() {
@@ -55,15 +55,15 @@ public class Arm extends Subsystem {
                 ConfigMap.ARM_PIVOT_RIGHT_MOTOR,
                 CANSparkMax.MotorType.kBrushless);
         mRightMotor.restoreFactoryDefaults();
-
         mLeftMotor = new CANSparkMax(
                 ConfigMap.ARM_PIVOT_LEFT_MOTOR,
                 CANSparkMax.MotorType.kBrushless);
+        mLeftMotor.restoreFactoryDefaults();
         mLeftMotor.setSmartCurrentLimit(40);
         mRightMotor.setSmartCurrentLimit(40);
         mLeftEncoder = mLeftMotor.getEncoder();
-        mLeftEncoder.setVelocityConversionFactor((ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2) / 60);
-        mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.2); // will tell us angle in
+        mLeftEncoder.setVelocityConversionFactor((ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.4) / 60);  //why 1.4?  not sure, the gear ratio is off?  it is the closest to the abs encoder
+        mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.4); // will tell us angle in
         mArmAbsoluteEncoder = mRightMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
         mArmAbsoluteEncoder.setInverted(true);
         mRightMotor.follow(mLeftMotor, true);
@@ -115,7 +115,7 @@ public class Arm extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-        if (mLeftEncoder.getPosition() < 6) {
+        if (mLeftEncoder.getPosition() < 10) {
           mLeftMotor.setIdleMode(IdleMode.kCoast);
           mRightMotor.setIdleMode(IdleMode.kCoast);
         }
@@ -126,7 +126,7 @@ public class Arm extends Subsystem {
 
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
         if (mLeftEncoder.getPosition() > 10.0 && mLeftMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed()) {
-            mLeftEncoder.setPosition(FORWARD_LIMIT_POSITION); 
+            mLeftEncoder.setPosition(getAngleAbsolute()); 
             System.out.println("***************************reset after hitting forward limit*******************");
         }
         System.out.printf("arm abs: %.3f arm rel %.3f\n", getAngleAbsolute(), getAngle());
@@ -154,18 +154,16 @@ public class Arm extends Subsystem {
                 break;
         }
 
-        double currentArmAngle = getAngleAbsolute(); 
+        double currentArmAngle = getAngle(); 
         mArmPositionEntry.setDouble(currentArmAngle);
         if (currentArmAngle != 0.0) {
-
             var armDutyCycle = mPositionPID.calculate(currentArmAngle, mDesiredPosition);
             if(mSparkErrorEntry.getBoolean(false))
                 mSparkErrorEntry.setBoolean(false);
         
-            // if (getState() == ArmState.COLLECT && getAngle() < 10.0) {
-            //     armDutyCycle = 0.0;
-            //     mLeftEncoder.setPosition(0.01);
-            // } 
+            if (getState() == ArmState.COLLECT && getAngle() < 10.0) { //drop into position on ground
+                 armDutyCycle = 0.0;
+            } 
             mLeftMotor.set(armDutyCycle);  
         } else {
             mSparkErrorEntry.setBoolean(true);
@@ -176,7 +174,7 @@ public class Arm extends Subsystem {
     public boolean matchesDesiredState() {
         switch ((ArmState) getState()) {
             case COLLECT:
-                return mLeftEncoder.getPosition() <= 0.01;
+                return getAngle() < 4.0; //should fall to position of zero
             default:
                 return matchesPosition();
         }
@@ -206,6 +204,11 @@ public class Arm extends Subsystem {
     }
 
     private double getAngle() {
+        double relAngle = mLeftEncoder.getPosition();
+        if (Math.abs(relAngle - getAngleAbsolute()) > 2.0) {
+            mLeftEncoder.setPosition(getAngleAbsolute());
+            System.out.println("reset rel encoder");
+        }
         return mLeftEncoder.getPosition();
     }
 
@@ -213,7 +216,7 @@ public class Arm extends Subsystem {
         double reportedPosition = mArmAbsoluteEncoder.getPosition();
         if (reportedPosition > 0.5)
         {
-            mPrevAbsoluteAngle = 360.0*(mArmAbsoluteEncoder.getPosition() - 0.722); 
+            mPrevAbsoluteAngle = 360.0 * (mArmAbsoluteEncoder.getPosition() - 0.722); //the absolute encoder reads 0.722 when arm is on the floor
         }
         return mPrevAbsoluteAngle;   
     }
