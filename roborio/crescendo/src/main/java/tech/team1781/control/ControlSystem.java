@@ -541,6 +541,9 @@ public class ControlSystem {
                         }
                         finalScollectorState = state;
                     } else if (subsystem == mArm) {
+                        if(mArm.getState() == ArmState.MANUAL && state == ArmState.AUTO_ANGLE) {
+                            continue;
+                        }
                         finalArmState = state;
                     }
                 }
@@ -560,7 +563,7 @@ public class ControlSystem {
                 autoAimingInputs();
                 break;
             case AUTONOMOUS:
-                localizationUpdates();
+                // localizationUpdates();
                 if (mScollector.getState() == ScollectorState.COLLECT
                         || (mScollector.getState() == ScollectorState.COLLECT_RAMP
                                 && (mDriveSystem.getState() == DriveSystemState.DRIVE_NOTE
