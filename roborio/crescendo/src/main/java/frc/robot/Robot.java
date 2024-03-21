@@ -133,7 +133,7 @@ public class Robot extends TimedRobot {
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.AUTO_CLIMB, (isPressed -> {
       if (isPressed) {
-
+        mControlSystem.setAutoClimbing(isPressed);
       }
     }));
 

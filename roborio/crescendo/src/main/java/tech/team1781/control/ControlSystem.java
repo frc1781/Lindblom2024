@@ -292,8 +292,6 @@ public class ControlSystem {
                 mAutoAiming = true;
             }
 
-
-
         }
     }
 
@@ -583,6 +581,12 @@ public class ControlSystem {
                         driverTriggers);
                 mClimber.manualClimb(-driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y);
                 mClimber.manualTrapHooks(-driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.CO_PILOT_PORT).y);
+
+                if (Math.abs(mDriveSystem.getNavXRoll()) >= 181 || Math.abs(mDriveSystem.getNavXRoll()) <= 179) {
+                    mLEDs.setDesiredState(LedState.WARNING);
+                }
+
+
                 autoAimingInputs();
                 break;
             case AUTONOMOUS:
