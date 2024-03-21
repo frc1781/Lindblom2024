@@ -15,6 +15,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -22,7 +23,7 @@ import tech.team1781.ConfigMap;
 import tech.team1781.ShuffleboardStyle;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.utils.EVector;
-
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import com.revrobotics.SparkLimitSwitch;
 import com.revrobotics.SparkMaxAlternateEncoder;
 
@@ -32,6 +33,7 @@ public class Arm extends Subsystem {
         
     private RelativeEncoder mLeftEncoder; 
     private AbsoluteEncoder mArmAbsoluteEncoder;
+    private DutyCycleEncoder mArmAbsoluteDCEncoder;
     private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.06, 0, 0,
             new TrapezoidProfile.Constraints(80, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
@@ -68,6 +70,7 @@ public class Arm extends Subsystem {
         mArmAbsoluteEncoder = mRightMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
         mArmAbsoluteEncoder.setAverageDepth(1);
         mArmAbsoluteEncoder.setInverted(true);
+        mArmAbsoluteDCEncoder = new DutyCycleEncoder(new DigitalInput(4));
         mRightMotor.follow(mLeftMotor, true);
         mLeftMotor.setIdleMode(IdleMode.kBrake);
         mRightMotor.setIdleMode(IdleMode.kBrake);
@@ -222,11 +225,24 @@ public class Arm extends Subsystem {
         mLeftEncoder.setPosition(getAngleAbsolute());
     }
 
+    private double getAbsoluteAngle() {
+        double reportedPosition = mArmAbsoluteDCEncoder.getAbsolutePosition();
+        if (reportedPosition < 0.5) {
+           //error condition, not a possible real value
+           return mPrevAbsoluteAngle;
+        }
+        
+        mPrevAbsoluteAngle = 360.0 * reportedPosition - 0.722;
+        return mPrevAbsoluteAngle;
+    }
+
     private double getAngleAbsolute() {
         double reportedPosition = mArmAbsoluteEncoder.getPosition();
+        //double reportedPosition = mArmAbsoluteDCEncoder.getAbsolutePosition();
         if (reportedPosition > 0.5)
         {
             mPrevAbsoluteAngle = 360.0 * (mArmAbsoluteEncoder.getPosition() - 0.722); //the absolute encoder reads 0.722 when arm is on the floor
+            //mPrevAbsoluteAngle = 360.0 * (mArmAbsoluteEncoder.getPosition() - 0.722); //the absolute encoder reads 0.722 when arm is on the floor
         }
         return mPrevAbsoluteAngle;   
     }
