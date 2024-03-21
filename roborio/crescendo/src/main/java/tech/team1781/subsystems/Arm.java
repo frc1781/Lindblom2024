@@ -32,7 +32,7 @@ public class Arm extends Subsystem {
         
     private RelativeEncoder mLeftEncoder; 
     private AbsoluteEncoder mArmAbsoluteEncoder;
-    private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.03, 0, 0,
+    private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.06, 0, 0,
             new TrapezoidProfile.Constraints(80, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
 
