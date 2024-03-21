@@ -18,7 +18,6 @@ public class LEDs extends Subsystem{
     public enum ledState implements SubsystemState {
         HAS_NOTE,
         NO_NOTE,
-
         WARNING,
         DEFAULT
     }
@@ -68,6 +67,7 @@ public class LEDs extends Subsystem{
                     }
                 }
                 ledController.setData(ledBuffer);
+                break;
         }
     }
 

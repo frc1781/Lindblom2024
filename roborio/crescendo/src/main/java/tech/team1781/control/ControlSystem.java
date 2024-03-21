@@ -649,7 +649,7 @@ public class ControlSystem {
                 // -driverInput.getControllerJoyAxis(ControllerSide.RIGHT,
                 // ConfigMap.CO_PILOT_PORT).y);
 
-                if (mDriveSystem.getNavXRoll() != 0.0) {
+                if (Math.abs(mDriveSystem.getNavXRoll()) >= 181 || Math.abs(mDriveSystem.getNavXRoll()) <= 179) {
                     mLEDs.setDesiredState(ledState.WARNING);
                 }
 
