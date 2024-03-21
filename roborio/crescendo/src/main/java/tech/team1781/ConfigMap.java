@@ -46,14 +46,15 @@ public class ConfigMap {
         public static final int ARM_PIVOT_LEFT_MOTOR = 40;
         public static final int ARM_PIVOT_RIGHT_MOTOR = 41;
         public static final double ARM_POSITION_TOLERANCE = 2.0;
-        public static final double ARM_GEAR_RATIO = (1.0/125.0)*(18.0/56.0);
+        public static final double ARM_GEAR_RATIO = (1.0/125.0)*(24.0/58.0); // was (1.0/125.0)*(18.0/56.0)
 
-        // 57 Motors
+        // 42-57 Motors
         public static final int COLLECTOR_MOTOR = 57;
         public static final int SHOOTER_TOP_MOTOR = 42;
         public static final int SHOOTER_BOTTOM_MOTOR = 43;
         public static final int LEFT_CLIMBER_MOTOR = 50;
         public static final int RIGHT_CLIMBER_MOTOR = 51;
+        public static final int TRAP_HOOK_MOTOR = 52;
 
         // 60-69 Sensors
         public static final int BOTTOM_SCOLLECTOR_TOF = 58;

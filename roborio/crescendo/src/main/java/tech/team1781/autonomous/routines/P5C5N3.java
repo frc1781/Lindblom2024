@@ -6,23 +6,24 @@ import tech.team1781.autonomous.AutonomousHandler.AutoRoutine;
 import tech.team1781.control.ControlSystem.Action;
 import tech.team1781.utils.EVector;
 
-public class P2N2Subwoofer implements AutoRoutine{
+public class P5C5N3 implements AutoRoutine{
 
     @Override
     public String getName() {
-        return "2: P2N2Subwoofer";
+        return "14: P5C5N3";
     }
 
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
             new AutoStep(100, Action.OFF_KICKSTAND),
-            new AutoStep(0.1, Positions.P2),
-            new AutoStep(6, Action.SHOOT_SUBWOOFER),
-            new AutoStep(3, Action.COLLECT_RAMP, Positions.N2,true), 
-            new AutoStep(2, Action.COLLECT_RAMP, Positions.P2),
-            new AutoStep(2, Action.AUTO_AIM_SHOOT),
+            new AutoStep(0.1, Positions.P5),
+            new AutoStep(3, Action.SHOOT_SUBWOOFER),
+            new AutoStep(5, Action.COLLECT_RAMP, Positions.C5, true),
+            new AutoStep(5, EVector.positionWithDegrees(0.8, 4.5, 125)),
+            new AutoStep(3, Action.SHOOT_SUBWOOFER)
         };
     }
+
     
 }

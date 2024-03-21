@@ -73,6 +73,9 @@ public class Robot extends TimedRobot {
         new P2N2N3Subwoofer(),
         new P2N2N1Subwoofer(),
         new Hockey(),
+        new P1N1C1ThreeNote(),
+        new FourNote(),
+        new P5C5N3(),
         new TestRoutine()
       );
 
