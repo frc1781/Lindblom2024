@@ -491,6 +491,7 @@ public class ControlSystem {
 
         switch (operatingMode) {
             case TELEOP:
+            
                 mSettingStack.clear();
                 mXDriveLimiter.reset(0);
                 mYDriveLimiter.reset(0);
@@ -632,18 +633,21 @@ public class ControlSystem {
 
     public void localizationUpdates() {
         final double speedTolerance = 0.1;
+        final double DIST_TOLERANCE = 0.5;
+
         ChassisSpeeds robotSpeeds = mDriveSystem.getChassisSpeeds();
         EVector chassisSpeedsVector = new EVector(robotSpeeds.vxMetersPerSecond, robotSpeeds.vyMetersPerSecond);
         boolean driveSystemSlowEnough = chassisSpeedsVector.magnitude() <= speedTolerance;
         Pose2d limelightPoseTemp = Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT);
         Pose2d limelightPose = new Pose2d(limelightPoseTemp.getTranslation(), mDriveSystem.getRobotAngle());
+
+        double dist = EVector.fromPose(limelightPose).dist(EVector.fromPose(mDriveSystem.getRobotPose()));
         if (driveSystemSlowEnough && limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0
                 && Limelight.getNumberOfApriltags(ConfigMap.APRILTAG_LIMELIGHT) > 1) {
-            double dist = EVector.fromPose(limelightPose).dist(EVector.fromPose(mDriveSystem.getRobotPose()));
-            if (dist > 0.5) {
+            if (dist > DIST_TOLERANCE) {
                 mDriveSystem.setOdometry(limelightPose);
             }
-        } else if (limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0) {
+        } else if (limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0 && dist >= DIST_TOLERANCE) {
             mDriveSystem.updateVisionLocalization(limelightPose);
         }
     }

@@ -30,6 +30,7 @@ public class FourNote implements AutoRoutine {
                 new AutoStep(6, Action.SHOOT_SUBWOOFER),
                 new AutoStep(3, Action.COLLECT_RAMP, Positions.N2, true),
                 new AutoStep(2, Action.AUTO_AIM_SHOOT),
+                new AutoStep(3, Action.COLLECT_RAMP, Positions.N2.withZ(Math.toRadians(90))),
                 new AutoStep(2, Action.COLLECT_RAMP, Positions.N1.withZ(Math.toRadians(90)), true),
                 new AutoStep(2, Action.COLLECT_RAMP, Positions.P2),
                 new AutoStep(6, Action.SHOOT_SUBWOOFER),
