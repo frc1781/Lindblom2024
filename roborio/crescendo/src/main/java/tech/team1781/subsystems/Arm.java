@@ -215,7 +215,7 @@ public class Arm extends Subsystem {
         double relAngle = mLeftEncoder.getPosition();
         if (Math.abs(relAngle - getAngleAbsolute()) > 0.5 && (getAngleAbsolute() <= 2.0)) {
             syncArmEncoder();
-            System.out.println("reset rel encoder");
+            //System.out.println("reset rel encoder");
         }
         return mLeftEncoder.getPosition();
     }
