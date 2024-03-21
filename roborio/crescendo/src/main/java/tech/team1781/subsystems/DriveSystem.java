@@ -302,7 +302,7 @@ public class DriveSystem extends Subsystem {
         }
         EVector robotPose = EVector.fromPose(getRobotPose());
         if (matchesDesiredPosition()) {
-            System.out.println("matches position **********************************************");
+            //System.out.println("matches position **********************************************");
             driveRaw(0, 0, 0);
             return;
         }

@@ -221,7 +221,7 @@ public class Arm extends Subsystem {
     }
 
     private void syncArmEncoder() {
-        System.out.println("synced relative encoder to: " + getAngleAbsolute() + " from: " + mLeftEncoder.getPosition());
+        //System.out.println("synced relative encoder to: " + getAngleAbsolute() + " from: " + mLeftEncoder.getPosition());
         mLeftEncoder.setPosition(getAngleAbsolute());
     }
 
