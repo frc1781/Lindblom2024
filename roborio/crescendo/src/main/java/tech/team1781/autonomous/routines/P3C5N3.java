@@ -21,8 +21,10 @@ public class P3C5N3 implements AutoRoutine {
                 new AutoStep(3, Action.SHOOT_SUBWOOFER),
                 new AutoStep(1.6, EVector.positionWithDegrees(3.14, 1.71, 0)),
                 new AutoStep(5, Action.COLLECT_RAMP, Positions.C5, true),
-                new AutoStep(1.6, EVector.positionWithDegrees(3.14, 1.71, 0)),
+                new AutoStep(1.6, Action.COLLECT_RAMP, EVector.positionWithDegrees(3.14, 1.71, 0)),
                 new AutoStep(5, Action.COLLECT_RAMP, Positions.P3),
+                //option for not quite P3
+                //new AutoStep(5, Action.COLLECT_RAMP, EVector.positionWithDegrees(1.0, 4.43, 307.66)),
                 new AutoStep(3, Action.SHOOT_SUBWOOFER),
                 new AutoStep(1.5, Action.COLLECT_RAMP, EVector.positionWithDegrees(2.0, 4.1, 0)),
                 new AutoStep(3, Action.COLLECT_RAMP_STAY_DOWN, Positions.N3, true),
