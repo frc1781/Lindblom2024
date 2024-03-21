@@ -281,6 +281,10 @@ public class DriveSystem extends Subsystem {
         mNavX.zeroYaw();
     }
 
+    public float getNavXRoll() {
+        return mNavX.getRoll();
+    }
+
     public void followTrajectory() {
         if (mIsManual && mDesiredTrajectory == null) {
             return;

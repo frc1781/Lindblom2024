@@ -330,9 +330,9 @@ public class ControlSystem {
 
         if (mCenterOnAprilTagButton && !mAutoCollectionButton && !mAutoClimbing) {
             if (isRed()) {
-                centerOnAprilTag(ConfigMap.RED_SPEAKER_APRILTAG, ConfigMap.APRILTAG_LIMELIGHT, false);
+                centerOnAprilTag(ConfigMap.RED_SPEAKER_APRILTAG, ConfigMap.APRILTAG_LIMELIGHT, false, true);
             } else {
-                centerOnAprilTag(ConfigMap.BLUE_SPEAKER_APRILTAG, ConfigMap.APRILTAG_LIMELIGHT, false);
+                centerOnAprilTag(ConfigMap.BLUE_SPEAKER_APRILTAG, ConfigMap.APRILTAG_LIMELIGHT, false, true);
             }
             mAutoAiming = true;
         }
@@ -346,16 +346,17 @@ public class ControlSystem {
             int currentTarget = Limelight.getTID(ConfigMap.NOTE_LIMELIGHT);
 
             if((isRed() && redStageAprilTags.contains(currentTarget)) || !isRed() && blueStageAprilTags.contains(currentTarget)) {
-                centerOnAprilTag(currentTarget, ConfigMap.NOTE_LIMELIGHT, true);
-                mAutoClimbing = true;
+                centerOnAprilTag(currentTarget, ConfigMap.NOTE_LIMELIGHT, true, false);
+                mAutoAiming = true;
             }
 
-            
+
+
         }
     }
 
-    public void centerOnAprilTag(int id, String limelightID, boolean isReversed) {
-        Limelight.setTargetApriltag(limelightID, id);
+    public void centerOnAprilTag(int id, String limelightID, boolean isReversed, boolean setAprilTagTarget) {
+        if (setAprilTagTarget) Limelight.setTargetApriltag(limelightID, id);
 
         double x = Limelight.getTX(limelightID);
         double targetAngle = isReversed ? 180 : 0;
@@ -647,6 +648,11 @@ public class ControlSystem {
                 // ConfigMap.CO_PILOT_PORT).y,
                 // -driverInput.getControllerJoyAxis(ControllerSide.RIGHT,
                 // ConfigMap.CO_PILOT_PORT).y);
+
+                if (mDriveSystem.getNavXRoll() != 0.0) {
+                    mLEDs.setDesiredState(ledState.WARNING);
+                }
+
                 autoAimingInputs();
                 break;
             case AUTONOMOUS:
@@ -670,7 +676,7 @@ public class ControlSystem {
                 if ((mCurrentAction == Action.AUTO_AIM_SHOOT || mCurrentAction == Action.SHOOT_NOTE_ONE
                         || mCurrentAction == Action.SHOOT_NOTE_THREE)
                         && mDriveSystem.getState() == DriveSystem.DriveSystemState.DRIVE_MANUAL) {
-                    centerOnAprilTag(isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG, ConfigMap.APRILTAG_LIMELIGHT, false);
+                    centerOnAprilTag(isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG, ConfigMap.APRILTAG_LIMELIGHT, false, true);
                     mDriveSystem.driveRaw(0, 0, mAimingAngle);
                 } else if (mDriveSystem.getState() == DriveSystemState.DRIVE_MANUAL
                         && mCurrentAction != Action.SEEK_NOTE) {

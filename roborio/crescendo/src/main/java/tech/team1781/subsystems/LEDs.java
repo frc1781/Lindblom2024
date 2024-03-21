@@ -9,6 +9,8 @@ public class LEDs extends Subsystem{
 
     private int rainbowFirstPixelHue = 1;
 
+    private boolean blink = false;
+
     public LEDs() {
         super("LEDs", ledState.DEFAULT);
     }
@@ -16,6 +18,8 @@ public class LEDs extends Subsystem{
     public enum ledState implements SubsystemState {
         HAS_NOTE,
         NO_NOTE,
+
+        WARNING,
         DEFAULT
     }
 
@@ -53,6 +57,17 @@ public class LEDs extends Subsystem{
                 }
                 ledController.setData(ledBuffer);
                 break;
+            case WARNING:
+                for (var i = 0; i < ledBuffer.getLength(); i++) {
+                    if (!blink) {
+                        ledBuffer.setRGB(i, 255, 255,0);
+                        blink = true;
+                    } else {
+                        ledBuffer.setRGB(i, 0,0,0);
+                        blink = false;
+                    }
+                }
+                ledController.setData(ledBuffer);
         }
     }
 
