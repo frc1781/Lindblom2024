@@ -294,8 +294,8 @@ public class Arm extends Subsystem {
     private enum CURRENT_AIM_SPOT {
         UNDEFEINED(0.0, EVector.newVector(), EVector.newVector(), 0.0),
         SUBWOOFER(33.2, ConfigMap.RED_SPEAKER_LOCATION, ConfigMap.BLUE_SPEAKER_LOCATION, 2.5),      // Was 32.5
-        PODIUM(55.0, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1),                                           // Pos used to be 45
-        NOTE_3(55.1, EVector.newVector(14.5, 4.27) ,EVector.newVector(2.48, 4.27), 1), // was 42.4
+        PODIUM(47.0, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1),                                           // Pos used to be 45
+        NOTE_3(47, EVector.newVector(14.5, 4.27) ,EVector.newVector(2.48, 4.27), 1), // was 42.4
         NOTE_2(44, EVector.newVector(14.13, 5.53) ,EVector.newVector(2.48, 5.53), 0.5), // Was 50
         NOTE_1(58, EVector.newVector(14.06, 6.74),EVector.newVector(2.48, 6.74), 0.5); // Was 50
 
