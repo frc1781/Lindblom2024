@@ -296,7 +296,7 @@ public class DriveSystem extends Subsystem {
         driveWithChassisSpeds(desiredChassisSpeeds);
     }
 
-    public void goTo(EVector target) {
+    public void goTo(EVector target) { 
         if (mIsManual && mDesiredPosition == null) {
             return;
         }
@@ -310,23 +310,17 @@ public class DriveSystem extends Subsystem {
         double xMPS = clamp(mXGoToController.calculate(robotPose.x, target.x), ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
         double yMPS = clamp(mYGoToController.calculate(robotPose.y, target.y), ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
         double rotRPS = mRotGoToController.calculate(getRobotAngle().getRadians(), target.z);
-        double x = Math.toRadians(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT));
+        double xObservedNoteAngle = Math.toRadians(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT));
 
         if (getState() == DriveSystemState.DRIVE_NOTE) {
             final double DIST_TOLERANCE = 1.5;
-            double dist = robotPose.withZ(0).dist(
-                    target.withZ(0));
-            if (x != 0.0 && dist < DIST_TOLERANCE) {
-                double aimingAngle = mNoteAimController.calculate(x, 0);
-                System.out.println("aiming angle: " + aimingAngle + " :: " + mDesiredPosition.z);
-                System.out.printf("req RPS: %.3f llangle: %.3f\n", aimingAngle, x);
-                rotRPS = aimingAngle;
+            double dist = robotPose.withZ(0).dist(target.withZ(0));
+            if (xObservedNoteAngle != 0.0 && dist < DIST_TOLERANCE) {
+                rotRPS = mNoteAimController.calculate(xObservedNoteAngle, 0);
+                System.out.printf("req RPS: %.3f llangle: %.3f\n", rotRPS, xObservedNoteAngle);
                 mDesiredPosition.z = getRobotAngle().getRadians();
             }
         }
-
-        System.out.println("rot rps: " + rotRPS + " :: " + mDesiredPosition.z);
-
         driveRaw(xMPS, yMPS, rotRPS);
     }
 
