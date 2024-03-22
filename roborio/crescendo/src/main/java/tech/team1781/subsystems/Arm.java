@@ -172,7 +172,8 @@ public class Arm extends Subsystem {
             if (getState() == ArmState.COLLECT && getAngle() < 10.0) { //drop into position on ground
                  armDutyCycle = 0.0;
             } 
-            mLeftMotor.set(armDutyCycle);  
+            //mLeftMotor.set(armDutyCycle);  
+            mLeftMotor.set(0.0);  
         } else {
             mSparkErrorEntry.setBoolean(true);
         }
@@ -215,18 +216,17 @@ public class Arm extends Subsystem {
         double relAngle = mLeftEncoder.getPosition();
         if (Math.abs(relAngle - getAngleAbsolute()) > 0.5 && (getAngleAbsolute() <= 2.0)) {
             syncArmEncoder();
-            //System.out.println("reset rel encoder");
         }
         return mLeftEncoder.getPosition();
     }
 
     private void syncArmEncoder() {
-        //System.out.println("synced relative encoder to: " + getAngleAbsolute() + " from: " + mLeftEncoder.getPosition());
         mLeftEncoder.setPosition(getAngleAbsolute());
     }
 
     private double getAbsoluteAngle() {
         double reportedPosition = mArmAbsoluteDCEncoder.getAbsolutePosition();
+        System.out.printf("dio 4: %.4f\n");
         if (reportedPosition < 0.5) {
            //error condition, not a possible real value
            return mPrevAbsoluteAngle;
