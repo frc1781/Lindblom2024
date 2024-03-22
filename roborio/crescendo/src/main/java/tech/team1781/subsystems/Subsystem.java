@@ -8,13 +8,12 @@ public abstract class Subsystem {
    protected OperatingMode currentMode; 
    private final SubsystemState defaultState;
    protected SubsystemState currentState;
-   protected final NetworkLogger mNetworkLogger = new NetworkLogger();
 
    protected Subsystem(String _name, SubsystemState _defaultState) {
     name = _name;
     defaultState = _defaultState;
     currentState = defaultState;
-    mNetworkLogger.log(getName(), currentState.toString());
+    NetworkLogger.initLog(_name, _defaultState);
    }
 
    public void setOperatingMode(OperatingMode mode) {
@@ -41,7 +40,7 @@ public abstract class Subsystem {
       System.out.println(desiredState);
 
       currentState = desiredState;
-      mNetworkLogger.log(getName(), getState().toString());
+      NetworkLogger.logData(getName(), getState().toString());
       System.out.println("Changing " + name +  "'s state to " + desiredState);
    }
    

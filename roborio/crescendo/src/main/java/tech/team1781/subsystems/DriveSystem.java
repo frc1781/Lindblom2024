@@ -127,6 +127,7 @@ public class DriveSystem extends Subsystem {
                         (int) ShuffleboardStyle.ROBOT_POSITION_FIELD.size.y);
         mRotGoToController.enableContinuousInput(0, Math.PI * 2);
 
+        NetworkLogger.initLog("Note Aim Requested Rotation", 0);
     }
 
     public enum DriveSystemState implements Subsystem.SubsystemState {
@@ -317,6 +318,7 @@ public class DriveSystem extends Subsystem {
             double dist = robotPose.withZ(0).dist(target.withZ(0));
             if (xObservedNoteAngle != 0.0 && dist < DIST_TOLERANCE) {
                 rotRPS = mNoteAimController.calculate(xObservedNoteAngle, 0);
+                NetworkLogger.logData("Note Aim Requested Rotation", rotRPS);
                 System.out.printf("req RPS: %.3f llangle: %.3f\n", rotRPS, xObservedNoteAngle);
                 mDesiredPosition.z = getRobotAngle().getRadians();
             }

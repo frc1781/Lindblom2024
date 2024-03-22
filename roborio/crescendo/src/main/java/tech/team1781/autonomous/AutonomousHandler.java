@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import tech.team1781.ConfigMap;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.subsystems.Subsystem;
+import tech.team1781.utils.NetworkLogger;
 
 public class AutonomousHandler {
     private SendableChooser<AutoRoutine> mAutoChooser = new SendableChooser<>();
@@ -17,8 +18,9 @@ public class AutonomousHandler {
     private AutoStep sampledStep;
     private AutoStep[] mSampledSteps;
 
-    private GenericEntry mAutoStepEntry = ConfigMap.LOG_TAB.add("Auto Step", "EMPTY").getEntry();
-    private GenericEntry mEndConditionEntry = ConfigMap.LOG_TAB.add("End Condition", "EMPTY").getEntry();
+    // private GenericEntry mAutoStepEntry = ConfigMap.LOG_TAB.add("Autonomous/Auto Step", "EMPTY").getEntry();
+    // private GenericEntry mEndConditionEntry = ConfigMap.LOG_TAB.add("End Condition", "EMPTY").getEntry();
+    // private GenericEntry mStepTimeEntry = ConfigMap.LOG_TAB.add("Step Time", 0.0).getEntry();
 
     public AutonomousHandler(ControlSystem controlSystem, AutoRoutine... routines) {
         mAutoChooser.setDefaultOption(routines[0].getName(), routines[0]);
@@ -29,6 +31,10 @@ public class AutonomousHandler {
         ConfigMap.AUTONOMOUS_TAB.add(mAutoChooser).withSize(2, 1);
 
         mControlSystem = controlSystem;
+
+        NetworkLogger.initLog("Auto Step", "EMPTY");
+        NetworkLogger.initLog("End Condition", "EMPTY");
+        NetworkLogger.initLog("Time", 0.0);
     }
 
     public void init() {
@@ -46,13 +52,17 @@ public class AutonomousHandler {
     }
 
     public void run() throws RoutineOverException {
+        // mStepTimeEntry.setDouble(mTimer.get());
+        NetworkLogger.logData("Time", mTimer.get());
+
         try {
             boolean controlSystemFinished = mControlSystem.stepIsFinished();
             boolean timerFinished = mTimer.get() > sampledStep.getMaxTime();
             boolean stepFinished = controlSystemFinished || timerFinished; 
 
             if (stepFinished) {
-                mEndConditionEntry.setString(controlSystemFinished ? "Control System Finished" : "Timer Finished");
+                // mEndConditionEntry.setString(controlSystemFinished ? "Control System Finished" : "Timer Finished");
+                NetworkLogger.logData("End Condition", controlSystemFinished ? "Control System Finished" : "Timer Finished");
                 mStepIndex++;
                 mTimer.reset();
                 mTimer.start();
@@ -67,7 +77,8 @@ public class AutonomousHandler {
     }
 
     private void startStep(AutoStep step) {
-        mAutoStepEntry.setString(step.toString());
+        // mAutoStepEntry.setString("Step: [" + mStepIndex + "]: " + step.toString());
+        NetworkLogger.logData("Auto Step", "Step: [" + mStepIndex + "]: " + step.toString());
         System.out.println("new step! " + step.toString());
         System.out.println(step.toString() + " ==================================================================== " + mStepIndex);
         // mControlSystem.setAutoStep(step.getAction(), step.getPosition(), step.getPath());
