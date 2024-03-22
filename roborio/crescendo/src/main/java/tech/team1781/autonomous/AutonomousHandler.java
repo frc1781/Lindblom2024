@@ -1,5 +1,6 @@
 package tech.team1781.autonomous;
 
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import tech.team1781.ConfigMap;
@@ -15,6 +16,9 @@ public class AutonomousHandler {
 
     private AutoStep sampledStep;
     private AutoStep[] mSampledSteps;
+
+    private GenericEntry mAutoStepEntry = ConfigMap.LOG_TAB.add("Auto Step", "EMPTY").getEntry();
+    private GenericEntry mEndConditionEntry = ConfigMap.LOG_TAB.add("End Condition", "EMPTY").getEntry();
 
     public AutonomousHandler(ControlSystem controlSystem, AutoRoutine... routines) {
         mAutoChooser.setDefaultOption(routines[0].getName(), routines[0]);
@@ -43,12 +47,12 @@ public class AutonomousHandler {
 
     public void run() throws RoutineOverException {
         try {
+            boolean controlSystemFinished = mControlSystem.stepIsFinished();
+            boolean timerFinished = mTimer.get() > sampledStep.getMaxTime();
+            boolean stepFinished = controlSystemFinished || timerFinished; 
 
-            boolean stepFinished = mControlSystem.stepIsFinished() ||
-                    mTimer.get() > sampledStep.getMaxTime();
-
-            // System.out.println(mStepIndex + "::" + mControlSystem.stepIsFinished() + " :: " + (mTimer.get() > sampledStep.getMaxTime()));
             if (stepFinished) {
+                mEndConditionEntry.setString(controlSystemFinished ? "Control System Finished" : "Timer Finished");
                 mStepIndex++;
                 mTimer.reset();
                 mTimer.start();
@@ -63,6 +67,7 @@ public class AutonomousHandler {
     }
 
     private void startStep(AutoStep step) {
+        mAutoStepEntry.setString(step.toString());
         System.out.println("new step! " + step.toString());
         System.out.println(step.toString() + " ==================================================================== " + mStepIndex);
         // mControlSystem.setAutoStep(step.getAction(), step.getPosition(), step.getPath());
