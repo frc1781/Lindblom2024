@@ -17,20 +17,26 @@ public class NetworkLogger {
 
     public static void initLog(String name, Object defaultVal) {
         mEntryMap.put(
-            name, 
-            ConfigMap.LOG_TAB.add(name, defaultVal).getEntry()
-        );
+                name,
+                ConfigMap.LOG_TAB.add(
+                    name, 
+                    isPrimitive(defaultVal) ? defaultVal : defaultVal.toString()
+                ).getEntry());
     }
 
     public static void logData(String logName, Object val) {
         var entry = mEntryMap.get(logName);
 
-        if(entry == null) {
+        if (entry == null) {
             return;
         }
 
-        boolean isPrimitive;
-        switch (val.getClass().getName()) {
+
+        entry.setValue(isPrimitive(val) ? val : val.toString());
+    }
+
+    private static boolean isPrimitive(Object obj) {
+        switch (obj.getClass().getName()) {
             case "java.lang.Integer":
             case "java.lang.Double":
             case "java.lang.Float":
@@ -40,36 +46,34 @@ public class NetworkLogger {
             case "java.lang.Boolean":
             case "java.lang.Character":
             case "java.lang.String":
-                isPrimitive = true;
-                break;
+                return true;
             default:
-                isPrimitive = false;
-                break;
+                return false;
         }
-
-        entry.setValue(isPrimitive ? val : val.toString());
     }
-    
-    // private HashMap<String, GenericEntry> tabMap = new HashMap<String, GenericEntry>();
+
+    // private HashMap<String, GenericEntry> tabMap = new HashMap<String,
+    // GenericEntry>();
 
     // public void log(String tabName, double data) {
-    //     GenericEntry tab = findTab(tabName, "Double");
+    // GenericEntry tab = findTab(tabName, "Double");
 
-    //     tab.setDouble(new BigDecimal(data).setScale(2, RoundingMode.HALF_UP).doubleValue());
+    // tab.setDouble(new BigDecimal(data).setScale(2,
+    // RoundingMode.HALF_UP).doubleValue());
     // }
 
     // public void log(String tabName, String data) {
-    //     GenericEntry tab = findTab(tabName, "String");
-    //     tab.setString(data);
+    // GenericEntry tab = findTab(tabName, "String");
+    // tab.setString(data);
     // }
 
     // private GenericEntry findTab(String tabName, String type) {
-    //     if (!tabMap.containsKey(tabName)) {
-    //         tabMap.put(tabName, ConfigMap.SHUFFLEBOARD_TAB.add(tabName, type == "Double" ? 0 : "EMPTY" ).getEntry());
-    //     }
-
-    //     return tabMap.get(tabName);
+    // if (!tabMap.containsKey(tabName)) {
+    // tabMap.put(tabName, ConfigMap.SHUFFLEBOARD_TAB.add(tabName, type == "Double"
+    // ? 0 : "EMPTY" ).getEntry());
     // }
 
-    
+    // return tabMap.get(tabName);
+    // }
+
 }
