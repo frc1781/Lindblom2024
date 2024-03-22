@@ -23,6 +23,7 @@ import tech.team1781.ConfigMap;
 import tech.team1781.ShuffleboardStyle;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.utils.EVector;
+import tech.team1781.utils.NetworkLogger;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import com.revrobotics.SparkLimitSwitch;
 import com.revrobotics.SparkMaxAlternateEncoder;
@@ -101,6 +102,9 @@ public class Arm extends Subsystem {
         mPositions.put(ArmState.LOB, CURRENT_AIM_SPOT.SUBWOOFER.getPosition());
         mPositions.put(ArmState.NOTE_ONE, CURRENT_AIM_SPOT.NOTE_1.getPosition());
         mPositions.put(ArmState.NOTE_THREE, CURRENT_AIM_SPOT.NOTE_3.getPosition());
+
+
+        NetworkLogger.initLog("Arm Matches State", true);
     }  
 
     public enum ArmState implements Subsystem.SubsystemState {
@@ -121,6 +125,8 @@ public class Arm extends Subsystem {
 
     @Override
     public void genericPeriodic() {
+        NetworkLogger.logData("Arm Matches State", matchesDesiredState());
+
         testEntry.setDouble(getAngleAbsolute());
         if (mLeftEncoder.getPosition() < 10) {
           mLeftMotor.setIdleMode(IdleMode.kCoast);

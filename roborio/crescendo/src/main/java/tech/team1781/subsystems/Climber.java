@@ -5,6 +5,7 @@ import com.revrobotics.SparkLimitSwitch;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.SparkLimitSwitch.Type;
 import tech.team1781.ConfigMap;
+import tech.team1781.utils.NetworkLogger;
 import edu.wpi.first.math.controller.PIDController;
 
 public class Climber extends Subsystem {
@@ -53,6 +54,8 @@ public class Climber extends Subsystem {
         mLeftClimberMotor.burnFlash();
         mRightClimberMotor.burnFlash();
         mTrapHookMotor.burnFlash();
+
+        NetworkLogger.initLog("Climber Matches State", true);
     }
 
     public enum ClimberState implements Subsystem.SubsystemState {
@@ -61,6 +64,8 @@ public class Climber extends Subsystem {
 
     @Override
     public void genericPeriodic() {
+        NetworkLogger.logData("Climber Matches State", matchesDesiredState());
+
         if(mLeftReverseLimitSwitch.isPressed()) {
             mLeftClimberEncoder.setPosition(0);
         }

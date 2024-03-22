@@ -128,6 +128,7 @@ public class DriveSystem extends Subsystem {
         mRotGoToController.enableContinuousInput(0, Math.PI * 2);
 
         NetworkLogger.initLog("Note Aim Requested Rotation", 0);
+        NetworkLogger.initLog("Drive System Matches State", true);
     }
 
     public enum DriveSystemState implements Subsystem.SubsystemState {
@@ -198,6 +199,8 @@ public class DriveSystem extends Subsystem {
 
     @Override
     public void genericPeriodic() {
+        NetworkLogger.logData("Drive System Matches State", matchesDesiredState());
+
         updateOdometry();
         mRobotXEntry.setDouble(getRobotPose().getX());
         mRobotYEntry.setDouble(getRobotPose().getY());

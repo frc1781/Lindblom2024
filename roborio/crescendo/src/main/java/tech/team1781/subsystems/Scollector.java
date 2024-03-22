@@ -19,6 +19,7 @@ import tech.team1781.ConfigMap;
 import tech.team1781.ShuffleboardStyle;
 import tech.team1781.subsystems.LEDs.LedState;
 import tech.team1781.utils.EVector;
+import tech.team1781.utils.NetworkLogger;
 
 //EXAMPLE SUBSYSTEM, NOT FOR ACTUAL BOT
 public class Scollector extends Subsystem {
@@ -89,6 +90,8 @@ public class Scollector extends Subsystem {
         mCollectorMotor.burnFlash();
         System.out.println("top motor faults: " + mTopShooterMotor.getFaults());
         System.out.println("top motor faults: " + mBottomShooterMotor.getFaults());
+
+        NetworkLogger.initLog("Scollector Matches State", true);
     }
 
     public enum ScollectorState implements SubsystemState {
@@ -97,6 +100,8 @@ public class Scollector extends Subsystem {
 
     @Override
     public void genericPeriodic() {
+        NetworkLogger.logData("Scollector Matches State", matchesDesiredState());
+
         mTopShooterVelocity.setDouble(mTopShooterMotor.getEncoder().getVelocity());
         mBottomShooterVelocity.setDouble(mBottomShooterMotor.getEncoder().getVelocity());
         mReadyToShootEntry.setBoolean(shooterAtSpeed());

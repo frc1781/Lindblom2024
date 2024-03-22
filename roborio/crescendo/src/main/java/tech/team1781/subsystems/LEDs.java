@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
+import tech.team1781.utils.NetworkLogger;
 
 public class LEDs extends Subsystem {
     private final int LED_LENGTH = 151;
@@ -18,17 +19,21 @@ public class LEDs extends Subsystem {
 
     public LEDs() {
         super("LEDs", LedState.DEFAULT);
+
+        NetworkLogger.initLog("LEDs Matches State", true);
     }
 
     public enum LedState implements SubsystemState {
         HAS_NOTE,
         NO_NOTE,
         DEFAULT
+
+
     }
 
     @Override
     public void genericPeriodic() {
-
+        NetworkLogger.logData("LEDs Matches State", matchesDesiredState());
     }
 
     @Override
