@@ -162,9 +162,8 @@ public class Arm extends Subsystem {
 
     @Override
     public void init() {
-        setDesiredState(ArmState.SAFE);
+        mPositionPID.reset(getAngle());
         // syncArmEncoder();
-        mDesiredPosition = mLeftEncoder.getPosition();
         // if (currentMode == OperatingMode.AUTONOMOUS) {
         // mSparkDataNotSentEntry.setBoolean(mLeftEncoder.setPosition(KICKSTAND_POSITION)
         // != REVLibError.kOk);
