@@ -33,7 +33,7 @@ public class Arm extends Subsystem {
     private CANSparkMax mLeftMotor;
 
     private RelativeEncoder mLeftEncoder;
-    private AbsoluteEncoder mArmAbsoluteEncoder;
+    // private AbsoluteEncoder mArmAbsoluteEncoder;
     private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.04, 0, 0,
             new TrapezoidProfile.Constraints(50, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
@@ -80,9 +80,9 @@ public class Arm extends Subsystem {
                                                                                                   // after fix angles
                                                                                                   // are closer
         mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.27); // will tell us angle in
-        mArmAbsoluteEncoder = mRightMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
-        mArmAbsoluteEncoder.setAverageDepth(1);
-        mArmAbsoluteEncoder.setInverted(true);
+        // mArmAbsoluteEncoder = mRightMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
+        // mArmAbsoluteEncoder.setAverageDepth(1);
+        // mArmAbsoluteEncoder.setInverted(true);
         mRightMotor.follow(mLeftMotor, true);
         mLeftMotor.setIdleMode(IdleMode.kBrake);
         mRightMotor.setIdleMode(IdleMode.kBrake);
@@ -137,7 +137,7 @@ public class Arm extends Subsystem {
     public void genericPeriodic() {
         NetworkLogger.logData("Arm Matches State", matchesDesiredState());
 
-        testEntry.setDouble(getAngleAbsolute());
+        // testEntry.setDouble(getAngleAbsolute());
         if (mLeftEncoder.getPosition() < 10) {
             mLeftMotor.setIdleMode(IdleMode.kCoast);
             mRightMotor.setIdleMode(IdleMode.kCoast);
@@ -149,13 +149,13 @@ public class Arm extends Subsystem {
 
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
         if (mLeftEncoder.getPosition() > 10.0 && mLeftMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed()) {
-            syncArmEncoder();
+            // syncArmEncoder();
             System.out.println("***************************reset after hitting forward limit*******************");
         }
 
-        if(getAngleAbsolute() <= 10.0 && mLeftMotor.getReverseLimitSwitch(Type.kNormallyOpen).isPressed()) {
-            syncArmEncoder();
-        }
+        // if(getAngleAbsolute() <= 10.0 && mLeftMotor.getReverseLimitSwitch(Type.kNormallyOpen).isPressed()) {
+        //     syncArmEncoder();
+        // }
         // System.out.printf("arm abs: %.3f arm rel %.3f\n", getAngleAbsolute(),
         // getAngle());
     }
@@ -163,7 +163,7 @@ public class Arm extends Subsystem {
     @Override
     public void init() {
         setDesiredState(ArmState.SAFE);
-        syncArmEncoder();
+        // syncArmEncoder();
         mDesiredPosition = mLeftEncoder.getPosition();
         // if (currentMode == OperatingMode.AUTONOMOUS) {
         // mSparkDataNotSentEntry.setBoolean(mLeftEncoder.setPosition(KICKSTAND_POSITION)
@@ -235,30 +235,30 @@ public class Arm extends Subsystem {
 
     private double getAngle() {
         double relAngle = mLeftEncoder.getPosition();
-        if (Math.abs(relAngle - getAngleAbsolute()) > 0.5 && (getAngleAbsolute() <= 2.0)) {
-            syncArmEncoder();
-            // System.out.println("reset rel encoder");
-        }
+        // if (Math.abs(relAngle - getAngleAbsolute()) > 0.5 && (getAngleAbsolute() <= 2.0)) {
+        //     syncArmEncoder();
+        //     // System.out.println("reset rel encoder");
+        // }
         return mLeftEncoder.getPosition();
     }
 
-    private void syncArmEncoder() {
-        System.out.println("synced relative encoder to: " + getAngleAbsolute() + " from: " + mLeftEncoder.getPosition());
-        mLeftEncoder.setPosition(getAngleAbsolute());
-    }
+    // private void syncArmEncoder() {
+    //     System.out.println("synced relative encoder to: " + getAngleAbsolute() + " from: " + mLeftEncoder.getPosition());
+    //     mLeftEncoder.setPosition(getAngleAbsolute());
+    // }
 
-    private double getAngleAbsolute() {
-        double reportedPosition = mArmAbsoluteEncoder.getPosition();
-        NetworkLogger.logData("Raw Absolute Arm", reportedPosition);
-        // double reportedPosition = mArmAbsoluteDCEncoder.getAbsolutePosition();
-        if (reportedPosition > 0.1) {
-            mPrevAbsoluteAngle = 360.0 * (mArmAbsoluteEncoder.getPosition() - 0.227); // the absolute encoder reads
-                                                                                      // 0.722 when arm is on the floor
-            // mPrevAbsoluteAngle = 360.0 * (mArmAbsoluteEncoder.getPosition() - 0.722);
-            // //the absolute encoder reads 0.722 when arm is on the floor
-        }
-        return mPrevAbsoluteAngle;
-    }
+    // private double getAngleAbsolute() {
+    //     double reportedPosition = mArmAbsoluteEncoder.getPosition();
+    //     NetworkLogger.logData("Raw Absolute Arm", reportedPosition);
+    //     // double reportedPosition = mArmAbsoluteDCEncoder.getAbsolutePosition();
+    //     if (reportedPosition > 0.1) {
+    //         mPrevAbsoluteAngle = 360.0 * (mArmAbsoluteEncoder.getPosition() - 0.227); // the absolute encoder reads
+    //                                                                                   // 0.722 when arm is on the floor
+    //         // mPrevAbsoluteAngle = 360.0 * (mArmAbsoluteEncoder.getPosition() - 0.722);
+    //         // //the absolute encoder reads 0.722 when arm is on the floor
+    //     }
+    //     return mPrevAbsoluteAngle;
+    // }
 
     public void updateAimSpots(Pose2d robotPose) {
         mRobotPose = robotPose;
