@@ -82,10 +82,10 @@ public class DriveSystem extends Subsystem {
 
     private final EVector GO_TO_PID = EVector.newVector(2.5, 0, 0);
     private final double MAX_ACCELERATION = 8.0;
-    private ProfiledPIDController mXGoToController = new ProfiledPIDController(GO_TO_PID.x, GO_TO_PID.y, GO_TO_PID.z, 
-        new TrapezoidProfile.Constraints(ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, MAX_ACCELERATION));
+    private ProfiledPIDController mXGoToController = new ProfiledPIDController(GO_TO_PID.x, GO_TO_PID.y, GO_TO_PID.z,
+            new TrapezoidProfile.Constraints(ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, MAX_ACCELERATION));
     private ProfiledPIDController mYGoToController = new ProfiledPIDController(GO_TO_PID.x, GO_TO_PID.y, GO_TO_PID.z,
-        new TrapezoidProfile.Constraints(ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, MAX_ACCELERATION));
+            new TrapezoidProfile.Constraints(ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, MAX_ACCELERATION));
     private ProfiledPIDController mRotGoToController = new ProfiledPIDController(1, 0, 0,
             new TrapezoidProfile.Constraints(6.28, 3.14));
 
@@ -136,6 +136,7 @@ public class DriveSystem extends Subsystem {
         DRIVE_NOTE,
         DRIVE_TRAJECTORY,
         DRIVE_MANUAL,
+        DRIVE_ROTATION,
         SYSID
     }
 
@@ -300,19 +301,22 @@ public class DriveSystem extends Subsystem {
         driveWithChassisSpeds(desiredChassisSpeeds);
     }
 
-    public void goTo(EVector target) { 
+    public void goTo(EVector target) {
         if (mIsManual && mDesiredPosition == null) {
             return;
         }
         EVector robotPose = EVector.fromPose(getRobotPose());
         if (matchesDesiredPosition()) {
-            //System.out.println("matches position **********************************************");
+            // System.out.println("matches position
+            // **********************************************");
             driveRaw(0, 0, 0);
             return;
         }
 
-        double xMPS = clamp(mXGoToController.calculate(robotPose.x, target.x), ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
-        double yMPS = clamp(mYGoToController.calculate(robotPose.y, target.y), ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
+        double xMPS = clamp(mXGoToController.calculate(robotPose.x, target.x),
+                ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
+        double yMPS = clamp(mYGoToController.calculate(robotPose.y, target.y),
+                ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
         double rotRPS = mRotGoToController.calculate(getRobotAngle().getRadians(), target.z);
         double xObservedNoteAngle = Math.toRadians(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT));
 
@@ -368,6 +372,10 @@ public class DriveSystem extends Subsystem {
         mXGoToController.reset(getRobotPose().getX());
         mYGoToController.reset(getRobotPose().getY());
         mRotGoToController.reset(getRobotAngle().getRadians());
+    }
+
+    public void setRotation(double rotationRads) {
+        setPosition(EVector.fromPose(getRobotPose()).withZ(rotationRads));
     }
 
     public void driveWithChassisSpeds(ChassisSpeeds speeds) {
@@ -431,8 +439,11 @@ public class DriveSystem extends Subsystem {
         if (mIsManual) {
             return true;
         }
+
         if (mDesiredPosition != null) {
-            return mDesiredPosition.dist(EVector.fromPose(getRobotPose())) < 0.1;
+            double dist = mDesiredPosition.dist(EVector.fromPose(getRobotPose()));
+            System.out.println(("dist: " + dist));
+            return dist < 0.1;
         }
         return false;
     }

@@ -438,6 +438,15 @@ public class ControlSystem {
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_NOTE);
                 setAction(step.getAction());
                 break;
+            case ROTATION:
+                mDriveSystem.setRotation(step.getPosition().z);
+                mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
+                break;
+            case ROTATION_AND_ACTION:
+                mDriveSystem.setRotation(step.getPosition().z);
+                mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
+                setAction(step.getAction());
+                break;
             case WAIT:
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
                 break;
@@ -582,7 +591,7 @@ public class ControlSystem {
                 }
 
                 if ((mCurrentAction == Action.AUTO_AIM_SHOOT || mCurrentAction == Action.SHOOT_NOTE_ONE
-                        || mCurrentAction == Action.SHOOT_NOTE_THREE)
+                        || mCurrentAction == Action.SHOOT_NOTE_THREE || mCurrentAction == Action.SHOOT_SUBWOOFER)
                         && mDriveSystem.getState() == DriveSystem.DriveSystemState.DRIVE_MANUAL) {
                     centerOnAprilTag(isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG);
                     mDriveSystem.driveRaw(0, 0, mAimingAngle);

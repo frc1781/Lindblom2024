@@ -35,7 +35,7 @@ public class Arm extends Subsystem {
     private RelativeEncoder mLeftEncoder;
     // private AbsoluteEncoder mArmAbsoluteEncoder;
     private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.04, 0, 0,
-            new TrapezoidProfile.Constraints(50, 450));
+            new TrapezoidProfile.Constraints(70, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
 
     private GenericEntry mArmPositionEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Angle", -1,
@@ -88,7 +88,7 @@ public class Arm extends Subsystem {
         mRightMotor.setIdleMode(IdleMode.kBrake);
         mLeftMotor.burnFlash();
         mRightMotor.burnFlash();
-        // mSparkDataNotSentEntry.setBoolean(mLeftEncoder.setPosition(KICKSTAND_POSITION) != REVLibError.kOk);
+        mSparkDataNotSentEntry.setBoolean(mLeftEncoder.setPosition(KICKSTAND_POSITION) != REVLibError.kOk);
         System.out.println("-------------------------------------------------");
         System.out.println("   ARM SET TO KICKSTAND ENCODER POSITION         ");
         System.out.println("         ensure that kick stand is on            ");
