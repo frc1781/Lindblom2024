@@ -276,6 +276,7 @@ public class ControlSystem {
                 isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG);
         double x = Limelight.getTX(ConfigMap.APRILTAG_LIMELIGHT);
 
+        System.out.println("aming angle " + mAimingAngle);
         if (x != 0.0) {
             mAimingAngle = mLimelightAimController.calculate(x, 0);
         } else {
