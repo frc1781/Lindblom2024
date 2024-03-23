@@ -34,7 +34,6 @@ public class Arm extends Subsystem {
         
     private RelativeEncoder mLeftEncoder; 
     private AbsoluteEncoder mArmAbsoluteEncoder;
-    private DutyCycleEncoder mArmAbsoluteDCEncoder;
     private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.05, 0, 0,
             new TrapezoidProfile.Constraints(80, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
@@ -71,7 +70,6 @@ public class Arm extends Subsystem {
         mArmAbsoluteEncoder = mRightMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
         mArmAbsoluteEncoder.setAverageDepth(1);
         mArmAbsoluteEncoder.setInverted(true);
-        mArmAbsoluteDCEncoder = new DutyCycleEncoder(new DigitalInput(4));
         mRightMotor.follow(mLeftMotor, true);
         mLeftMotor.setIdleMode(IdleMode.kBrake);
         mRightMotor.setIdleMode(IdleMode.kBrake);
@@ -133,8 +131,10 @@ public class Arm extends Subsystem {
           mRightMotor.setIdleMode(IdleMode.kCoast);
         }
         else{
-         mLeftMotor.setIdleMode(IdleMode.kBrake);
-         mRightMotor.setIdleMode(IdleMode.kBrake);
+        //  mLeftMotor.setIdleMode(IdleMode.kBrake);
+        //  mRightMotor.setIdleMode(IdleMode.kBrake);
+          mLeftMotor.setIdleMode(IdleMode.kCoast);
+          mRightMotor.setIdleMode(IdleMode.kCoast);
         }
 
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
@@ -178,7 +178,7 @@ public class Arm extends Subsystem {
             if (getState() == ArmState.COLLECT && getAngle() < 10.0) { //drop into position on ground
                  armDutyCycle = 0.0;
             } 
-            mLeftMotor.set(armDutyCycle);  
+            // mLeftMotor.set(armDutyCycle);  
         } else {
             mSparkErrorEntry.setBoolean(true);
         }
@@ -231,23 +231,12 @@ public class Arm extends Subsystem {
         mLeftEncoder.setPosition(getAngleAbsolute());
     }
 
-    private double getAbsoluteAngle() {
-        double reportedPosition = mArmAbsoluteDCEncoder.getAbsolutePosition();
-        if (reportedPosition < 0.5) {
-           //error condition, not a possible real value
-           return mPrevAbsoluteAngle;
-        }
-        
-        mPrevAbsoluteAngle = 360.0 * reportedPosition - 0.722;
-        return mPrevAbsoluteAngle;
-    }
-
     private double getAngleAbsolute() {
         double reportedPosition = mArmAbsoluteEncoder.getPosition();
         //double reportedPosition = mArmAbsoluteDCEncoder.getAbsolutePosition();
         if (reportedPosition > 0.5)
         {
-            mPrevAbsoluteAngle = 360.0 * (mArmAbsoluteEncoder.getPosition() - 0.722); //the absolute encoder reads 0.722 when arm is on the floor
+            mPrevAbsoluteAngle = 360.0 * (mArmAbsoluteEncoder.getPosition() - 0.227); //the absolute encoder reads 0.722 when arm is on the floor
             //mPrevAbsoluteAngle = 360.0 * (mArmAbsoluteEncoder.getPosition() - 0.722); //the absolute encoder reads 0.722 when arm is on the floor
         }
         return mPrevAbsoluteAngle;   
