@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import tech.team1781.utils.NetworkLogger;
 
 public class LEDs extends Subsystem {
-    private final int LED_LENGTH = 151;
+    private final int LED_LENGTH = 75;
 
     private AddressableLED mLedController = null;
     private AddressableLEDBuffer mLedBuffer = null;
@@ -56,10 +56,12 @@ public class LEDs extends Subsystem {
 
         switch ((LedState) getState()) {
             case NO_NOTE:
-                // vwoop(Color.kRed);
+                // vwoop(Color.kGreen);
+                solid(Color.kGreen);
                 break;
             case HAS_NOTE:
-                // flashThenSolid(Color.kGreen);
+                // flashThenSolid(Color.kRed);
+                solid(Color.kRed);
                 break;
             default:
                 rainbow();
@@ -102,6 +104,12 @@ public class LEDs extends Subsystem {
         mTimer.reset();
         mTimer.start();
         mFlashMode = false;
+    }
+
+    private void solid(Color color) {
+        for(int i = 0; i < LED_LENGTH; i++) {
+            mLedBuffer.setLED(i, color);
+        }
     }
 
     private void flashThenSolid(Color color) {
