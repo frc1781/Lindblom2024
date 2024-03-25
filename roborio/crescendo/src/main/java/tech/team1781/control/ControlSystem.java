@@ -440,11 +440,11 @@ public class ControlSystem {
                 break;
             case ROTATION:
                 mDriveSystem.setRotation(step.getPosition().z);
-                mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
+                mDriveSystem.setDesiredState(DriveSystemState.DRIVE_ROTATION);
                 break;
             case ROTATION_AND_ACTION:
                 mDriveSystem.setRotation(step.getPosition().z);
-                mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
+                mDriveSystem.setDesiredState(DriveSystemState.DRIVE_ROTATION);
                 setAction(step.getAction());
                 break;
             case WAIT:
