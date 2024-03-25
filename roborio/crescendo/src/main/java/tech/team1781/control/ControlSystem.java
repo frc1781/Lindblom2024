@@ -103,6 +103,7 @@ public class ControlSystem {
         AUTO_AIM_SHOOT,
         OFF_KICKSTAND,
         SHOOT_NOTE_ONE,
+        SHOOT_NOTE_TWO,
         SHOOT_NOTE_THREE,
         RAMP_SHOOTER,
         SHOOT_SUBWOOFER,
@@ -439,11 +440,11 @@ public class ControlSystem {
                 setAction(step.getAction());
                 break;
             case ROTATION:
-                mDriveSystem.setRotation(step.getPosition().z);
+                mDriveSystem.setRotation(step.getPosition().flipIfRed().z);
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_ROTATION);
                 break;
             case ROTATION_AND_ACTION:
-                mDriveSystem.setRotation(step.getPosition().z);
+                mDriveSystem.setRotation(step.getPosition().flipIfRed().z);
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_ROTATION);
                 setAction(step.getAction());
                 break;
@@ -487,6 +488,7 @@ public class ControlSystem {
         if (mDriveSystem.getState() == DriveSystemState.DRIVE_NOTE) {
             return mScollector.hasNote() || mScollector.noteCloseToShooter();
         }
+
         return !isRunningAction() && mDriveSystem.matchesDesiredState();
     }
 
@@ -501,7 +503,7 @@ public class ControlSystem {
 
         switch (operatingMode) {
             case TELEOP:
-            
+
                 mSettingStack.clear();
                 mXDriveLimiter.reset(0);
                 mYDriveLimiter.reset(0);
@@ -545,13 +547,13 @@ public class ControlSystem {
                     if (subsystem == mDriveSystem) {
                         finalDriveState = state;
                     } else if (subsystem == mScollector) {
-                        if(finalScollectorState == ScollectorState.RAMP_SHOOTER && state == ScollectorState.COLLECT) {
+                        if (finalScollectorState == ScollectorState.RAMP_SHOOTER && state == ScollectorState.COLLECT) {
                             finalScollectorState = ScollectorState.COLLECT_RAMP;
                             continue;
                         }
                         finalScollectorState = state;
                     } else if (subsystem == mArm) {
-                        if(mArm.getState() == ArmState.MANUAL && state == ArmState.AUTO_ANGLE) {
+                        if (mArm.getState() == ArmState.MANUAL && state == ArmState.AUTO_ANGLE) {
                             continue;
                         }
                         finalArmState = state;
@@ -569,7 +571,8 @@ public class ControlSystem {
                         driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverTriggers);
                 mClimber.manualClimb(-driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y);
-                mClimber.manualTrapHooks(-driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.CO_PILOT_PORT).y);
+                mClimber.manualTrapHooks(
+                        -driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.CO_PILOT_PORT).y);
                 autoAimingInputs();
                 break;
             case AUTONOMOUS:
@@ -578,7 +581,8 @@ public class ControlSystem {
                         || (mScollector.getState() == ScollectorState.COLLECT_RAMP
                                 && (mDriveSystem.getState() == DriveSystemState.DRIVE_NOTE
                                         || mDriveSystem.getState() == DriveSystemState.DRIVE_SETPOINT))
-                        || (mScollector.getState() == ScollectorState.COLLECT_AUTO_SHOOT && (mArm.getState() != ArmState.NOTE_ONE && mArm.getState() != ArmState.NOTE_THREE)) ) {
+                        || (mScollector.getState() == ScollectorState.COLLECT_AUTO_SHOOT
+                                && (mArm.getState() != ArmState.NOTE_ONE && mArm.getState() != ArmState.NOTE_THREE))) {
                     if (mScollector.hasNote()) {
                         mArm.setDesiredState(ArmState.AUTO_ANGLE);
                     } else {
@@ -591,6 +595,7 @@ public class ControlSystem {
                 }
 
                 if ((mCurrentAction == Action.AUTO_AIM_SHOOT || mCurrentAction == Action.SHOOT_NOTE_ONE
+                        || mCurrentAction == Action.SHOOT_NOTE_TWO
                         || mCurrentAction == Action.SHOOT_NOTE_THREE || mCurrentAction == Action.SHOOT_SUBWOOFER)
                         && mDriveSystem.getState() == DriveSystem.DriveSystemState.DRIVE_MANUAL) {
                     centerOnAprilTag(isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG);
@@ -685,6 +690,10 @@ public class ControlSystem {
         defineAction(Action.REJECT_NOTE,
                 new SubsystemSetting(mArm, ArmState.COLLECT),
                 new SubsystemSetting(mScollector, ScollectorState.SPIT));
+
+        defineAction(Action.SHOOT_NOTE_TWO,
+                new SubsystemSetting(mArm, ArmState.NOTE_TWO),
+                new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
 
         defineAction(Action.RAMP_SHOOTER,
                 new SubsystemSetting(mArm, ArmState.SAFE),

@@ -51,8 +51,9 @@ public class Robot extends TimedRobot {
   private GenericEntry mSaveConfigButton = ConfigMap.CONFIG_TAB.add("Save Config", false)
       .withWidget(BuiltInWidgets.kToggleButton).getEntry();
 
-  private boolean ranTeleop = false;
-  private boolean ranAuto = false;
+  private boolean mRanTeleop = false;
+  private boolean mRanAuto = false;
+  private boolean mAutoRoutineOver = false;
 
   @Override
   public void robotInit() {
@@ -76,8 +77,7 @@ public class Robot extends TimedRobot {
         new P1N1C1ThreeNote(),
         new FourNote(),
         new P3C5N3(),
-        new TestRoutine()
-      );
+        new TestRoutine());
 
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
@@ -168,8 +168,8 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     // if (mSaveConfigButton.getBoolean(false)) {
-      // PreferenceHandler.updateValues();
-      // mSaveConfigButton.setBoolean(false);
+    // PreferenceHandler.updateValues();
+    // mSaveConfigButton.setBoolean(false);
     // }
 
   }
@@ -178,15 +178,19 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     mControlSystem.init(OperatingMode.AUTONOMOUS);
     mAutonomousHandler.init();
-    ranAuto = true;
+    mRanAuto = true;
+    mAutoRoutineOver = false;
   }
 
   @Override
   public void autonomousPeriodic() {
-    try {
-      mAutonomousHandler.run();
-    } catch (RoutineOverException e) {
-      e.printStackTrace();
+    if (!mAutoRoutineOver) {
+      try {
+        mAutonomousHandler.run();
+      } catch (RoutineOverException e) {
+        mAutoRoutineOver = true;
+        // e.printStackTrace();
+      }
     }
 
     mControlSystem.run(null);
@@ -195,7 +199,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     mControlSystem.init(OperatingMode.TELEOP);
-    ranTeleop = true;
+    mRanTeleop = true;
   }
 
   @Override
@@ -205,7 +209,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
-    if (ranAuto && ranTeleop) {
+    if (mRanAuto && mRanTeleop) {
       DataLogManager.stop();
     }
 

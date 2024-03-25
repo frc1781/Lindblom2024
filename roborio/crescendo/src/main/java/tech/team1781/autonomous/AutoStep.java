@@ -63,12 +63,14 @@ public class AutoStep {
 
     public AutoStep(double maxTime, double angleRads) {
         mPosition = EVector.newVector(0,0,angleRads);
+        mMaxTime = maxTime;
         
         mType = StepType.ROTATION;
     }
 
     public AutoStep(double maxTime, double angleRads, Action action) {
         mPosition = EVector.newVector(0,0,angleRads);
+        mMaxTime = maxTime;
         mAction = action;
         
         mType = StepType.ROTATION_AND_ACTION;

@@ -58,7 +58,7 @@ public class LEDs extends Subsystem {
         switch ((LedState) getState()) {
             case NO_NOTE:
                 // vwoop(Color.kRed);
-                solid(Color.kRed);
+                solid(Color.kGreen);
                 break;
             case HAS_NOTE:
                 // flashThenSolid(Color.kGreen);

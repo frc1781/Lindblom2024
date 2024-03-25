@@ -52,6 +52,7 @@ public class Arm extends Subsystem {
     private CURRENT_AIM_SPOT mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
     private double KICKSTAND_POSITION = 70.0; // was 73 Was 62.0
     private double mPrevAbsoluteAngle = KICKSTAND_POSITION;
+    private double mPrevRecordedAngle = 0.0;
 
     private GenericEntry testEntry = Shuffleboard.getTab("test").add("test", 0.0).getEntry();
 
@@ -95,13 +96,14 @@ public class Arm extends Subsystem {
         mPositions.put(ArmState.SAFE, 70.0); 
         mPositions.put(ArmState.PODIUM, CURRENT_AIM_SPOT.PODIUM.getPosition());
         mPositions.put(ArmState.SUBWOOFER, CURRENT_AIM_SPOT.SUBWOOFER.getPosition()); // was 36
-        mPositions.put(ArmState.AMP, 57.0); // Was 46.0
+        mPositions.put(ArmState.AMP, 50.0); // Was 46.0
         mPositions.put(ArmState.COLLECT, 0.0);
-        mPositions.put(ArmState.COLLECT_HIGH, 68.0); // Was 55.7
+        mPositions.put(ArmState.COLLECT_HIGH, 60.0); // Was 55.7
         mPositions.put(ArmState.SKIP, 55.0);
         mPositions.put(ArmState.KICKSTAND, 78.0);
         mPositions.put(ArmState.LOB, CURRENT_AIM_SPOT.SUBWOOFER.getPosition());
         mPositions.put(ArmState.NOTE_ONE, CURRENT_AIM_SPOT.NOTE_1.getPosition());
+        mPositions.put(ArmState.NOTE_TWO, CURRENT_AIM_SPOT.NOTE_2.getPosition());
         mPositions.put(ArmState.NOTE_THREE, CURRENT_AIM_SPOT.NOTE_3.getPosition());
 
         NetworkLogger.initLog("Arm Matches State", true);
@@ -120,6 +122,7 @@ public class Arm extends Subsystem {
         AMP,
         SKIP,
         NOTE_ONE,
+        NOTE_TWO,
         NOTE_THREE,
         LOB
     }
@@ -127,6 +130,7 @@ public class Arm extends Subsystem {
     @Override
     public void genericPeriodic() {
         NetworkLogger.logData("Arm Matches State", matchesDesiredState());
+        NetworkLogger.logData("Raw Absolute Arm", getAngleAbsolute());
 
         // testEntry.setDouble(getAngleAbsolute());
         if (mLeftEncoder.getPosition() < 10) {
@@ -137,11 +141,6 @@ public class Arm extends Subsystem {
             mRightMotor.setIdleMode(IdleMode.kBrake);
         }
 
-        System.out.printf("%.3f,%.3f,%.3f,%.3f\n", 
-            mArmAbsoluteEncoder.getPosition(),
-            mLeftEncoder.getPosition(),
-            getAngleAbsolute(),
-            mLeftEncoder.getVelocity());
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
 
         //dropped to ground, reset relative encoder only when going down.
@@ -151,9 +150,10 @@ public class Arm extends Subsystem {
         if (mLeftEncoder.getPosition() < 0.0) {
             mLeftEncoder.setPosition(0.01);
         }
-        if (Math.abs(mLeftEncoder.getVelocity()) < 0.1) {
-            mLeftEncoder.setPosition(getAngleAbsolute());
-        }
+        syncArm();
+        // if (Math.abs(mLeftEncoder.getVelocity()) < 0) {
+            // mLeftEncoder.setPosition(getAngleAbsolute());
+        // }
     }
 
     @Override
@@ -224,13 +224,21 @@ public class Arm extends Subsystem {
         }
     }
 
+    private void syncArm() {
+        double abs = getAngleAbsolute();
+        if(abs != mPrevRecordedAngle) {
+            mLeftEncoder.setPosition(abs);
+            mPrevRecordedAngle = abs;
+        }
+
+    }
+
     private double getAngle() {
         return mLeftEncoder.getPosition();
     }
 
     private double getAngleAbsolute() {
         double reportedPosition = mArmAbsoluteEncoder.getPosition();
-        NetworkLogger.logData("Raw Absolute Arm", reportedPosition);
         if (reportedPosition > 0.1) {
             mPrevAbsoluteAngle = 360.0 * (mArmAbsoluteEncoder.getPosition() - 0.228); // the absolute encoder reads
         }
@@ -284,10 +292,10 @@ public class Arm extends Subsystem {
 
     private enum CURRENT_AIM_SPOT {
         UNDEFEINED(0.0, EVector.newVector(), EVector.newVector(), 0.0),
-        SUBWOOFER(33.2, ConfigMap.RED_SPEAKER_LOCATION, ConfigMap.BLUE_SPEAKER_LOCATION, 2.5), // Was 32.5
+        SUBWOOFER(35, ConfigMap.RED_SPEAKER_LOCATION, ConfigMap.BLUE_SPEAKER_LOCATION, 2.5), // Was 32.5
         PODIUM(50.0, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1), // Pos used to be 45
-        NOTE_3(48, EVector.newVector(14.5, 4.27), EVector.newVector(2.48, 4.27), 1), // was 42.4
-        NOTE_2(48, EVector.newVector(14.13, 5.53), EVector.newVector(2.48, 5.53), 0.5), // Was 50
+        NOTE_3(53, EVector.newVector(14.5, 4.27), EVector.newVector(2.48, 4.27), 1), // was 42.4
+        NOTE_2(52, EVector.newVector(14.13, 5.53), EVector.newVector(2.48, 5.53), 0.5), // Was 50
         NOTE_1(51, EVector.newVector(14.06, 6.74), EVector.newVector(2.48, 6.74), 0.5); // Was 50
 
         private double position;

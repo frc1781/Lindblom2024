@@ -77,7 +77,7 @@ public class DriveSystem extends Subsystem {
     private PIDController mXController = new PIDController(1, 0, 0);
     private PIDController mYController = new PIDController(1, 0, 0);
     private ProfiledPIDController mRotController = new ProfiledPIDController(4, 0, 0,
-            new TrapezoidProfile.Constraints(6.28, 3.14));
+            new TrapezoidProfile.Constraints(3.6 * Math.PI, 7.2 * Math.PI));
     private PIDController mNoteAimController = new PIDController(4, 0, 0);
 
     private final EVector GO_TO_PID = EVector.newVector(2.5, 0, 0);
@@ -86,8 +86,8 @@ public class DriveSystem extends Subsystem {
             new TrapezoidProfile.Constraints(ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, MAX_ACCELERATION));
     private ProfiledPIDController mYGoToController = new ProfiledPIDController(GO_TO_PID.x, GO_TO_PID.y, GO_TO_PID.z,
             new TrapezoidProfile.Constraints(ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, MAX_ACCELERATION));
-    private ProfiledPIDController mRotGoToController = new ProfiledPIDController(1, 0, 0,
-            new TrapezoidProfile.Constraints(6.28, 3.14));
+    private ProfiledPIDController mRotGoToController = new ProfiledPIDController(2, 0, 0,
+            new TrapezoidProfile.Constraints(6.28, Math.PI * 12));
 
     private HolonomicDriveController mTrajectoryController = new HolonomicDriveController(mXController, mYController,
             mRotController);
@@ -142,6 +142,7 @@ public class DriveSystem extends Subsystem {
 
     @Override
     public void getToState() {
+        // System.out.println(getState());
         switch ((DriveSystemState) getState()) {
             case DRIVE_SETPOINT:
             case DRIVE_NOTE:
@@ -180,6 +181,7 @@ public class DriveSystem extends Subsystem {
             case DRIVE_NOTE:
                 return matchesDesiredPosition();
             case DRIVE_ROTATION:
+                System.out.println("matches rotation " + matchesRotation(mDesiredPosition.z));
                 return matchesRotation(mDesiredPosition.z);
             // return false;
             case DRIVE_TRAJECTORY:
@@ -319,7 +321,7 @@ public class DriveSystem extends Subsystem {
         if (!mOdometryBeenSet) {
             mXController = new PIDController(1, 0, 0);
             mYController = new PIDController(1, 0, 0);
-            mRotController = new ProfiledPIDController(4, 0, 0,
+            mRotController = new ProfiledPIDController(8, 0, 0,
                     new TrapezoidProfile.Constraints(6.28, 3.14));
             mTrajectoryController = new HolonomicDriveController(mXController, mYController, mRotController);
             setOdometry(initialPose);
@@ -378,9 +380,11 @@ public class DriveSystem extends Subsystem {
     }
 
     public boolean matchesRotation(double rotation) {
-        final double TOLERANCE = 0.1;
+        final double TOLERANCE = 0.15;
         double currentRotation = getRobotAngle().getRadians();
         double dist = Math.abs(currentRotation - rotation);
+
+        System.out.println("dist: " + dist);
         return dist <= TOLERANCE;
     }
 
@@ -493,6 +497,8 @@ public class DriveSystem extends Subsystem {
             driveRaw(0, 0, 0);
             return;
         }
+
+        System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa " + mDesiredPosition);
 
         double rotRPS = mRotGoToController.calculate(getRobotAngle().getRadians(), mDesiredPosition.z);
         driveRaw(0, 0, rotRPS);

@@ -19,6 +19,7 @@ public class TestRoutine implements AutoRoutine {
             new AutoStep(100,Action.OFF_KICKSTAND),
             new AutoStep(0.1,Math.toRadians(0)),
             new AutoStep(100,Math.toRadians(90)),
+            new AutoStep(100,Math.toRadians(180)),
         };
     }
 

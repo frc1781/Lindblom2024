@@ -1,6 +1,5 @@
 package tech.team1781.utils;
 
-import com.pathplanner.lib.util.GeometryUtil;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
