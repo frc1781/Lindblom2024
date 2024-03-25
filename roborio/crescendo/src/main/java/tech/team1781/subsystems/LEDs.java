@@ -59,11 +59,9 @@ public class LEDs extends Subsystem {
             case NO_NOTE:
                 // vwoop(Color.kRed);
                 setColor(255,0,0);
-                
                 break;
             case HAS_NOTE:
                 // flashThenSolid(Color.kGreen);
-
                 setColor(0,255,0);
                 break;
             default:
@@ -93,8 +91,8 @@ public class LEDs extends Subsystem {
 
     @Override
     public void disabledPeriodic() {
-        // rainbow();
-        vwoop(0,0,255);
+        rainbow();
+        // vwoop(0,0,255);
         mLedController.setData(mLedBuffer);
     }
 
