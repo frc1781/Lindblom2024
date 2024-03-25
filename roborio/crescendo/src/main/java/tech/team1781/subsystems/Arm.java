@@ -33,9 +33,9 @@ public class Arm extends Subsystem {
     private CANSparkMax mLeftMotor;
 
     private RelativeEncoder mLeftEncoder;
-    // private AbsoluteEncoder mArmAbsoluteEncoder;
+    private AbsoluteEncoder mArmAbsoluteEncoder;
     private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.04, 0, 0,
-            new TrapezoidProfile.Constraints(70, 450));
+            new TrapezoidProfile.Constraints(90, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
 
     private GenericEntry mArmPositionEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Angle", -1,
@@ -50,7 +50,7 @@ public class Arm extends Subsystem {
     private double mDesiredPosition = 0;
     private Pose2d mRobotPose;
     private CURRENT_AIM_SPOT mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
-    private double KICKSTAND_POSITION = 73.0; // Was 62.0
+    private double KICKSTAND_POSITION = 70.0; // was 73 Was 62.0
     private double mPrevAbsoluteAngle = KICKSTAND_POSITION;
 
     private GenericEntry testEntry = Shuffleboard.getTab("test").add("test", 0.0).getEntry();
@@ -68,47 +68,38 @@ public class Arm extends Subsystem {
         mLeftMotor.setSmartCurrentLimit(40);
         mRightMotor.setSmartCurrentLimit(40);
         mLeftEncoder = mLeftMotor.getEncoder();
-        mLeftEncoder.setVelocityConversionFactor((ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.27) / 60); // why 1.4? not sure,
-                                                                                                  // the gear ratio is
-                                                                                                  // off? it is the
-                                                                                                  // closest to the abs
-                                                                                                  // encoder
-                                                                                                  // ^ It was the gear
-                                                                                                  // ratio, incorrect
-                                                                                                  // tooth count values
-                                                                                                  // for sprockets used,
-                                                                                                  // after fix angles
-                                                                                                  // are closer
-        mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.27); // will tell us angle in
-        // mArmAbsoluteEncoder = mRightMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
-        // mArmAbsoluteEncoder.setAverageDepth(1);
-        // mArmAbsoluteEncoder.setInverted(true);
+        //mLeftEncoder.setVelocityConversionFactor((ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.27) / 60); // why 1.4? not sure,
+        mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_CONVERSION_REL_TO_ANGLE);
+        //mLeftEncoder.setPositionConversionFactor(1.0);
+        mLeftEncoder.setVelocityConversionFactor(ConfigMap.ARM_CONVERSION_REL_TO_ANGLE/60.0);
+        mArmAbsoluteEncoder = mRightMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
+        //mArmAbsoluteEncoder.setAverageDepth(1);
+        mArmAbsoluteEncoder.setInverted(true);
         mRightMotor.follow(mLeftMotor, true);
         mLeftMotor.setIdleMode(IdleMode.kBrake);
         mRightMotor.setIdleMode(IdleMode.kBrake);
-        mLeftMotor.burnFlash();
-        mRightMotor.burnFlash();
         mSparkDataNotSentEntry.setBoolean(mLeftEncoder.setPosition(KICKSTAND_POSITION) != REVLibError.kOk);
         System.out.println("-------------------------------------------------");
         System.out.println("   ARM SET TO KICKSTAND ENCODER POSITION         ");
         System.out.println("         ensure that kick stand is on            ");
         System.out.println("-------------------------------------------------");
-
+        System.out.println("conversion factor: " + mLeftEncoder.getPositionConversionFactor());
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
         mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 80);
         mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, -10);
         mLeftMotor.setSmartCurrentLimit(30);
         mLeftMotor.burnFlash();
+        mRightMotor.burnFlash();
 
-        mPositions.put(ArmState.SAFE, 75.5); // Was 66.0
+        mPositions.put(ArmState.SAFE, 70.0); 
         mPositions.put(ArmState.PODIUM, CURRENT_AIM_SPOT.PODIUM.getPosition());
         mPositions.put(ArmState.SUBWOOFER, CURRENT_AIM_SPOT.SUBWOOFER.getPosition()); // was 36
         mPositions.put(ArmState.AMP, 57.0); // Was 46.0
         mPositions.put(ArmState.COLLECT, 0.0);
         mPositions.put(ArmState.COLLECT_HIGH, 68.0); // Was 55.7
         mPositions.put(ArmState.SKIP, 55.0);
-        mPositions.put(ArmState.KICKSTAND, 84.0);
+        mPositions.put(ArmState.KICKSTAND, 78.0);
         mPositions.put(ArmState.LOB, CURRENT_AIM_SPOT.SUBWOOFER.getPosition());
         mPositions.put(ArmState.NOTE_ONE, CURRENT_AIM_SPOT.NOTE_1.getPosition());
         mPositions.put(ArmState.NOTE_THREE, CURRENT_AIM_SPOT.NOTE_3.getPosition());
@@ -144,30 +135,31 @@ public class Arm extends Subsystem {
         } else {
             mLeftMotor.setIdleMode(IdleMode.kBrake);
             mRightMotor.setIdleMode(IdleMode.kBrake);
-
         }
 
+        System.out.printf("%.3f,%.3f,%.3f,%.3f\n", 
+            mArmAbsoluteEncoder.getPosition(),
+            mLeftEncoder.getPosition(),
+            getAngleAbsolute(),
+            mLeftEncoder.getVelocity());
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
-        if (mLeftEncoder.getPosition() > 10.0 && mLeftMotor.getForwardLimitSwitch(Type.kNormallyOpen).isPressed()) {
-            // syncArmEncoder();
-            System.out.println("***************************reset after hitting forward limit*******************");
-        }
 
-        // if(getAngleAbsolute() <= 10.0 && mLeftMotor.getReverseLimitSwitch(Type.kNormallyOpen).isPressed()) {
-        //     syncArmEncoder();
-        // }
-        // System.out.printf("arm abs: %.3f arm rel %.3f\n", getAngleAbsolute(),
-        // getAngle());
+        //dropped to ground, reset relative encoder only when going down.
+        if (mArmAbsoluteEncoder.getPosition() < 0.24 && mLeftEncoder.getVelocity() < 0.0) {
+            mLeftEncoder.setPosition(0.01);
+        }
+        if (mLeftEncoder.getPosition() < 0.0) {
+            mLeftEncoder.setPosition(0.01);
+        }
+        if (Math.abs(mLeftEncoder.getVelocity()) < 0.1) {
+            mLeftEncoder.setPosition(getAngleAbsolute());
+        }
     }
 
     @Override
     public void init() {
-        mPositionPID.reset(getAngle());
-        // syncArmEncoder();
-        // if (currentMode == OperatingMode.AUTONOMOUS) {
-        // mSparkDataNotSentEntry.setBoolean(mLeftEncoder.setPosition(KICKSTAND_POSITION)
-        // != REVLibError.kOk);
-        // }
+        //mSparkDataNotSentEntry.setBoolean(mLeftEncoder.setPosition(KICKSTAND_POSITION) != REVLibError.kOk);
+        mSparkDataNotSentEntry.setBoolean(mLeftEncoder.setPosition(getAngleAbsolute()) != REVLibError.kOk);
     }
 
     @Override
@@ -233,31 +225,17 @@ public class Arm extends Subsystem {
     }
 
     private double getAngle() {
-        double relAngle = mLeftEncoder.getPosition();
-        // if (Math.abs(relAngle - getAngleAbsolute()) > 0.5 && (getAngleAbsolute() <= 2.0)) {
-        //     syncArmEncoder();
-        //     // System.out.println("reset rel encoder");
-        // }
         return mLeftEncoder.getPosition();
     }
 
-    // private void syncArmEncoder() {
-    //     System.out.println("synced relative encoder to: " + getAngleAbsolute() + " from: " + mLeftEncoder.getPosition());
-    //     mLeftEncoder.setPosition(getAngleAbsolute());
-    // }
-
-    // private double getAngleAbsolute() {
-    //     double reportedPosition = mArmAbsoluteEncoder.getPosition();
-    //     NetworkLogger.logData("Raw Absolute Arm", reportedPosition);
-    //     // double reportedPosition = mArmAbsoluteDCEncoder.getAbsolutePosition();
-    //     if (reportedPosition > 0.1) {
-    //         mPrevAbsoluteAngle = 360.0 * (mArmAbsoluteEncoder.getPosition() - 0.227); // the absolute encoder reads
-    //                                                                                   // 0.722 when arm is on the floor
-    //         // mPrevAbsoluteAngle = 360.0 * (mArmAbsoluteEncoder.getPosition() - 0.722);
-    //         // //the absolute encoder reads 0.722 when arm is on the floor
-    //     }
-    //     return mPrevAbsoluteAngle;
-    // }
+    private double getAngleAbsolute() {
+        double reportedPosition = mArmAbsoluteEncoder.getPosition();
+        NetworkLogger.logData("Raw Absolute Arm", reportedPosition);
+        if (reportedPosition > 0.1) {
+            mPrevAbsoluteAngle = 360.0 * (mArmAbsoluteEncoder.getPosition() - 0.228); // the absolute encoder reads
+        }
+        return mPrevAbsoluteAngle;
+    }
 
     public void updateAimSpots(Pose2d robotPose) {
         mRobotPose = robotPose;
@@ -307,10 +285,10 @@ public class Arm extends Subsystem {
     private enum CURRENT_AIM_SPOT {
         UNDEFEINED(0.0, EVector.newVector(), EVector.newVector(), 0.0),
         SUBWOOFER(33.2, ConfigMap.RED_SPEAKER_LOCATION, ConfigMap.BLUE_SPEAKER_LOCATION, 2.5), // Was 32.5
-        PODIUM(40.0, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1), // Pos used to be 45
-        NOTE_3(47, EVector.newVector(14.5, 4.27), EVector.newVector(2.48, 4.27), 1), // was 42.4
-        NOTE_2(44, EVector.newVector(14.13, 5.53), EVector.newVector(2.48, 5.53), 0.5), // Was 50
-        NOTE_1(58, EVector.newVector(14.06, 6.74), EVector.newVector(2.48, 6.74), 0.5); // Was 50
+        PODIUM(50.0, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1), // Pos used to be 45
+        NOTE_3(48, EVector.newVector(14.5, 4.27), EVector.newVector(2.48, 4.27), 1), // was 42.4
+        NOTE_2(48, EVector.newVector(14.13, 5.53), EVector.newVector(2.48, 5.53), 0.5), // Was 50
+        NOTE_1(51, EVector.newVector(14.06, 6.74), EVector.newVector(2.48, 6.74), 0.5); // Was 50
 
         private double position;
         private EVector redPosition;

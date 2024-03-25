@@ -8,7 +8,7 @@ import tech.team1781.control.ControlSystem;
 import tech.team1781.utils.NetworkLogger;
 
 public class LEDs extends Subsystem {
-    private final int LED_LENGTH = 77;
+    private final int LED_LENGTH = 75;
 
     private AddressableLED mLedController = null;
     private AddressableLEDBuffer mLedBuffer = null;
@@ -58,11 +58,11 @@ public class LEDs extends Subsystem {
         switch ((LedState) getState()) {
             case NO_NOTE:
                 // vwoop(Color.kRed);
-                setColor(255,0,0);
+                solid(Color.kRed);
                 break;
             case HAS_NOTE:
                 // flashThenSolid(Color.kGreen);
-                setColor(0,255,0);
+                solid(Color.kRed);
                 break;
             default:
                 rainbow();
@@ -109,19 +109,19 @@ public class LEDs extends Subsystem {
         mFlashMode = false;
     }
 
-    private void setColor(int r, int g, int b) {
-        for(int i = 0; i < LED_LENGTH; i ++) {
-            mLedBuffer.setRGB(i, r,g,b);
+    private void solid(Color color) {
+        for(int i = 0; i < LED_LENGTH; i++) {
+            mLedBuffer.setLED(i, color);
         }
     }
 
-    private void flashThenSolid(int r, int g, int b) {
+    private void flashThenSolid(Color color) {
         final double FLASH_TIME = 1;
         final double BLINK_INTERVAL = 0.25;
 
         if(mTimer.get() > FLASH_TIME) {
             for(int i = 0; i < mLedBuffer.getLength(); i++) {
-                mLedBuffer.setRGB(i, r, g, b);
+                mLedBuffer.setLED(i, color);
             }
             return;
         }
@@ -132,7 +132,7 @@ public class LEDs extends Subsystem {
             }
         } else {
             for(int i = 0; i < mLedBuffer.getLength(); i++) {
-                mLedBuffer.setRGB(i, r,g,b);
+                mLedBuffer.setLED(i, color);
             }
         }
 
