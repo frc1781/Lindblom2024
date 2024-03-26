@@ -36,6 +36,7 @@ import tech.team1781.DriverInput;
 import tech.team1781.ShuffleboardStyle;
 import tech.team1781.utils.Limelight;
 // import tech.team1781.subsystems.Climber.TrapState;
+import tech.team1781.utils.NetworkLogger;
 
 public class ControlSystem {
     private HashMap<Action, SubsystemSetting[]> mActions = new HashMap<Action, SubsystemSetting[]>();
@@ -145,6 +146,8 @@ public class ControlSystem {
         initActions();
 
         mStepTime = new Timer();
+
+        NetworkLogger.logData("Current ControlSystem Action", "None");
     }
 
     public static boolean isRed() {
@@ -523,6 +526,8 @@ public class ControlSystem {
     }
 
     public void run(DriverInput driverInput) {
+        NetworkLogger.logData("Current ControlSystem Action", mCurrentAction);
+
         mArm.updateAimSpots(mDriveSystem.getRobotPose());
 
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());

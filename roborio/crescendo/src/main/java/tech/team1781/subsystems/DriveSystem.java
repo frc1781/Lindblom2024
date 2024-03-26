@@ -129,6 +129,9 @@ public class DriveSystem extends Subsystem {
 
         NetworkLogger.initLog("Note Aim Requested Rotation", 0);
         NetworkLogger.initLog("Drive System Matches State", true);
+
+        NetworkLogger.initLog("Drive System Desired Velocities", EVector.newVector());
+        NetworkLogger.initLog("Drive System Desired Velocity Magnitude", 0.0);
     }
 
     public enum DriveSystemState implements Subsystem.SubsystemState {
@@ -399,6 +402,10 @@ public class DriveSystem extends Subsystem {
                         : new ChassisSpeeds(xSpeed, ySpeed, rot));
 
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
+
+        NetworkLogger.logData("Drive System Desired Velocities", EVector.newVector(xSpeed, ySpeed, rot));
+        NetworkLogger.logData("Drive System Desired Velocity Magnitude",
+                EVector.newVector(xSpeed, ySpeed, rot).magnitude());
 
         mFrontLeft.setDesiredState(moduleStates[0]);
         mFrontRight.setDesiredState(moduleStates[1]);

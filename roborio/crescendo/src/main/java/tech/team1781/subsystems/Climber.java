@@ -56,6 +56,11 @@ public class Climber extends Subsystem {
         mTrapHookMotor.burnFlash();
 
         NetworkLogger.initLog("Climber Matches State", true);
+        NetworkLogger.initLog("Climber Left Duty Cycle", 0.0);
+        NetworkLogger.initLog("Climber Right Duty Cycle", 0.0);
+
+        NetworkLogger.initLog("Climber Left Position", 0.0);
+        NetworkLogger.initLog("Climber Right Position", 0.0);
     }
 
     public enum ClimberState implements Subsystem.SubsystemState {
@@ -140,8 +145,16 @@ public class Climber extends Subsystem {
              mRightClimberMotor.getEncoder().getPosition()
            );
         }
+
+
         mLeftClimberMotor.set(leftDutyCycle);
         mRightClimberMotor.set(rightDutyCycle);
+
+        NetworkLogger.initLog("Climber Left Duty Cycle", leftDutyCycle);
+        NetworkLogger.initLog("Climber Right Duty Cycle", rightDutyCycle);
+
+        NetworkLogger.initLog("Climber Left Position", mLeftClimberMotor.getEncoder().getPosition());
+        NetworkLogger.initLog("Climber Right Position", mRightClimberMotor.getEncoder().getPosition());
         // mTrapHookMotor.set(trapHookDutyCycle);
         // System.out.printf("trap dc: %.2f\n", trapHookDutyCycle);
     }
