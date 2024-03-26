@@ -43,16 +43,16 @@ import java.util.concurrent.TimeUnit;
 public class DriveSystem extends Subsystem {
 
     // Swerve Modules
-    private final SwerveModule mFrontLeft = new KrakenL2SwerveModule(ConfigMap.FRONT_LEFT_MODULE_DRIVE_MOTOR,
+    private final SwerveModule mFrontLeft = new KrakenL2SwerveModule("Front Left Module",ConfigMap.FRONT_LEFT_MODULE_DRIVE_MOTOR,
             ConfigMap.FRONT_LEFT_MODULE_STEER_MOTOR, ConfigMap.FRONT_LEFT_MODULE_STEER_ENCODER,
             ConfigMap.FRONT_LEFT_MODULE_STEER_OFFSET);
-    private final SwerveModule mFrontRight = new KrakenL2SwerveModule(ConfigMap.FRONT_RIGHT_MODULE_DRIVE_MOTOR,
+    private final SwerveModule mFrontRight = new KrakenL2SwerveModule("Front Right Module",ConfigMap.FRONT_RIGHT_MODULE_DRIVE_MOTOR,
             ConfigMap.FRONT_RIGHT_MODULE_STEER_MOTOR, ConfigMap.FRONT_RIGHT_MODULE_STEER_ENCODER,
             ConfigMap.FRONT_RIGHT_MODULE_STEER_OFFSET);
-    private final SwerveModule mBackLeft = new KrakenL2SwerveModule(ConfigMap.BACK_LEFT_MODULE_DRIVE_MOTOR,
+    private final SwerveModule mBackLeft = new KrakenL2SwerveModule("Back Left Module",ConfigMap.BACK_LEFT_MODULE_DRIVE_MOTOR,
             ConfigMap.BACK_LEFT_MODULE_STEER_MOTOR, ConfigMap.BACK_LEFT_MODULE_STEER_ENCODER,
             ConfigMap.BACK_LEFT_MODULE_STEER_OFFSET);
-    private final SwerveModule mBackRight = new KrakenL2SwerveModule(ConfigMap.BACK_RIGHT_MODULE_DRIVE_MOTOR,
+    private final SwerveModule mBackRight = new KrakenL2SwerveModule("Back Right Module",ConfigMap.BACK_RIGHT_MODULE_DRIVE_MOTOR,
             ConfigMap.BACK_RIGHT_MODULE_STEER_MOTOR, ConfigMap.BACK_RIGHT_MODULE_STEER_ENCODER,
             ConfigMap.BACK_RIGHT_MODULE_STEER_OFFSET);
 

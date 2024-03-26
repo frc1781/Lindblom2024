@@ -35,7 +35,7 @@ public class NetworkLogger {
         entry.setValue(isPrimitive(val) ? val : val.toString());
     }
 
-    private static boolean isPrimitive(Object obj) {
+    public static boolean isPrimitive(Object obj) {
         switch (obj.getClass().getName()) {
             case "java.lang.Integer":
             case "java.lang.Double":

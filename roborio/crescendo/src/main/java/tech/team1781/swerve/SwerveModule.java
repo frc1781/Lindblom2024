@@ -10,8 +10,14 @@ import tech.team1781.utils.SwerveModuleConfiguration;
 
 public abstract class SwerveModule {
 
-    public SwerveModule(int driveMotorID, int turnMotorID, int cancoderId, double cancoderOffset) {
+    public final String name;
 
+    public SwerveModule(String _name, int driveMotorID, int turnMotorID, int cancoderId, double cancoderOffset) {
+        name = _name;
+    }
+
+    public SwerveModule(int driveMotorID, int turnMotorID, int cancoderId, double cancoderOffset) {
+        name = "Unnamed Swerve Module";
     }
 
     protected SwerveModuleState desiredState; 
