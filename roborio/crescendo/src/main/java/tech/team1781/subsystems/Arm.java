@@ -101,7 +101,8 @@ public class Arm extends Subsystem {
         mPositions.put(ArmState.LOB, CURRENT_AIM_SPOT.SUBWOOFER.getPosition());
         mPositions.put(ArmState.NOTE_ONE, CURRENT_AIM_SPOT.NOTE_1.getPosition());
         mPositions.put(ArmState.NOTE_THREE, CURRENT_AIM_SPOT.NOTE_3.getPosition());
-    }  
+        mPositions.put(ArmState.APRILTAG_SEEK, 55.0); // FIND THIS ANGLE, PLEASE
+    }
 
     public enum ArmState implements Subsystem.SubsystemState {
         KICKSTAND,
@@ -116,7 +117,8 @@ public class Arm extends Subsystem {
         SKIP,
         NOTE_ONE,
         NOTE_THREE,
-        LOB
+        LOB,
+        APRILTAG_SEEK
     }
 
     @Override

@@ -285,13 +285,13 @@ public class ControlSystem {
         }
 
         if (mAutoClimbing && !mCenterOnAprilTagButton && !mAutoCollectionButton) {
+            mArm.setDesiredState(ArmState.APRILTAG_SEEK);
             int currentTarget = Limelight.getTID(ConfigMap.NOTE_LIMELIGHT);
 
             if((isRed() && redStageAprilTags.contains(currentTarget)) || !isRed() && blueStageAprilTags.contains(currentTarget)) {
                 centerOnAprilTag(currentTarget, ConfigMap.NOTE_LIMELIGHT, true, false);
                 mAutoAiming = true;
             }
-
         }
     }
 
