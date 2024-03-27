@@ -16,6 +16,9 @@ public class NetworkLogger {
     private static HashMap<String, GenericEntry> mEntryMap = new HashMap<String, GenericEntry>();
 
     public static void initLog(String name, Object defaultVal) {
+        if(mEntryMap.containsKey(name)){
+            return;
+        }
         mEntryMap.put(
                 name,
                 ConfigMap.LOG_TAB.add(

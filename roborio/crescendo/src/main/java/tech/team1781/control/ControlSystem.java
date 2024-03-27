@@ -511,7 +511,6 @@ public class ControlSystem {
                 mXDriveLimiter.reset(0);
                 mYDriveLimiter.reset(0);
                 mRotDriveLimiter.reset(0);
-                mArm.setDesiredState(ArmState.SAFE);
                 mDriveSystem.setDesiredState(DriveSystem.DriveSystemState.DRIVE_MANUAL);
                 if (Limelight.getTX(ConfigMap.APRILTAG_LIMELIGHT) != 0.0) {
                     mDriveSystem.setOdometry(Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT));

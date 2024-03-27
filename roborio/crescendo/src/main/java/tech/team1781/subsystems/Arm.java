@@ -27,6 +27,7 @@ import tech.team1781.utils.NetworkLogger;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import com.revrobotics.SparkLimitSwitch;
 import com.revrobotics.SparkMaxAlternateEncoder;
+import com.revrobotics.CANDigitalInput.LimitSwitchPolarity;
 
 public class Arm extends Subsystem {
     private CANSparkMax mRightMotor;
@@ -54,10 +55,8 @@ public class Arm extends Subsystem {
     private double mPrevAbsoluteAngle = KICKSTAND_POSITION;
     private double mPrevRecordedAngle = 0.0;
 
-    private GenericEntry testEntry = Shuffleboard.getTab("test").add("test", 0.0).getEntry();
-
     public Arm() {
-        super("Arm", ArmState.SAFE);
+        super("Arm", ArmState.KICKSTAND);
         mRightMotor = new CANSparkMax(
                 ConfigMap.ARM_PIVOT_RIGHT_MOTOR,
                 CANSparkMax.MotorType.kBrushless);
@@ -79,7 +78,6 @@ public class Arm extends Subsystem {
         mRightMotor.follow(mLeftMotor, true);
         mLeftMotor.setIdleMode(IdleMode.kBrake);
         mRightMotor.setIdleMode(IdleMode.kBrake);
-        mSparkDataNotSentEntry.setBoolean(mLeftEncoder.setPosition(KICKSTAND_POSITION) != REVLibError.kOk);
         System.out.println("-------------------------------------------------");
         System.out.println("   ARM SET TO KICKSTAND ENCODER POSITION         ");
         System.out.println("         ensure that kick stand is on            ");
@@ -100,7 +98,7 @@ public class Arm extends Subsystem {
         mPositions.put(ArmState.COLLECT, 0.0);
         mPositions.put(ArmState.COLLECT_HIGH, 60.0); // Was 55.7
         mPositions.put(ArmState.SKIP, 55.0);
-        mPositions.put(ArmState.KICKSTAND, 78.0);
+        mPositions.put(ArmState.KICKSTAND, 80.0);
         mPositions.put(ArmState.LOB, CURRENT_AIM_SPOT.SUBWOOFER.getPosition());
         mPositions.put(ArmState.NOTE_ONE, CURRENT_AIM_SPOT.NOTE_1.getPosition());
         mPositions.put(ArmState.NOTE_TWO, CURRENT_AIM_SPOT.NOTE_2.getPosition());
@@ -129,6 +127,7 @@ public class Arm extends Subsystem {
 
     @Override
     public void genericPeriodic() {
+        System.out.println("arm state: " + getState() + " :: " + mDesiredPosition + " :: " + getAngle() + " :: " + matchesDesiredState());
         NetworkLogger.logData("Arm Matches State", matchesDesiredState());
         NetworkLogger.logData("Raw Absolute Arm", getAngleAbsolute());
 
@@ -159,6 +158,9 @@ public class Arm extends Subsystem {
     @Override
     public void init() {
         //mSparkDataNotSentEntry.setBoolean(mLeftEncoder.setPosition(KICKSTAND_POSITION) != REVLibError.kOk);
+        setDesiredState(ArmState.KICKSTAND);
+        syncArm();
+        mPositionPID.reset(getAngle());
         mSparkDataNotSentEntry.setBoolean(mLeftEncoder.setPosition(getAngleAbsolute()) != REVLibError.kOk);
     }
 
@@ -185,6 +187,8 @@ public class Arm extends Subsystem {
             if (getState() == ArmState.COLLECT && getAngle() < 10.0) { // drop into position on ground
                 armDutyCycle = 0.0;
             }
+
+            System.out.println("arm dc: " + armDutyCycle);
             mLeftMotor.set(armDutyCycle);
         } else {
             mSparkErrorEntry.setBoolean(true);
@@ -196,6 +200,9 @@ public class Arm extends Subsystem {
         switch ((ArmState) getState()) {
             case COLLECT:
                 return getAngle() < 4.0; // should fall to position of zero
+            case KICKSTAND:
+                System.out.println(mLeftMotor.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen).isPressed() + " ;; " + matchesPosition());
+                return mLeftMotor.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen).isPressed() || matchesPosition();
             default:
                 return matchesPosition();
         }
