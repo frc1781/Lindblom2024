@@ -127,7 +127,6 @@ public class Arm extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-        System.out.println("arm state: " + getState() + " :: " + mDesiredPosition + " :: " + getAngle() + " :: " + matchesDesiredState());
         NetworkLogger.logData("Arm Matches State", matchesDesiredState());
         NetworkLogger.logData("Raw Absolute Arm", getAngleAbsolute());
 
@@ -220,6 +219,7 @@ public class Arm extends Subsystem {
         if (state == ArmState.SAFE && state == ArmState.MANUAL) {
             return;
         }
+
         super.setDesiredState(state);
 
         if (state != ArmState.MANUAL && state != ArmState.AUTO_ANGLE) {
