@@ -63,16 +63,16 @@ public class LEDs extends Subsystem {
                 rainbow();
                 break;
             case WARNING:
-                for (var i = 0; i < ledBuffer.getLength(); i++) {
+                for (var i = 0; i < mLedBuffer.getLength(); i++) {
                     if (!blink) {
-                        ledBuffer.setRGB(i, 255, 255,0);
+                        mLedBuffer.setRGB(i, 255, 255,0);
                         blink = true;
                     } else {
-                        ledBuffer.setRGB(i, 0,0,0);
+                        mLedBuffer.setRGB(i, 0,0,0);
                         blink = false;
                     }
                 }
-                ledController.setData(ledBuffer);
+                mLedController.setData(mLedBuffer);
                 break;
         }
 
