@@ -188,7 +188,6 @@ public class Arm extends Subsystem {
                 armDutyCycle = 0.0;
             }
 
-            System.out.println("arm dc: " + armDutyCycle);
             mLeftMotor.set(armDutyCycle);
         } else {
             mSparkErrorEntry.setBoolean(true);
@@ -201,7 +200,6 @@ public class Arm extends Subsystem {
             case COLLECT:
                 return getAngle() < 4.0; // should fall to position of zero
             case KICKSTAND:
-                System.out.println(mLeftMotor.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen).isPressed() + " ;; " + matchesPosition());
                 return mLeftMotor.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen).isPressed() || matchesPosition();
             default:
                 return matchesPosition();
