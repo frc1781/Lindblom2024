@@ -71,6 +71,7 @@ public class KrakenL2SwerveModule extends SwerveModule {
         mTurnMotor = new CANSparkMax(turnMotorID, MotorType.kBrushless);
         
         mTurnMotor.restoreFactoryDefaults();
+        mTurnMotor.setSmartCurrentLimit(30);
         mTurnMotor.setInverted(true);
 
         mTurnPID = mTurnMotor.getPIDController();

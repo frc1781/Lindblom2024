@@ -76,8 +76,9 @@ public class Arm extends Subsystem {
         //mArmAbsoluteEncoder.setAverageDepth(1);
         mArmAbsoluteEncoder.setInverted(true);
         mRightMotor.follow(mLeftMotor, true);
-        mLeftMotor.setIdleMode(IdleMode.kBrake);
-        mRightMotor.setIdleMode(IdleMode.kBrake);
+
+        setIdleMode(IdleMode.kBrake);
+
         System.out.println("-------------------------------------------------");
         System.out.println("   ARM SET TO KICKSTAND ENCODER POSITION         ");
         System.out.println("         ensure that kick stand is on            ");
@@ -87,7 +88,6 @@ public class Arm extends Subsystem {
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
         mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 80);
         mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, -10);
-        mLeftMotor.setSmartCurrentLimit(30);
         mLeftMotor.burnFlash();
         mRightMotor.burnFlash();
 
@@ -132,11 +132,9 @@ public class Arm extends Subsystem {
 
         // testEntry.setDouble(getAngleAbsolute());
         if (mLeftEncoder.getPosition() < 10) {
-            mLeftMotor.setIdleMode(IdleMode.kCoast);
-            mRightMotor.setIdleMode(IdleMode.kCoast);
+            setIdleMode(IdleMode.kCoast);
         } else {
-            mLeftMotor.setIdleMode(IdleMode.kBrake);
-            mRightMotor.setIdleMode(IdleMode.kBrake);
+            setIdleMode(IdleMode.kBrake);
         }
 
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
@@ -227,6 +225,15 @@ public class Arm extends Subsystem {
         } else if (state == ArmState.AUTO_ANGLE) {
             mDesiredPosition = calculateAngleFromDistance();
         }
+    }
+
+    private void setIdleMode(IdleMode mode) {
+        if(mLeftMotor.getIdleMode() == mode && mRightMotor.getIdleMode() == mode) {
+            return;
+        }
+
+        mLeftMotor.setIdleMode(mode);
+        mRightMotor.setIdleMode(mode);
     }
 
     private void syncArm() {

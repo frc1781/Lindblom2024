@@ -108,6 +108,7 @@ public class ControlSystem {
         SHOOT_NOTE_THREE,
         RAMP_SHOOTER,
         SHOOT_SUBWOOFER,
+        SHOOT_SUBWOOFER_NO_AIM,
         REJECT_NOTE,
         COLLECT_RAMP_STAY_DOWN
     }
@@ -691,6 +692,11 @@ public class ControlSystem {
     }
 
     private void initActions() {
+        defineAction(Action.SHOOT_SUBWOOFER_NO_AIM, 
+            new SubsystemSetting(mScollector, ScollectorState.SHOOT_ASAP),
+            new SubsystemSetting(mArm, ArmState.SUBWOOFER)
+        );
+
         defineAction(Action.REJECT_NOTE,
                 new SubsystemSetting(mArm, ArmState.COLLECT),
                 new SubsystemSetting(mScollector, ScollectorState.SPIT));

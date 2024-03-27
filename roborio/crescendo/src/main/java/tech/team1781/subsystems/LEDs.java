@@ -57,16 +57,17 @@ public class LEDs extends Subsystem {
 
         switch ((LedState) getState()) {
             case NO_NOTE:
-                // vwoop(Color.kRed);
-                solid(Color.kGreen);
+                // vwoop(g,r,b.kRed);
+                solid(255,0,0);
                 break;
             case HAS_NOTE:
-                // flashThenSolid(Color.kGreen);
-                solid(Color.kRed);
+                // flashThenSolid(g,r,b.kGreen);
+                solid(0,255,0);
                 break;
             default:
+                // solid(g,r,b.kGreen);
                 rainbow();
-                // flashThenSolid(Color.kGreen);
+                // flashThenSolid(g,r,b.kGreen);
                 break;
         }
 
@@ -92,6 +93,8 @@ public class LEDs extends Subsystem {
     @Override
     public void disabledPeriodic() {
         rainbow();
+
+        // doubleVwoop(252, 186, 3, 138, 0, 0);
         // vwoop(0,0,255);
         mLedController.setData(mLedBuffer);
     }
@@ -109,30 +112,30 @@ public class LEDs extends Subsystem {
         mFlashMode = false;
     }
 
-    private void solid(Color color) {
+    private void solid(int r, int g, int b) {
         for(int i = 0; i < LED_LENGTH; i++) {
-            mLedBuffer.setLED(i, color);
+            mLedBuffer.setRGB(i, g,r,b);
         }
     }
 
-    private void flashThenSolid(Color color) {
-        final double FLASH_TIME = 1;
+    private void flashThenSolid(int r, int g, int b) {
+        final double FLASH_TIME = 10;
         final double BLINK_INTERVAL = 0.25;
 
         if(mTimer.get() > FLASH_TIME) {
             for(int i = 0; i < mLedBuffer.getLength(); i++) {
-                mLedBuffer.setLED(i, color);
+                mLedBuffer.setRGB(i, g,r,b);
             }
             return;
         }
 
         if(mTimer.get() % BLINK_INTERVAL < BLINK_INTERVAL / 2) {
             for(int i = 0; i < mLedBuffer.getLength(); i++) {
-                mLedBuffer.setLED(i, Color.kBlack);
+                mLedBuffer.setRGB(i, g,r,b);
             }
         } else {
             for(int i = 0; i < mLedBuffer.getLength(); i++) {
-                mLedBuffer.setLED(i, color);
+                mLedBuffer.setLED(i, Color.kBlack);
             }
         }
 
@@ -148,8 +151,35 @@ public class LEDs extends Subsystem {
             int diff = Math.abs(i - mFocus);
             int otherSide = LED_LENGTH - i;
             if (diff <= FOCUS_LENGTH) {
-                mLedBuffer.setRGB(i, r, g, b);
-                mLedBuffer.setRGB(otherSide, r, g, b);
+                mLedBuffer.setRGB(i, g, r, b);
+                mLedBuffer.setRGB(otherSide, g, r, b);
+            } else {
+                mLedBuffer.setLED(i, Color.kBlack);
+                mLedBuffer.setLED(otherSide, Color.kBlack);
+            }
+
+        }
+
+        if (mFocus >= halfLength) {
+            mFocus = 0;
+        }
+
+        mFocus += SPEED;
+
+    }
+
+    private void doubleVwoop(int r, int g, int b, int r2, int g2, int b2) {
+        final int SPEED = 1;
+        final int FOCUS_LENGTH = 10;
+        int evenLength = LED_LENGTH - (LED_LENGTH % 2);
+        int halfLength = evenLength / 2;
+
+        for (int i = 0; i < halfLength; i++) {
+            int diff = Math.abs(i - mFocus);
+            int otherSide = LED_LENGTH - i;
+            if (diff <= FOCUS_LENGTH) {
+                mLedBuffer.setRGB(i, g, r, b);
+                mLedBuffer.setRGB(otherSide, g2, r2, b2 );
             } else {
                 mLedBuffer.setLED(i, Color.kBlack);
                 mLedBuffer.setLED(otherSide, Color.kBlack);
