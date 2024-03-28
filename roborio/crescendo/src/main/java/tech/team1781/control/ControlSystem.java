@@ -575,11 +575,9 @@ public class ControlSystem {
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverTriggers);
-                if (driverInput.getButton(ConfigMap.CO_PILOT_PORT, ConfigMap.CLIMBER_SAFETY)) {
-                    mClimber.manualClimb(-driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y);
-                    mClimber.manualTrapHooks(
+                mClimber.manualClimb(-driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y);
+                mClimber.manualTrapHooks(
                         -driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.CO_PILOT_PORT).y);
-                }
                 autoAimingInputs();
                 break;
             case AUTONOMOUS:
