@@ -29,7 +29,7 @@ public class NEOL2SwerveModule extends SwerveModule{
     private final RelativeEncoder mTurnEncoder;
     private final CANcoder mTurnAbsoluteEncoder;
 
-    public NEOL2SwerveModule(int driveMotorID, int turnMotorID, int cancoderID, double cancoderOffset) {
+    public NEOL2SwerveModule(String name, int driveMotorID, int turnMotorID, int cancoderID, double cancoderOffset) {
         super(driveMotorID, turnMotorID, cancoderID, cancoderOffset);
         mDriveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless);
         mTurnMotor = new CANSparkMax(turnMotorID, MotorType.kBrushless);

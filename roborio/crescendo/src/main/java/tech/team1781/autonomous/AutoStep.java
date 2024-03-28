@@ -61,6 +61,21 @@ public class AutoStep {
         mType = StepType.PATH;
     }
 
+    public AutoStep(double maxTime, double angleRads) {
+        mPosition = EVector.newVector(0,0,angleRads);
+        mMaxTime = maxTime;
+        
+        mType = StepType.ROTATION;
+    }
+
+    public AutoStep(double maxTime, double angleRads, Action action) {
+        mPosition = EVector.newVector(0,0,angleRads);
+        mMaxTime = maxTime;
+        mAction = action;
+        
+        mType = StepType.ROTATION_AND_ACTION;
+    }
+
     public AutoStep(double maxTime) {
         mMaxTime = maxTime;
 
@@ -110,6 +125,10 @@ public class AutoStep {
                 return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Position: " + mPosition + ")";
             case PATH_AND_ACTION:
                 return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Path: " + mPath + ")";
+            case ROTATION:
+                return "AutoStep: ( Time: " + mMaxTime + ", Rotation: " + mPosition.z + ")";
+            case ROTATION_AND_ACTION:
+                return "AutoStep: ( Time: " + mMaxTime +  ", Action" + mAction + ", Rotation: " + mPosition.z + ")";
             default:
                 return "AutoStep: ( Time: " + mMaxTime + ")";
         }
@@ -118,10 +137,12 @@ public class AutoStep {
     public enum StepType {
         ACTION,
         POSITION,
+        ROTATION,
         NOTE_POSITION,
         PATH,
         WAIT,
         POSITION_AND_ACTION,
+        ROTATION_AND_ACTION,
         PATH_AND_ACTION
     }
 

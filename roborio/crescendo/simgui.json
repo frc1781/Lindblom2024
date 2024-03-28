@@ -7,6 +7,22 @@
       "/Shuffleboard/Electric Eagles/SendableChooser[0]": "String Chooser"
     }
   },
+  "NetworkTables": {
+    "transitory": {
+      "Shuffleboard": {
+        "Autonomous": {
+          "SendableChooser[0]": {
+            "open": true,
+            "string[]##v_/Shuffleboard/Autonomous/SendableChooser[0]/options": {
+              "open": true
+            }
+          },
+          "open": true
+        },
+        "open": true
+      }
+    }
+  },
   "NetworkTables Info": {
     "Clients": {
       "open": true
