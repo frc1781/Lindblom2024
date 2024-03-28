@@ -140,7 +140,7 @@ public class ConfigMap {
         public static final String SCORE_PODIUM = "A";
         // public static final String SKIP = "B";
         public static final String LOB = "B";
-        public static final String TOGGLE_TRAP = "LT";
+        public static final String CLIMBER_SAFETY = "LT";
 
         /*
          * ##############################
