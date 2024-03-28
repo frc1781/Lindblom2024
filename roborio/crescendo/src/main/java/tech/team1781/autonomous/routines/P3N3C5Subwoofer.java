@@ -18,7 +18,7 @@ public class P3N3C5Subwoofer implements AutoRoutine {
         return new AutoStep[] {
                 new AutoStep(100, Action.OFF_KICKSTAND),
                 new AutoStep(0.1, Positions.P3),
-                new AutoStep(6, Action.SHOOT_SUBWOOFER),
+                new AutoStep(6, Action.SHOOT_SUBWOOFER_NO_AIM),
                 new AutoStep(2, Action.COLLECT_RAMP, Positions.N3, true),
                 new AutoStep(3, Action.COLLECT_RAMP, Positions.P3),
                 new AutoStep(4, Action.AUTO_AIM_SHOOT),
