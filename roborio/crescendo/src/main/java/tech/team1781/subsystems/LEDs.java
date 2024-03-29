@@ -26,6 +26,7 @@ public class LEDs extends Subsystem {
 
     public enum LedState implements SubsystemState {
         HAS_NOTE,
+        BAD_ROLL,
         NO_NOTE,
         DEFAULT
 
@@ -63,6 +64,9 @@ public class LEDs extends Subsystem {
             case HAS_NOTE:
                 // flashThenSolid(g,r,b.kGreen);
                 solid(0,255,0);
+                break;
+            case BAD_ROLL:
+                solid(0,0,255);
                 break;
             default:
                 // solid(g,r,b.kGreen);

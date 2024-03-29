@@ -317,6 +317,19 @@ public class DriveSystem extends Subsystem {
         
     }
 
+    public boolean badRoll() {
+        double roll = mNavX.getRoll();
+        //roll is from 180 to -180, i want it to be from 0 to 360
+        if(roll < 0) {
+            roll += 360;
+        }
+
+        roll -= 180;
+
+
+        return Math.abs(roll) > 15;
+    }
+
     public void setTrajectory(PathPlannerTrajectory trajectory) {
         Pose2d initialPose = trajectory.getInitialTargetHolonomicPose();
         mDesiredTrajectory = trajectory;

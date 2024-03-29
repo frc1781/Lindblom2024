@@ -531,8 +531,9 @@ public class ControlSystem {
         mArm.updateAimSpots(mDriveSystem.getRobotPose());
 
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
-
-        if (mScollector.hasNote()) {
+        if(mDriveSystem.badRoll()) {
+            mLEDs.setDesiredState(LedState.BAD_ROLL);
+        } else if (mScollector.hasNote()) {
             mLEDs.setDesiredState(LedState.HAS_NOTE);
         } else {
             mLEDs.setDesiredState(LedState.NO_NOTE);
