@@ -106,6 +106,8 @@ public class Climber extends Subsystem {
 
     public void manualClimb(double dutyCycle, boolean isDisabled) {
         if(isDisabled) {
+            mLeftClimberMotor.set(0);
+            mRightClimberMotor.set(0);
             return;
         }
 
