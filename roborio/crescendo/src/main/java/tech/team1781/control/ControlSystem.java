@@ -531,7 +531,7 @@ public class ControlSystem {
         mArm.updateAimSpots(mDriveSystem.getRobotPose());
 
         mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
-        if(mDriveSystem.badRoll()) {
+        if (mDriveSystem.badRoll()) {
             mLEDs.setDesiredState(LedState.BAD_ROLL);
         } else if (mScollector.hasNote()) {
             mLEDs.setDesiredState(LedState.HAS_NOTE);
@@ -576,9 +576,16 @@ public class ControlSystem {
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverTriggers);
-                mClimber.manualClimb(-driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y, 
-                    driverInput.getTriggerAxis(ConfigMap.CO_PILOT_PORT).x < 0.5
-                );
+                if (mArm.getState() == ArmState.COLLECT) {
+                    mClimber.manualClimb(
+                            -1,
+                            false
+                            );
+                } else {
+                    mClimber.manualClimb(
+                            -driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y,
+                            driverInput.getTriggerAxis(ConfigMap.CO_PILOT_PORT).x < 0.5);
+                }
                 mClimber.manualTrapHooks(
                         -driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.CO_PILOT_PORT).y);
                 autoAimingInputs();
@@ -695,10 +702,9 @@ public class ControlSystem {
     }
 
     private void initActions() {
-        defineAction(Action.SHOOT_SUBWOOFER_NO_AIM, 
-            new SubsystemSetting(mScollector, ScollectorState.SHOOT_ASAP),
-            new SubsystemSetting(mArm, ArmState.SUBWOOFER)
-        );
+        defineAction(Action.SHOOT_SUBWOOFER_NO_AIM,
+                new SubsystemSetting(mScollector, ScollectorState.SHOOT_ASAP),
+                new SubsystemSetting(mArm, ArmState.SUBWOOFER));
 
         defineAction(Action.REJECT_NOTE,
                 new SubsystemSetting(mArm, ArmState.COLLECT),
