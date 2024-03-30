@@ -105,7 +105,7 @@ public class Climber extends Subsystem {
     }
 
     public void manualClimb(double dutyCycle, boolean isDisabled) {
-        if(DriverStation.getMatchTime() > 20 && isDisabled) {
+        if(isDisabled) {
             return;
         }
 
