@@ -317,10 +317,24 @@ public class DriveSystem extends Subsystem {
         
     }
 
+    public boolean badRoll() {
+        double roll = mNavX.getRoll();
+        //roll is from 180 to -180, i want it to be from 0 to 360
+        if(roll < 0) {
+            roll += 360;
+        }
+
+        roll -= 180;
+
+
+        return Math.abs(roll) > 15;
+    }
+
     public void setTrajectory(PathPlannerTrajectory trajectory) {
         Pose2d initialPose = trajectory.getInitialTargetHolonomicPose();
         mDesiredTrajectory = trajectory;
 
+        // TODO: move to setTrajectoryFromPath after midwest
         if (!mOdometryBeenSet) {
             mXController = new PIDController(1, 0, 0);
             mYController = new PIDController(1, 0, 0);
@@ -490,10 +504,17 @@ public class DriveSystem extends Subsystem {
             final double DIST_TOLERANCE = 1.5;
             double dist = robotPose.withZ(0).dist(target.withZ(0));
             if (xObservedNoteAngle != 0.0 && dist < DIST_TOLERANCE) {
+                final double ALIGNMENT_TOLERANCE = 0.1;
                 rotRPS = mNoteAimController.calculate(xObservedNoteAngle, 0);
                 NetworkLogger.logData("Note Aim Requested Rotation", rotRPS);
-                System.out.printf("req RPS: %.3f llangle: %.3f\n", rotRPS, xObservedNoteAngle);
+
+                // TODO: implement commented pseudocode and test after midwest
+                //if tx < ALIGNMENT_TOLERANCE
+                //dist to setpoint = robotpose.withz(0).dist(target.withz(0))
+                //desiredPos.x = (cos(robotangle) * dist) + robotpose.x to setpoint
+                //desiredPos.y = (sin(robotangle) * dist) + robotpose.y to setpoint
                 mDesiredPosition.z = getRobotAngle().getRadians();
+
             }
         }
         driveRaw(xMPS, yMPS, rotRPS);

@@ -7,6 +7,7 @@ import com.revrobotics.SparkLimitSwitch.Type;
 import tech.team1781.ConfigMap;
 import tech.team1781.utils.NetworkLogger;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DriverStation;
 
 public class Climber extends Subsystem {
     private boolean mEngageTrapHook = false;
@@ -103,7 +104,13 @@ public class Climber extends Subsystem {
     public void teleopPeriodic() {
     }
 
-    public void manualClimb(double dutyCycle) {
+    public void manualClimb(double dutyCycle, boolean isDisabled) {
+        if(isDisabled) {
+            mLeftClimberMotor.set(0);
+            mRightClimberMotor.set(0);
+            return;
+        }
+
         if (Math.abs(dutyCycle) <= 0.1) {
             dutyCycle = 0;
             mRightClimberPID.reset();

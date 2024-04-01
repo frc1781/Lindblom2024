@@ -17,7 +17,7 @@ public class P1N1C1ThreeNote implements AutoRoutine {
         return new AutoStep[] {
                 new AutoStep(100, Action.OFF_KICKSTAND),
                 new AutoStep(0.1, Positions.P1),
-                new AutoStep(5, Action.SHOOT_SUBWOOFER),
+                new AutoStep(5, Action.SHOOT_SUBWOOFER_NO_AIM),
                 new AutoStep(2, Action.COLLECT_RAMP, Positions.N1, true),
                 new AutoStep(2, Action.SHOOT_NOTE_ONE),
                 new AutoStep(4, Action.COLLECT_RAMP, Positions.C1, true),
