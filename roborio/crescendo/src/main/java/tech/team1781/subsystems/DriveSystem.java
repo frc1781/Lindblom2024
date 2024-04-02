@@ -43,16 +43,20 @@ import java.util.concurrent.TimeUnit;
 public class DriveSystem extends Subsystem {
 
     // Swerve Modules
-    private final SwerveModule mFrontLeft = new KrakenL2SwerveModule("Front Left Module",ConfigMap.FRONT_LEFT_MODULE_DRIVE_MOTOR,
+    private final SwerveModule mFrontLeft = new KrakenL2SwerveModule("Front Left Module",
+            ConfigMap.FRONT_LEFT_MODULE_DRIVE_MOTOR,
             ConfigMap.FRONT_LEFT_MODULE_STEER_MOTOR, ConfigMap.FRONT_LEFT_MODULE_STEER_ENCODER,
             ConfigMap.FRONT_LEFT_MODULE_STEER_OFFSET);
-    private final SwerveModule mFrontRight = new KrakenL2SwerveModule("Front Right Module",ConfigMap.FRONT_RIGHT_MODULE_DRIVE_MOTOR,
+    private final SwerveModule mFrontRight = new KrakenL2SwerveModule("Front Right Module",
+            ConfigMap.FRONT_RIGHT_MODULE_DRIVE_MOTOR,
             ConfigMap.FRONT_RIGHT_MODULE_STEER_MOTOR, ConfigMap.FRONT_RIGHT_MODULE_STEER_ENCODER,
             ConfigMap.FRONT_RIGHT_MODULE_STEER_OFFSET);
-    private final SwerveModule mBackLeft = new KrakenL2SwerveModule("Back Left Module",ConfigMap.BACK_LEFT_MODULE_DRIVE_MOTOR,
+    private final SwerveModule mBackLeft = new KrakenL2SwerveModule("Back Left Module",
+            ConfigMap.BACK_LEFT_MODULE_DRIVE_MOTOR,
             ConfigMap.BACK_LEFT_MODULE_STEER_MOTOR, ConfigMap.BACK_LEFT_MODULE_STEER_ENCODER,
             ConfigMap.BACK_LEFT_MODULE_STEER_OFFSET);
-    private final SwerveModule mBackRight = new KrakenL2SwerveModule("Back Right Module",ConfigMap.BACK_RIGHT_MODULE_DRIVE_MOTOR,
+    private final SwerveModule mBackRight = new KrakenL2SwerveModule("Back Right Module",
+            ConfigMap.BACK_RIGHT_MODULE_DRIVE_MOTOR,
             ConfigMap.BACK_RIGHT_MODULE_STEER_MOTOR, ConfigMap.BACK_RIGHT_MODULE_STEER_ENCODER,
             ConfigMap.BACK_RIGHT_MODULE_STEER_OFFSET);
 
@@ -311,47 +315,44 @@ public class DriveSystem extends Subsystem {
         driveWithChassisSpeds(desiredChassisSpeeds);
     }
 
-
-
     public void rotateToRotation() {
-        
+
     }
 
     public boolean badRoll() {
         double roll = mNavX.getRoll();
-        //roll is from 180 to -180, i want it to be from 0 to 360
-        if(roll < 0) {
+        // roll is from 180 to -180, i want it to be from 0 to 360
+        if (roll < 0) {
             roll += 360;
         }
 
         roll -= 180;
 
-
         return Math.abs(roll) > 15;
     }
 
     public void setTrajectory(PathPlannerTrajectory trajectory) {
-        Pose2d initialPose = trajectory.getInitialTargetHolonomicPose();
         mDesiredTrajectory = trajectory;
 
-        // TODO: move to setTrajectoryFromPath after midwest
+        mDesiredPosition = null;
+        mIsManual = false;
+    }
+
+    public void setTrajectoryFromPath(PathPlannerPath path) {
+        Pose2d initialPose = path.getPreviewStartingHolonomicPose();
+        Rotation2d startingOrientation = initialPose.getRotation();
+        // also use current speed of robot
         if (!mOdometryBeenSet) {
             mXController = new PIDController(1, 0, 0);
             mYController = new PIDController(1, 0, 0);
             mRotController = new ProfiledPIDController(8, 0, 0,
                     new TrapezoidProfile.Constraints(6.28, 3.14));
             mTrajectoryController = new HolonomicDriveController(mXController, mYController, mRotController);
+            setNavXOffset(startingOrientation);
             setOdometry(initialPose);
             mOdometryBeenSet = true;
         }
-        mDesiredPosition = null;
-        mIsManual = false;
-    }
 
-    public void setTrajectoryFromPath(PathPlannerPath path) {
-        Rotation2d startingOrientation = path.getPreviewStartingHolonomicPose().getRotation();
-        setNavXOffset(startingOrientation);
-        // also use current speed of robot
         PathPlannerTrajectory pathTrajectory = new PathPlannerTrajectory(path, new ChassisSpeeds(), getRobotAngle());
         setTrajectory(pathTrajectory);
     }
@@ -508,11 +509,14 @@ public class DriveSystem extends Subsystem {
                 rotRPS = mNoteAimController.calculate(xObservedNoteAngle, 0);
                 NetworkLogger.logData("Note Aim Requested Rotation", rotRPS);
 
-                // TODO: implement commented pseudocode and test after midwest
-                //if tx < ALIGNMENT_TOLERANCE
-                //dist to setpoint = robotpose.withz(0).dist(target.withz(0))
-                //desiredPos.x = (cos(robotangle) * dist) + robotpose.x to setpoint
-                //desiredPos.y = (sin(robotangle) * dist) + robotpose.y to setpoint
+                if (Math.abs(xObservedNoteAngle) < ALIGNMENT_TOLERANCE) {
+                    double distToSetpoint = robotPose.withZ(0).dist(target.withZ(0));
+                    EVector desiredPos = EVector.newVector(
+                            (Math.cos(getRobotAngle().getRadians()) * distToSetpoint) + robotPose.x,
+                            (Math.sin(getRobotAngle().getRadians()) * distToSetpoint) + robotPose.y,
+                            getRobotAngle().getRadians());
+                    mDesiredPosition = desiredPos;
+                }
                 mDesiredPosition.z = getRobotAngle().getRadians();
 
             }
@@ -521,12 +525,10 @@ public class DriveSystem extends Subsystem {
     }
 
     private void alignRotation() {
-        if(matchesRotation(mDesiredPosition.z)) {
+        if (matchesRotation(mDesiredPosition.z)) {
             driveRaw(0, 0, 0);
             return;
         }
-
-        System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa " + mDesiredPosition);
 
         double rotRPS = mRotGoToController.calculate(getRobotAngle().getRadians(), mDesiredPosition.z);
         driveRaw(0, 0, rotRPS);
@@ -581,6 +583,5 @@ public class DriveSystem extends Subsystem {
                 pathplannerState.getTargetHolonomicPose().getRotation());
         driveWithChassisSpeds(desiredChassisSpeeds);
     }
-
 
 }
