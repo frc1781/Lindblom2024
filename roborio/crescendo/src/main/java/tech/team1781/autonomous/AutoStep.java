@@ -3,6 +3,7 @@ package tech.team1781.autonomous;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
 
+import tech.team1781.ConfigMap;
 import tech.team1781.control.ControlSystem.Action;
 import tech.team1781.utils.EVector;
 
@@ -12,6 +13,33 @@ public class AutoStep {
     private WaypointHolder mWaypointHolder = null;
     private PathPlannerPath mPath = null;
     private StepType mType = null;
+
+    public AutoStep(double maxTime, Action action, EVector psEVector) {
+        mMaxTime = maxTime;
+        mAction = action;
+        mWaypointHolder = new WaypointHolder(psEVector.x, psEVector.y, psEVector.z, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
+
+        mType = StepType.POSITION_AND_ACTION;
+    }
+
+    public AutoStep(double maxTime, EVector psEVector) {
+        mMaxTime = maxTime;
+        mWaypointHolder = new WaypointHolder(psEVector.x, psEVector.y, psEVector.z, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
+
+        mType = StepType.POSITION;
+    }
+
+    public AutoStep(double maxTime, Action action, EVector psEvector, boolean isNotePosition) {
+        mMaxTime = maxTime;
+        mAction = action;
+        mWaypointHolder = new WaypointHolder(psEvector.x, psEvector.y, psEvector.z, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
+
+        if(isNotePosition)
+            mType = StepType.NOTE_POSITION;
+        else 
+            mType = StepType.POSITION;
+    }
+
 
     public AutoStep(double maxTime, Action action, EVector psEVector, double speedMetersPerSecond) {
         mMaxTime = maxTime;

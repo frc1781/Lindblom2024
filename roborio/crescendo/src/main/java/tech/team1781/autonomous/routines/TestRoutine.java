@@ -16,7 +16,8 @@ public class TestRoutine implements AutoRoutine {
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-            new AutoStep(100,Action.OFF_KICKSTAND),
+            new AutoStep(10, new EVector(0, 0, 0), 4),
+            new AutoStep(10, new EVector(2, 0, 0), 4),
         };
     }
 

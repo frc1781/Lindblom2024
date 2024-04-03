@@ -16,7 +16,7 @@ public class WaypointHolder {
     }
 
     public EVector getPosition() {
-        return mPosition;
+        return mPosition.flipIfRed();
     }
 
     public WaypointHolder changeX(double x) {

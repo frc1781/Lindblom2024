@@ -153,15 +153,13 @@ public class DriveSystem extends Subsystem {
         switch ((DriveSystemState) getState()) {
             case DRIVE_SETPOINT:
             case DRIVE_NOTE:
-                // goTo(mDesiredPosition);
+                goToWaypoint();
                 break;
             case DRIVE_ROTATION:
                 alignRotation();
                 break;
             case DRIVE_TRAJECTORY:
                 var trajectoryInitialPose = mDesiredTrajectory.getInitialState().getTargetHolonomicPose();
-                // System.out.println(mDesiredTrajectory.hashCode() + " :: " +
-                // EVector.fromPose(trajectoryInitialPose));
                 followTrajectory();
                 break;
             case DRIVE_MANUAL:
@@ -323,8 +321,9 @@ public class DriveSystem extends Subsystem {
             getRobotPose(),
             mDesiredWaypoint.getPosition().toPose2d(),
             mDesiredWaypoint.getSpeedMetersPerSecond(),
-            mDesiredWaypoint.getPosition().z
+            new Rotation2d(mDesiredWaypoint.getPosition().z)
         );
+        driveWithChassisSpeds(desiredChassisSpeeds);
     }
 
     public boolean badRoll() {
@@ -384,7 +383,8 @@ public class DriveSystem extends Subsystem {
     
 
     public void setRotation(double rotationRads) {
-        mDesiredWaypoint = new WaypointHolder(0, 0, rotationRads, 0);
+        Pose2d currentPose = getRobotPose();
+        mDesiredWaypoint = new WaypointHolder(currentPose.getX(), currentPose.getY(), rotationRads, 0);
         mDesiredTrajectory = null;
         mIsManual = false;
 
@@ -395,6 +395,8 @@ public class DriveSystem extends Subsystem {
     public void driveWithChassisSpeds(ChassisSpeeds speeds) {
         if (getState() == DriveSystemState.DRIVE_MANUAL)
             return;
+        System.out.println("Driving: " + speeds.vxMetersPerSecond + " " + speeds.vyMetersPerSecond + " "
+                + speeds.omegaRadiansPerSecond);
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
 
@@ -417,7 +419,6 @@ public class DriveSystem extends Subsystem {
         double currentRotation = getRobotAngle().getRadians();
         double dist = Math.abs(currentRotation - rotation);
 
-        System.out.println("dist: " + dist);
         return dist <= TOLERANCE;
     }
 
@@ -469,7 +470,6 @@ public class DriveSystem extends Subsystem {
 
         if (mDesiredWaypoint != null) {
             double dist = mDesiredWaypoint.getPosition().dist(EVector.fromPose(getRobotPose()));
-            System.out.println(("dist: " + dist));
             return dist < 0.1;
         }
         return false;

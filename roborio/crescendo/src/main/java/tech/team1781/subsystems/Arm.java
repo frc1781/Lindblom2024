@@ -27,7 +27,6 @@ import tech.team1781.utils.NetworkLogger;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import com.revrobotics.SparkLimitSwitch;
 import com.revrobotics.SparkMaxAlternateEncoder;
-import com.revrobotics.CANDigitalInput.LimitSwitchPolarity;
 
 public class Arm extends Subsystem {
     private CANSparkMax mRightMotor;

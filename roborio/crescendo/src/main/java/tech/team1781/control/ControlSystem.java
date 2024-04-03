@@ -445,11 +445,11 @@ public class ControlSystem {
                 setAction(step.getAction());
                 break;
             case ROTATION:
-                mDriveSystem.setRotation(step.getWaypointHolder().getPosition().flipIfRed().z);
+                mDriveSystem.setRotation(step.getWaypointHolder().getPosition().z);
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_ROTATION);
                 break;
             case ROTATION_AND_ACTION:
-                mDriveSystem.setRotation(step.getWaypointHolder().getPosition().flipIfRed().z);
+                mDriveSystem.setRotation(step.getWaypointHolder().getPosition().z);
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_ROTATION);
                 setAction(step.getAction());
                 break;
