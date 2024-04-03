@@ -425,7 +425,7 @@ public class ControlSystem {
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_TRAJECTORY);
                 break;
             case POSITION:
-                mDriveSystem.setPosition(step.getPosition().flipIfRed());
+                mDriveSystem.setWaypoint(step.getWaypointHolder());
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
                 break;
             case PATH_AND_ACTION:
@@ -434,21 +434,22 @@ public class ControlSystem {
                 setAction(step.getAction());
                 break;
             case POSITION_AND_ACTION:
-                mDriveSystem.setPosition(step.getPosition().flipIfRed());
+                mDriveSystem.setWaypoint(step.getWaypointHolder());
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
                 setAction(step.getAction());
                 break;
             case NOTE_POSITION:
-                mDriveSystem.setPosition(step.getPosition().flipIfRed());
+                mDriveSystem.setWaypoint(step.getWaypointHolder());
+                mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_NOTE);
                 setAction(step.getAction());
                 break;
             case ROTATION:
-                mDriveSystem.setRotation(step.getPosition().flipIfRed().z);
+                mDriveSystem.setRotation(step.getWaypointHolder().getPosition().flipIfRed().z);
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_ROTATION);
                 break;
             case ROTATION_AND_ACTION:
-                mDriveSystem.setRotation(step.getPosition().flipIfRed().z);
+                mDriveSystem.setRotation(step.getWaypointHolder().getPosition().flipIfRed().z);
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_ROTATION);
                 setAction(step.getAction());
                 break;
@@ -605,9 +606,6 @@ public class ControlSystem {
                     }
                 }
 
-                if (mCurrentAction == Action.SEEK_NOTE) {
-                    seekNote();
-                }
 
                 if ((mCurrentAction == Action.AUTO_AIM_SHOOT || mCurrentAction == Action.SHOOT_NOTE_ONE
                         || mCurrentAction == Action.SHOOT_NOTE_TWO
@@ -785,77 +783,6 @@ public class ControlSystem {
         }
     }
 
-    private void seekNote() {
-
-        switch (mCurrentSeekNoteState) {
-            case SEEKING:
-                mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
-                mArm.setDesiredState(ArmState.SAFE);
-                mScollector.setDesiredState(ScollectorState.IDLE);
-
-                double rotDutyCycle = 0.0;
-
-                if (seesNote()) {
-                    centerNote();
-                    rotDutyCycle = mAimingAngle;
-                    final double TOLERANCE = 0.1;
-
-                    if (Math.abs(rotDutyCycle) <= TOLERANCE && mArm.matchesDesiredState()) {
-                        double robotAngle = mDriveSystem.getRobotAngle().getRadians();
-                        EVector robotPose = EVector.fromPose(mDriveSystem.getRobotPose());
-
-                        double noteDistance = getNoteDistance();
-
-                        if (noteDistance != -1 && noteDistance <= 2.5) {
-                            double EXTRA_DISTANCE = 0.25;
-                            noteDistance += EXTRA_DISTANCE;
-                            EVector notePose = EVector.newVector(
-                                    Math.cos(robotAngle) * noteDistance + robotPose.x,
-                                    Math.sin(robotAngle) * noteDistance + robotPose.y,
-                                    robotAngle);
-
-                            mDriveSystem.setPosition(notePose);
-                            mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
-                            mSeekTimer.reset();
-                        }
-
-                        mCurrentSeekNoteState = SeekNoteState.COLLECTING;
-                    }
-                } else {
-                    final double ROT_SPEED = 1;
-                    rotDutyCycle = ROT_SPEED * (isRed() ? 1 : -1);
-                }
-
-                if (mSeekTimer.get() >= 3) {
-                    mCurrentSeekNoteState = SeekNoteState.DONE;
-                    mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
-                    mDriveSystem.driveRaw(0, 0, 0);
-                }
-
-                mDriveSystem.driveRaw(0, 0, rotDutyCycle);
-
-                break;
-            case COLLECTING:
-                mArm.setDesiredState(ArmState.COLLECT);
-                mScollector.setDesiredState(ScollectorState.COLLECT);
-
-                if (mScollector.hasNote() || mDriveSystem.matchesDesiredState()) {
-                    mCurrentSeekNoteState = SeekNoteState.DONE;
-                    mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
-                    mDriveSystem.driveRaw(0, 0, 0);
-                }
-
-                if (mSeekTimer.get() >= 2) {
-                    mCurrentSeekNoteState = SeekNoteState.DONE;
-                    mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
-                    mDriveSystem.driveRaw(0, 0, 0);
-                }
-                break;
-            default:
-                break;
-        }
-
-    }
 
     public void disabledLighting() {
         mLEDs.setDesiredState(LedState.DEFAULT);
