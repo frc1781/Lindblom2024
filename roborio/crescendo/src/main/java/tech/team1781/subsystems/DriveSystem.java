@@ -76,7 +76,7 @@ public class DriveSystem extends Subsystem {
 
     private PIDController mXController = new PIDController(1, 0, 0);
     private PIDController mYController = new PIDController(1, 0, 0);
-    private ProfiledPIDController mRotController = new ProfiledPIDController(4, 0, 0,
+    private ProfiledPIDController mRotController = new ProfiledPIDController(3, 0, 0,
             new TrapezoidProfile.Constraints(3.6 * Math.PI, 7.2 * Math.PI));
     private PIDController mNoteAimController = new PIDController(4, 0, 0);
 
@@ -308,7 +308,20 @@ public class DriveSystem extends Subsystem {
                 new Pose2d(pathplannerState.positionMeters, pathplannerState.heading),
                 pathplannerState.velocityMps,
                 pathplannerState.getTargetHolonomicPose().getRotation());
-        driveWithChassisSpeds(desiredChassisSpeeds);
+                Pose2d desiredPose = new Pose2d(pathplannerState.positionMeters, pathplannerState.heading);
+            System.out.printf("%.2f,%.2f,%.2f\n",
+              desiredChassisSpeeds.vxMetersPerSecond,
+              desiredChassisSpeeds.vyMetersPerSecond,
+              desiredChassisSpeeds.omegaRadiansPerSecond);
+            System.out.printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
+              currentTime,
+              getRobotPose().getX(),
+              getRobotPose().getY(),
+              getRobotPose().getRotation().getDegrees(),
+              desiredPose.getX(),
+              desiredPose.getY(),
+              desiredPose.getRotation().getDegrees());
+            driveWithChassisSpeds(desiredChassisSpeeds);
     }
 
 
