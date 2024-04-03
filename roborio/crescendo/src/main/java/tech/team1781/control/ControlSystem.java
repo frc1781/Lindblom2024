@@ -75,7 +75,7 @@ public class ControlSystem {
     // private boolean mClimberRetractButton = false;
     // private boolean mClimberExtendButton = false;
     private boolean mCenterOnAprilTagButton = false;
-    private boolean mAutoCollectionButton = false;
+    private boolean mAutoCenterAmp = false;
     // private boolean mSeekSpeakerButton = false;
     // private boolean mCollectingHighButton = false;
     // private boolean mAmpButton = false;
@@ -249,19 +249,19 @@ public class ControlSystem {
         mCenterOnAprilTagButton = isHeld;
     }
 
-    public void setAutoCollectionButton(boolean isHeld) {
-        mAutoCollectionButton = isHeld;
+    public void setCenteringOnAmp(boolean isHeld) {
+        mAutoCenterAmp = isHeld;
     }
 
     public void autoAimingInputs() {
         mSeesAprilTagEntry.setBoolean(Limelight.getTX(ConfigMap.APRILTAG_LIMELIGHT) != 0.0);
 
-        if (!mAutoCollectionButton && !mCenterOnAprilTagButton) {
+        if (!mAutoCenterAmp && !mCenterOnAprilTagButton) {
             mAutoAiming = false;
             return;
         }
 
-        if (mCenterOnAprilTagButton && !mAutoCollectionButton) {
+        if (mCenterOnAprilTagButton && !mAutoCenterAmp) {
             if (isRed()) {
                 centerOnAprilTag(ConfigMap.RED_SPEAKER_APRILTAG);
             } else {
@@ -270,8 +270,12 @@ public class ControlSystem {
             mAutoAiming = true;
         }
 
-        if (mAutoCollectionButton && !mCenterOnAprilTagButton) {
-            centerNote();
+        if (mAutoCenterAmp && !mCenterOnAprilTagButton) {
+            if (isRed()) {
+                centerOnAprilTag(5);
+            } else {
+                centerOnAprilTag(6);
+            }
             mAutoAiming = true;
         }
     }
