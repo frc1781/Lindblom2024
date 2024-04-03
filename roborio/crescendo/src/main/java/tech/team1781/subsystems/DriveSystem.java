@@ -85,13 +85,13 @@ public class DriveSystem extends Subsystem {
             new TrapezoidProfile.Constraints(3.6 * Math.PI, 7.2 * Math.PI));
     private PIDController mNoteAimController = new PIDController(4, 0, 0);
 
-    private final EVector GO_TO_PID = EVector.newVector(2.5, 0, 0);
+    private final EVector GO_TO_PID = EVector.newVector(0.4, 0, 0);
     private final double MAX_ACCELERATION = 8.0;
     private ProfiledPIDController mXGoToController = new ProfiledPIDController(GO_TO_PID.x, GO_TO_PID.y, GO_TO_PID.z,
             new TrapezoidProfile.Constraints(ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, MAX_ACCELERATION));
     private ProfiledPIDController mYGoToController = new ProfiledPIDController(GO_TO_PID.x, GO_TO_PID.y, GO_TO_PID.z,
             new TrapezoidProfile.Constraints(ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, MAX_ACCELERATION));
-    private ProfiledPIDController mRotGoToController = new ProfiledPIDController(2, 0, 0,
+    private ProfiledPIDController mRotGoToController = new ProfiledPIDController(0.01, 0, 0,
             new TrapezoidProfile.Constraints(6.28, Math.PI * 12));
     private HolonomicDriveController mWaypointController = new HolonomicDriveController(mXController,
             mYController, mRotController);
@@ -129,7 +129,7 @@ public class DriveSystem extends Subsystem {
                         (int) ShuffleboardStyle.ROBOT_POSITION_FIELD.position.y)
                 .withSize((int) ShuffleboardStyle.ROBOT_POSITION_FIELD.size.x,
                         (int) ShuffleboardStyle.ROBOT_POSITION_FIELD.size.y);
-        // mRotGoToController.enableContinuousInput(0, Math.PI * 2);
+        mRotGoToController.enableContinuousInput(0, Math.PI * 2);
 
         NetworkLogger.initLog("Note Aim Requested Rotation", 0);
         NetworkLogger.initLog("Drive System Matches State", true);
@@ -319,9 +319,9 @@ public class DriveSystem extends Subsystem {
 
         var currentPose = getRobotPose();
         EVector desiredWaypointPosition = mDesiredWaypoint.getPosition();
-        double xInterpolatedPoint = mXGoToController.calculate(desiredWaypointPosition.x, currentPose.getX());
-        double yInterpolatedPoint = mYGoToController.calculate(desiredWaypointPosition.y, currentPose.getY());
-        double rotInterpolatedPoint = mRotGoToController.calculate(desiredWaypointPosition.z, currentPose.getRotation().getRadians());
+        double xInterpolatedPoint = currentPose.getX() - mXGoToController.calculate(desiredWaypointPosition.x, currentPose.getX());
+        double yInterpolatedPoint = currentPose.getY() - mYGoToController.calculate(desiredWaypointPosition.y, currentPose.getY());
+        double rotInterpolatedPoint = currentPose.getRotation().getRadians() - mRotGoToController.calculate(desiredWaypointPosition.z, currentPose.getRotation().getRadians());
 
         EVector interpolatedPoint = EVector.newVector(xInterpolatedPoint, yInterpolatedPoint, rotInterpolatedPoint);
         Pose2d interpolatedPos = interpolatedPoint.toPose2d();
@@ -332,6 +332,8 @@ public class DriveSystem extends Subsystem {
             mDesiredWaypoint.getSpeedMetersPerSecond(),
             new Rotation2d(mDesiredWaypoint.getPosition().z)
         );
+
+        System.out.println("Desired Pose: " + desiredWaypointPosition + " Current Pose: " + EVector.fromPose2d(currentPose) + " Interpolated Pose: " + interpolatedPoint);
 
         driveWithChassisSpeds(desiredChassisSpeeds);
     }
@@ -410,8 +412,8 @@ public class DriveSystem extends Subsystem {
     public void driveWithChassisSpeds(ChassisSpeeds speeds) {
         if (getState() == DriveSystemState.DRIVE_MANUAL)
             return;
-        System.out.println("Driving: " + speeds.vxMetersPerSecond + " " + speeds.vyMetersPerSecond + " "
-                + speeds.omegaRadiansPerSecond);
+        // System.out.println("Driving: " + speeds.vxMetersPerSecond + " " + speeds.vyMetersPerSecond + " "
+        //         + speeds.omegaRadiansPerSecond);
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
 
