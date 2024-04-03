@@ -53,9 +53,9 @@ public class ControlSystem {
     private OperatingMode mCurrentOperatingMode;
 
     // Slew Rate Limiters for controls
-    private final SlewRateLimiter mXDriveLimiter = new SlewRateLimiter(0.2); //ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
-    private final SlewRateLimiter mYDriveLimiter = new SlewRateLimiter(0.2); //ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
-    private final SlewRateLimiter mRotDriveLimiter = new SlewRateLimiter(0.2); //ConfigMap.DRIVER_ROTATION_RATE_LIMIT);
+    private final SlewRateLimiter mXDriveLimiter = new SlewRateLimiter(0.4); //ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
+    private final SlewRateLimiter mYDriveLimiter = new SlewRateLimiter(0.4); //ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
+    private final SlewRateLimiter mRotDriveLimiter = new SlewRateLimiter(0.6); //ConfigMap.DRIVER_ROTATION_RATE_LIMIT);
     private final ProfiledPIDController mLimelightAimController = new ProfiledPIDController(0.070, 0, 0,
             new TrapezoidProfile.Constraints(1, 0.5));
     private final ProfiledPIDController mNoteAimController = new ProfiledPIDController(0.035, 0, 0,
