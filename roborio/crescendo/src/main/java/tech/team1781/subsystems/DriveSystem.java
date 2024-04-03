@@ -114,7 +114,6 @@ public class DriveSystem extends Subsystem {
 
     private Field2d mField = new Field2d();
 
-
     public DriveSystem() {
         super("Drive System", DriveSystemState.DRIVE_MANUAL);
         // mOdometry = new SwerveDriveOdometry(mKinematics, getRobotAngle(),
@@ -313,27 +312,59 @@ public class DriveSystem extends Subsystem {
     }
 
     public void goToWaypoint() {
-        if(mDesiredWaypoint == null) {
+        if (mDesiredWaypoint == null) {
             return;
         }
 
         var currentPose = getRobotPose();
+        EVector currentPoseVector = EVector.fromPose(getRobotPose());
         EVector desiredWaypointPosition = mDesiredWaypoint.getPosition();
-        double xInterpolatedPoint = currentPose.getX() - mXGoToController.calculate(desiredWaypointPosition.x, currentPose.getX());
-        double yInterpolatedPoint = currentPose.getY() - mYGoToController.calculate(desiredWaypointPosition.y, currentPose.getY());
-        double rotInterpolatedPoint = currentPose.getRotation().getRadians() - mRotGoToController.calculate(desiredWaypointPosition.z, currentPose.getRotation().getRadians());
+        double xInterpolatedPoint = currentPoseVector.x
+                - mXGoToController.calculate(desiredWaypointPosition.x, currentPoseVector.x);
+        double yInterpolatedPoint = currentPoseVector.y
+                - mYGoToController.calculate(desiredWaypointPosition.y, currentPoseVector.y);
+        double rotInterpolatedPoint = currentPoseVector.z
+                - mRotGoToController.calculate(desiredWaypointPosition.z, currentPoseVector.z);
 
         EVector interpolatedPoint = EVector.newVector(xInterpolatedPoint, yInterpolatedPoint, rotInterpolatedPoint);
         Pose2d interpolatedPos = interpolatedPoint.toPose2d();
 
         ChassisSpeeds desiredChassisSpeeds = mWaypointController.calculate(
-            getRobotPose(),
-            interpolatedPos,
-            mDesiredWaypoint.getSpeedMetersPerSecond(),
-            new Rotation2d(mDesiredWaypoint.getPosition().z)
-        );
+                getRobotPose(),
+                interpolatedPos,
+                mDesiredWaypoint.getSpeedMetersPerSecond(),
+                new Rotation2d(mDesiredWaypoint.getPosition().z));
 
-        System.out.println("Desired Pose: " + desiredWaypointPosition + " Current Pose: " + EVector.fromPose2d(currentPose) + " Interpolated Pose: " + interpolatedPoint);
+        if (getState() == DriveSystemState.DRIVE_NOTE) {
+            final double DISTANCE_TOLERANCE = 1;
+            final double ANGLE_TOLERANCE = 0.1;
+
+            double dist = currentPoseVector.withZ(0)
+                    .dist(
+                            desiredWaypointPosition.withZ(0));
+
+            if (dist <= DISTANCE_TOLERANCE) {
+                double xObservedNoteAngle = Math.toRadians(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT));
+
+                if (xObservedNoteAngle > ANGLE_TOLERANCE) {
+                    desiredChassisSpeeds.omegaRadiansPerSecond = mNoteAimController.calculate(xObservedNoteAngle, 0);
+                    mDesiredWaypoint.changeRotation(currentPose.getRotation().getRotations());
+                } else {
+                    double currentAngle = currentPoseVector.z;
+                    mDesiredWaypoint.changeX(
+                            Math.cos(currentAngle) * dist
+                                    + currentPoseVector.x);
+                    mDesiredWaypoint.changeY(
+                            Math.sin(currentAngle) * dist
+                                    + currentPoseVector.y);
+                }
+
+            }
+
+        }
+
+        System.out.println("Desired Pose: " + desiredWaypointPosition + " Current Pose: "
+                + EVector.fromPose2d(currentPose) + " Interpolated Pose: " + interpolatedPoint);
 
         driveWithChassisSpeds(desiredChassisSpeeds);
     }
@@ -397,23 +428,22 @@ public class DriveSystem extends Subsystem {
         mRotGoToController.reset(getRobotAngle().getRadians());
     }
 
-    
-
     public void setRotation(double rotationRads) {
         Pose2d currentPose = getRobotPose();
         mDesiredWaypoint = new WaypointHolder(currentPose.getX(), currentPose.getY(), rotationRads, 0);
         mDesiredTrajectory = null;
         mIsManual = false;
 
-        setWaypoint(mDesiredWaypoint);  
-        
+        setWaypoint(mDesiredWaypoint);
+
     }
 
     public void driveWithChassisSpeds(ChassisSpeeds speeds) {
         if (getState() == DriveSystemState.DRIVE_MANUAL)
             return;
-        // System.out.println("Driving: " + speeds.vxMetersPerSecond + " " + speeds.vyMetersPerSecond + " "
-        //         + speeds.omegaRadiansPerSecond);
+        // System.out.println("Driving: " + speeds.vxMetersPerSecond + " " +
+        // speeds.vyMetersPerSecond + " "
+        // + speeds.omegaRadiansPerSecond);
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
 
@@ -504,46 +534,47 @@ public class DriveSystem extends Subsystem {
         // ((NEOL1SwerveModule) mBackRight).printModuleState();
     }
 
+    // if (mIsManual && mDesiredPosition == null) {
+    // return;
+    // }
+    // EVector robotPose = EVector.fromPose(getRobotPose());
+    // if (matchesDesiredPosition()) {
+    // // System.out.println("matches position
+    // // **********************************************");
+    // driveRaw(0, 0, 0);
+    // return;
+    // }
 
-        // if (mIsManual && mDesiredPosition == null) {
-        //     return;
-        // }
-        // EVector robotPose = EVector.fromPose(getRobotPose());
-        // if (matchesDesiredPosition()) {
-        //     // System.out.println("matches position
-        //     // **********************************************");
-        //     driveRaw(0, 0, 0);
-        //     return;
-        // }
+    // double xMPS = clamp(mXGoToController.calculate(robotPose.x, target.x),
+    // ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
+    // double yMPS = clamp(mYGoToController.calculate(robotPose.y, target.y),
+    // ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
+    // double rotRPS = mRotGoToController.calculate(getRobotAngle().getRadians(),
+    // target.z);
+    // double xObservedNoteAngle =
+    // Math.toRadians(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT));
 
-        // double xMPS = clamp(mXGoToController.calculate(robotPose.x, target.x),
-        //         ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
-        // double yMPS = clamp(mYGoToController.calculate(robotPose.y, target.y),
-        //         ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
-        // double rotRPS = mRotGoToController.calculate(getRobotAngle().getRadians(), target.z);
-        // double xObservedNoteAngle = Math.toRadians(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT));
+    // if (getState() == DriveSystemState.DRIVE_NOTE) {
+    // final double DIST_TOLERANCE = 1.5;
+    // double dist = robotPose.withZ(0).dist(target.withZ(0));
+    // if (xObservedNoteAngle != 0.0 && dist < DIST_TOLERANCE) {
+    // final double ALIGNMENT_TOLERANCE = 0.1;
+    // rotRPS = mNoteAimController.calculate(xObservedNoteAngle, 0);
+    // NetworkLogger.logData("Note Aim Requested Rotation", rotRPS);
 
-        // if (getState() == DriveSystemState.DRIVE_NOTE) {
-        //     final double DIST_TOLERANCE = 1.5;
-        //     double dist = robotPose.withZ(0).dist(target.withZ(0));
-        //     if (xObservedNoteAngle != 0.0 && dist < DIST_TOLERANCE) {
-        //         final double ALIGNMENT_TOLERANCE = 0.1;
-        //         rotRPS = mNoteAimController.calculate(xObservedNoteAngle, 0);
-        //         NetworkLogger.logData("Note Aim Requested Rotation", rotRPS);
+    // if (Math.abs(xObservedNoteAngle) < ALIGNMENT_TOLERANCE) {
+    // double distToSetpoint = robotPose.withZ(0).dist(target.withZ(0));
+    // EVector desiredPos = EVector.newVector(
+    // (Math.cos(getRobotAngle().getRadians()) * distToSetpoint) + robotPose.x,
+    // (Math.sin(getRobotAngle().getRadians()) * distToSetpoint) + robotPose.y,
+    // getRobotAngle().getRadians());
+    // mDesiredPosition = desiredPos;
+    // }
+    // mDesiredPosition.z = getRobotAngle().getRadians();
 
-        //         if (Math.abs(xObservedNoteAngle) < ALIGNMENT_TOLERANCE) {
-        //             double distToSetpoint = robotPose.withZ(0).dist(target.withZ(0));
-        //             EVector desiredPos = EVector.newVector(
-        //                     (Math.cos(getRobotAngle().getRadians()) * distToSetpoint) + robotPose.x,
-        //                     (Math.sin(getRobotAngle().getRadians()) * distToSetpoint) + robotPose.y,
-        //                     getRobotAngle().getRadians());
-        //             mDesiredPosition = desiredPos;
-        //         }
-        //         mDesiredPosition.z = getRobotAngle().getRadians();
-
-        //     }
-        // }
-        // driveRaw(xMPS, yMPS, rotRPS);
+    // }
+    // }
+    // driveRaw(xMPS, yMPS, rotRPS);
     // }
 
     private void alignRotation() {
