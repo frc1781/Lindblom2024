@@ -85,14 +85,14 @@ public class DriveSystem extends Subsystem {
             new TrapezoidProfile.Constraints(3.6 * Math.PI, 7.2 * Math.PI));
     private PIDController mNoteAimController = new PIDController(4, 0, 0);
 
-    // private final EVector GO_TO_PID = EVector.newVector(2.5, 0, 0);
-    // private final double MAX_ACCELERATION = 8.0;
-    // private ProfiledPIDController mXGoToController = new ProfiledPIDController(GO_TO_PID.x, GO_TO_PID.y, GO_TO_PID.z,
-    //         new TrapezoidProfile.Constraints(ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, MAX_ACCELERATION));
-    // private ProfiledPIDController mYGoToController = new ProfiledPIDController(GO_TO_PID.x, GO_TO_PID.y, GO_TO_PID.z,
-    //         new TrapezoidProfile.Constraints(ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, MAX_ACCELERATION));
-    // private ProfiledPIDController mRotGoToController = new ProfiledPIDController(2, 0, 0,
-    //         new TrapezoidProfile.Constraints(6.28, Math.PI * 12));
+    private final EVector GO_TO_PID = EVector.newVector(2.5, 0, 0);
+    private final double MAX_ACCELERATION = 8.0;
+    private ProfiledPIDController mXGoToController = new ProfiledPIDController(GO_TO_PID.x, GO_TO_PID.y, GO_TO_PID.z,
+            new TrapezoidProfile.Constraints(ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, MAX_ACCELERATION));
+    private ProfiledPIDController mYGoToController = new ProfiledPIDController(GO_TO_PID.x, GO_TO_PID.y, GO_TO_PID.z,
+            new TrapezoidProfile.Constraints(ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, MAX_ACCELERATION));
+    private ProfiledPIDController mRotGoToController = new ProfiledPIDController(2, 0, 0,
+            new TrapezoidProfile.Constraints(6.28, Math.PI * 12));
     private HolonomicDriveController mWaypointController = new HolonomicDriveController(mXController,
             mYController, mRotController);
 
@@ -303,7 +303,7 @@ public class DriveSystem extends Subsystem {
         }
 
         var pathplannerState = mDesiredTrajectory.sample(currentTime);
-
+        mTrajectoryController.calculate(getRobotPose(), getRobotPose(), currentTime, getRobotAngle());
         ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(
                 getRobotPose(),
                 new Pose2d(pathplannerState.positionMeters, pathplannerState.heading),
@@ -317,12 +317,22 @@ public class DriveSystem extends Subsystem {
             return;
         }
 
+        var currentPose = getRobotPose();
+        EVector desiredWaypointPosition = mDesiredWaypoint.getPosition();
+        double xInterpolatedPoint = mXGoToController.calculate(desiredWaypointPosition.x, currentPose.getX());
+        double yInterpolatedPoint = mYGoToController.calculate(desiredWaypointPosition.y, currentPose.getY());
+        double rotInterpolatedPoint = mRotGoToController.calculate(desiredWaypointPosition.z, currentPose.getRotation().getRadians());
+
+        EVector interpolatedPoint = EVector.newVector(xInterpolatedPoint, yInterpolatedPoint, rotInterpolatedPoint);
+        Pose2d interpolatedPos = interpolatedPoint.toPose2d();
+
         ChassisSpeeds desiredChassisSpeeds = mWaypointController.calculate(
             getRobotPose(),
-            mDesiredWaypoint.getPosition().toPose2d(),
+            interpolatedPos,
             mDesiredWaypoint.getSpeedMetersPerSecond(),
             new Rotation2d(mDesiredWaypoint.getPosition().z)
         );
+
         driveWithChassisSpeds(desiredChassisSpeeds);
     }
 
@@ -378,6 +388,11 @@ public class DriveSystem extends Subsystem {
         mXController.reset();
         mYController.reset();
         mRotController.reset(getRobotAngle().getRadians());
+
+        var currentPose = getRobotPose();
+        mXGoToController.reset(currentPose.getX());
+        mYGoToController.reset(currentPose.getY());
+        mRotGoToController.reset(getRobotAngle().getRadians());
     }
 
     

@@ -22,7 +22,6 @@ public class EEGeometryUtil {
         EVector ret_val = new EVector(FIELD_LENGTH - position.x, position.y);
         ret_val.z = -position.z + Math.PI;
         ret_val.z = normalizeAngle(Rotation2d.fromRadians(ret_val.z)).getRadians();
-        System.out.println("FLIPPING: " + position);
         return ret_val;
     }
 }
