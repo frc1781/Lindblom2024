@@ -53,19 +53,15 @@ public class ControlSystem {
     private OperatingMode mCurrentOperatingMode;
 
     // Slew Rate Limiters for controls
-    private final SlewRateLimiter mXDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
-    private final SlewRateLimiter mYDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
-    private final SlewRateLimiter mRotDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_ROTATION_RATE_LIMIT);
+    private final SlewRateLimiter mXDriveLimiter = new SlewRateLimiter(0.2); //ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
+    private final SlewRateLimiter mYDriveLimiter = new SlewRateLimiter(0.2); //ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
+    private final SlewRateLimiter mRotDriveLimiter = new SlewRateLimiter(0.2); //ConfigMap.DRIVER_ROTATION_RATE_LIMIT);
     private final ProfiledPIDController mLimelightAimController = new ProfiledPIDController(0.070, 0, 0,
             new TrapezoidProfile.Constraints(1, 0.5));
     private final ProfiledPIDController mNoteAimController = new ProfiledPIDController(0.035, 0, 0,
             new TrapezoidProfile.Constraints(1, 0.5));
     private final ProfiledPIDController mOdometryController = new ProfiledPIDController(4.1, 0, 0,
             new TrapezoidProfile.Constraints(1, 0.5));
-
-    private SlewRateLimiter mDriveForwardLimiter = new SlewRateLimiter(1.2);
-    private SlewRateLimiter mDriveStrafeLimiter = new SlewRateLimiter(1.2);
-    private SlewRateLimiter mDriveRotLimiter = new SlewRateLimiter(2.0);
 
     private boolean mAutoAiming = false;
     private double mAimingAngle = 0.0;
@@ -171,10 +167,6 @@ public class ControlSystem {
         double yVelocity = -translation.x * mult;
         // rotation
         double rotVelocity = -rotation.x * ConfigMap.DRIVER_ROTATION_INPUT_MULTIPIER + ((triggers.x) - (triggers.y));
-
-        xVelocity = mDriveForwardLimiter.calculate(xVelocity);
-        yVelocity = mDriveForwardLimiter.calculate(yVelocity);
-        rotVelocity = mDriveRotLimiter.calculate(rotVelocity);
 
         mDriveSystem.driveRaw(
                 mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
