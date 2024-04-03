@@ -154,8 +154,8 @@ public class Climber extends Subsystem {
         }
 
 
-        mLeftClimberMotor.set(leftDutyCycle);
-        mRightClimberMotor.set(rightDutyCycle);
+       // mLeftClimberMotor.set(leftDutyCycle);
+       // mRightClimberMotor.set(rightDutyCycle);
 
         NetworkLogger.initLog("Climber Left Duty Cycle", leftDutyCycle);
         NetworkLogger.initLog("Climber Right Duty Cycle", rightDutyCycle);
@@ -173,7 +173,7 @@ public class Climber extends Subsystem {
             return;
         }
 
-        mTrapHookMotor.set(dc);
+        //mTrapHookMotor.set(dc);
 
         System.out.println("trap dc: " + dc + " trap encoder: " + mTrapHookMotor.getEncoder().getPosition());
     }
