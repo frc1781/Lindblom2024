@@ -28,7 +28,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import tech.team1781.ConfigMap;
 import tech.team1781.ShuffleboardStyle;
 import tech.team1781.control.ControlSystem;
-import tech.team1781.swerve.KrakenL2SwerveModule;
+import tech.team1781.swerve.NEOL1SwerveModule;
 import tech.team1781.swerve.NEOL1SwerveModule;
 import tech.team1781.swerve.SwerveModule;
 import tech.team1781.utils.EEGeometryUtil;
@@ -43,16 +43,16 @@ import java.util.concurrent.TimeUnit;
 public class DriveSystem extends Subsystem {
 
     // Swerve Modules
-    private final SwerveModule mFrontLeft = new KrakenL2SwerveModule("Front Left Module",ConfigMap.FRONT_LEFT_MODULE_DRIVE_MOTOR,
+    private final SwerveModule mFrontLeft = new NEOL1SwerveModule("Front Left Module",ConfigMap.FRONT_LEFT_MODULE_DRIVE_MOTOR,
             ConfigMap.FRONT_LEFT_MODULE_STEER_MOTOR, ConfigMap.FRONT_LEFT_MODULE_STEER_ENCODER,
             ConfigMap.FRONT_LEFT_MODULE_STEER_OFFSET);
-    private final SwerveModule mFrontRight = new KrakenL2SwerveModule("Front Right Module",ConfigMap.FRONT_RIGHT_MODULE_DRIVE_MOTOR,
+    private final SwerveModule mFrontRight = new NEOL1SwerveModule("Front Right Module",ConfigMap.FRONT_RIGHT_MODULE_DRIVE_MOTOR,
             ConfigMap.FRONT_RIGHT_MODULE_STEER_MOTOR, ConfigMap.FRONT_RIGHT_MODULE_STEER_ENCODER,
             ConfigMap.FRONT_RIGHT_MODULE_STEER_OFFSET);
-    private final SwerveModule mBackLeft = new KrakenL2SwerveModule("Back Left Module",ConfigMap.BACK_LEFT_MODULE_DRIVE_MOTOR,
+    private final SwerveModule mBackLeft = new NEOL1SwerveModule("Back Left Module",ConfigMap.BACK_LEFT_MODULE_DRIVE_MOTOR,
             ConfigMap.BACK_LEFT_MODULE_STEER_MOTOR, ConfigMap.BACK_LEFT_MODULE_STEER_ENCODER,
             ConfigMap.BACK_LEFT_MODULE_STEER_OFFSET);
-    private final SwerveModule mBackRight = new KrakenL2SwerveModule("Back Right Module",ConfigMap.BACK_RIGHT_MODULE_DRIVE_MOTOR,
+    private final SwerveModule mBackRight = new NEOL1SwerveModule("Back Right Module",ConfigMap.BACK_RIGHT_MODULE_DRIVE_MOTOR,
             ConfigMap.BACK_RIGHT_MODULE_STEER_MOTOR, ConfigMap.BACK_RIGHT_MODULE_STEER_ENCODER,
             ConfigMap.BACK_RIGHT_MODULE_STEER_OFFSET);
 

@@ -133,7 +133,7 @@ public class Scollector extends Subsystem {
                 driveMotors();
                 break;
             case SPIT:
-                mCollectorMotor.set(1);
+                //mCollectorMotor.set(1);
                 mTopPID.setReference(0, ControlType.kVelocity);
                 break;
             case SHOOT:
@@ -240,18 +240,18 @@ public class Scollector extends Subsystem {
     }
 
     private void collect() {
-        if (!hasNote() && !noteCloseToShooter()) {
-            mCollectorMotor.set(-1);
-        } else if(noteCloseToShooter()){
-            mCollectorMotor.set(0.25);
-        } else if(hasNote()){
-            mCollectorMotor.set(0);
-        }
+        // if (!hasNote() && !noteCloseToShooter()) {
+        //     mCollectorMotor.set(-1);
+        // } else if(noteCloseToShooter()){
+        //     mCollectorMotor.set(0.25);
+        // } else if(hasNote()){
+        //     mCollectorMotor.set(0);
+        // }
     }
 
     private void shoot() {
-        driveMotors();
-        mCollectorMotor.set(-1);
+        // driveMotors();
+        // mCollectorMotor.set(-1);
     }
     
 }

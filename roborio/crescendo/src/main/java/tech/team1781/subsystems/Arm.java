@@ -185,7 +185,7 @@ public class Arm extends Subsystem {
                 armDutyCycle = 0.0;
             }
 
-            mLeftMotor.set(armDutyCycle);
+            //mLeftMotor.set(armDutyCycle);
         } else {
             mSparkErrorEntry.setBoolean(true);
         }

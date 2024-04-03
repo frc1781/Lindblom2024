@@ -63,6 +63,10 @@ public class ControlSystem {
     private final ProfiledPIDController mOdometryController = new ProfiledPIDController(4.1, 0, 0,
             new TrapezoidProfile.Constraints(1, 0.5));
 
+    private SlewRateLimiter mDriveForwardLimiter = new SlewRateLimiter(1.2);
+    private SlewRateLimiter mDriveStrafeLimiter = new SlewRateLimiter(1.2);
+    private SlewRateLimiter mDriveRotLimiter = new SlewRateLimiter(2.0);
+
     private boolean mAutoAiming = false;
     private double mAimingAngle = 0.0;
 
@@ -167,6 +171,10 @@ public class ControlSystem {
         double yVelocity = -translation.x * mult;
         // rotation
         double rotVelocity = -rotation.x * ConfigMap.DRIVER_ROTATION_INPUT_MULTIPIER + ((triggers.x) - (triggers.y));
+
+        xVelocity = mDriveForwardLimiter.calculate(xVelocity);
+        yVelocity = mDriveForwardLimiter.calculate(yVelocity);
+        rotVelocity = mDriveRotLimiter.calculate(rotVelocity);
 
         mDriveSystem.driveRaw(
                 mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,

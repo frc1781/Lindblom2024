@@ -33,7 +33,7 @@ public class NEOL1SwerveModule extends SwerveModule{
     private final int mCancoderID;
     private final double mCancoderOffset;
 
-    public NEOL1SwerveModule(int driveMotorID, int turnMotorID, int cancoderID, double cancoderOffset) {
+    public NEOL1SwerveModule(String name, int driveMotorID, int turnMotorID, int cancoderID, double cancoderOffset) {
         super(driveMotorID, turnMotorID, cancoderID, cancoderOffset);
         mCancoderID = cancoderID;
         mCancoderOffset = cancoderOffset;
