@@ -281,8 +281,7 @@ public class ControlSystem {
     }
 
     public void centerOnAprilTag(int id) {
-        Limelight.setTargetApriltag(ConfigMap.APRILTAG_LIMELIGHT,
-                isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG);
+        Limelight.setTargetApriltag(ConfigMap.APRILTAG_LIMELIGHT, id);
         double x = Limelight.getTX(ConfigMap.APRILTAG_LIMELIGHT);
 
         System.out.println("aming angle " + mAimingAngle);
