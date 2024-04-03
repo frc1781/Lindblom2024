@@ -69,7 +69,7 @@ public class ConfigMap {
 
         public static final double DRIVETRAIN_TRACKWIDTH = Units.inchesToMeters(30);
         public static final double DRIVETRAIN_WHEELBASE = Units.inchesToMeters(28);
-        public static final double MAX_VELOCITY_METERS_PER_SECOND = 4.2;
+        public static final double MAX_VELOCITY_METERS_PER_SECOND = 3.6;
         public static final double MAX_VELOCITY_FOR_UPDATE = 0.01;
         public static final double MAX_VELOCITY_RADIANS_PER_SECOND = (MAX_VELOCITY_METERS_PER_SECOND /
                         (Math.hypot(DRIVETRAIN_TRACKWIDTH / 2, DRIVETRAIN_WHEELBASE / 2)));
