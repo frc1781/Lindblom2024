@@ -19,7 +19,7 @@ public class TestRoutine implements AutoRoutine {
     public AutoStep[] getSteps() {
         return new AutoStep[] {
             //      new AutoStep(100,Action.OFF_KICKSTAND),
-          new AutoStep(3.0, Paths.getPathFromName("p2;n2"))
+          new AutoStep(8.0, Paths.getPathFromName("p2;n2"))
         };
     }
 

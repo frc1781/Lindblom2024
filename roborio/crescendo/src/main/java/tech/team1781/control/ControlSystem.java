@@ -417,7 +417,8 @@ public class ControlSystem {
 
         mCurrentSettings = null;
         mCurrentAction = null;
-
+        mStepTime.reset();
+        mStepTime.start();
         switch (step.getType()) {
             case ACTION:
                 setAction(step.getAction());
