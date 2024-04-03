@@ -160,7 +160,6 @@ public class EVector {
 
     public EVector flipIfRed() {
         if(ControlSystem.isRed()) {
-
             return EEGeometryUtil.flipPosition(this);
         } else {
             return this;

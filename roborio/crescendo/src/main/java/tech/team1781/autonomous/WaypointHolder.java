@@ -16,7 +16,7 @@ public class WaypointHolder {
     }
 
     public EVector getPosition() {
-        return mPosition.flipIfRed();
+        return mPosition;
     }
 
     public WaypointHolder changeX(double x) {
@@ -37,6 +37,11 @@ public class WaypointHolder {
     public WaypointHolder changeSpeed(double speedMetersPerSecond) {
         mSpeedMetersPerSecond = speedMetersPerSecond;
         return this;
+    }
+
+    public WaypointHolder copy() {
+        var newPosition = mPosition.flipIfRed();
+        return new WaypointHolder(newPosition.x, newPosition.y, newPosition.z, mSpeedMetersPerSecond);
     }
 
 

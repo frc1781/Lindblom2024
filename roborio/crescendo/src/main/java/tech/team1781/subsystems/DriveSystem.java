@@ -364,7 +364,8 @@ public class DriveSystem extends Subsystem {
         }
 
         System.out.println("Desired Pose: " + desiredWaypointPosition + " Current Pose: "
-                + EVector.fromPose2d(currentPose) + " Interpolated Pose: " + interpolatedPoint);
+                + EVector.fromPose2d(currentPose) + " Interpolated Pose: " + interpolatedPoint + " X: " + desiredChassisSpeeds.vxMetersPerSecond + " Y: " + desiredChassisSpeeds.vyMetersPerSecond + " Rot: " + desiredChassisSpeeds.omegaRadiansPerSecond);
+
 
         driveWithChassisSpeds(desiredChassisSpeeds);
     }
@@ -408,13 +409,13 @@ public class DriveSystem extends Subsystem {
     }
 
     public void setWaypoint(WaypointHolder waypoint) {
-        mDesiredWaypoint = waypoint;
+        mDesiredWaypoint = waypoint.copy();
         mDesiredTrajectory = null;
         mIsManual = false;
 
         if (!mOdometryBeenSet) {
-            setOdometry(waypoint.getPosition().toPose2d());
-            setNavXOffset(Rotation2d.fromRadians(waypoint.getPosition().z));
+            setOdometry(mDesiredWaypoint.getPosition().toPose2d());
+            setNavXOffset(Rotation2d.fromRadians(mDesiredWaypoint.getPosition().z));
             mOdometryBeenSet = true;
         }
 
@@ -444,6 +445,8 @@ public class DriveSystem extends Subsystem {
         // System.out.println("Driving: " + speeds.vxMetersPerSecond + " " +
         // speeds.vyMetersPerSecond + " "
         // + speeds.omegaRadiansPerSecond);
+
+
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
 
