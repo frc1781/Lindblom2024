@@ -302,22 +302,22 @@ public class DriveSystem extends Subsystem {
         }
 
         var pathplannerState = mDesiredTrajectory.sample(currentTime);
-            System.out.printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
+            System.out.printf("%.2f,%.2f,%.2f,%.2f,%.2f\n",
               pathplannerState.positionMeters.getX(),
               pathplannerState.positionMeters.getY(),
-              pathplannerState.heading,
+              pathplannerState.heading.getDegrees(),
               pathplannerState.velocityMps,
-              pathplannerState.getTargetHolonomicPose().getRotation());
+              pathplannerState.getTargetHolonomicPose().getRotation().getDegrees());
         ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(
                 getRobotPose(),
                 new Pose2d(pathplannerState.positionMeters, pathplannerState.heading),
                 pathplannerState.velocityMps,
                 pathplannerState.getTargetHolonomicPose().getRotation());
-                Pose2d desiredPose = new Pose2d(pathplannerState.positionMeters, pathplannerState.heading);
-            System.out.printf("%.2f,%.2f,%.2f\n",
-              desiredChassisSpeeds.vxMetersPerSecond,
-              desiredChassisSpeeds.vyMetersPerSecond,
-              desiredChassisSpeeds.omegaRadiansPerSecond);
+             //   Pose2d desiredPose = new Pose2d(pathplannerState.positionMeters, pathplannerState.heading);
+            // System.out.printf("%.2f,%.2f,%.2f\n",
+            //   desiredChassisSpeeds.vxMetersPerSecond,
+            //   desiredChassisSpeeds.vyMetersPerSecond,
+            //   desiredChassisSpeeds.omegaRadiansPerSecond);
             // System.out.printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
             //   currentTime,
             //   getRobotPose().getX(),
