@@ -302,17 +302,29 @@ public class DriveSystem extends Subsystem {
         }
 
         var pathplannerState = mDesiredTrajectory.sample(currentTime);
-            System.out.printf("%.2f,%.2f,%.2f,%.2f,%.2f\n",
-              pathplannerState.positionMeters.getX(),
-              pathplannerState.positionMeters.getY(),
-              pathplannerState.heading.getDegrees(),
-              pathplannerState.velocityMps,
-              pathplannerState.getTargetHolonomicPose().getRotation().getDegrees());
+              
+              
+              
         ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(
                 getRobotPose(),
                 new Pose2d(pathplannerState.positionMeters, pathplannerState.heading),
                 pathplannerState.velocityMps,
                 pathplannerState.getTargetHolonomicPose().getRotation());
+            //requested (x, y, h, v, r) current (x, y, r) desired speeds (x, y,r)
+            System.out.printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
+              pathplannerState.positionMeters.getX(),
+              pathplannerState.positionMeters.getY(),
+              pathplannerState.heading.getDegrees(),
+              pathplannerState.velocityMps,
+              pathplannerState.getTargetHolonomicPose().getRotation().getDegrees(),
+              getRobotPose().getX(),  
+              getRobotPose().getY(),  
+              getRobotPose().getRotation().getDegrees(),
+              desiredChassisSpeeds.vxMetersPerSecond,
+              desiredChassisSpeeds.vyMetersPerSecond,
+              desiredChassisSpeeds.omegaRadiansPerSecond
+            );
+            desiredChassisSpeeds.omegaRadiansPerSecond = 0.0;
              //   Pose2d desiredPose = new Pose2d(pathplannerState.positionMeters, pathplannerState.heading);
             // System.out.printf("%.2f,%.2f,%.2f\n",
             //   desiredChassisSpeeds.vxMetersPerSecond,
@@ -326,7 +338,7 @@ public class DriveSystem extends Subsystem {
             //   desiredPose.getX(),
             //   desiredPose.getY(),
             //   desiredPose().getRotation().getDegrees(),
-            driveWithChassisSpeds(desiredChassisSpeeds);
+            driveWithChassisSpeeds(desiredChassisSpeeds);
     }
 
     public void rotateToRotation() {
@@ -390,7 +402,7 @@ public class DriveSystem extends Subsystem {
         setPosition(EVector.fromPose(getRobotPose()).withZ(rotationRads));
     }
 
-    public void driveWithChassisSpeds(ChassisSpeeds speeds) {
+    public void driveWithChassisSpeeds(ChassisSpeeds speeds) {
         if (getState() == DriveSystemState.DRIVE_MANUAL)
             return;
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(speeds);
