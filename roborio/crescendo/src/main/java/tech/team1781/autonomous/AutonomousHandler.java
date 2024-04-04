@@ -35,6 +35,8 @@ public class AutonomousHandler {
         NetworkLogger.initLog("Auto Step", "EMPTY");
         NetworkLogger.initLog("End Condition", "EMPTY");
         NetworkLogger.initLog("Time", 0.0);
+        mSelectedRoutine = mAutoChooser.getSelected();
+        System.out.println("Selected auto routine: " +  mSelectedRoutine.getName());
     }
 
     public void init() {
