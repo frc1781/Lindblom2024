@@ -110,6 +110,7 @@ public class DriveSystem extends Subsystem {
     private EVector mNotePosition = new EVector(-1, -1);
     private boolean mSeesNote = false;
     private Timer mSeekNoteTrajectoryTimer = new Timer();
+    private Timer trajectoryTimer = new Timer();
 
     public DriveSystem() {
         super("Drive System", DriveSystemState.DRIVE_MANUAL);
@@ -296,35 +297,45 @@ public class DriveSystem extends Subsystem {
         mNavX.zeroYaw();
     }
 
+    private Rotation2d between0andPI(Rotation2d r) {
+        double a = r.getRadians();
+        a %= 2 * Math.PI;
+        if (a < 0) {
+            a += 2 * Math.PI;
+        }
+        return new Rotation2d(a);
+    }
+
     public void followTrajectory() {
         if (mIsManual && mDesiredTrajectory == null) {
             return;
         }
 
-        var pathplannerState = mDesiredTrajectory.sample(currentTime);
+        var pathplannerState = mDesiredTrajectory.sample(trajectoryTimer.get());
               
-              
-              
+   //public ChassisSpeeds calculate(Pose2d currentPose, Pose2d trajectoryPose, double desiredLinearVelocityMetersPerSecond, Rotation2d desiredHeading) {
         ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(
                 getRobotPose(),
                 new Pose2d(pathplannerState.positionMeters, pathplannerState.heading),
                 pathplannerState.velocityMps,
-                pathplannerState.getTargetHolonomicPose().getRotation());
+                between0andPI(pathplannerState.getTargetHolonomicPose().getRotation()));
             //requested (x, y, h, v, r) current (x, y, r) desired speeds (x, y,r)
-            System.out.printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
+            System.out.printf("%.4f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
+              currentTime,
               pathplannerState.positionMeters.getX(),
               pathplannerState.positionMeters.getY(),
               pathplannerState.heading.getDegrees(),
               pathplannerState.velocityMps,
               pathplannerState.getTargetHolonomicPose().getRotation().getDegrees(),
               getRobotPose().getX(),  
-              getRobotPose().getY(),  
+              getRobotPose().getY(), 
+              mFrontLeft.getCurrentState().speedMetersPerSecond, 
               getRobotPose().getRotation().getDegrees(),
               desiredChassisSpeeds.vxMetersPerSecond,
               desiredChassisSpeeds.vyMetersPerSecond,
               desiredChassisSpeeds.omegaRadiansPerSecond
             );
-            desiredChassisSpeeds.omegaRadiansPerSecond = 0.0;
+            //desiredChassisSpeeds.omegaRadiansPerSecond = 0.0;
              //   Pose2d desiredPose = new Pose2d(pathplannerState.positionMeters, pathplannerState.heading);
             // System.out.printf("%.2f,%.2f,%.2f\n",
             //   desiredChassisSpeeds.vxMetersPerSecond,
@@ -363,8 +374,11 @@ public class DriveSystem extends Subsystem {
         mDesiredTrajectory = trajectory;
         mXController = new PIDController(0, 0, 0);
         mYController = new PIDController(0, 0, 0);
-        mRotController = new ProfiledPIDController(7, 0, 0, new TrapezoidProfile.Constraints(5.28, 3.14));
+        mRotController = new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(5.28, 3.14));
+        mRotController.enableContinuousInput(0, 2 * Math.PI);
         mTrajectoryController = new HolonomicDriveController(mXController, mYController, mRotController);
+        trajectoryTimer.reset();
+        trajectoryTimer.start();
         // TODO: move to setTrajectoryFromPath after midwest
         if (!mOdometryBeenSet) {
             setOdometry(initialPose);
@@ -605,8 +619,6 @@ public class DriveSystem extends Subsystem {
                 new Pose2d(pathplannerState.positionMeters, pathplannerState.heading),
                 pathplannerState.velocityMps,
                 pathplannerState.getTargetHolonomicPose().getRotation());
-        driveWithChassisSpeds(desiredChassisSpeeds);
+        driveWithChassisSpeeds(desiredChassisSpeeds);
     }
-
-
 }
