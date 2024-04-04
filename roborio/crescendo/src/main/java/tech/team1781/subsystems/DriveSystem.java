@@ -351,14 +351,12 @@ public class DriveSystem extends Subsystem {
     public void setTrajectory(PathPlannerTrajectory trajectory) {
         Pose2d initialPose = trajectory.getInitialTargetHolonomicPose();
         mDesiredTrajectory = trajectory;
-
+        mXController = new PIDController(0, 0, 0);
+        mYController = new PIDController(0, 0, 0);
+        mRotController = new ProfiledPIDController(7, 0, 0, new TrapezoidProfile.Constraints(5.28, 3.14));
+        mTrajectoryController = new HolonomicDriveController(mXController, mYController, mRotController);
         // TODO: move to setTrajectoryFromPath after midwest
         if (!mOdometryBeenSet) {
-            mXController = new PIDController(1, 0, 0);
-            mYController = new PIDController(1, 0, 0);
-            mRotController = new ProfiledPIDController(8, 0, 0,
-                    new TrapezoidProfile.Constraints(6.28, 3.14));
-            mTrajectoryController = new HolonomicDriveController(mXController, mYController, mRotController);
             setOdometry(initialPose);
             mOdometryBeenSet = true;
         }
