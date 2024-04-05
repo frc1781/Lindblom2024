@@ -371,7 +371,7 @@ public class DriveSystem extends Subsystem {
             diff = ((diff < 0) ? 1 : -1) * Math.PI * 2 + diff;
         }
       
-      return diff * 4.0; 
+      return diff * 2.0; 
     }
 
     public void rotateToRotation() {
