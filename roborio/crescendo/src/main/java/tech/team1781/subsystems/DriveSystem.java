@@ -327,13 +327,15 @@ public class DriveSystem extends Subsystem {
                 - mRotGoToController.calculate(desiredWaypointPosition.z, currentPoseVector.z);
 
         EVector interpolatedPoint = EVector.newVector(xInterpolatedPoint, yInterpolatedPoint, rotInterpolatedPoint);
+        double heading =  desiredWaypointPosition.withZ(0).angleBetween(interpolatedPoint.withZ(0));
+        interpolatedPoint.z = heading;
         Pose2d interpolatedPos = interpolatedPoint.toPose2d();
 
         ChassisSpeeds desiredChassisSpeeds = mWaypointController.calculate(
                 getRobotPose(),
                 interpolatedPos,
                 mDesiredWaypoint.getSpeedMetersPerSecond(),
-                new Rotation2d(mDesiredWaypoint.getPosition().z));
+                new Rotation2d(rotInterpolatedPoint));
 
         if (getState() == DriveSystemState.DRIVE_NOTE) {
             final double DISTANCE_TOLERANCE = 1;
