@@ -54,6 +54,7 @@ public class Arm extends Subsystem {
     private double KICKSTAND_POSITION = 70.0; // was 73 Was 62.0
     private double mPrevAbsoluteAngle = KICKSTAND_POSITION;
     private double mPrevRecordedAngle = 0.0;
+    private IdleMode mIdleMode;
 
     public Arm() {
         super("Arm", ArmState.KICKSTAND);
@@ -77,8 +78,10 @@ public class Arm extends Subsystem {
         mArmAbsoluteEncoder.setInverted(true);
         mRightMotor.follow(mLeftMotor, true);
 
-        setIdleMode(IdleMode.kBrake);
-
+        mIdleMode = IdleMode.kBrake;
+        mRightMotor.setIdleMode(mIdleMode);
+        mLeftMotor.setIdleMode(mIdleMode);
+      
         System.out.println("-------------------------------------------------");
         System.out.println("   ARM SET TO KICKSTAND ENCODER POSITION         ");
         System.out.println("         ensure that kick stand is on            ");
@@ -228,12 +231,13 @@ public class Arm extends Subsystem {
     }
 
     private void setIdleMode(IdleMode mode) {
-        if(mLeftMotor.getIdleMode() == mode && mRightMotor.getIdleMode() == mode) {
+        if (mode == mIdleMode) {
             return;
         }
 
         mLeftMotor.setIdleMode(mode);
         mRightMotor.setIdleMode(mode);
+        mIdleMode = mode;
     }
 
     private void syncArm() {
