@@ -136,6 +136,7 @@ public class Arm extends Subsystem {
             setIdleMode(IdleMode.kBrake);
         }
 
+
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
 
         //dropped to ground, reset relative encoder only when going down.
@@ -249,10 +250,12 @@ public class Arm extends Subsystem {
     }
 
     private double getAngleAbsolute() {
+        final double ABSOLUTE_ENCODER_OFFSET = 0.29;
         double reportedPosition = mArmAbsoluteEncoder.getPosition();
         if (reportedPosition > 0.1) {
-            mPrevAbsoluteAngle = 360.0 * (mArmAbsoluteEncoder.getPosition() - 0.228); // the absolute encoder reads
+            mPrevAbsoluteAngle = 360.0 * (mArmAbsoluteEncoder.getPosition() - ABSOLUTE_ENCODER_OFFSET); // the absolute encoder reads
         }
+        System.out.println(mPrevAbsoluteAngle);
         return mPrevAbsoluteAngle;
     }
 
