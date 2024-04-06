@@ -153,7 +153,8 @@ public class DriveSystem extends Subsystem {
                 alignRotation();
                 break;
             case DRIVE_TRAJECTORY:
-                var trajectoryInitialPose = mDesiredTrajectory.getInitialState().getTargetHolonomicPose();
+               //THIS IS WRONG DON'T DO IT!
+               // var trajectoryInitialPose = mDesiredTrajectory.getInitialState().getTargetHolonomicPose();
                 // System.out.println(mDesiredTrajectory.hashCode() + " :: " +
                 // EVector.fromPose(trajectoryInitialPose));
                 followTrajectory();
@@ -339,7 +340,7 @@ public class DriveSystem extends Subsystem {
         desiredChassisSpeeds.omegaRadiansPerSecond = calculateRadiansPerSecond(getRobotPose().getRotation(), targetOrientation);
             //time requested (x, y, h, v, r) current (x, y, r) desired speeds (x, y,r)
         System.out.printf("%.4f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
-            currentTime,
+            trajectoryTimer.get(),
             targetPose.getX(),
             targetPose.getY(),
             targetPose.getRotation().getDegrees(),
