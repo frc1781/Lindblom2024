@@ -60,11 +60,14 @@ public class ControlSystem {
             new TrapezoidProfile.Constraints(1, 0.5));
     private final ProfiledPIDController mNoteAimController = new ProfiledPIDController(0.035, 0, 0,
             new TrapezoidProfile.Constraints(1, 0.5));
+    private final ProfiledPIDController mAmpAimController = new ProfiledPIDController(0.035, 0, 0,
+            new TrapezoidProfile.Constraints(1, 0.5));
     private final ProfiledPIDController mOdometryController = new ProfiledPIDController(4.1, 0, 0,
             new TrapezoidProfile.Constraints(1, 0.5));
 
     private boolean mAutoAiming = false;
     private double mAimingAngle = 0.0;
+    private double mStrafeDC = 0.0;
 
     // CURRENT STATE OF INPUT for HOLD DOWN BUTTONS
     // private boolean mKeepArmDownButton = false;
@@ -169,7 +172,7 @@ public class ControlSystem {
         double rotVelocity = -rotation.x * ConfigMap.DRIVER_ROTATION_INPUT_MULTIPIER + ((triggers.x) - (triggers.y));
 
         mDriveSystem.driveRaw(
-                mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
+                mAutoCenterAmp ? mStrafeDC : mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
                 mYDriveLimiter.calculate(yVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
                 mAutoAiming ? mAimingAngle
                         : (mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND));
@@ -246,6 +249,9 @@ public class ControlSystem {
     }
 
     public void setCenteringOnAprilTag(boolean isHeld) {
+        if (isHeld) {
+
+        }
         mCenterOnAprilTagButton = isHeld;
     }
 
@@ -272,11 +278,13 @@ public class ControlSystem {
 
         if (mAutoCenterAmp && !mCenterOnAprilTagButton) {
             if (isRed()) {
-                centerOnAprilTag(5);
+                strafeToAprilTag(5);
             } else {
-                centerOnAprilTag(6);
+                strafeToAprilTag(5);
             }
             mAutoAiming = true;
+        } else {
+            mStrafeDC = 0;
         }
     }
 
@@ -292,6 +300,17 @@ public class ControlSystem {
             // odometryAlignment(id);
             mAimingAngle = 0.0;
         }
+    }
+
+    public void strafeToAprilTag(int id) {
+       double tx = Limelight.getTX(ConfigMap.NOTE_LIMELIGHT);
+
+       if(tx == 0) {
+              mStrafeDC = 0;
+              return;
+       }
+
+         mStrafeDC = mAmpAimController.calculate(tx, 0);
     }
 
     public void odometryAlignment(int id) {
@@ -511,6 +530,7 @@ public class ControlSystem {
 
         switch (operatingMode) {
             case TELEOP:
+                Limelight.setPipeline(ConfigMap.NOTE_LIMELIGHT, ConfigMap.NOTE_LIMELIGHT_APRILTAG_PIPELINE);
 
                 mSettingStack.clear();
                 mXDriveLimiter.reset(0);
@@ -523,6 +543,7 @@ public class ControlSystem {
 
                 break;
             case AUTONOMOUS:
+                Limelight.setPipeline(ConfigMap.NOTE_LIMELIGHT, ConfigMap.NOTE_LIMELIGHT_NOTE_PIPELINE);
                 break;
             default:
                 break;
@@ -583,8 +604,7 @@ public class ControlSystem {
                 if (mArm.getState() == ArmState.COLLECT) {
                     mClimber.manualClimb(
                             -1,
-                            false
-                            );
+                            false);
                 } else {
                     mClimber.manualClimb(
                             -driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y,
