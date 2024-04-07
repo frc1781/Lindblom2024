@@ -107,6 +107,10 @@ public class Robot extends TimedRobot {
       }
     });
 
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.CENTER_AMP, (isPressed) -> {
+        mControlSystem.setCenteringOnAmp(isPressed);
+    });
+
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SPIT, (isPressed) -> {
       mControlSystem.setSpit(isPressed);
     });

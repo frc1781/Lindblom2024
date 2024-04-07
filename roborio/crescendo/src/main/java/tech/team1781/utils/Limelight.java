@@ -19,6 +19,16 @@ public class Limelight {
         return new Pose2d(values[0], values[1], new Rotation2d(values[5]));
     }
 
+    public static void setPipeline(String limelightName, int pipeline) {
+        NetworkTable table = NetworkTableInstance.getDefault().getTable(limelightName);
+        table.getEntry("pipeline").setDouble(pipeline);
+    }
+
+    public static int getPipeline(String limelightName) {
+        NetworkTable table = NetworkTableInstance.getDefault().getTable(limelightName);
+        return (int) table.getEntry("pipeline").getDouble(0.0);
+    }
+
     public static double getTX(String limelightName) {
         NetworkTable table = NetworkTableInstance.getDefault().getTable(limelightName);
         return table.getEntry("tx").getDouble(0.0);
