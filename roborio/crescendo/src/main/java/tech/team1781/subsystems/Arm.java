@@ -136,6 +136,7 @@ public class Arm extends Subsystem {
         } else {
             setIdleMode(IdleMode.kBrake);
         }
+        System.out.println(mIdleMode);
 
 
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());

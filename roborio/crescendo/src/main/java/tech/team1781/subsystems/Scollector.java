@@ -33,7 +33,7 @@ public class Scollector extends Subsystem {
     private final SparkPIDController mBottomPID;
 
 
-    private final EVector SHOOTER_PID = EVector.newVector(0.1, 0.0, 0.0);
+    private final EVector SHOOTER_PID = EVector.newVector(0.3, 0.0, 0.0);
     private final TrapezoidProfile.Constraints SHOOTER_CONSTRAINTS = new TrapezoidProfile.Constraints(9.0, 10);
     private ProfiledPIDController mBottomShooterPID = new ProfiledPIDController(SHOOTER_PID.x, SHOOTER_PID.y,
             SHOOTER_PID.z, SHOOTER_CONSTRAINTS);

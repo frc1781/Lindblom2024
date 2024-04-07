@@ -264,7 +264,6 @@ public class ControlSystem {
 
         if (!mCenterOnAprilTagButton) {
             mAutoAiming = false;
-            return;
         }
 
         if (mCenterOnAprilTagButton && !mAutoCenterAmp) {
@@ -276,11 +275,12 @@ public class ControlSystem {
             mAutoAiming = true;
         }
 
-        if (mAutoCenterAmp && !mCenterOnAprilTagButton) {
+        if (mAutoCenterAmp) {
             strafeToAprilTag();
         } else {
             mStrafeDC = 0;
         }
+
     }
 
     public void centerOnAprilTag(int id) {
@@ -288,7 +288,6 @@ public class ControlSystem {
                 isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG);
         double x = Limelight.getTX(ConfigMap.APRILTAG_LIMELIGHT);
 
-        System.out.println("aming angle " + mAimingAngle);
         if (x != 0.0) {
             mAimingAngle = mLimelightAimController.calculate(x, 0);
         } else {
@@ -305,7 +304,7 @@ public class ControlSystem {
               return;
        }
 
-         mStrafeDC = mAmpAimController.calculate(tx, 0);
+         mStrafeDC = -mAmpAimController.calculate(tx, 0);
     }
 
     public void odometryAlignment(int id) {
@@ -612,6 +611,7 @@ public class ControlSystem {
                             -driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y,
                             driverInput.getTriggerAxis(ConfigMap.CO_PILOT_PORT).x < 0.5);
                 }
+                autoAimingInputs();
                 break;
             case AUTONOMOUS:
                 localizationUpdates();
