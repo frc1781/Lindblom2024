@@ -48,7 +48,7 @@ public class Limelight {
         NetworkTable table = NetworkTableInstance.getDefault().getTable(limelightName);
         double[] values = table.getEntry("botpose").getDoubleArray(new double[0]);
 
-        if(values.length < 8) {
+        if (values.length < 8) {
             return 0;
         }
 
@@ -58,5 +58,21 @@ public class Limelight {
     public static void setTargetApriltag(String limelightName, int id) {
         NetworkTable table = NetworkTableInstance.getDefault().getTable(limelightName);
         table.getEntry("priorityid").setDouble(id);
+    }
+
+    public static boolean seesNote() {
+        return getTV(ConfigMap.NOTE_LIMELIGHT) == 1;
+    }
+
+    public static double getNoteDistance() {
+        if (!seesNote()) {
+            return -1;
+        }
+
+        final double COEFFICIENT = 1.69;
+        final double EXP = 0.48;
+        double area = Limelight.getTA(ConfigMap.NOTE_LIMELIGHT);
+
+        return COEFFICIENT / Math.pow(area, EXP);
     }
 }

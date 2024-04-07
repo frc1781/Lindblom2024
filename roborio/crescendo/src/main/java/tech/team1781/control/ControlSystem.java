@@ -24,6 +24,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput.ControllerSide;
 import tech.team1781.autonomous.AutoStep;
+import tech.team1781.autonomous.Positions;
+import tech.team1781.autonomous.WaypointHolder;
 import tech.team1781.subsystems.*;
 import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.DriveSystem.DriveSystemState;
@@ -90,17 +92,18 @@ public class ControlSystem {
     private HashMap<Number, Pose2d> aprilTagCoords = new HashMap<>();
 
     private Action mCurrentAction = null;
-    private SeekNoteState mCurrentSeekNoteState = SeekNoteState.SEEKING;
-    private EVector mSeekNoteTargetPose = EVector.newVector(-1, -1, -1);
     private Timer mSeekTimer = new Timer();
+
+    private WaypointHolder mLastAttemptedCenterNote;
+    private COLLECT_CENTER_NOTES_STATE mCollectCenterNoteState;
 
     public enum Action {
         COLLECT,
+        COLLECT_CENTER_NOTES,
         SHOOT,
         COLLECT_RAMP,
         COLLECT_AUTO_SHOOT,
         SYSID,
-        SEEK_NOTE,
         AUTO_AIM_SHOOT,
         OFF_KICKSTAND,
         SHOOT_NOTE_ONE,
@@ -358,67 +361,21 @@ public class ControlSystem {
         }
     }
 
-    // public void setAction(Action desiredAction) {
-    // setAutoStep(desiredAction, null, null);
-    // }
-
-    // public void setAutoStep(Action desiredAction, EVector position,
-    // PathPlannerPath path) {
-    // mStepTime.reset();
-    // mStepTime.start();
-
-    // mSeekTimer.reset();
-    // mSeekTimer.start();
-
-    // if (desiredAction != null) {
-    // mCurrentSettings = mActions.get(desiredAction);
-    // try {
-    // for (SubsystemSetting setting : mCurrentSettings) {
-    // setting.setState();
-    // }
-    // } catch (NullPointerException e) {
-    // }
-
-    // mCurrentAction = desiredAction;
-
-    // if (mCurrentAction == Action.SEEK_NOTE) {
-    // mCurrentSeekNoteState = SeekNoteState.SEEKING;
-    // mSeekNoteTargetPose = EVector.newVector(-1, -1, -1);
-    // }
-    // } else {
-    // mCurrentSettings = null;
-    // }
-
-    // if (position != null) {
-    // mDriveSystem.setPosition(position);
-    // mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
-    // } else if (path != null) {
-    // mDriveSystem.setTrajectoryFromPath(path);
-    // mDriveSystem.setDesiredState(DriveSystemState.DRIVE_TRAJECTORY);
-    // } else if (desiredAction != Action.SYSID && desiredAction !=
-    // Action.SEEK_NOTE) {
-    // mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
-    // }
-
-    // System.out.println(mDriveSystem.getName() + " :: " +
-    // mDriveSystem.getState().toString() + " || "
-    // + mScollector.getName() + " :: " + mScollector.getState().toString() + " || "
-    // + mClimber.getName()
-    // + " :: " + mClimber.getState().toString());
-    // }
-
     public void setAutoStep(AutoStep step) {
         if (step == null) {
             return;
         }
+
+        mStepTime.reset();
+        mStepTime.start();
 
         mCurrentSettings = null;
         mCurrentAction = null;
 
         switch (step.getType()) {
             case ACTION:
-                setAction(step.getAction());
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
+                setAction(step.getAction());
                 break;
             case PATH:
                 mDriveSystem.setTrajectoryFromPath(step.getPath());
@@ -473,11 +430,14 @@ public class ControlSystem {
 
         mCurrentAction = desiredAction;
 
-        if (mCurrentAction == Action.SEEK_NOTE) {
-            mCurrentSeekNoteState = SeekNoteState.SEEKING;
-            mSeekNoteTargetPose = EVector.newVector(-1, -1, -1);
-        } else if (mCurrentAction == Action.AUTO_AIM_SHOOT) {
+        if (mCurrentAction == Action.AUTO_AIM_SHOOT) {
             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
+        } else if (mCurrentAction == Action.COLLECT_CENTER_NOTES) {
+            mLastAttemptedCenterNote = new WaypointHolder(Positions.C5, 4);
+            mDriveSystem.setDesiredState(DriveSystemState.DRIVE_NOTE);
+            mDriveSystem.setWaypoint(mLastAttemptedCenterNote);
+            mCollectCenterNoteState = COLLECT_CENTER_NOTES_STATE.COLLECTING_C5;
+
         }
 
     }
@@ -486,12 +446,11 @@ public class ControlSystem {
         if (mCurrentAction == null && mDriveSystem.getState() == DriveSystemState.DRIVE_MANUAL) {
             return false;
         }
-        if (mCurrentAction == Action.SEEK_NOTE) {
-            return mCurrentSeekNoteState == SeekNoteState.DONE;
-        }
 
-        if (mDriveSystem.getState() == DriveSystemState.DRIVE_NOTE) {
+        if (mDriveSystem.getState() == DriveSystemState.DRIVE_NOTE && mCurrentAction != Action.COLLECT_CENTER_NOTES) {
             return mScollector.hasNote() || mScollector.noteCloseToShooter();
+        } else if (mCurrentAction == Action.COLLECT_CENTER_NOTES) {
+            return mScollector.hasNote();
         }
 
         return !isRunningAction() && mDriveSystem.matchesDesiredState();
@@ -580,8 +539,7 @@ public class ControlSystem {
                 if (mArm.getState() == ArmState.COLLECT) {
                     mClimber.manualClimb(
                             -1,
-                            false
-                            );
+                            false);
                 } else {
                     mClimber.manualClimb(
                             -driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y,
@@ -591,8 +549,13 @@ public class ControlSystem {
                         -driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.CO_PILOT_PORT).y);
                 autoAimingInputs();
                 break;
+
             case AUTONOMOUS:
                 localizationUpdates();
+                if (mCurrentAction == Action.COLLECT_CENTER_NOTES) {
+                    collectCenterNotes();
+                }
+
                 if (mScollector.getState() == ScollectorState.COLLECT
                         || (mScollector.getState() == ScollectorState.COLLECT_RAMP
                                 && (mDriveSystem.getState() == DriveSystemState.DRIVE_NOTE
@@ -606,15 +569,13 @@ public class ControlSystem {
                     }
                 }
 
-
                 if ((mCurrentAction == Action.AUTO_AIM_SHOOT || mCurrentAction == Action.SHOOT_NOTE_ONE
                         || mCurrentAction == Action.SHOOT_NOTE_TWO
                         || mCurrentAction == Action.SHOOT_NOTE_THREE || mCurrentAction == Action.SHOOT_SUBWOOFER)
                         && mDriveSystem.getState() == DriveSystem.DriveSystemState.DRIVE_MANUAL) {
                     centerOnAprilTag(isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG);
                     mDriveSystem.driveRaw(0, 0, mAimingAngle);
-                } else if (mDriveSystem.getState() == DriveSystemState.DRIVE_MANUAL
-                        && mCurrentAction != Action.SEEK_NOTE) {
+                } else if (mDriveSystem.getState() == DriveSystemState.DRIVE_MANUAL) {
                     mDriveSystem.driveRaw(0, 0, 0);
                     mAimingAngle = 0.0;
                 }
@@ -681,22 +642,6 @@ public class ControlSystem {
         } else if (limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0 && dist >= DIST_TOLERANCE) {
             mDriveSystem.updateVisionLocalization(limelightPose);
         }
-    }
-
-    private boolean seesNote() {
-        return Limelight.getTV(ConfigMap.NOTE_LIMELIGHT) == 1;
-    }
-
-    private double getNoteDistance() {
-        if (!seesNote()) {
-            return -1;
-        }
-
-        final double COEFFICIENT = 1.69;
-        final double EXP = 0.48;
-        double area = Limelight.getTA(ConfigMap.NOTE_LIMELIGHT);
-
-        return COEFFICIENT / Math.pow(area, EXP);
     }
 
     private void initActions() {
@@ -783,15 +728,55 @@ public class ControlSystem {
         }
     }
 
+    private void collectCenterNotes() {
+        switch (mCollectCenterNoteState) {
+            case COLLECTING_C5:
+                if (mScollector.hasNote()) {
+                    setCollectingCenterNotesState(COLLECT_CENTER_NOTES_STATE.DRIVING_INTERMEDIATE);
+                }
+                break;
+            case DRIVING_INTERMEDIATE:
+                if (mDriveSystem.matchesDesiredState()) {
+                    setCollectingCenterNotesState(COLLECT_CENTER_NOTES_STATE.COLLECTING_C4);
+                }
+                break;
+            case COLLECTING_C4:
+                if (mScollector.hasNote()) {
+                    setCollectingCenterNotesState(COLLECT_CENTER_NOTES_STATE.DRIVING_INTERMEDIATE);
+                }
+                break;
+        }
+    }
+
+    private void setCollectingCenterNotesState(COLLECT_CENTER_NOTES_STATE state) {
+        if (mCollectCenterNoteState == state) {
+            return;
+        }
+        final EVector INTERMEDIATE_POINT = EVector.positionWithDegrees(5.3, 1, 0);
+        final double COLLECT_NOTE_ANGLE = 90;
+
+        if (state == COLLECT_CENTER_NOTES_STATE.COLLECTING_C5) {
+            mDriveSystem.setWaypoint(new WaypointHolder(Positions.C5.withZ(isRed() ? 270 : 90), 4));
+        } else if (state == COLLECT_CENTER_NOTES_STATE.DRIVING_INTERMEDIATE) {
+            mDriveSystem.setWaypoint(new WaypointHolder(INTERMEDIATE_POINT, 4));
+        } else if (state == COLLECT_CENTER_NOTES_STATE.COLLECTING_C4) {
+            mDriveSystem.setWaypoint(new WaypointHolder(Positions.C4.withZ(isRed() ? 270 : 90), 4));
+        } else {
+            mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
+        }
+
+        mCollectCenterNoteState = state;
+    }
 
     public void disabledLighting() {
         mLEDs.setDesiredState(LedState.DEFAULT);
     }
 
-    private enum SeekNoteState {
-        SEEKING,
-        COLLECTING,
-        DONE
+    private enum COLLECT_CENTER_NOTES_STATE {
+        COLLECTING_C5,
+        DRIVING_INTERMEDIATE,
+        COLLECTING_C4
+
     }
 
 }

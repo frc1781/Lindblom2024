@@ -11,6 +11,11 @@ public class WaypointHolder {
         mSpeedMetersPerSecond = speedMetersPerSecond;
     }
 
+    public WaypointHolder(EVector position, double speedMetersPerSecond) {
+        mPosition = position;
+        mSpeedMetersPerSecond = speedMetersPerSecond;
+    }
+
     public double getSpeedMetersPerSecond() {
         return mSpeedMetersPerSecond;
     }
