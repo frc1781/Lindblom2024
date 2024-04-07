@@ -25,6 +25,8 @@ import tech.team1781.control.ControlSystem;
 import tech.team1781.utils.EVector;
 import tech.team1781.utils.NetworkLogger;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.PowerDistribution;
+
 import com.revrobotics.SparkLimitSwitch;
 import com.revrobotics.SparkMaxAlternateEncoder;
 
@@ -81,10 +83,6 @@ public class Arm extends Subsystem {
         mRightMotor.setIdleMode(mIdleMode);
         mLeftMotor.setIdleMode(mIdleMode);
       
-        System.out.println("-------------------------------------------------");
-        System.out.println("   ARM SET TO KICKSTAND ENCODER POSITION         ");
-        System.out.println("         ensure that kick stand is on            ");
-        System.out.println("-------------------------------------------------");
         System.out.println("conversion factor: " + mLeftEncoder.getPositionConversionFactor());
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
@@ -259,7 +257,6 @@ public class Arm extends Subsystem {
         if (reportedPosition > 0.1) {
             mPrevAbsoluteAngle = 360.0 * (mArmAbsoluteEncoder.getPosition() - ABSOLUTE_ENCODER_OFFSET); // the absolute encoder reads
         }
-        System.out.println(mPrevAbsoluteAngle);
         return mPrevAbsoluteAngle;
     }
 

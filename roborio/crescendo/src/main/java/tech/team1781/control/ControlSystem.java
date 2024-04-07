@@ -262,7 +262,7 @@ public class ControlSystem {
     public void autoAimingInputs() {
         mSeesAprilTagEntry.setBoolean(Limelight.getTX(ConfigMap.APRILTAG_LIMELIGHT) != 0.0);
 
-        if (!mAutoCenterAmp && !mCenterOnAprilTagButton) {
+        if (!mCenterOnAprilTagButton) {
             mAutoAiming = false;
             return;
         }
@@ -277,12 +277,7 @@ public class ControlSystem {
         }
 
         if (mAutoCenterAmp && !mCenterOnAprilTagButton) {
-            if (isRed()) {
-                strafeToAprilTag(5);
-            } else {
-                strafeToAprilTag(5);
-            }
-            mAutoAiming = true;
+            strafeToAprilTag();
         } else {
             mStrafeDC = 0;
         }
@@ -302,7 +297,7 @@ public class ControlSystem {
         }
     }
 
-    public void strafeToAprilTag(int id) {
+    public void strafeToAprilTag() {
        double tx = Limelight.getTX(ConfigMap.NOTE_LIMELIGHT);
 
        if(tx == 0) {
@@ -579,10 +574,16 @@ public class ControlSystem {
                     if (subsystem == mDriveSystem) {
                         finalDriveState = state;
                     } else if (subsystem == mScollector) {
-                        if (finalScollectorState == ScollectorState.RAMP_SHOOTER && state == ScollectorState.COLLECT) {
-                            finalScollectorState = ScollectorState.COLLECT_RAMP;
-                            continue;
-                        }
+                        if (state == ScollectorState.COLLECT) {
+                            if(finalScollectorState == ScollectorState.RAMP_SHOOTER) {
+                                finalScollectorState = ScollectorState.COLLECT_RAMP;
+                                continue;
+                            }
+                            if(finalScollectorState == ScollectorState.LOB) {
+                                finalScollectorState = ScollectorState.COLLECT_RAMP_LOB;
+                                continue;
+                            }
+                        } 
                         finalScollectorState = state;
                     } else if (subsystem == mArm) {
                         if (mArm.getState() == ArmState.MANUAL && state == ArmState.AUTO_ANGLE) {
@@ -611,9 +612,6 @@ public class ControlSystem {
                             -driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y,
                             driverInput.getTriggerAxis(ConfigMap.CO_PILOT_PORT).x < 0.5);
                 }
-                mClimber.manualTrapHooks(
-                        -driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.CO_PILOT_PORT).y);
-                autoAimingInputs();
                 break;
             case AUTONOMOUS:
                 localizationUpdates();

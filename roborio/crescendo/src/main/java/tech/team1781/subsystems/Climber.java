@@ -18,19 +18,14 @@ public class Climber extends Subsystem {
     private CANSparkMax mRightClimberMotor = new CANSparkMax(
         ConfigMap.RIGHT_CLIMBER_MOTOR,
         CANSparkMax.MotorType.kBrushless);
-    private CANSparkMax mTrapHookMotor = new CANSparkMax(
-        ConfigMap.TRAP_HOOK_MOTOR, 
-        CANSparkMax.MotorType.kBrushless);
 
     private SparkLimitSwitch mLeftReverseLimitSwitch = mLeftClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
     private SparkLimitSwitch mRightReverseLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
     private SparkLimitSwitch mLeftForwardLimitSwitch = mLeftClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
     private SparkLimitSwitch mRightForwardLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
     private PIDController mRightClimberPID = new PIDController(0.1, 0, 0);
-    private PIDController mTrapHookPID = new PIDController(0.1, 0, 0);
     private RelativeEncoder mLeftClimberEncoder = mLeftClimberMotor.getEncoder();
     private RelativeEncoder mRightClimberEncoder = mRightClimberMotor.getEncoder();
-    private RelativeEncoder mTrapHookEncoder = mTrapHookMotor.getEncoder();
 
 
     
@@ -38,23 +33,18 @@ public class Climber extends Subsystem {
         super("Climber", ClimberState.IDLE);
         mLeftClimberMotor.setInverted(false);
         mRightClimberMotor.setInverted(true);
-        mTrapHookMotor.setInverted(true); //temporary, we don't know this yet, positive should be letting go up negative pulling down
         mLeftClimberMotor.setIdleMode(IdleMode.kBrake);
         mRightClimberMotor.setIdleMode(IdleMode.kBrake);
-        mTrapHookMotor.setIdleMode(IdleMode.kBrake);
         mLeftClimberMotor.setSmartCurrentLimit(40);
         mRightClimberMotor.setSmartCurrentLimit(40);
-        mTrapHookMotor.setSmartCurrentLimit(40);
         mLeftReverseLimitSwitch = mLeftClimberMotor.getReverseLimitSwitch(Type.kNormallyOpen);
         mRightReverseLimitSwitch = mRightClimberMotor.getReverseLimitSwitch(Type.kNormallyOpen);
         mLeftForwardLimitSwitch = mLeftClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
         mRightForwardLimitSwitch = mRightClimberMotor.getForwardLimitSwitch(Type.kNormallyOpen);
         mRightClimberEncoder.setPosition(0);
         mLeftClimberEncoder.setPosition(0);
-        mTrapHookEncoder.setPosition(0);
         mLeftClimberMotor.burnFlash();
         mRightClimberMotor.burnFlash();
-        mTrapHookMotor.burnFlash();
 
         NetworkLogger.initLog("Climber Matches State", true);
         NetworkLogger.initLog("Climber Left Duty Cycle", 0.0);
@@ -166,17 +156,6 @@ public class Climber extends Subsystem {
         // System.out.printf("trap dc: %.2f\n", trapHookDutyCycle);
     }
 
-    public void manualTrapHooks(double dc) {
-        final double TOLERANCE  = 0.1;
-        if(Math.abs(dc) < TOLERANCE) {
-            mTrapHookMotor.set(0);
-            return;
-        }
-
-        mTrapHookMotor.set(dc);
-
-        System.out.println("trap dc: " + dc + " trap encoder: " + mTrapHookMotor.getEncoder().getPosition());
-    }
 
     public void pullTrapHooks() {
          //Trap hook motor set on reverse power to get the trap hooks to the encoder position that is all the way down

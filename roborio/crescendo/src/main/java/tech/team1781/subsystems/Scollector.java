@@ -95,7 +95,7 @@ public class Scollector extends Subsystem {
     }
 
     public enum ScollectorState implements SubsystemState {
-        IDLE, COLLECT, SPIT, SHOOT, COLLECT_RAMP, COLLECT_AUTO_SHOOT, RAMP_SHOOTER, LOB, SHOOT_ASAP
+        IDLE, COLLECT, SPIT, SHOOT, COLLECT_RAMP, COLLECT_AUTO_SHOOT, RAMP_SHOOTER, LOB, SHOOT_ASAP, COLLECT_RAMP_LOB
     }
 
     @Override
@@ -132,6 +132,10 @@ public class Scollector extends Subsystem {
                 collect();
                 driveMotors();
                 break;
+            case COLLECT_RAMP_LOB:
+                collect();
+                driveMotors(ConfigMap.MIN_SHOOTER_SPEED);
+            break;
             case SPIT:
                 mCollectorMotor.set(1);
                 mTopPID.setReference(0, ControlType.kVelocity);

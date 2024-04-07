@@ -27,6 +27,7 @@ public class ConfigMap {
         public static final double MIN_SHOOTER_SPEED = 4;
 
         // CAN IDs
+        public static final int PDH_ID = 1;
         public static final int FIRST_PCM_ID = 2;
 
         // 20-24 Drive train left
@@ -123,6 +124,7 @@ public class ConfigMap {
         public static final double DRIVER_ROTATION_INPUT_MULTIPIER = 0.5;
        
         public static final String RESET_NAVX = "START";
+        public static final String DRIVER_REJECT = "BACK";
         public static final String CENTER_AMP = "Y";
         public static final String KEEP_DOWN = "LB";
         public static final String COLLECT = "RB";
