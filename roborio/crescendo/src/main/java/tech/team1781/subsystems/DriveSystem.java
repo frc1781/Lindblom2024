@@ -84,7 +84,7 @@ public class DriveSystem extends Subsystem {
     private PIDController mYController = new PIDController(TRAJECTORY_PID.x, TRAJECTORY_PID.y, TRAJECTORY_PID.z);
     private ProfiledPIDController mRotController = new ProfiledPIDController(4, 0, 0,
             new TrapezoidProfile.Constraints(3.6 * Math.PI, 7.2 * Math.PI));
-    private PIDController mNoteAimController = new PIDController(0.5, 0, 0);
+    private PIDController mNoteAimController = new PIDController(1, 0, 0);
 
     private final EVector GO_TO_PID = EVector.newVector(0.1, 0, 0);
     private final double MAX_ACCELERATION = 8.0;
@@ -330,31 +330,28 @@ public class DriveSystem extends Subsystem {
 
         if (getState() == DriveSystemState.DRIVE_NOTE) {
             final double DISTANCE_TOLERANCE = 1.5;
-            final double ANGLE_TOLERANCE = 6;
+            final double ANGLE_TOLERANCE = 0.1;
 
             double dist = currentPoseVector.withZ(0)
                     .dist(
                             desiredWaypointPosition.withZ(0));
 
             if (dist <= DISTANCE_TOLERANCE) {
+
                 double xObservedNoteAngle = Math.toRadians(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT));
-
-
-                if (xObservedNoteAngle > ANGLE_TOLERANCE) {
-                    if (xObservedNoteAngle != 0.0) {
-                        desiredChassisSpeeds.omegaRadiansPerSecond = -mNoteAimController.calculate(xObservedNoteAngle,
-                                0);
-                        mDesiredWaypoint.changeRotation(getRobotAngle().getRadians());
-                        System.out.println(dist + " :: " + xObservedNoteAngle + " :: " + mDesiredWaypoint.getPosition().z);
-                    }
-                } else {
+                if (xObservedNoteAngle != 0.0) {
                     double currentAngle = getRobotAngle().getRadians();
-                    mDesiredWaypoint.changeX(
-                            Math.cos(currentAngle) * dist
-                                    + currentPoseVector.x);
-                    mDesiredWaypoint.changeY(
-                            Math.sin(currentAngle) * dist
-                                    + currentPoseVector.y);
+                    if (Math.abs(xObservedNoteAngle) > ANGLE_TOLERANCE) {
+                        desiredChassisSpeeds.omegaRadiansPerSecond = -mNoteAimController.calculate(xObservedNoteAngle, 0);
+                        mDesiredWaypoint.changeRotation(currentAngle);
+                    } else {
+                        mDesiredWaypoint.changeX(
+                                Math.cos(currentAngle) * dist
+                                        + currentPoseVector.x);
+                        mDesiredWaypoint.changeY(
+                                Math.sin(currentAngle) * dist
+                                        + currentPoseVector.y);
+                    }
                 }
 
             }

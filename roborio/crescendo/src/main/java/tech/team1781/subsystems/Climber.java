@@ -133,17 +133,6 @@ public class Climber extends Subsystem {
             rightDutyCycle = dutyCycle * 0.7;
         }
 
-
-        if (Math.abs(dutyCycle) > 0.1) {
-           System.out.printf("lc: %.2f  rc: %.2f re: %.2f  le:%.2f\n", 
-             leftDutyCycle,
-             rightDutyCycle,
-             mLeftClimberMotor.getEncoder().getPosition(),
-             mRightClimberMotor.getEncoder().getPosition()
-           );
-        }
-
-
         mLeftClimberMotor.set(leftDutyCycle);
         mRightClimberMotor.set(rightDutyCycle);
 

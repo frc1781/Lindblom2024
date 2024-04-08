@@ -136,7 +136,6 @@ public class Arm extends Subsystem {
         } else {
             setIdleMode(IdleMode.kBrake);
         }
-        System.out.println(mIdleMode);
 
 
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
@@ -236,7 +235,9 @@ public class Arm extends Subsystem {
 
         mLeftMotor.setIdleMode(mode);
         mRightMotor.setIdleMode(mode);
+        System.out.println(mode);
         mIdleMode = mode;
+        
     }
 
     private void syncArm() {
