@@ -363,15 +363,6 @@ public class DriveSystem extends Subsystem {
         return Math.abs(roll) > 15;
     }
 
-    private Rotation2d between0and2PI(Rotation2d r) {
-        double a = r.getRadians();
-        a %= 2 * Math.PI;
-        if (a < 0) {
-            a += 2 * Math.PI;
-        }
-        return new Rotation2d(a);
-    }
-
     public void setTrajectory(PathPlannerTrajectory trajectory) {
         mDesiredTrajectory = trajectory;
         PIDController xController; 
@@ -407,9 +398,8 @@ public class DriveSystem extends Subsystem {
         }
 
         var pathplannerState = mDesiredTrajectory.sample(trajectoryTimer.get());
-        Rotation2d targetOrientation = between0and2PI(pathplannerState.getTargetHolonomicPose().getRotation());
+        Rotation2d targetOrientation = EEGeometryUtil.normalizeAngle(pathplannerState.getTargetHolonomicPose().getRotation());
         Pose2d targetPose = new Pose2d(pathplannerState.positionMeters, pathplannerState.heading);
-        
         ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(
             getRobotPose(),
             targetPose,
