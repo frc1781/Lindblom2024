@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.WidgetType;
 import tech.team1781.ConfigMap;
@@ -23,9 +24,11 @@ import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
 import tech.team1781.utils.EEGeometryUtil;
 import tech.team1781.utils.EVector;
+import tech.team1781.utils.NetworkLogger;
 import tech.team1781.utils.PreferenceHandler;
 import tech.team1781.utils.PreferenceHandler.ValueHolder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.PowerDistribution;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -50,6 +53,9 @@ public class Robot extends TimedRobot {
   private DriverInput mDriverInput;
   private GenericEntry mSaveConfigButton = ConfigMap.CONFIG_TAB.add("Save Config", false)
       .withWidget(BuiltInWidgets.kToggleButton).getEntry();
+  private PowerDistribution mPowerDistributionHub = new PowerDistribution(ConfigMap.PDH_ID, ModuleType.kRev);
+  private final int PDH_CHANNELS = 24;
+  
 
   private boolean mRanTeleop = false;
   private boolean mRanAuto = false;
@@ -107,7 +113,15 @@ public class Robot extends TimedRobot {
       }
     });
 
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.CENTER_AMP, (isPressed) -> {
+        mControlSystem.setCenteringOnAmp(isPressed);
+    });
+
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SPIT, (isPressed) -> {
+      mControlSystem.setSpit(isPressed);
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.DRIVER_REJECT, (isPressed) -> {
       mControlSystem.setSpit(isPressed);
     });
 
@@ -163,6 +177,16 @@ public class Robot extends TimedRobot {
       mControlSystem.lobNote(isHeld);
     });
 
+    for(int i = 0; i < PDH_CHANNELS; i ++ ) {
+      NetworkLogger.initLog("PDH Channel Current: " + i, 0);
+    }
+    
+    NetworkLogger.initLog("PDH Power: ", 0);
+    NetworkLogger.initLog("PDH Total Current: ", 0);
+    NetworkLogger.initLog("PDH Total Energy: ", 0);
+    NetworkLogger.initLog("PDH Total Power: ", 0);
+    NetworkLogger.initLog("PDH Voltage: ", 0);
+    
   }
 
   @Override
@@ -171,6 +195,16 @@ public class Robot extends TimedRobot {
     // PreferenceHandler.updateValues();
     // mSaveConfigButton.setBoolean(false);
     // }
+
+    for(int i = 0; i < PDH_CHANNELS; i ++ ) {
+      NetworkLogger.logData("PDH Channel Current: " + i, mPowerDistributionHub.getCurrent(i));
+    }
+
+    NetworkLogger.logData("PDH Power: ", mPowerDistributionHub.getTotalPower());
+    NetworkLogger.logData("PDH Total Current: ", mPowerDistributionHub.getTotalCurrent());
+    NetworkLogger.logData("PDH Total Energy: ", mPowerDistributionHub.getTotalEnergy());
+    NetworkLogger.logData("PDH Voltage: ", mPowerDistributionHub.getVoltage());
+
 
   }
 

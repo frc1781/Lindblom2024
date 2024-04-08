@@ -24,9 +24,10 @@ public class ConfigMap {
         public static final int BLUE_SPEAKER_APRILTAG = 7;
 
         public static final double MAX_SHOOTER_SPEED = 7;
-        public static final double MIN_SHOOTER_SPEED = 4;
+        public static final double MIN_SHOOTER_SPEED = 3.5;
 
         // CAN IDs
+        public static final int PDH_ID = 1;
         public static final int FIRST_PCM_ID = 2;
 
         // 20-24 Drive train left
@@ -67,8 +68,8 @@ public class ConfigMap {
 
         // Swerve
 
-        public static final double DRIVETRAIN_TRACKWIDTH = Units.inchesToMeters(30);
-        public static final double DRIVETRAIN_WHEELBASE = Units.inchesToMeters(28);
+        public static final double DRIVETRAIN_TRACKWIDTH = Units.inchesToMeters(23);
+        public static final double DRIVETRAIN_WHEELBASE = Units.inchesToMeters(25);
         public static final double MAX_VELOCITY_METERS_PER_SECOND = 4.2;
         public static final double MAX_VELOCITY_FOR_UPDATE = 0.01;
         public static final double MAX_VELOCITY_RADIANS_PER_SECOND = (MAX_VELOCITY_METERS_PER_SECOND /
@@ -112,6 +113,8 @@ public class ConfigMap {
         //Limelight
         public static final String APRILTAG_LIMELIGHT = "limelight-back";
         public static final String NOTE_LIMELIGHT = "limelight-front";
+        public static final int NOTE_LIMELIGHT_NOTE_PIPELINE = 0;
+        public static final int NOTE_LIMELIGHT_APRILTAG_PIPELINE = 1;
 
         // Controls
         public static final int DRIVER_CONTROLLER_PORT = 0;
@@ -121,11 +124,13 @@ public class ConfigMap {
         public static final double DRIVER_ROTATION_INPUT_MULTIPIER = 0.5;
        
         public static final String RESET_NAVX = "START";
-        public static final String CALIBRATE_POSITION = "Y";
+        public static final String DRIVER_REJECT = "BACK";
+        public static final String CENTER_AMP = "Y";
         public static final String KEEP_DOWN = "LB";
         public static final String COLLECT = "RB";
         public static final String AUTO_AIM = "A";
         public static final String COLLECT_HIGH = "B";
+
         // Co-pilot controls
         public static final int CO_PILOT_PORT = 1;
         public static final String TRAP_OUT_BUTTON = "B";

@@ -33,7 +33,7 @@ public class Scollector extends Subsystem {
     private final SparkPIDController mBottomPID;
 
 
-    private final EVector SHOOTER_PID = EVector.newVector(0.1, 0.0, 0.0);
+    private final EVector SHOOTER_PID = EVector.newVector(0.3, 0.0, 0.0);
     private final TrapezoidProfile.Constraints SHOOTER_CONSTRAINTS = new TrapezoidProfile.Constraints(9.0, 10);
     private ProfiledPIDController mBottomShooterPID = new ProfiledPIDController(SHOOTER_PID.x, SHOOTER_PID.y,
             SHOOTER_PID.z, SHOOTER_CONSTRAINTS);
@@ -95,7 +95,7 @@ public class Scollector extends Subsystem {
     }
 
     public enum ScollectorState implements SubsystemState {
-        IDLE, COLLECT, SPIT, SHOOT, COLLECT_RAMP, COLLECT_AUTO_SHOOT, RAMP_SHOOTER, LOB, SHOOT_ASAP
+        IDLE, COLLECT, SPIT, SHOOT, COLLECT_RAMP, COLLECT_AUTO_SHOOT, RAMP_SHOOTER, LOB, SHOOT_ASAP, COLLECT_RAMP_LOB
     }
 
     @Override
@@ -132,6 +132,10 @@ public class Scollector extends Subsystem {
                 collect();
                 driveMotors();
                 break;
+            case COLLECT_RAMP_LOB:
+                collect();
+                driveMotors(ConfigMap.MIN_SHOOTER_SPEED);
+            break;
             case SPIT:
                 mCollectorMotor.set(1);
                 mTopPID.setReference(0, ControlType.kVelocity);

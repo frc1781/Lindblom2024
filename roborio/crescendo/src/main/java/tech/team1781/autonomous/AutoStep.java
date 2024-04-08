@@ -14,17 +14,19 @@ public class AutoStep {
     private PathPlannerPath mPath = null;
     private StepType mType = null;
 
+    private final double DEFAULT_SPEED = 0.25;
+
     public AutoStep(double maxTime, Action action, EVector psEVector) {
         mMaxTime = maxTime;
         mAction = action;
-        mWaypointHolder = new WaypointHolder(psEVector.x, psEVector.y, psEVector.z, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
+        mWaypointHolder = new WaypointHolder(psEVector.x, psEVector.y, psEVector.z, DEFAULT_SPEED);
 
         mType = StepType.POSITION_AND_ACTION;
     }
 
     public AutoStep(double maxTime, EVector psEVector) {
         mMaxTime = maxTime;
-        mWaypointHolder = new WaypointHolder(psEVector.x, psEVector.y, psEVector.z, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
+        mWaypointHolder = new WaypointHolder(psEVector.x, psEVector.y, psEVector.z, DEFAULT_SPEED);
 
         mType = StepType.POSITION;
     }
@@ -32,7 +34,7 @@ public class AutoStep {
     public AutoStep(double maxTime, Action action, EVector psEvector, boolean isNotePosition) {
         mMaxTime = maxTime;
         mAction = action;
-        mWaypointHolder = new WaypointHolder(psEvector.x, psEvector.y, psEvector.z, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
+        mWaypointHolder = new WaypointHolder(psEvector.x, psEvector.y, psEvector.z, DEFAULT_SPEED);
 
         if(isNotePosition)
             mType = StepType.NOTE_POSITION;

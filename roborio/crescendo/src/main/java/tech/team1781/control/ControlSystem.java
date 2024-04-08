@@ -62,11 +62,14 @@ public class ControlSystem {
             new TrapezoidProfile.Constraints(1, 0.5));
     private final ProfiledPIDController mNoteAimController = new ProfiledPIDController(0.035, 0, 0,
             new TrapezoidProfile.Constraints(1, 0.5));
+    private final ProfiledPIDController mAmpAimController = new ProfiledPIDController(0.035, 0, 0,
+            new TrapezoidProfile.Constraints(1, 0.5));
     private final ProfiledPIDController mOdometryController = new ProfiledPIDController(4.1, 0, 0,
             new TrapezoidProfile.Constraints(1, 0.5));
 
     private boolean mAutoAiming = false;
     private double mAimingAngle = 0.0;
+    private double mStrafeDC = 0.0;
 
     // CURRENT STATE OF INPUT for HOLD DOWN BUTTONS
     // private boolean mKeepArmDownButton = false;
@@ -77,7 +80,7 @@ public class ControlSystem {
     // private boolean mClimberRetractButton = false;
     // private boolean mClimberExtendButton = false;
     private boolean mCenterOnAprilTagButton = false;
-    private boolean mAutoCollectionButton = false;
+    private boolean mAutoCenterAmp = false;
     // private boolean mSeekSpeakerButton = false;
     // private boolean mCollectingHighButton = false;
     // private boolean mAmpButton = false;
@@ -172,7 +175,7 @@ public class ControlSystem {
         double rotVelocity = -rotation.x * ConfigMap.DRIVER_ROTATION_INPUT_MULTIPIER + ((triggers.x) - (triggers.y));
 
         mDriveSystem.driveRaw(
-                mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
+                mAutoCenterAmp ? mStrafeDC : mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
                 mYDriveLimiter.calculate(yVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
                 mAutoAiming ? mAimingAngle
                         : (mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND));
@@ -249,22 +252,24 @@ public class ControlSystem {
     }
 
     public void setCenteringOnAprilTag(boolean isHeld) {
+        if (isHeld) {
+
+        }
         mCenterOnAprilTagButton = isHeld;
     }
 
-    public void setAutoCollectionButton(boolean isHeld) {
-        mAutoCollectionButton = isHeld;
+    public void setCenteringOnAmp(boolean isHeld) {
+        mAutoCenterAmp = isHeld;
     }
 
     public void autoAimingInputs() {
         mSeesAprilTagEntry.setBoolean(Limelight.getTX(ConfigMap.APRILTAG_LIMELIGHT) != 0.0);
 
-        if (!mAutoCollectionButton && !mCenterOnAprilTagButton) {
+        if (!mCenterOnAprilTagButton) {
             mAutoAiming = false;
-            return;
         }
 
-        if (mCenterOnAprilTagButton && !mAutoCollectionButton) {
+        if (mCenterOnAprilTagButton && !mAutoCenterAmp) {
             if (isRed()) {
                 centerOnAprilTag(ConfigMap.RED_SPEAKER_APRILTAG);
             } else {
@@ -273,10 +278,12 @@ public class ControlSystem {
             mAutoAiming = true;
         }
 
-        if (mAutoCollectionButton && !mCenterOnAprilTagButton) {
-            centerNote();
-            mAutoAiming = true;
+        if (mAutoCenterAmp) {
+            strafeToAprilTag();
+        } else {
+            mStrafeDC = 0;
         }
+
     }
 
     public void centerOnAprilTag(int id) {
@@ -284,13 +291,23 @@ public class ControlSystem {
                 isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG);
         double x = Limelight.getTX(ConfigMap.APRILTAG_LIMELIGHT);
 
-        System.out.println("aming angle " + mAimingAngle);
         if (x != 0.0) {
             mAimingAngle = mLimelightAimController.calculate(x, 0);
         } else {
             // odometryAlignment(id);
             mAimingAngle = 0.0;
         }
+    }
+
+    public void strafeToAprilTag() {
+       double tx = Limelight.getTX(ConfigMap.NOTE_LIMELIGHT);
+
+       if(tx == 0) {
+              mStrafeDC = 0;
+              return;
+       }
+
+         mStrafeDC = -mAmpAimController.calculate(tx, 0);
     }
 
     public void odometryAlignment(int id) {
@@ -467,6 +484,7 @@ public class ControlSystem {
 
         switch (operatingMode) {
             case TELEOP:
+                Limelight.setPipeline(ConfigMap.NOTE_LIMELIGHT, ConfigMap.NOTE_LIMELIGHT_APRILTAG_PIPELINE);
 
                 mSettingStack.clear();
                 mXDriveLimiter.reset(0);
@@ -479,6 +497,7 @@ public class ControlSystem {
 
                 break;
             case AUTONOMOUS:
+                Limelight.setPipeline(ConfigMap.NOTE_LIMELIGHT, ConfigMap.NOTE_LIMELIGHT_NOTE_PIPELINE);
                 break;
             default:
                 break;
@@ -513,10 +532,16 @@ public class ControlSystem {
                     if (subsystem == mDriveSystem) {
                         finalDriveState = state;
                     } else if (subsystem == mScollector) {
-                        if (finalScollectorState == ScollectorState.RAMP_SHOOTER && state == ScollectorState.COLLECT) {
-                            finalScollectorState = ScollectorState.COLLECT_RAMP;
-                            continue;
-                        }
+                        if (state == ScollectorState.COLLECT) {
+                            if(finalScollectorState == ScollectorState.RAMP_SHOOTER) {
+                                finalScollectorState = ScollectorState.COLLECT_RAMP;
+                                continue;
+                            }
+                            if(finalScollectorState == ScollectorState.LOB) {
+                                finalScollectorState = ScollectorState.COLLECT_RAMP_LOB;
+                                continue;
+                            }
+                        } 
                         finalScollectorState = state;
                     } else if (subsystem == mArm) {
                         if (mArm.getState() == ArmState.MANUAL && state == ArmState.AUTO_ANGLE) {
@@ -545,8 +570,6 @@ public class ControlSystem {
                             -driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y,
                             driverInput.getTriggerAxis(ConfigMap.CO_PILOT_PORT).x < 0.5);
                 }
-                mClimber.manualTrapHooks(
-                        -driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.CO_PILOT_PORT).y);
                 autoAimingInputs();
                 break;
 

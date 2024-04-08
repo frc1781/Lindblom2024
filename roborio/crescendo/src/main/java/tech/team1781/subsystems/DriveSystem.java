@@ -79,13 +79,14 @@ public class DriveSystem extends Subsystem {
     private WaypointHolder mDesiredWaypoint = null;
     private boolean mIsManual = true;
 
-    private PIDController mXController = new PIDController(1, 0, 0);
-    private PIDController mYController = new PIDController(1, 0, 0);
+    private final EVector TRAJECTORY_PID = new EVector(3, 0, 0);
+    private PIDController mXController = new PIDController(TRAJECTORY_PID.x, TRAJECTORY_PID.y, TRAJECTORY_PID.z);
+    private PIDController mYController = new PIDController(TRAJECTORY_PID.x, TRAJECTORY_PID.y, TRAJECTORY_PID.z);
     private ProfiledPIDController mRotController = new ProfiledPIDController(4, 0, 0,
             new TrapezoidProfile.Constraints(3.6 * Math.PI, 7.2 * Math.PI));
-    private PIDController mNoteAimController = new PIDController(4, 0, 0);
+    private PIDController mNoteAimController = new PIDController(1, 0, 0);
 
-    private final EVector GO_TO_PID = EVector.newVector(0.4, 0, 0);
+    private final EVector GO_TO_PID = EVector.newVector(0.1, 0, 0);
     private final double MAX_ACCELERATION = 8.0;
     private ProfiledPIDController mXGoToController = new ProfiledPIDController(GO_TO_PID.x, GO_TO_PID.y, GO_TO_PID.z,
             new TrapezoidProfile.Constraints(ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, MAX_ACCELERATION));
@@ -316,29 +317,18 @@ public class DriveSystem extends Subsystem {
             return;
         }
 
-        var currentPose = getRobotPose();
         EVector currentPoseVector = EVector.fromPose(getRobotPose());
         EVector desiredWaypointPosition = mDesiredWaypoint.getPosition();
-        double xInterpolatedPoint = currentPoseVector.x
-                - mXGoToController.calculate(desiredWaypointPosition.x, currentPoseVector.x);
-        double yInterpolatedPoint = currentPoseVector.y
-                - mYGoToController.calculate(desiredWaypointPosition.y, currentPoseVector.y);
-        double rotInterpolatedPoint = currentPoseVector.z
-                - mRotGoToController.calculate(desiredWaypointPosition.z, currentPoseVector.z);
-
-        EVector interpolatedPoint = EVector.newVector(xInterpolatedPoint, yInterpolatedPoint, rotInterpolatedPoint);
-        double heading =  desiredWaypointPosition.withZ(0).angleBetween(interpolatedPoint.withZ(0));
-        interpolatedPoint.z = heading;
-        Pose2d interpolatedPos = interpolatedPoint.toPose2d();
+        double rotation = desiredWaypointPosition.z;
 
         ChassisSpeeds desiredChassisSpeeds = mWaypointController.calculate(
                 getRobotPose(),
-                interpolatedPos,
+                desiredWaypointPosition.toPose2d(),
                 mDesiredWaypoint.getSpeedMetersPerSecond(),
-                new Rotation2d(rotInterpolatedPoint));
+                new Rotation2d(rotation));
 
         if (getState() == DriveSystemState.DRIVE_NOTE) {
-            final double DISTANCE_TOLERANCE = 1;
+            final double DISTANCE_TOLERANCE = 1.5;
             final double ANGLE_TOLERANCE = 0.1;
 
             double dist = currentPoseVector.withZ(0)
@@ -346,28 +336,33 @@ public class DriveSystem extends Subsystem {
                             desiredWaypointPosition.withZ(0));
 
             if (dist <= DISTANCE_TOLERANCE) {
-                double xObservedNoteAngle = Math.toRadians(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT));
 
-                if (xObservedNoteAngle > ANGLE_TOLERANCE) {
-                    desiredChassisSpeeds.omegaRadiansPerSecond = mNoteAimController.calculate(xObservedNoteAngle, 0);
-                    mDesiredWaypoint.changeRotation(currentPose.getRotation().getRotations());
-                } else {
-                    double currentAngle = currentPoseVector.z;
-                    mDesiredWaypoint.changeX(
-                            Math.cos(currentAngle) * dist
-                                    + currentPoseVector.x);
-                    mDesiredWaypoint.changeY(
-                            Math.sin(currentAngle) * dist
-                                    + currentPoseVector.y);
+                double xObservedNoteAngle = Math.toRadians(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT));
+                if (xObservedNoteAngle != 0.0) {
+                    double currentAngle = getRobotAngle().getRadians();
+                    if (Math.abs(xObservedNoteAngle) > ANGLE_TOLERANCE) {
+                        desiredChassisSpeeds.omegaRadiansPerSecond = -mNoteAimController.calculate(xObservedNoteAngle, 0);
+                        mDesiredWaypoint.changeRotation(currentAngle);
+                    } else {
+                        mDesiredWaypoint.changeX(
+                                Math.cos(currentAngle) * dist
+                                        + currentPoseVector.x);
+                        mDesiredWaypoint.changeY(
+                                Math.sin(currentAngle) * dist
+                                        + currentPoseVector.y);
+                    }
                 }
 
             }
 
         }
 
-        System.out.println("Desired Pose: " + desiredWaypointPosition + " Current Pose: "
-                + EVector.fromPose2d(currentPose) + " Interpolated Pose: " + interpolatedPoint + " X: " + desiredChassisSpeeds.vxMetersPerSecond + " Y: " + desiredChassisSpeeds.vyMetersPerSecond + " Rot: " + desiredChassisSpeeds.omegaRadiansPerSecond);
-
+        // System.out.println("Desired Pose: " + desiredWaypointPosition.withZ(rotation)
+        // + " Current Pose: "
+        // + EVector.fromPose2d(currentPose) + " X: " +
+        // desiredChassisSpeeds.vxMetersPerSecond + " Y: " +
+        // desiredChassisSpeeds.vyMetersPerSecond + " Rot: " +
+        // desiredChassisSpeeds.omegaRadiansPerSecond);
 
         driveWithChassisSpeds(desiredChassisSpeeds);
     }
@@ -447,7 +442,6 @@ public class DriveSystem extends Subsystem {
         // System.out.println("Driving: " + speeds.vxMetersPerSecond + " " +
         // speeds.vyMetersPerSecond + " "
         // + speeds.omegaRadiansPerSecond);
-
 
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
