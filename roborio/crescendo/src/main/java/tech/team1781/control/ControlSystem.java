@@ -753,21 +753,17 @@ public class ControlSystem {
 
     private void collectCenterNotes() {
         switch (mCollectCenterNoteState) {
+            case COLLECTING_C4:
             case COLLECTING_C5:
-                if (mScollector.hasNote()) {
+                if (!mScollector.hasNote() && mDriveSystem.matchesDesiredState()) {
                     setCollectingCenterNotesState(COLLECT_CENTER_NOTES_STATE.DRIVING_INTERMEDIATE);
                 }
                 break;
             case DRIVING_INTERMEDIATE:
-                if (mDriveSystem.matchesDesiredState()) {
+                if(mDriveSystem.matchesDesiredState()) {
                     setCollectingCenterNotesState(COLLECT_CENTER_NOTES_STATE.COLLECTING_C4);
                 }
-                break;
-            case COLLECTING_C4:
-                if (mScollector.hasNote()) {
-                    setCollectingCenterNotesState(COLLECT_CENTER_NOTES_STATE.DRIVING_INTERMEDIATE);
-                }
-                break;
+            break;
         }
     }
 
@@ -775,15 +771,18 @@ public class ControlSystem {
         if (mCollectCenterNoteState == state) {
             return;
         }
-        final EVector INTERMEDIATE_POINT = EVector.positionWithDegrees(5.3, 1, 0);
-        final double COLLECT_NOTE_ANGLE = 90;
+
+        final EVector INTERMEDIATE_POINT = EVector.positionWithDegrees(7, 1.5, 0);
 
         if (state == COLLECT_CENTER_NOTES_STATE.COLLECTING_C5) {
-            mDriveSystem.setWaypoint(new WaypointHolder(Positions.C5.withZ(isRed() ? 270 : 90), 4));
+            mDriveSystem.setDesiredState(DriveSystemState.DRIVE_NOTE);
+            mDriveSystem.setWaypoint(new WaypointHolder(Positions.C5, 4));
         } else if (state == COLLECT_CENTER_NOTES_STATE.DRIVING_INTERMEDIATE) {
+            mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
             mDriveSystem.setWaypoint(new WaypointHolder(INTERMEDIATE_POINT, 4));
         } else if (state == COLLECT_CENTER_NOTES_STATE.COLLECTING_C4) {
-            mDriveSystem.setWaypoint(new WaypointHolder(Positions.C4.withZ(isRed() ? 270 : 90), 4));
+            mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
+            mDriveSystem.setWaypoint(new WaypointHolder(Positions.C4, 4));
         } else {
             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
         }
