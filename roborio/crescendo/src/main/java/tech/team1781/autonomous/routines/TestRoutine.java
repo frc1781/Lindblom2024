@@ -17,7 +17,7 @@ public class TestRoutine implements AutoRoutine {
     public AutoStep[] getSteps() {
         return new AutoStep[] {
             new AutoStep(5, Action.COLLECT_RAMP,EVector.positionWithDegrees(0, 0, 0)),
-            new AutoStep(5, Action.COLLECT_RAMP,EVector.positionWithDegrees(2, 0, 0) , true),
+            new AutoStep(5, Action.COLLECT_RAMP,EVector.positionWithDegrees(3, 0, 0) , true),
         };
     }
 
