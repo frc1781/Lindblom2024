@@ -97,8 +97,7 @@ public class DriveSystem extends Subsystem {
     private HolonomicDriveController mWaypointController = new HolonomicDriveController(mXController,
             mYController, mRotController);
 
-    private HolonomicDriveController mTrajectoryController = new HolonomicDriveController(mXController, mYController,
-            mRotController);
+    private HolonomicDriveController mTrajectoryController;
 
     private GenericEntry mRobotXEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "X Position", -1,
             ShuffleboardStyle.ROBOT_X);
