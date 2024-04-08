@@ -317,7 +317,6 @@ public class DriveSystem extends Subsystem {
             return;
         }
 
-        var currentPose = getRobotPose();
         EVector currentPoseVector = EVector.fromPose(getRobotPose());
         EVector desiredWaypointPosition = mDesiredWaypoint.getPosition();
         double rotation = desiredWaypointPosition.z;
