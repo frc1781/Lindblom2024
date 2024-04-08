@@ -249,8 +249,12 @@ public class ControlSystem {
     }
 
     public void setCenteringOnAprilTag(boolean isHeld) {
-        if (isHeld) {
+        if (isHeld != mCenterOnAprilTagButton) {
+            mLimelightAimController.reset(0);
 
+            if(!isHeld) {
+                mAimingAngle = 0;
+            }
         }
         mCenterOnAprilTagButton = isHeld;
     }
@@ -291,8 +295,8 @@ public class ControlSystem {
         if (x != 0.0) {
             mAimingAngle = mLimelightAimController.calculate(x, 0);
         } else {
-            // odometryAlignment(id);
-            mAimingAngle = 0.0;
+            odometryAlignment(id);
+            // mAimingAngle = 0.0;
         }
     }
 
@@ -316,7 +320,7 @@ public class ControlSystem {
         double angle = robotPose.angleBetween(targetPose) - Math.PI;
         angle = normalizeRadians(angle);
 
-        mAimingAngle = mOdometryController.calculate(mDriveSystem.getRobotAngle().getRadians(), angle);
+        mAimingAngle = mLimelightAimController.calculate(mDriveSystem.getRobotAngle().getRadians(), angle);
     }
 
     private double normalizeRadians(double rads) {
