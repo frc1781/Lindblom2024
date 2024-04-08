@@ -615,24 +615,6 @@ public class DriveSystem extends Subsystem {
         if (abs >= clampVal) {
             return clampVal * sig;
         }
-
         return input;
-
     }
-
-    private void followTrajectory(double time) {
-        if (mIsManual && mDesiredTrajectory == null) {
-            return;
-        }
-
-        var pathplannerState = mDesiredTrajectory.sample(time);
-
-        ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(
-                getRobotPose(),
-                new Pose2d(pathplannerState.positionMeters, pathplannerState.heading),
-                pathplannerState.velocityMps,
-                pathplannerState.getTargetHolonomicPose().getRotation());
-        driveWithChassisSpeds(desiredChassisSpeeds);
-    }
-
 }
