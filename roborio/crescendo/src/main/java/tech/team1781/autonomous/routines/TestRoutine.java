@@ -1,5 +1,6 @@
 package tech.team1781.autonomous.routines;
 
+import tech.team1781.Paths;
 import tech.team1781.autonomous.AutoStep;
 import tech.team1781.autonomous.AutonomousHandler.AutoRoutine;
 import tech.team1781.control.ControlSystem;
@@ -16,8 +17,7 @@ public class TestRoutine implements AutoRoutine {
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-            new AutoStep(5, Action.COLLECT_RAMP,EVector.positionWithDegrees(0, 0, 0)),
-            new AutoStep(5, Action.COLLECT_RAMP,EVector.positionWithDegrees(3, 0, 0) , true),
+            new AutoStep(5,Paths.getPathFromName("p2;c5")), 
         };
     }
 

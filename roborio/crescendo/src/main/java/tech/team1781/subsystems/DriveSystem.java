@@ -283,6 +283,7 @@ public class DriveSystem extends Subsystem {
             return;
         }
 
+        offset = EEGeometryUtil.normalizeAngle(offset);
         mNavXOffset = offset.getRadians();
         mPoseEstimator = new SwerveDrivePoseEstimator(mKinematics, getRobotAngle(), getModulePositions(),
                 getRobotPose());
