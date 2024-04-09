@@ -159,7 +159,6 @@ public class DriveSystem extends Subsystem {
                 alignRotation();
                 break;
             case DRIVE_TRAJECTORY:
-                var trajectoryInitialPose = mDesiredTrajectory.getInitialState().getTargetHolonomicPose();
                 followTrajectory();
                 break;
             case DRIVE_MANUAL:
