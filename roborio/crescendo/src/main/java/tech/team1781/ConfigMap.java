@@ -97,6 +97,7 @@ public class ConfigMap {
         public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.8167;
         public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.670;
         public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.116;
+        public static final double ARM_OFFSET = 0.29;
 
         //RUFUS's offset
         // public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.039;

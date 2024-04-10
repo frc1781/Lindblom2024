@@ -258,10 +258,9 @@ public class Arm extends Subsystem {
     }
 
     private double getAngleAbsolute() {
-        final double ABSOLUTE_ENCODER_OFFSET = 0.29;
         double reportedPosition = mArmAbsoluteEncoder.getPosition();
         if (reportedPosition > 0.1) {
-            mPrevAbsoluteAngle = 360.0 * (mArmAbsoluteEncoder.getPosition() - ABSOLUTE_ENCODER_OFFSET); // the absolute encoder reads
+            mPrevAbsoluteAngle = 360.0 * (mArmAbsoluteEncoder.getPosition() - ConfigMap.ARM_OFFSET); // the absolute encoder reads
         }
         return mPrevAbsoluteAngle;
     }
