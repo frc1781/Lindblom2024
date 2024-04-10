@@ -25,9 +25,10 @@ import tech.team1781.control.ControlSystem;
 import tech.team1781.utils.EVector;
 import tech.team1781.utils.NetworkLogger;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.PowerDistribution;
+
 import com.revrobotics.SparkLimitSwitch;
 import com.revrobotics.SparkMaxAlternateEncoder;
-import com.revrobotics.CANDigitalInput.LimitSwitchPolarity;
 
 public class Arm extends Subsystem {
     private CANSparkMax mRightMotor;
@@ -54,6 +55,7 @@ public class Arm extends Subsystem {
     private double KICKSTAND_POSITION = 70.0; // was 73 Was 62.0
     private double mPrevAbsoluteAngle = KICKSTAND_POSITION;
     private double mPrevRecordedAngle = 0.0;
+    private IdleMode mIdleMode;
 
     public Arm() {
         super("Arm", ArmState.KICKSTAND);
@@ -77,12 +79,10 @@ public class Arm extends Subsystem {
         mArmAbsoluteEncoder.setInverted(true);
         mRightMotor.follow(mLeftMotor, true);
 
-        setIdleMode(IdleMode.kBrake);
-
-        System.out.println("-------------------------------------------------");
-        System.out.println("   ARM SET TO KICKSTAND ENCODER POSITION         ");
-        System.out.println("         ensure that kick stand is on            ");
-        System.out.println("-------------------------------------------------");
+        mIdleMode = IdleMode.kBrake;
+        mRightMotor.setIdleMode(mIdleMode);
+        mLeftMotor.setIdleMode(mIdleMode);
+      
         System.out.println("conversion factor: " + mLeftEncoder.getPositionConversionFactor());
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
@@ -103,6 +103,9 @@ public class Arm extends Subsystem {
         mPositions.put(ArmState.NOTE_ONE, CURRENT_AIM_SPOT.NOTE_1.getPosition());
         mPositions.put(ArmState.NOTE_TWO, CURRENT_AIM_SPOT.NOTE_2.getPosition());
         mPositions.put(ArmState.NOTE_THREE, CURRENT_AIM_SPOT.NOTE_3.getPosition());
+        mPositions.put(ArmState.FAR_SHOT, 60.0);
+
+
 
         NetworkLogger.initLog("Arm Matches State", true);
         NetworkLogger.initLog("Raw Absolute Arm", 0.0);
@@ -122,7 +125,8 @@ public class Arm extends Subsystem {
         NOTE_ONE,
         NOTE_TWO,
         NOTE_THREE,
-        LOB
+        LOB,
+        FAR_SHOT
     }
 
     @Override
@@ -136,6 +140,7 @@ public class Arm extends Subsystem {
         } else {
             setIdleMode(IdleMode.kBrake);
         }
+
 
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
 
@@ -228,12 +233,15 @@ public class Arm extends Subsystem {
     }
 
     private void setIdleMode(IdleMode mode) {
-        if(mLeftMotor.getIdleMode() == mode && mRightMotor.getIdleMode() == mode) {
+        if (mode == mIdleMode) {
             return;
         }
 
         mLeftMotor.setIdleMode(mode);
         mRightMotor.setIdleMode(mode);
+        System.out.println(mode);
+        mIdleMode = mode;
+        
     }
 
     private void syncArm() {
@@ -250,9 +258,10 @@ public class Arm extends Subsystem {
     }
 
     private double getAngleAbsolute() {
+        final double ABSOLUTE_ENCODER_OFFSET = 0.29;
         double reportedPosition = mArmAbsoluteEncoder.getPosition();
         if (reportedPosition > 0.1) {
-            mPrevAbsoluteAngle = 360.0 * (mArmAbsoluteEncoder.getPosition() - 0.228); // the absolute encoder reads
+            mPrevAbsoluteAngle = 360.0 * (mArmAbsoluteEncoder.getPosition() - ABSOLUTE_ENCODER_OFFSET); // the absolute encoder reads
         }
         return mPrevAbsoluteAngle;
     }

@@ -160,11 +160,8 @@ public class EVector {
 
     public EVector flipIfRed() {
         if(ControlSystem.isRed()) {
-
-            System.out.println("FLIPPING: " + this);
             return EEGeometryUtil.flipPosition(this);
         } else {
-            System.out.println("NOT FLIPPING: " + this);
             return this;
         }
     }

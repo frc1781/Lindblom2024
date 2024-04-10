@@ -96,10 +96,10 @@ public class LEDs extends Subsystem {
 
     @Override
     public void disabledPeriodic() {
-        rainbow();
+        // rainbow();
 
         // doubleVwoop(252, 186, 3, 138, 0, 0);
-        // vwoop(0,0,255);
+        vwoop(0,0,255);
         mLedController.setData(mLedBuffer);
     }
 
@@ -147,7 +147,7 @@ public class LEDs extends Subsystem {
 
     private void vwoop(int r, int g, int b) {
         final int SPEED = 1;
-        final int FOCUS_LENGTH = 10;
+        final int FOCUS_LENGTH = 5;
         int evenLength = LED_LENGTH - (LED_LENGTH % 2);
         int halfLength = evenLength / 2;
 

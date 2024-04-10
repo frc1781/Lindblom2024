@@ -3,28 +3,58 @@ package tech.team1781.autonomous;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
 
+import tech.team1781.ConfigMap;
 import tech.team1781.control.ControlSystem.Action;
 import tech.team1781.utils.EVector;
 
 public class AutoStep {
     private double mMaxTime = -1;
     private Action mAction = null;
-    private EVector mPosition = null;
+    private WaypointHolder mWaypointHolder = null;
     private PathPlannerPath mPath = null;
     private StepType mType = null;
 
-    public AutoStep(double maxTime, Action action, EVector position) {
+    private final double DEFAULT_SPEED = 0.25;
+
+    public AutoStep(double maxTime, Action action, EVector psEVector) {
         mMaxTime = maxTime;
         mAction = action;
-        mPosition = position;
+        mWaypointHolder = new WaypointHolder(psEVector.x, psEVector.y, psEVector.z, DEFAULT_SPEED);
 
         mType = StepType.POSITION_AND_ACTION;
     }
 
-    public AutoStep(double maxTime, Action action, EVector position, boolean isNotePosition) {
+    public AutoStep(double maxTime, EVector psEVector) {
+        mMaxTime = maxTime;
+        mWaypointHolder = new WaypointHolder(psEVector.x, psEVector.y, psEVector.z, DEFAULT_SPEED);
+
+        mType = StepType.POSITION;
+    }
+
+    public AutoStep(double maxTime, Action action, EVector psEvector, boolean isNotePosition) {
         mMaxTime = maxTime;
         mAction = action;
-        mPosition = position;
+        mWaypointHolder = new WaypointHolder(psEvector.x, psEvector.y, psEvector.z, DEFAULT_SPEED);
+
+        if(isNotePosition)
+            mType = StepType.NOTE_POSITION;
+        else 
+            mType = StepType.POSITION;
+    }
+
+
+    public AutoStep(double maxTime, Action action, EVector psEVector, double speedMetersPerSecond) {
+        mMaxTime = maxTime;
+        mAction = action;
+        mWaypointHolder = new WaypointHolder(psEVector.x, psEVector.y, psEVector.z, speedMetersPerSecond);
+
+        mType = StepType.POSITION_AND_ACTION;
+    }
+
+    public AutoStep(double maxTime, Action action, EVector psEVector, double speedMetersPerSecond, boolean isNotePosition) {
+        mMaxTime = maxTime;
+        mAction = action;
+        mWaypointHolder = new WaypointHolder(psEVector.x, psEVector.y, psEVector.z, speedMetersPerSecond);
 
         if(isNotePosition)
             mType = StepType.NOTE_POSITION;
@@ -47,9 +77,9 @@ public class AutoStep {
         mType = StepType.ACTION;
     }
 
-    public AutoStep(double maxTime, EVector position) {
+    public AutoStep(double maxTime, EVector position, double speedMetersPerSecond) {
         mMaxTime = maxTime;
-        mPosition = position;
+        mWaypointHolder = new WaypointHolder(position.x, position.y, position.z, speedMetersPerSecond);
 
         mType = StepType.POSITION;
     }
@@ -62,14 +92,14 @@ public class AutoStep {
     }
 
     public AutoStep(double maxTime, double angleRads) {
-        mPosition = EVector.newVector(0,0,angleRads);
+        mWaypointHolder = new WaypointHolder(0, 0, angleRads, 0);
         mMaxTime = maxTime;
         
         mType = StepType.ROTATION;
     }
 
     public AutoStep(double maxTime, double angleRads, Action action) {
-        mPosition = EVector.newVector(0,0,angleRads);
+        mWaypointHolder = new WaypointHolder(0, 0, angleRads, 0);
         mMaxTime = maxTime;
         mAction = action;
         
@@ -90,8 +120,8 @@ public class AutoStep {
         return mAction;
     }
 
-    public EVector getPosition() {
-        return mPosition;
+    public WaypointHolder getWaypointHolder() {
+        return mWaypointHolder;
     }
 
     public PathPlannerPath getPath() {
@@ -104,31 +134,24 @@ public class AutoStep {
 
     @Override
     public String toString() {
-        // if(mPath == null) {
-        // return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Position
-        // " + mPosition;
-        // }
-        // return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Position
-        // " + mPosition + ", Path Starting Pose: " +
-        // mPath.getPreviewStartingHolonomicPose();
         switch (mType) {
             case ACTION:
                 return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ")";
             case POSITION:
-                return "AutoStep: ( Time: " + mMaxTime + ", Position: " + mPosition + ")";
+                return "AutoStep: ( Time: " + mMaxTime + ", Position: " + mWaypointHolder.getPosition() + ", Speed MPS: "+ mWaypointHolder.getSpeedMetersPerSecond() + ")";
             case PATH:
                 return "AutoStep: ( Time: " + mMaxTime + ", Path: " + mPath + ")";
             case WAIT:
                 return "AutoStep: ( Time: " + mMaxTime + ")";
             case POSITION_AND_ACTION:
             case NOTE_POSITION:
-                return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Position: " + mPosition + ")";
+                return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Position: " + mWaypointHolder.getPosition() + ", Speed MPS: "+ mWaypointHolder.getSpeedMetersPerSecond() + ")";
             case PATH_AND_ACTION:
                 return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Path: " + mPath + ")";
             case ROTATION:
-                return "AutoStep: ( Time: " + mMaxTime + ", Rotation: " + mPosition.z + ")";
+                return "AutoStep: ( Time: " + mMaxTime + ", Rotation: " + mWaypointHolder.getPosition().z + ")";
             case ROTATION_AND_ACTION:
-                return "AutoStep: ( Time: " + mMaxTime +  ", Action" + mAction + ", Rotation: " + mPosition.z + ")";
+                return "AutoStep: ( Time: " + mMaxTime + ", Action: " + mAction + ", Rotation: " + mWaypointHolder.getPosition().z + ")";
             default:
                 return "AutoStep: ( Time: " + mMaxTime + ")";
         }

@@ -85,72 +85,73 @@ public class AutonomousBuilder {
     }
 
     public static AutoStep[] buildFromPositions(Paths.AutonomousPosition... positions) {
-        Paths paths = new Paths();
+        // Paths paths = new Paths();
 
-        LinkedList<AutoStep> autonomousSteps = new LinkedList<>();
-        final double shootTime = 5;
-        final double rampedShootTime = 1;
-        autonomousSteps.add(new AutoStep(100, Action.OFF_KICKSTAND));
-        autonomousSteps.add(new AutoStep(100, Action.COLLECT_RAMP));
-        autonomousSteps.add(new AutoStep(shootTime, Action.COLLECT_AUTO_SHOOT));
+        // LinkedList<AutoStep> autonomousSteps = new LinkedList<>();
+        // final double shootTime = 5;
+        // final double rampedShootTime = 1;
+        // autonomousSteps.add(new AutoStep(100, Action.OFF_KICKSTAND));
+        // autonomousSteps.add(new AutoStep(100, Action.COLLECT_RAMP));
+        // autonomousSteps.add(new AutoStep(shootTime, Action.COLLECT_AUTO_SHOOT));
 
-        Paths.AutonomousPosition previous = positions[0];
-        Paths.AutonomousPosition lastNonCenter = null;
-        for (int i = 1; i < positions.length; i++) {
-            Paths.AutonomousPosition current = positions[i];
-            if (isCenter(current)) {
-                PathPlannerPath toCenterPath;
-                PathPlannerPath fromCenterPath = Paths.getPathFromName("c;back");
-                if (isCenter(previous)) {
-                    // TEMPORARY PATH
-                    toCenterPath = paths.getPathNonStatic(AutonomousPosition.NOTE_1, Paths.AutonomousPosition.CENTER_1);
-                } else {
-                    toCenterPath = paths.getPathNonStatic(previous, current);
-                }
+        // Paths.AutonomousPosition previous = positions[0];
+        // Paths.AutonomousPosition lastNonCenter = null;
+        // for (int i = 1; i < positions.length; i++) {
+        //     Paths.AutonomousPosition current = positions[i];
+        //     if (isCenter(current)) {
+        //         PathPlannerPath toCenterPath;
+        //         PathPlannerPath fromCenterPath = Paths.getPathFromName("c;back");
+        //         if (isCenter(previous)) {
+        //             // TEMPORARY PATH
+        //             toCenterPath = paths.getPathNonStatic(AutonomousPosition.NOTE_1, Paths.AutonomousPosition.CENTER_1);
+        //         } else {
+        //             toCenterPath = paths.getPathNonStatic(previous, current);
+        //         }
 
-                final double WAIT_TIME = 2;
-                final double SEEK_TIME = 5; 
-                final double POSITION_WAIT = 6;
-                double toCenterTime = toCenterPath.getTrajectory(new ChassisSpeeds(), new Rotation2d()).getTotalTimeSeconds();
-                double fromCenterTime = fromCenterPath.getTrajectory(new ChassisSpeeds(), new Rotation2d()).getTotalTimeSeconds();
+        //         final double WAIT_TIME = 2;
+        //         final double SEEK_TIME = 5; 
+        //         final double POSITION_WAIT = 6;
+        //         double toCenterTime = toCenterPath.getTrajectory(new ChassisSpeeds(), new Rotation2d()).getTotalTimeSeconds();
+        //         double fromCenterTime = fromCenterPath.getTrajectory(new ChassisSpeeds(), new Rotation2d()).getTotalTimeSeconds();
 
-                var toCenter = new AutoStep(toCenterTime + WAIT_TIME, toCenterPath);
-                var seek = new AutoStep(SEEK_TIME, Action.SEEK_NOTE);
-                var toStarting = new AutoStep(POSITION_WAIT, EVector.fromPose(toCenterPath.getPreviewStartingHolonomicPose()));
-                var toBack = new AutoStep(fromCenterTime + WAIT_TIME, Action.COLLECT_RAMP,fromCenterPath);
+        //         var toCenter = new AutoStep(toCenterTime + WAIT_TIME, toCenterPath);
+        //         var seek = new AutoStep(SEEK_TIME, Action.SEEK_NOTE);
+        //         var toStarting = new AutoStep(POSITION_WAIT, EVector.fromPose(toCenterPath.getPreviewStartingHolonomicPose()));
+        //         var toBack = new AutoStep(fromCenterTime + WAIT_TIME, Action.COLLECT_RAMP,fromCenterPath);
 
-                autonomousSteps.add(toCenter);
-                autonomousSteps.add(seek);
-                autonomousSteps.add(toStarting);
-                autonomousSteps.add(toBack);
+        //         autonomousSteps.add(toCenter);
+        //         autonomousSteps.add(seek);
+        //         autonomousSteps.add(toStarting);
+        //         autonomousSteps.add(toBack);
 
-            } else {
-                lastNonCenter = current;
-                PathPlannerPath path = paths.getPathNonStatic(previous, current);
+        //     } else {
+        //         lastNonCenter = current;
+        //         PathPlannerPath path = paths.getPathNonStatic(previous, current);
 
-                PathPlannerTrajectory tempTraj = path.getTrajectory(new ChassisSpeeds(), new Rotation2d());
-                final double shootWaitTimeAfterPath = 0;
-                AutoStep currentStep = new AutoStep(tempTraj.getTotalTimeSeconds() + shootWaitTimeAfterPath,
-                        Action.COLLECT_RAMP, path);
-                autonomousSteps.add(currentStep);
-            }
+        //         PathPlannerTrajectory tempTraj = path.getTrajectory(new ChassisSpeeds(), new Rotation2d());
+        //         final double shootWaitTimeAfterPath = 0;
+        //         AutoStep currentStep = new AutoStep(tempTraj.getTotalTimeSeconds() + shootWaitTimeAfterPath,
+        //                 Action.COLLECT_RAMP, path);
+        //         autonomousSteps.add(currentStep);
+        //     }
 
-            AutoStep shootStep = new AutoStep(rampedShootTime, Action.AUTO_AIM_SHOOT);
-            autonomousSteps.add(shootStep);
+        //     AutoStep shootStep = new AutoStep(rampedShootTime, Action.AUTO_AIM_SHOOT);
+        //     autonomousSteps.add(shootStep);
 
             
-            previous = positions[i];
-        }
+        //     previous = positions[i];
+        // }
 
-        AutoStep[] ret_val = new AutoStep[autonomousSteps.size()];
-        System.out.println("length: " + autonomousSteps.size());
+        // AutoStep[] ret_val = new AutoStep[autonomousSteps.size()];
+        // System.out.println("length: " + autonomousSteps.size());
 
-        for (int i = 0; i < autonomousSteps.size(); i++) {
-            ret_val[i] = autonomousSteps.get(i);
-            System.out.println(ret_val[i].toString());
-        }
+        // for (int i = 0; i < autonomousSteps.size(); i++) {
+        //     ret_val[i] = autonomousSteps.get(i);
+        //     System.out.println(ret_val[i].toString());
+        // }
 
-        return ret_val;
+        // return ret_val;
+        return null;
 
     }
 
