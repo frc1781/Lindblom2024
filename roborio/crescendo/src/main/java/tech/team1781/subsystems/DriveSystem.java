@@ -84,7 +84,7 @@ public class DriveSystem extends Subsystem {
     private PIDController mYController = new PIDController(TRAJECTORY_PID.x, TRAJECTORY_PID.y, TRAJECTORY_PID.z);
     private ProfiledPIDController mRotController = new ProfiledPIDController(4, 0, 0,
             new TrapezoidProfile.Constraints(3.6 * Math.PI, 7.2 * Math.PI));
-    private PIDController mNoteAimController = new PIDController(1, 0, 0);
+    private PIDController mNoteAimController = new PIDController(4, 0, 0);
 
     private final EVector GO_TO_PID = EVector.newVector(0.1, 0, 0);
     private final double MAX_ACCELERATION = 8.0;
@@ -158,7 +158,6 @@ public class DriveSystem extends Subsystem {
                 alignRotation();
                 break;
             case DRIVE_TRAJECTORY:
-                var trajectoryInitialPose = mDesiredTrajectory.getInitialState().getTargetHolonomicPose();
                 followTrajectory();
                 break;
             case DRIVE_MANUAL:
@@ -282,6 +281,7 @@ public class DriveSystem extends Subsystem {
             return;
         }
 
+        offset = EEGeometryUtil.normalizeAngle(offset);
         mNavXOffset = offset.getRadians();
         mPoseEstimator = new SwerveDrivePoseEstimator(mKinematics, getRobotAngle(), getModulePositions(),
                 getRobotPose());
@@ -312,7 +312,7 @@ public class DriveSystem extends Subsystem {
                 new Rotation2d(rotation));
 
         if (getState() == DriveSystemState.DRIVE_NOTE) {
-            final double DISTANCE_TOLERANCE = 1.5;
+            final double DISTANCE_TOLERANCE = 3;
             final double ANGLE_TOLERANCE = 0.1;
 
             double dist = currentPoseVector.withZ(0)
@@ -325,9 +325,11 @@ public class DriveSystem extends Subsystem {
                 if (xObservedNoteAngle != 0.0) {
                     double currentAngle = getRobotAngle().getRadians();
                     if (Math.abs(xObservedNoteAngle) > ANGLE_TOLERANCE) {
-                        desiredChassisSpeeds.omegaRadiansPerSecond = -mNoteAimController.calculate(xObservedNoteAngle, 0);
+                        desiredChassisSpeeds.omegaRadiansPerSecond = mNoteAimController.calculate(xObservedNoteAngle, 0);
+                        System.out.println("rot rps: " + desiredChassisSpeeds.omegaRadiansPerSecond);
                         mDesiredWaypoint.changeRotation(currentAngle);
-                    } else {
+                    // } else {
+                        System.out.println("drinvg towards note");
                         mDesiredWaypoint.changeX(
                                 Math.cos(currentAngle) * dist
                                         + currentPoseVector.x);

@@ -105,6 +105,7 @@ public class ControlSystem {
         SYSID,
         SEEK_NOTE,
         AUTO_AIM_SHOOT,
+        SHOOT_FAR,
         OFF_KICKSTAND,
         SHOOT_NOTE_ONE,
         SHOOT_NOTE_TWO,
@@ -172,7 +173,8 @@ public class ControlSystem {
         double rotVelocity = -rotation.x * ConfigMap.DRIVER_ROTATION_INPUT_MULTIPIER + ((triggers.x) - (triggers.y));
 
         mDriveSystem.driveRaw(
-                mAutoCenterAmp ? mStrafeDC : mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
+                mAutoCenterAmp ? mStrafeDC
+                        : mXDriveLimiter.calculate(xVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
                 mYDriveLimiter.calculate(yVelocity) * ConfigMap.MAX_VELOCITY_METERS_PER_SECOND,
                 mAutoAiming ? mAimingAngle
                         : (mRotDriveLimiter.calculate(rotVelocity) * ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND));
@@ -252,7 +254,7 @@ public class ControlSystem {
         if (isHeld != mCenterOnAprilTagButton) {
             mLimelightAimController.reset(0);
 
-            if(!isHeld) {
+            if (!isHeld) {
                 mAimingAngle = 0;
             }
         }
@@ -301,14 +303,14 @@ public class ControlSystem {
     }
 
     public void strafeToAprilTag() {
-       double tx = Limelight.getTX(ConfigMap.NOTE_LIMELIGHT);
+        double tx = Limelight.getTX(ConfigMap.NOTE_LIMELIGHT);
 
-       if(tx == 0) {
-              mStrafeDC = 0;
-              return;
-       }
+        if (tx == 0) {
+            mStrafeDC = 0;
+            return;
+        }
 
-         mStrafeDC = -mAmpAimController.calculate(tx, 0);
+        mStrafeDC = -mAmpAimController.calculate(tx, 0);
     }
 
     public void odometryAlignment(int id) {
@@ -435,6 +437,8 @@ public class ControlSystem {
 
         mCurrentSettings = null;
         mCurrentAction = null;
+        mStepTime.reset();
+        mStepTime.start();
 
         switch (step.getType()) {
             case ACTION:
@@ -578,15 +582,15 @@ public class ControlSystem {
                         finalDriveState = state;
                     } else if (subsystem == mScollector) {
                         if (state == ScollectorState.COLLECT) {
-                            if(finalScollectorState == ScollectorState.RAMP_SHOOTER) {
+                            if (finalScollectorState == ScollectorState.RAMP_SHOOTER) {
                                 finalScollectorState = ScollectorState.COLLECT_RAMP;
                                 continue;
                             }
-                            if(finalScollectorState == ScollectorState.LOB) {
+                            if (finalScollectorState == ScollectorState.LOB) {
                                 finalScollectorState = ScollectorState.COLLECT_RAMP_LOB;
                                 continue;
                             }
-                        } 
+                        }
                         finalScollectorState = state;
                     } else if (subsystem == mArm) {
                         if (mArm.getState() == ArmState.MANUAL && state == ArmState.AUTO_ANGLE) {
@@ -631,7 +635,6 @@ public class ControlSystem {
                         mArm.setDesiredState(ArmState.COLLECT);
                     }
                 }
-
 
                 if ((mCurrentAction == Action.AUTO_AIM_SHOOT || mCurrentAction == Action.SHOOT_NOTE_ONE
                         || mCurrentAction == Action.SHOOT_NOTE_TWO
@@ -709,26 +712,17 @@ public class ControlSystem {
         }
     }
 
-    private boolean seesNote() {
-        return Limelight.getTV(ConfigMap.NOTE_LIMELIGHT) == 1;
-    }
 
-    private double getNoteDistance() {
-        if (!seesNote()) {
-            return -1;
-        }
-
-        final double COEFFICIENT = 1.69;
-        final double EXP = 0.48;
-        double area = Limelight.getTA(ConfigMap.NOTE_LIMELIGHT);
-
-        return COEFFICIENT / Math.pow(area, EXP);
-    }
+    
 
     private void initActions() {
         defineAction(Action.SHOOT_SUBWOOFER_NO_AIM,
                 new SubsystemSetting(mScollector, ScollectorState.SHOOT_ASAP),
                 new SubsystemSetting(mArm, ArmState.SUBWOOFER));
+
+        defineAction(Action.SHOOT_FAR,
+                new SubsystemSetting(mScollector, ScollectorState.SHOOT_ASAP),
+                new SubsystemSetting(mArm, ArmState.FAR_SHOT));
 
         defineAction(Action.REJECT_NOTE,
                 new SubsystemSetting(mArm, ArmState.COLLECT),
@@ -808,7 +802,6 @@ public class ControlSystem {
                 break;
         }
     }
-
 
     public void disabledLighting() {
         mLEDs.setDesiredState(LedState.DEFAULT);

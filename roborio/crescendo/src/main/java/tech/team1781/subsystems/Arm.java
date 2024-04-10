@@ -103,6 +103,9 @@ public class Arm extends Subsystem {
         mPositions.put(ArmState.NOTE_ONE, CURRENT_AIM_SPOT.NOTE_1.getPosition());
         mPositions.put(ArmState.NOTE_TWO, CURRENT_AIM_SPOT.NOTE_2.getPosition());
         mPositions.put(ArmState.NOTE_THREE, CURRENT_AIM_SPOT.NOTE_3.getPosition());
+        mPositions.put(ArmState.FAR_SHOT, 60.0);
+
+
 
         NetworkLogger.initLog("Arm Matches State", true);
         NetworkLogger.initLog("Raw Absolute Arm", 0.0);
@@ -122,7 +125,8 @@ public class Arm extends Subsystem {
         NOTE_ONE,
         NOTE_TWO,
         NOTE_THREE,
-        LOB
+        LOB,
+        FAR_SHOT
     }
 
     @Override

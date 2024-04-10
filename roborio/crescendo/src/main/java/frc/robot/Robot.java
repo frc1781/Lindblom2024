@@ -83,6 +83,8 @@ public class Robot extends TimedRobot {
         new P1N1C1ThreeNote(),
         new FourNote(),
         new P3C5N3(),
+        new P3C5C4(),
+        new P3C4C3(),
         new TestRoutine());
 
     mDriverInput = new DriverInput();
