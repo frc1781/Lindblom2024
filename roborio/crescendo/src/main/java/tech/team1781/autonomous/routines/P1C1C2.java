@@ -19,10 +19,15 @@ public class P1C1C2 implements AutoRoutine {
                 new AutoStep(100, Action.OFF_KICKSTAND),
                 new AutoStep(0.1, Positions.P1),
                 new AutoStep(5, Action.SHOOT_SUBWOOFER_NO_AIM),
-                new AutoStep(1.4, Action.COLLECT_RAMP_STAY_DOWN,EVector.positionWithDegrees(1.4, 7.7, 0)),
+                new AutoStep(1.4, Action.COLLECT_RAMP_STAY_DOWN, EVector.positionWithDegrees(1.4, 7.7, 0)),
                 new AutoStep(1.4, Action.COLLECT_RAMP_STAY_DOWN, EVector.positionWithDegrees(6.6, 7.7, 0)),
-                new AutoStep(1.4, Action.COLLECT_RAMP_STAY_DOWN,EVector.positionWithDegrees(16, 4.5, 0)),
+                new AutoStep(1.4, Action.COLLECT_RAMP_STAY_DOWN, EVector.positionWithDegrees(6, 4.5, 0)),
                 new AutoStep(1, Action.COLLECT_RAMP, Positions.C1, true),
+                new AutoStep(1.4, Action.COLLECT_RAMP, EVector.positionWithDegrees(5.3, 7, 20)),
+                new AutoStep(5, Action.SHOOT_FAR),
+                new AutoStep(1, Action.COLLECT_RAMP, Positions.C2.withZ(Math.toRadians(310)), true),
+                new AutoStep(1.4, Action.COLLECT_RAMP, EVector.positionWithDegrees(5.3, 7, 20)),
+                new AutoStep(5, Action.SHOOT_FAR),
 
         };
     }

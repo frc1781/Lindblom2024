@@ -85,6 +85,7 @@ public class Robot extends TimedRobot {
         new P3C5N3(),
         new P3C5C4(),
         new P3C4C3(),
+        new P1C1C2(),
         new TestRoutine());
 
     mDriverInput = new DriverInput();
