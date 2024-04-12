@@ -135,8 +135,9 @@ public class Arm extends Subsystem {
         NetworkLogger.logData("Raw Absolute Arm", getAngleAbsolute());
 
         // testEntry.setDouble(getAngleAbsolute());
+        // System.out.println("arm angle-----> "+ mLeftEncoder.getPosition());
         if (mLeftEncoder.getPosition() < 10) {
-            setIdleMode(IdleMode.kCoast);
+            setIdleMode(IdleMode.kBrake);
         } else {
             setIdleMode(IdleMode.kCoast);
         }
@@ -178,13 +179,13 @@ public class Arm extends Subsystem {
             }
 
             mLeftMotor.set(armDutyCycle);
-            System.out.printf("%.4f %.4f %.2f %.2f %.2f\n",
-                armDutyCycle,
-                mArmAbsoluteEncoder.getPosition(),
-                mLeftEncoder.getPosition(),
-                getAngleAbsolute(),
-                getAngle()
-            );
+            // System.out.printf("%.4f %.4f %.2f %.2f %.2f\n",
+            //     armDutyCycle,
+            //     mArmAbsoluteEncoder.getPosition(),
+            //     mLeftEncoder.getPosition(),
+            //     getAngleAbsolute(),
+            //     getAngle()
+            //);
         } else {
             mSparkErrorEntry.setBoolean(true);
         }
@@ -227,6 +228,7 @@ public class Arm extends Subsystem {
     }
 
     private void setIdleMode(IdleMode mode) {
+        //System.out.println("idle mode: " + mode);
         if (mode == mIdleMode) {
             return;
         }
