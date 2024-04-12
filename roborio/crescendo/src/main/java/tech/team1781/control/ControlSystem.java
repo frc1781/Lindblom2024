@@ -469,6 +469,11 @@ public class ControlSystem {
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_NOTE);
                 setAction(step.getAction());
                 break;
+            case NOTE_TRAJECTORY:
+                mDriveSystem.setTrajectoryFromPath(step.getPath());
+                mDriveSystem.setDesiredState(DriveSystemState.DRIVE_TRAJECTORY_NOTE);
+                setAction(step.getAction());
+                break;
             case ROTATION:
                 mDriveSystem.setRotation(step.getWaypointHolder().getPosition().z);
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_ROTATION);
@@ -546,6 +551,7 @@ public class ControlSystem {
 
                 break;
             case AUTONOMOUS:
+                System.out.println();
                 Limelight.setPipeline(ConfigMap.NOTE_LIMELIGHT, ConfigMap.NOTE_LIMELIGHT_NOTE_PIPELINE);
                 break;
             default:
@@ -626,10 +632,10 @@ public class ControlSystem {
                 if (mScollector.getState() == ScollectorState.COLLECT
                         || (mScollector.getState() == ScollectorState.COLLECT_RAMP
                                 && (mDriveSystem.getState() == DriveSystemState.DRIVE_NOTE
-                                        || mDriveSystem.getState() == DriveSystemState.DRIVE_SETPOINT))
+                                        || mDriveSystem.getState() == DriveSystemState.DRIVE_SETPOINT || mDriveSystem.getState() == DriveSystemState.DRIVE_TRAJECTORY))
                         || (mScollector.getState() == ScollectorState.COLLECT_AUTO_SHOOT
                                 && (mArm.getState() != ArmState.NOTE_ONE && mArm.getState() != ArmState.NOTE_THREE))) {
-                    if (mScollector.hasNote()) {
+                    if (mScollector.hasNote() || mScollector.noteCloseToShooter()) {
                         mArm.setDesiredState(ArmState.AUTO_ANGLE);
                     } else {
                         mArm.setDesiredState(ArmState.COLLECT);

@@ -258,10 +258,9 @@ public class Arm extends Subsystem {
     }
 
     private double getAngleAbsolute() {
-        final double ABSOLUTE_ENCODER_OFFSET = 0.29;
         double reportedPosition = mArmAbsoluteEncoder.getPosition();
         if (reportedPosition > 0.1) {
-            mPrevAbsoluteAngle = 360.0 * (mArmAbsoluteEncoder.getPosition() - ABSOLUTE_ENCODER_OFFSET); // the absolute encoder reads
+            mPrevAbsoluteAngle = 360.0 * (mArmAbsoluteEncoder.getPosition() - ConfigMap.ARM_OFFSET); // the absolute encoder reads
         }
         return mPrevAbsoluteAngle;
     }
@@ -308,7 +307,7 @@ public class Arm extends Subsystem {
     }
 
     private boolean matchesPosition() {
-        return Math.abs(mLeftEncoder.getPosition() - mDesiredPosition) < 1.0;
+        return Math.abs(mLeftEncoder.getPosition() - mDesiredPosition) < 1.5;
     }
 
     private enum CURRENT_AIM_SPOT {

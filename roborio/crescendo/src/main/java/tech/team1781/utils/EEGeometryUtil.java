@@ -5,7 +5,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 public class EEGeometryUtil {
-    private static final double FIELD_LENGTH = 16.54;
+    public static final double FIELD_LENGTH = 16.54;
 
     public static Rotation2d normalizeAngle(Rotation2d angle) {
        double radians = angle.getRadians();

@@ -14,7 +14,7 @@ public class AutoStep {
     private PathPlannerPath mPath = null;
     private StepType mType = null;
 
-    private final double DEFAULT_SPEED = 0.25;
+    public static double DEFAULT_SPEED = 0.25;
 
     public AutoStep(double maxTime, Action action, EVector psEVector) {
         mMaxTime = maxTime;
@@ -68,6 +68,14 @@ public class AutoStep {
         mPath = path;
 
         mType = StepType.PATH_AND_ACTION;
+    }
+
+    public AutoStep(double maxTime, Action action, PathPlannerPath path, boolean isNotePosition) {
+        mMaxTime = maxTime;
+        mAction = action;
+        mPath = path;
+
+        mType = isNotePosition ? StepType.NOTE_TRAJECTORY : StepType.PATH_AND_ACTION;
     }
 
     public AutoStep(double maxTime, Action action) {
@@ -166,7 +174,8 @@ public class AutoStep {
         WAIT,
         POSITION_AND_ACTION,
         ROTATION_AND_ACTION,
-        PATH_AND_ACTION
+        PATH_AND_ACTION,
+        NOTE_TRAJECTORY
     }
 
 }
