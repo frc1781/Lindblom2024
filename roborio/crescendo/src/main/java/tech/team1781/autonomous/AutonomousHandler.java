@@ -44,6 +44,7 @@ public class AutonomousHandler {
         mSelectedRoutine = mAutoChooser.getSelected();
         mSampledSteps = mAutoChooser.getSelected().getSteps();
 
+        System.out.println("THIS IS THE AUTO NAME: " + mSelectedRoutine.getName());
 
         sampledStep = mSelectedRoutine.getSteps()[0];
         startStep(sampledStep);

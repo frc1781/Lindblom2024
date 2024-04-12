@@ -307,7 +307,7 @@ public class Arm extends Subsystem {
     }
 
     private boolean matchesPosition() {
-        return Math.abs(mLeftEncoder.getPosition() - mDesiredPosition) < 1.0;
+        return Math.abs(mLeftEncoder.getPosition() - mDesiredPosition) < 1.5;
     }
 
     private enum CURRENT_AIM_SPOT {

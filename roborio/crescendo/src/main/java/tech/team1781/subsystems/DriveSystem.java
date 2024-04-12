@@ -3,7 +3,6 @@ package tech.team1781.subsystems;
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
-import com.pathplanner.lib.path.PathPlannerTrajectory.State;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -12,34 +11,26 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import tech.team1781.ConfigMap;
 import tech.team1781.ShuffleboardStyle;
+import tech.team1781.autonomous.AutoStep;
 import tech.team1781.autonomous.WaypointHolder;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.swerve.KrakenL2SwerveModule;
-import tech.team1781.swerve.NEOL1SwerveModule;
 import tech.team1781.swerve.SwerveModule;
 import tech.team1781.utils.EEGeometryUtil;
 import tech.team1781.utils.EVector;
 import tech.team1781.utils.Limelight;
 import tech.team1781.utils.NetworkLogger;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.io.ObjectInputFilter;
 
 public class DriveSystem extends Subsystem {
 
@@ -143,7 +134,8 @@ public class DriveSystem extends Subsystem {
         DRIVE_TRAJECTORY,
         DRIVE_MANUAL,
         DRIVE_ROTATION,
-        SYSID
+        SYSID,
+        DRIVE_TRAJECTORY_NOTE
     }
 
     @Override
@@ -157,6 +149,7 @@ public class DriveSystem extends Subsystem {
             case DRIVE_ROTATION:
                 alignRotation();
                 break;
+            case DRIVE_TRAJECTORY_NOTE:
             case DRIVE_TRAJECTORY:
                 followTrajectory();
                 break;
@@ -367,14 +360,19 @@ public class DriveSystem extends Subsystem {
 
     public void setTrajectory(PathPlannerTrajectory trajectory) {
         mDesiredTrajectory = trajectory;
-        PIDController xController; 
-        PIDController yController; 
-        ProfiledPIDController rotController;
-        xController = new PIDController(0.1, 0.0, 0.001);
-        yController = new PIDController(0.1, 0.0, 0.001);
-        rotController = new ProfiledPIDController(5.0, 0.01, 0.01, new TrapezoidProfile.Constraints(4.28, 8.14));
-        rotController.enableContinuousInput(0, 2 * Math.PI);
-        mTrajectoryController = new HolonomicDriveController(xController, yController, rotController);
+        PIDController xTrajectoryController;
+        PIDController yTrajectoryController;
+        ProfiledPIDController rotTrajectoryController;
+        xTrajectoryController = new PIDController(0.1, 0.0, 0.001);
+        yTrajectoryController = new PIDController(0.1, 0.0, 0.001);
+        rotTrajectoryController = new ProfiledPIDController(5.0, 0.01, 0.01, new TrapezoidProfile.Constraints(4.28, 8.14));
+        rotTrajectoryController.enableContinuousInput(0, 2 * Math.PI);
+        mTrajectoryController = new HolonomicDriveController(xTrajectoryController, yTrajectoryController, rotTrajectoryController);
+
+        mXController.reset();
+        mYController.reset();
+        mRotController.reset(getRobotAngle().getRadians());
+
         trajectoryTimer = new Timer();
         trajectoryTimer.reset();
         trajectoryTimer.start();
@@ -389,6 +387,7 @@ public class DriveSystem extends Subsystem {
             setOdometry(startingPose);
             mOdometryBeenSet = true;
         }
+
         // also use current speed of robot
         PathPlannerTrajectory pathTrajectory = new PathPlannerTrajectory(path, new ChassisSpeeds(), getRobotAngle());
         setTrajectory(pathTrajectory);
@@ -399,35 +398,48 @@ public class DriveSystem extends Subsystem {
             return;
         }
 
-        var pathplannerState = mDesiredTrajectory.sample(trajectoryTimer.get());
-        Rotation2d targetOrientation = EEGeometryUtil.normalizeAngle(pathplannerState.getTargetHolonomicPose().getRotation());
-        Pose2d targetPose = new Pose2d(pathplannerState.positionMeters, pathplannerState.heading);
-        ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(
-            getRobotPose(),
-            targetPose,
-            pathplannerState.velocityMps,
-            targetOrientation
-        );
+        ChassisSpeeds speed;
+
+
+        if (getState() != DriveSystemState.DRIVE_TRAJECTORY_NOTE || Limelight.getTX(ConfigMap.NOTE_LIMELIGHT) == 0.0) {
+            var pathplannerState = mDesiredTrajectory.sample(trajectoryTimer.get());
+            Pose2d targetPose = new Pose2d(pathplannerState.positionMeters, pathplannerState.heading);
+            Rotation2d targetOrientation = EEGeometryUtil.normalizeAngle(pathplannerState.getTargetHolonomicPose().getRotation());
+            speed = mTrajectoryController.calculate(
+                    getRobotPose(),
+                    targetPose,
+                    pathplannerState.velocityMps,
+                    targetOrientation
+            );
 
             //time requested (x, y, h, v, r) current (x, y, r) desired speeds (x, y,r)
-        System.out.printf("%.4f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
-            trajectoryTimer.get(),
-            targetPose.getX(),
-            targetPose.getY(),
-            targetPose.getRotation().getDegrees(),
-            pathplannerState.velocityMps,
-            targetOrientation.getDegrees(),
-            getRobotPose().getX(),  
-            getRobotPose().getY(), 
-            mFrontLeft.getCurrentState().speedMetersPerSecond, 
-            getRobotPose().getRotation().getDegrees(),
-            desiredChassisSpeeds.vxMetersPerSecond,
-            desiredChassisSpeeds.vyMetersPerSecond,
-            desiredChassisSpeeds.omegaRadiansPerSecond,
-            mNavXOffset
-        );
+            System.out.printf("%.4f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
+                    trajectoryTimer.get(),
+                    targetPose.getX(),
+                    targetPose.getY(),
+                    targetPose.getRotation().getDegrees(),
+                    pathplannerState.velocityMps,
+                    targetOrientation.getDegrees(),
+                    getRobotPose().getX(),
+                    getRobotPose().getY(),
+                    mFrontLeft.getCurrentState().speedMetersPerSecond,
+                    getRobotPose().getRotation().getDegrees(),
+                    speed.vxMetersPerSecond,
+                    speed.vyMetersPerSecond,
+                    speed.omegaRadiansPerSecond,
+                    mNavXOffset
+            );
 
-        driveWithChassisSpeeds(desiredChassisSpeeds);
+            driveWithChassisSpeeds(speed);
+        } else if (Limelight.getTX(ConfigMap.NOTE_LIMELIGHT) != 0.0) {
+            Pose2d pose = mDesiredTrajectory.getEndState().getTargetHolonomicPose();
+            double x = (pose.getX() * (ControlSystem.isRed() ? -1 : 1)) + (ControlSystem.isRed() ? EEGeometryUtil.FIELD_LENGTH : 0);
+            double y = pose.getY();
+            double rot = ControlSystem.isRed() ? (-pose.getRotation().getRadians()) + Math.PI : pose.getRotation().getRadians();
+            Rotation2d rot2D = EEGeometryUtil.normalizeAngle(new Rotation2d(rot));
+            setWaypoint(new WaypointHolder(x, y, rot2D.getRadians(), AutoStep.DEFAULT_SPEED));
+            setDesiredState(DriveSystemState.DRIVE_NOTE);
+        }
     }
     
     public void setWaypoint(WaypointHolder waypoint) {
