@@ -104,7 +104,7 @@ public class ConfigMap {
         public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.221;
         public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.010;
         public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.291;
-        public static final double ARM_OFFSET = 0.97;
+        public static final double ARM_OFFSET = 0.556;
 
         // Constants
         public static final double MIN_THRESHOLD_ARM = 0;

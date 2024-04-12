@@ -138,23 +138,10 @@ public class Arm extends Subsystem {
         if (mLeftEncoder.getPosition() < 10) {
             setIdleMode(IdleMode.kCoast);
         } else {
-            setIdleMode(IdleMode.kBrake);
+            setIdleMode(IdleMode.kCoast);
         }
-
-
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
-
-        //dropped to ground, reset relative encoder only when going down.
-        if (mArmAbsoluteEncoder.getPosition() < 0.24 && mLeftEncoder.getVelocity() < 0.0) {
-            mLeftEncoder.setPosition(0.01);
-        }
-        if (mLeftEncoder.getPosition() < 0.0) {
-            mLeftEncoder.setPosition(0.01);
-        }
         syncArm();
-        // if (Math.abs(mLeftEncoder.getVelocity()) < 0) {
-            // mLeftEncoder.setPosition(getAngleAbsolute());
-        // }
     }
 
     @Override
@@ -190,8 +177,8 @@ public class Arm extends Subsystem {
                 armDutyCycle = 0.0;
             }
 
-            //mLeftMotor.set(armDutyCycle);
-            System.out.printf("%.2f %.2f %.2f %.2f %.2f\n",
+            mLeftMotor.set(armDutyCycle);
+            System.out.printf("%.4f %.4f %.2f %.2f %.2f\n",
                 armDutyCycle,
                 mArmAbsoluteEncoder.getPosition(),
                 mLeftEncoder.getPosition(),
