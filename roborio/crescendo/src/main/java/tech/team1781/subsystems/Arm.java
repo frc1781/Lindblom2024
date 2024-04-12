@@ -190,7 +190,14 @@ public class Arm extends Subsystem {
                 armDutyCycle = 0.0;
             }
 
-            mLeftMotor.set(armDutyCycle);
+            //mLeftMotor.set(armDutyCycle);
+            System.out.printf("%.2f %.2f %.2f %.2f %.2f\n",
+                armDutyCycle,
+                mArmAbsoluteEncoder.getPosition(),
+                mLeftEncoder.getPosition(),
+                getAngleAbsolute(),
+                getAngle()
+            );
         } else {
             mSparkErrorEntry.setBoolean(true);
         }
