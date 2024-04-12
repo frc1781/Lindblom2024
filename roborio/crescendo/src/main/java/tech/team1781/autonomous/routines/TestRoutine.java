@@ -38,6 +38,7 @@ public class TestRoutine implements AutoRoutine {
                 new AutoStep(1.5, Action.COLLECT_RAMP, Paths.getPathFromName("p2;n1"), true),
                 new AutoStep(2, Action.COLLECT_RAMP, Paths.getPathFromName("n1;p2")),
                 new AutoStep(2, Action.SHOOT_SUBWOOFER)
+//                new AutoStep(2, Action.COLLECT_RAMP, Paths.getPathFromName("p2;"))
 
 
 /*                new AutoStep(2, Action.SHOOT_NOTE_TWO),
