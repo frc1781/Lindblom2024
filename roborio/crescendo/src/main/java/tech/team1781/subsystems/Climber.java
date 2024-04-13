@@ -27,8 +27,6 @@ public class Climber extends Subsystem {
     private RelativeEncoder mLeftClimberEncoder = mLeftClimberMotor.getEncoder();
     private RelativeEncoder mRightClimberEncoder = mRightClimberMotor.getEncoder();
 
-
-    
     public Climber() {
         super("Climber", ClimberState.IDLE);
         mLeftClimberMotor.setInverted(false);
