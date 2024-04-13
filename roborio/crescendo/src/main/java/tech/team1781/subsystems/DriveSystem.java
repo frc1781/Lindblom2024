@@ -399,9 +399,14 @@ public class DriveSystem extends Subsystem {
         }
 
         ChassisSpeeds speed;
+        EVector currentPose = EVector.fromPose(getRobotPose()).withZ(0);
+        EVector endPose = EVector.fromPose(mDesiredTrajectory.getEndState().getTargetHolonomicPose()).withZ(0);
+
+        final double END_DIST_TOLERANCE = 1.5; //in meters
 
 
-        if (getState() != DriveSystemState.DRIVE_TRAJECTORY_NOTE || Limelight.getTX(ConfigMap.NOTE_LIMELIGHT) == 0.0) {
+
+        if (getState() != DriveSystemState.DRIVE_TRAJECTORY_NOTE || Limelight.getTX(ConfigMap.NOTE_LIMELIGHT) == 0.0 || currentPose.dist(endPose) > END_DIST_TOLERANCE) {
             var pathplannerState = mDesiredTrajectory.sample(trajectoryTimer.get());
             Pose2d targetPose = new Pose2d(pathplannerState.positionMeters, pathplannerState.heading);
             Rotation2d targetOrientation = EEGeometryUtil.normalizeAngle(pathplannerState.getTargetHolonomicPose().getRotation());
