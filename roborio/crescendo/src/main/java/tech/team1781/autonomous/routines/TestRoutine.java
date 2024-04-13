@@ -20,17 +20,17 @@ public class TestRoutine implements AutoRoutine {
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-                 new AutoStep(100, Action.OFF_KICKSTAND),
-                 new AutoStep(6, Action.SHOOT_SUBWOOFER),
-                // new AutoStep(2,Action.COLLECT_RAMP),
+                //  new AutoStep(100, Action.OFF_KICKSTAND),
+                //  new AutoStep(6, Action.SHOOT_SUBWOOFER),
+                // // new AutoStep(2,Action.COLLECT_RAMP),
 
-                new AutoStep(0.1, Positions.P2),
-                new AutoStep(3, Action.COLLECT_RAMP, Positions.N2, true)
+                // new AutoStep(0.1, Positions.P2),
+                // new AutoStep(3, Action.COLLECT_RAMP, Positions.N2, true)
 
                 // new AutoStep(1.5, Action.COLLECT_RAMP, Paths.getPathFromName("p2;n2"), true),
                 // new AutoStep(1.5, Action.COLLECT_RAMP, Paths.getPathFromName("n2;p2")),
                 // new AutoStep(2, Action.SHOOT_SUBWOOFER),
-                // new AutoStep(1.5, Action.COLLECT_RAMP, Paths.getPathFromName("p2;n3"), true),
+                new AutoStep(8.0, Action.COLLECT_RAMP, Paths.getPathFromName("Test Path"), false)
                 // new AutoStep(1.5, Action.COLLECT_RAMP, Paths.getPathFromName("n3;p2")),
                 // new AutoStep(2, Action.SHOOT_SUBWOOFER),
                 // new AutoStep(1.5, Action.COLLECT_RAMP, Paths.getPathFromName("p2;n1"), true),
