@@ -276,6 +276,9 @@ public class DriveSystem extends Subsystem {
 
         offset = EEGeometryUtil.normalizeAngle(offset);
         mNavXOffset = offset.getRadians();
+        System.out.printf("set navx offset, setting estimator with %.2f getRobotAngle and %.2f robotPose\n",
+           getRobotAngle().getDegrees(),
+           getRobotPose().getRotation().getDegrees());
         mPoseEstimator = new SwerveDrivePoseEstimator(mKinematics, getRobotAngle(), getModulePositions(),
                 getRobotPose());
         // mPoseEstimator.resetPosition(getRobotAngle(), getModulePositions(), )
@@ -402,8 +405,8 @@ public class DriveSystem extends Subsystem {
         Pose2d startingPose = path.getPreviewStartingHolonomicPose();
         Rotation2d startingOrientation = startingPose.getRotation();
         if (!mOdometryBeenSet) {
-            setNavXOffset(startingOrientation);
             setOdometry(startingPose);
+            setNavXOffset(startingOrientation);
             mOdometryBeenSet = true;
         }
 
