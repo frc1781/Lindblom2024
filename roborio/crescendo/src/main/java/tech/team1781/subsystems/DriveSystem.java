@@ -442,22 +442,22 @@ public class DriveSystem extends Subsystem {
             );
 
             //time requested (x, y, h, v, r) current (x, y, r) desired speeds (x, y,r)
-            System.out.printf("%.4f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
-                    trajectoryTimer.get(),
-                    targetPose.getX(),
-                    targetPose.getY(),
-                    targetPose.getRotation().getDegrees(),
-                    pathplannerState.velocityMps,
-                    targetOrientation.getDegrees(),
-                    getRobotPose().getX(),
-                    getRobotPose().getY(),
-                    mFrontLeft.getCurrentState().speedMetersPerSecond,
-                    getRobotPose().getRotation().getDegrees(),
-                    speed.vxMetersPerSecond,
-                    speed.vyMetersPerSecond,
-                    speed.omegaRadiansPerSecond,
-                    mNavXOffset
-            );
+            // System.out.printf("%.4f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
+            //         trajectoryTimer.get(),
+            //         targetPose.getX(),
+            //         targetPose.getY(),
+            //         targetPose.getRotation().getDegrees(),
+            //         pathplannerState.velocityMps,
+            //         targetOrientation.getDegrees(),
+            //         getRobotPose().getX(),
+            //         getRobotPose().getY(),
+            //         mFrontLeft.getCurrentState().speedMetersPerSecond,
+            //         getRobotPose().getRotation().getDegrees(),
+            //         speed.vxMetersPerSecond,
+            //         speed.vyMetersPerSecond,
+            //         speed.omegaRadiansPerSecond,
+            //         mNavXOffset
+            // );
 
             driveWithChassisSpeeds(speed);
 
