@@ -103,7 +103,7 @@ public class Arm extends Subsystem {
         mPositions.put(ArmState.NOTE_ONE, CURRENT_AIM_SPOT.NOTE_1.getPosition());
         mPositions.put(ArmState.NOTE_TWO, CURRENT_AIM_SPOT.NOTE_2.getPosition());
         mPositions.put(ArmState.NOTE_THREE, CURRENT_AIM_SPOT.NOTE_3.getPosition());
-        mPositions.put(ArmState.FAR_SHOT, 60.0);
+        mPositions.put(ArmState.FAR_SHOT, 58.0);
 
 
 
