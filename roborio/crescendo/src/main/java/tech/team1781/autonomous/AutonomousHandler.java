@@ -31,6 +31,9 @@ public class AutonomousHandler {
         ConfigMap.AUTONOMOUS_TAB.add(mAutoChooser).withSize(2, 1);
 
         mControlSystem = controlSystem;
+        System.out.println("=================================================================");
+        System.out.println("THIS IS THE AUTO NAME: " + mAutoChooser.getSelected());
+        System.out.println("=================================================================");
 
         NetworkLogger.initLog("Auto Step", "EMPTY");
         NetworkLogger.initLog("End Condition", "EMPTY");

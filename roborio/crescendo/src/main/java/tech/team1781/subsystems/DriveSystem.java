@@ -276,6 +276,9 @@ public class DriveSystem extends Subsystem {
 
         offset = EEGeometryUtil.normalizeAngle(offset);
         mNavXOffset = offset.getRadians();
+        System.out.printf("set navx offset, setting estimator with %.2f getRobotAngle and %.2f robotPose\n",
+           getRobotAngle().getDegrees(),
+           getRobotPose().getRotation().getDegrees());
         mPoseEstimator = new SwerveDrivePoseEstimator(mKinematics, getRobotAngle(), getModulePositions(),
                 getRobotPose());
         // mPoseEstimator.resetPosition(getRobotAngle(), getModulePositions(), )
@@ -290,6 +293,9 @@ public class DriveSystem extends Subsystem {
     }
 
     public void goToWaypoint() {
+        double xObservedNoteAngle = 0.0;
+        double currentAngle = 0.0;
+
         if (mDesiredWaypoint == null) {
             return;
         }
@@ -307,16 +313,15 @@ public class DriveSystem extends Subsystem {
         if (getState() == DriveSystemState.DRIVE_NOTE) {
             final double DISTANCE_TOLERANCE = 3;
             final double ANGLE_TOLERANCE = 0.1;
-
             double dist = currentPoseVector.withZ(0)
                     .dist(
                             desiredWaypointPosition.withZ(0));
 
             if (dist <= DISTANCE_TOLERANCE) {
 
-                double xObservedNoteAngle = Math.toRadians(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT));
+                xObservedNoteAngle = Math.toRadians(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT));
                 if (xObservedNoteAngle != 0.0) {
-                    double currentAngle = getRobotAngle().getRadians();
+                    currentAngle = getRobotAngle().getRadians();
                     if (Math.abs(xObservedNoteAngle) > ANGLE_TOLERANCE) {
                         desiredChassisSpeeds.omegaRadiansPerSecond = mNoteAimController.calculate(xObservedNoteAngle, 0);
                         System.out.println("rot rps: " + desiredChassisSpeeds.omegaRadiansPerSecond);
@@ -335,6 +340,23 @@ public class DriveSystem extends Subsystem {
             }
 
         }
+
+            System.out.printf("%.4f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
+                    0.0,
+                    mDesiredWaypoint.getPosition().x,
+                    mDesiredWaypoint.getPosition().y,
+                    mDesiredWaypoint.getPosition().z,
+                    xObservedNoteAngle,
+                    currentAngle,
+                    getRobotPose().getX(),
+                    getRobotPose().getY(),
+                    mFrontLeft.getCurrentState().speedMetersPerSecond,
+                    getRobotPose().getRotation().getDegrees(),
+                    desiredChassisSpeeds.vxMetersPerSecond,
+                    desiredChassisSpeeds.vyMetersPerSecond,
+                    desiredChassisSpeeds.omegaRadiansPerSecond,
+                    mNavXOffset
+            );
 
         // System.out.println("Desired Pose: " + desiredWaypointPosition.withZ(rotation)
         // + " Current Pose: "
@@ -363,8 +385,8 @@ public class DriveSystem extends Subsystem {
         PIDController xTrajectoryController;
         PIDController yTrajectoryController;
         ProfiledPIDController rotTrajectoryController;
-        xTrajectoryController = new PIDController(0.1, 0.0, 0.001);
-        yTrajectoryController = new PIDController(0.1, 0.0, 0.001);
+        xTrajectoryController = new PIDController(0.5, 0.0, 0.001);
+        yTrajectoryController = new PIDController(0.5, 0.0, 0.001);
         rotTrajectoryController = new ProfiledPIDController(5.0, 0.01, 0.01, new TrapezoidProfile.Constraints(4.28, 8.14));
         rotTrajectoryController.enableContinuousInput(0, 2 * Math.PI);
         mTrajectoryController = new HolonomicDriveController(xTrajectoryController, yTrajectoryController, rotTrajectoryController);
@@ -383,8 +405,8 @@ public class DriveSystem extends Subsystem {
         Pose2d startingPose = path.getPreviewStartingHolonomicPose();
         Rotation2d startingOrientation = startingPose.getRotation();
         if (!mOdometryBeenSet) {
-            setNavXOffset(startingOrientation);
             setOdometry(startingPose);
+            setNavXOffset(startingOrientation);
             mOdometryBeenSet = true;
         }
 
@@ -406,7 +428,9 @@ public class DriveSystem extends Subsystem {
 
 
 
-        if (getState() != DriveSystemState.DRIVE_TRAJECTORY_NOTE || Limelight.getTX(ConfigMap.NOTE_LIMELIGHT) == 0.0 || currentPose.dist(endPose) > END_DIST_TOLERANCE) {
+        if (getState() != DriveSystemState.DRIVE_TRAJECTORY_NOTE || 
+            Limelight.getTX(ConfigMap.NOTE_LIMELIGHT) == 0.0 || 
+            currentPose.dist(endPose) > END_DIST_TOLERANCE) {
             var pathplannerState = mDesiredTrajectory.sample(trajectoryTimer.get());
             Pose2d targetPose = new Pose2d(pathplannerState.positionMeters, pathplannerState.heading);
             Rotation2d targetOrientation = EEGeometryUtil.normalizeAngle(pathplannerState.getTargetHolonomicPose().getRotation());
@@ -436,6 +460,7 @@ public class DriveSystem extends Subsystem {
             );
 
             driveWithChassisSpeeds(speed);
+
         } else if (Limelight.getTX(ConfigMap.NOTE_LIMELIGHT) != 0.0) {
             Pose2d pose = mDesiredTrajectory.getEndState().getTargetHolonomicPose();
             double x = (pose.getX() * (ControlSystem.isRed() ? -1 : 1)) + (ControlSystem.isRed() ? EEGeometryUtil.FIELD_LENGTH : 0);

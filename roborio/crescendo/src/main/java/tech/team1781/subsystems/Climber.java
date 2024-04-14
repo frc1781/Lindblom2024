@@ -27,8 +27,6 @@ public class Climber extends Subsystem {
     private RelativeEncoder mLeftClimberEncoder = mLeftClimberMotor.getEncoder();
     private RelativeEncoder mRightClimberEncoder = mRightClimberMotor.getEncoder();
 
-
-    
     public Climber() {
         super("Climber", ClimberState.IDLE);
         mLeftClimberMotor.setInverted(false);
@@ -112,6 +110,7 @@ public class Climber extends Subsystem {
 
         if (dutyCycle < 0) {
             leftDutyCycle = dutyCycle  * 0.9;
+            
             rightDutyCycle = dutyCycle + mRightClimberPID.calculate(
                 mRightClimberMotor.getEncoder().getPosition(),
                 mLeftClimberMotor.getEncoder().getPosition()
@@ -134,8 +133,8 @@ public class Climber extends Subsystem {
         }
 
         //disabled climber
-        //mLeftClimberMotor.set(leftDutyCycle);
-        //mRightClimberMotor.set(rightDutyCycle);
+        mLeftClimberMotor.set(leftDutyCycle);
+        mRightClimberMotor.set(rightDutyCycle);
 
         NetworkLogger.initLog("Climber Left Duty Cycle", leftDutyCycle);
         NetworkLogger.initLog("Climber Right Duty Cycle", rightDutyCycle);
