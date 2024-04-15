@@ -18,7 +18,7 @@ public class P2N2Subwoofer implements AutoRoutine{
         return new AutoStep[] {
             new AutoStep(100, Action.OFF_KICKSTAND),
             new AutoStep(1.0, Positions.P2),
-            new AutoStep(6, Action.SHOOT_SUBWOOFER_NO_AIM),
+            new AutoStep(6, Action.SHOOT_SUBWOOFER),
             new AutoStep(3, Action.COLLECT_RAMP, Positions.N2,true), 
             new AutoStep(2, Action.COLLECT_RAMP, Positions.P2),
             new AutoStep(2, Action.AUTO_AIM_SHOOT),

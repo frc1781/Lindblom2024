@@ -6,11 +6,11 @@ import tech.team1781.autonomous.AutonomousHandler.AutoRoutine;
 import tech.team1781.control.ControlSystem.Action;
 import tech.team1781.utils.EVector;
 
-public class P3C5N3 implements AutoRoutine {
+public class P3C5C4Score implements AutoRoutine {
 
     @Override
     public String getName() {
-        return "14: P3C5N3";
+        return "Red 17: P3C5C4Score";
     }
 
     @Override
@@ -22,16 +22,14 @@ public class P3C5N3 implements AutoRoutine {
                 new AutoStep(1.4, EVector.positionWithDegrees(2.2, 0.8, 0)),
                 new AutoStep(5, Action.COLLECT_RAMP, Positions.C5, true),
                 new AutoStep(1.5, Action.COLLECT_RAMP, EVector.positionWithDegrees(2.2, 1.71, 0)),
-                // new AutoStep(5, Action.COLLECT_RAMP, Positions.P3),
-                // option for not quite P3
                 new AutoStep(2.5, Action.COLLECT_RAMP, Positions.P3),
                 new AutoStep(3, Action.SHOOT_SUBWOOFER_NO_AIM),
-                new AutoStep(1.3, Action.COLLECT_RAMP, EVector.positionWithDegrees(2.0, 4.1, 0)),
-                new AutoStep(3, Action.COLLECT_RAMP_STAY_DOWN, Positions.N3, true),
-                new AutoStep(1.3, Action.COLLECT_RAMP, EVector.newVector(1.0, 4.0, Positions.P3.z)),
-                new AutoStep(2, Action.COLLECT_RAMP, Positions.P3),
+                new AutoStep(1.4, EVector.positionWithDegrees(2.2, 0.8, 45)),
+                new AutoStep(5, Action.COLLECT_RAMP, Positions.C4.withZ(Math.toRadians(45)), true),
+
+                // new AutoStep(1.4, EVector.positionWithDegrees(2.2, 0.8, 45)),
+                
                         // Positions.P3.withX(Positions.P3.x + 0.5).withY(Positions.P3.y + 0.3)),
-                new AutoStep(5, Action.SHOOT_SUBWOOFER)
         };
     }
 
