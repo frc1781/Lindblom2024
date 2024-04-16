@@ -209,7 +209,7 @@ public class DriveSystem extends Subsystem {
         mRobotVelocityEntry.setDouble(
                 EVector.newVector(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond)
                         .magnitude());
-        mRobotThetaEntry.setDouble(getRobotAngle().getRadians());
+        mRobotThetaEntry.setDouble(getRobotAngle().getDegrees());
         mField.setRobotPose(getRobotPose());
         // mField.setRobotPose(getRobotPose());
     }
