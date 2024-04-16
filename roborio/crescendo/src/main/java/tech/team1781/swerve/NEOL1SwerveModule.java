@@ -148,7 +148,7 @@ public class NEOL1SwerveModule extends SwerveModule{
     static SwerveModuleConfiguration moduleConfiguration() {
         SwerveModuleConfiguration ret_val = new SwerveModuleConfiguration();
 
-        ret_val.metersPerRevolution = 0.102 * Math.PI * (14.0/50.0) * (25.0/19.0) * (15.0 / 45.0);
+        ret_val.metersPerRevolution = 0.102 * Math.PI * (14.0/50.0) * (25.0/19.0) * (15.0 / 45.0) * (2.8/3.0);
         ret_val.radiansPerRevolution = 2 * Math.PI * (14.0/50.0) * (10.0/60.0);
         ret_val.velocityConversion = ret_val.metersPerRevolution / 60;
         ret_val.radiansPerSecond = ret_val.radiansPerRevolution / 60.0;
