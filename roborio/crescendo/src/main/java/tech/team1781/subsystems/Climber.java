@@ -133,8 +133,8 @@ public class Climber extends Subsystem {
         }
 
         //disabled climber
-        mLeftClimberMotor.set(leftDutyCycle);
-        mRightClimberMotor.set(rightDutyCycle);
+        mLeftClimberMotor.set(0.0);
+        mRightClimberMotor.set(0.0);
 
         NetworkLogger.initLog("Climber Left Duty Cycle", leftDutyCycle);
         NetworkLogger.initLog("Climber Right Duty Cycle", rightDutyCycle);

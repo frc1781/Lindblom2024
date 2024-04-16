@@ -269,13 +269,13 @@ public class Scollector extends Subsystem {
     private void driveMotors() {
         double setpoint = ConfigMap.MAX_SHOOTER_SPEED;
         System.out.println(mTopPID.getOutputMax());
-        mTopPID.setReference(setpoint, ControlType.kVelocity);
-        mBottomPID.setReference(setpoint, ControlType.kVelocity);
+        //mTopPID.setReference(setpoint, ControlType.kVelocity);
+        //mBottomPID.setReference(setpoint, ControlType.kVelocity);
     }
 
     private void driveMotors(double setPoint) {
-        mTopPID.setReference(setPoint, ControlType.kVelocity);
-        mBottomPID.setReference(setPoint, ControlType.kVelocity);
+        //mTopPID.setReference(setPoint, ControlType.kVelocity);
+        //mBottomPID.setReference(setPoint, ControlType.kVelocity);
     }
 
     private void collect() {
@@ -290,7 +290,7 @@ public class Scollector extends Subsystem {
 
     private void shoot() {
         driveMotors();
-        mCollectorMotor.set(-1);
+        //mCollectorMotor.set(-1);
     }
 
 }

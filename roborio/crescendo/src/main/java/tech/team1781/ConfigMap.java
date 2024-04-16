@@ -83,20 +83,18 @@ public class ConfigMap {
         public static Translation2d BACK_RIGHT_MODULE_POSITION = new Translation2d(-DRIVETRAIN_WHEELBASE / 2,
                         -DRIVETRAIN_TRACKWIDTH / 2);
 
-        // public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.0454; //
-        // -0.919; // -0.075;
-        // public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.0185;
-        // //-0.738; // -0.255;
-        // public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.8615; //-0.927;
-        // // -0.077;
-        // public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.8688;
-        // //-0.272; // -0.735;
-          
+         
+        //Mikey's Offsets
+         public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.0454; 
+         public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.0185;
+         public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.8615; 
+         public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.8688;
+
         //RALPH's offsets
-        public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.876221; //-0.9755
-        public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.8167;
-        public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.670;
-        public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.116;
+        // public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.876221; //-0.9755
+        // public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.8167;
+        // public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.670;
+        // public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.116;
         public static final double ARM_OFFSET = 0.29;
 
         //RUFUS's offset
