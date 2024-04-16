@@ -25,12 +25,9 @@ import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput.ControllerSide;
 import tech.team1781.autonomous.AutoStep;
 import tech.team1781.subsystems.*;
-import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.DriveSystem.DriveSystemState;
-import tech.team1781.subsystems.Scollector.ScollectorState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
 import tech.team1781.subsystems.Subsystem.SubsystemState;
-import tech.team1781.subsystems.LEDs.LedState;
 import tech.team1781.utils.EVector;
 import tech.team1781.DriverInput;
 import tech.team1781.ShuffleboardStyle;
@@ -45,10 +42,6 @@ public class ControlSystem {
     private Timer mStepTime;
     private ArrayList<Subsystem> mSubsystems;
     private DriveSystem mDriveSystem;
-    private Scollector mScollector;
-    private Climber mClimber;
-    private Arm mArm;
-    private LEDs mLEDs;
 
     private OperatingMode mCurrentOperatingMode;
 
@@ -119,17 +112,8 @@ public class ControlSystem {
 
     public ControlSystem() {
         mDriveSystem = new DriveSystem();
-        mScollector = new Scollector();
-        mClimber = new Climber();
-        mArm = new Arm();
-        mLEDs = new LEDs();
-
         mSubsystems = new ArrayList<>();
         mSubsystems.add(mDriveSystem);
-        mSubsystems.add(mScollector);
-        mSubsystems.add(mClimber);
-        mSubsystems.add(mArm);
-        mSubsystems.add(mLEDs);
 
         aprilTagCoords.put(1, new Pose2d(15.078597, 0.245597, new Rotation2d()));
         aprilTagCoords.put(2, new Pose2d(16.184259, 0.883391, new Rotation2d()));
@@ -181,40 +165,27 @@ public class ControlSystem {
     }
 
     public void keepArmDown(boolean pushingKeepDown) {
-        if (pushingKeepDown) {
-            mSettingStack.add(new SubsystemSetting(mArm, ArmState.COLLECT));
-        }
+
     }
 
     public void setCollecting(boolean pushingCollect) {
-        if (pushingCollect) {
-            mSettingStack.add(new SubsystemSetting(mArm, ArmState.COLLECT));
-            mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.COLLECT));
-        }
+
     }
 
     public void setSpit(boolean pushingSpit) {
-        if (pushingSpit) {
-            mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.SPIT));
-        }
+ 
     }
 
     public void setShooting(boolean pushingShoot) {
-        if (pushingShoot) {
-            mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.SHOOT));
-        }
+
     }
 
     public void manualAdjustAngle(double diff) {
-        mSettingStack.add(new SubsystemSetting(mArm, ArmState.MANUAL));
-        mArm.manualAdjustAngle(diff);
+
     }
 
     public void lobNote(boolean isLobbing) {
-        if (isLobbing) {
-            mSettingStack.add(new SubsystemSetting(mArm, ArmState.LOB));
-            mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.LOB));
-        }
+
     }
 
     public void calibratePosition() {
@@ -224,26 +195,17 @@ public class ControlSystem {
 
     public void setPrepareToShoot(boolean pushingPrepare) {
         if (pushingPrepare) {
-            mSettingStack.add(new SubsystemSetting(mArm, ArmState.AUTO_ANGLE));
-            mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.RAMP_SHOOTER));
         }
     }
 
     public void setCollectHigh(boolean collectingHigh) {
         if (collectingHigh) {
-            mSettingStack.add(new SubsystemSetting(mArm, ArmState.COLLECT_HIGH));
-            mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.COLLECT));
         }
     }
 
     public void setAmp(boolean isAmp) {
         if (isAmp) {
-            mSettingStack.add(new SubsystemSetting(mArm, ArmState.AMP));
         }
-    }
-
-    public void setArmState(ArmState desiredState) {
-        mArm.setDesiredState(desiredState);
     }
 
     public void zeroNavX() {
@@ -336,26 +298,6 @@ public class ControlSystem {
     }
 
     public void shootPodium(boolean isShooting) {
-        // if (isShooting == mShootPodiumButton) {
-        // return;
-        // }
-
-        // mShootPodiumButton = isShooting;
-
-        // if (mShootPodiumButton && !mCollectingButton && !mPrepareToShootButton) {
-        // if (!mKeepArmDownButton)
-        // mArm.setDesiredState(ArmState.PODIUM);
-        // mScollector.setDesiredState(ScollectorState.RAMP_SHOOTER);
-
-        // } else if (!mCollectingButton && !mPrepareToShootButton) {
-        // if (!mKeepArmDownButton)
-        // mArm.setDesiredState(ArmState.SAFE);
-        // mScollector.setDesiredState(ScollectorState.IDLE);
-        // }
-        if (isShooting) {
-            mSettingStack.add(new SubsystemSetting(mArm, ArmState.PODIUM));
-            mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.RAMP_SHOOTER));
-        }
     }
 
     public double calculateShortestRotationToAngle(double startingAngle, double goalAngle) {
@@ -380,55 +322,6 @@ public class ControlSystem {
             mAimingAngle = 0.0;
         }
     }
-
-    // public void setAction(Action desiredAction) {
-    // setAutoStep(desiredAction, null, null);
-    // }
-
-    // public void setAutoStep(Action desiredAction, EVector position,
-    // PathPlannerPath path) {
-    // mStepTime.reset();
-    // mStepTime.start();
-
-    // mSeekTimer.reset();
-    // mSeekTimer.start();
-
-    // if (desiredAction != null) {
-    // mCurrentSettings = mActions.get(desiredAction);
-    // try {
-    // for (SubsystemSetting setting : mCurrentSettings) {
-    // setting.setState();
-    // }
-    // } catch (NullPointerException e) {
-    // }
-
-    // mCurrentAction = desiredAction;
-
-    // if (mCurrentAction == Action.SEEK_NOTE) {
-    // mCurrentSeekNoteState = SeekNoteState.SEEKING;
-    // mSeekNoteTargetPose = EVector.newVector(-1, -1, -1);
-    // }
-    // } else {
-    // mCurrentSettings = null;
-    // }
-
-    // if (position != null) {
-    // mDriveSystem.setPosition(position);
-    // mDriveSystem.setDesiredState(DriveSystemState.DRIVE_SETPOINT);
-    // } else if (path != null) {
-    // mDriveSystem.setTrajectoryFromPath(path);
-    // mDriveSystem.setDesiredState(DriveSystemState.DRIVE_TRAJECTORY);
-    // } else if (desiredAction != Action.SYSID && desiredAction !=
-    // Action.SEEK_NOTE) {
-    // mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
-    // }
-
-    // System.out.println(mDriveSystem.getName() + " :: " +
-    // mDriveSystem.getState().toString() + " || "
-    // + mScollector.getName() + " :: " + mScollector.getState().toString() + " || "
-    // + mClimber.getName()
-    // + " :: " + mClimber.getState().toString());
-    // }
 
     public void setAutoStep(AutoStep step) {
         if (step == null) {
@@ -515,10 +408,6 @@ public class ControlSystem {
             return mCurrentSeekNoteState == SeekNoteState.DONE;
         }
 
-        if (mDriveSystem.getState() == DriveSystemState.DRIVE_NOTE) {
-            return mScollector.hasNote() || mScollector.noteCloseToShooter();
-        }
-
         return !isRunningAction() && mDriveSystem.matchesDesiredState();
     }
 
@@ -556,21 +445,8 @@ public class ControlSystem {
     public void run(DriverInput driverInput) {
         NetworkLogger.logData("Current ControlSystem Action", mCurrentAction);
 
-        mArm.updateAimSpots(mDriveSystem.getRobotPose());
-
-        mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
-        if (mDriveSystem.badRoll()) {
-            mLEDs.setDesiredState(LedState.BAD_ROLL);
-        } else if (mScollector.hasNote()) {
-            mLEDs.setDesiredState(LedState.HAS_NOTE);
-        } else {
-            mLEDs.setDesiredState(LedState.NO_NOTE);
-        }
-
         switch (mCurrentOperatingMode) {
             case TELEOP:
-                SubsystemState finalScollectorState = ScollectorState.IDLE;
-                SubsystemState finalArmState = mArm.getState() == ArmState.MANUAL ? ArmState.MANUAL : ArmState.SAFE;
                 SubsystemState finalDriveState = DriveSystemState.DRIVE_MANUAL;
 
                 while (!mSettingStack.isEmpty()) {
@@ -580,29 +456,10 @@ public class ControlSystem {
 
                     if (subsystem == mDriveSystem) {
                         finalDriveState = state;
-                    } else if (subsystem == mScollector) {
-                        if (state == ScollectorState.COLLECT) {
-                            if (finalScollectorState == ScollectorState.RAMP_SHOOTER) {
-                                finalScollectorState = ScollectorState.COLLECT_RAMP;
-                                continue;
-                            }
-                            if (finalScollectorState == ScollectorState.LOB) {
-                                finalScollectorState = ScollectorState.COLLECT_RAMP_LOB;
-                                continue;
-                            }
-                        }
-                        finalScollectorState = state;
-                    } else if (subsystem == mArm) {
-                        if (mArm.getState() == ArmState.MANUAL && state == ArmState.AUTO_ANGLE) {
-                            continue;
-                        }
-                        finalArmState = state;
-                    }
+                    } 
                 }
 
                 mDriveSystem.setDesiredState(finalDriveState);
-                mScollector.setDesiredState(finalScollectorState);
-                mArm.setDesiredState(finalArmState);
 
                 localizationUpdates();
                 EVector driverTriggers = driverInput.getTriggerAxis(ConfigMap.DRIVER_CONTROLLER_PORT);
@@ -610,31 +467,10 @@ public class ControlSystem {
                         driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverInput.getControllerJoyAxis(ControllerSide.RIGHT, ConfigMap.DRIVER_CONTROLLER_PORT),
                         driverTriggers);
-                if (mArm.getState() == ArmState.COLLECT) {
-                    mClimber.manualClimb(
-                            -1,
-                            false);
-                } else {
-                    mClimber.manualClimb(
-                            -driverInput.getControllerJoyAxis(ControllerSide.LEFT, ConfigMap.CO_PILOT_PORT).y,
-                            driverInput.getTriggerAxis(ConfigMap.CO_PILOT_PORT).x < 0.5);
-                }
                 autoAimingInputs();
                 break;
             case AUTONOMOUS:
                 localizationUpdates();
-                if (mScollector.getState() == ScollectorState.COLLECT
-                        || (mScollector.getState() == ScollectorState.COLLECT_RAMP
-                                && (mDriveSystem.getState() == DriveSystemState.DRIVE_NOTE
-                                        || mDriveSystem.getState() == DriveSystemState.DRIVE_SETPOINT))
-                        || (mScollector.getState() == ScollectorState.COLLECT_AUTO_SHOOT
-                                && (mArm.getState() != ArmState.NOTE_ONE && mArm.getState() != ArmState.NOTE_THREE))) {
-                    if (mScollector.hasNote()) {
-                        mArm.setDesiredState(ArmState.AUTO_ANGLE);
-                    } else {
-                        mArm.setDesiredState(ArmState.COLLECT);
-                    }
-                }
 
                 if ((mCurrentAction == Action.AUTO_AIM_SHOOT || mCurrentAction == Action.SHOOT_NOTE_ONE
                         || mCurrentAction == Action.SHOOT_NOTE_TWO
@@ -716,71 +552,6 @@ public class ControlSystem {
     
 
     private void initActions() {
-        defineAction(Action.SHOOT_SUBWOOFER_NO_AIM,
-                new SubsystemSetting(mScollector, ScollectorState.SHOOT_ASAP),
-                new SubsystemSetting(mArm, ArmState.SUBWOOFER));
-
-        defineAction(Action.SHOOT_FAR,
-                new SubsystemSetting(mScollector, ScollectorState.SHOOT_ASAP),
-                new SubsystemSetting(mArm, ArmState.FAR_SHOT));
-
-        defineAction(Action.REJECT_NOTE,
-                new SubsystemSetting(mArm, ArmState.COLLECT),
-                new SubsystemSetting(mScollector, ScollectorState.SPIT));
-
-        defineAction(Action.SHOOT_NOTE_TWO,
-                new SubsystemSetting(mArm, ArmState.NOTE_TWO),
-                new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
-
-        defineAction(Action.RAMP_SHOOTER,
-                new SubsystemSetting(mArm, ArmState.SAFE),
-                new SubsystemSetting(mScollector, ScollectorState.RAMP_SHOOTER));
-
-        defineAction(Action.SHOOT_SUBWOOFER,
-                new SubsystemSetting(mArm, ArmState.SUBWOOFER),
-                new SubsystemSetting(mScollector, ScollectorState.SHOOT_ASAP));
-
-        defineAction(Action.SYSID,
-                new SubsystemSetting(mDriveSystem, DriveSystemState.SYSID),
-                new SubsystemSetting(mArm, ArmState.COLLECT),
-                new SubsystemSetting(mScollector, ScollectorState.IDLE));
-
-        defineAction(Action.AUTO_AIM_SHOOT,
-                new SubsystemSetting(mDriveSystem, DriveSystemState.DRIVE_MANUAL),
-                new SubsystemSetting(mArm, ArmState.AUTO_ANGLE),
-                new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
-
-        defineAction(Action.COLLECT,
-                new SubsystemSetting(mScollector, ScollectorState.COLLECT),
-                new SubsystemSetting(mArm, ArmState.COLLECT));
-
-        defineAction(Action.SHOOT,
-                new SubsystemSetting(mScollector, ScollectorState.SHOOT),
-                new SubsystemSetting(mArm, ArmState.SUBWOOFER));
-
-        defineAction(Action.COLLECT_RAMP,
-                new SubsystemSetting(mScollector, ScollectorState.COLLECT_RAMP),
-                new SubsystemSetting(mArm, ArmState.COLLECT));
-
-        defineAction(Action.COLLECT_AUTO_SHOOT,
-                new SubsystemSetting(mArm, ArmState.AUTO_ANGLE),
-                new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
-
-        defineAction(Action.OFF_KICKSTAND,
-                new SubsystemSetting(mArm, ArmState.KICKSTAND),
-                new SubsystemSetting(mScollector, ScollectorState.RAMP_SHOOTER));
-
-        defineAction(Action.SHOOT_NOTE_ONE,
-                new SubsystemSetting(mArm, ArmState.NOTE_ONE),
-                new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
-
-        defineAction(Action.SHOOT_NOTE_THREE,
-                new SubsystemSetting(mArm, ArmState.NOTE_THREE),
-                new SubsystemSetting(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
-
-        defineAction(Action.COLLECT_RAMP_STAY_DOWN,
-                new SubsystemSetting(mArm, ArmState.COLLECT),
-                new SubsystemSetting(mScollector, ScollectorState.COLLECT_RAMP));
 
     }
 
@@ -804,7 +575,6 @@ public class ControlSystem {
     }
 
     public void disabledLighting() {
-        mLEDs.setDesiredState(LedState.DEFAULT);
     }
 
     private enum SeekNoteState {

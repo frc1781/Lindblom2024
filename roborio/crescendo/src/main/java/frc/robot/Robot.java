@@ -20,7 +20,6 @@ import tech.team1781.autonomous.AutonomousHandler;
 import tech.team1781.autonomous.RoutineOverException;
 import tech.team1781.autonomous.routines.*;
 import tech.team1781.control.ControlSystem;
-import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
 import tech.team1781.utils.EEGeometryUtil;
 import tech.team1781.utils.EVector;
