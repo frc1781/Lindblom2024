@@ -360,8 +360,8 @@ public class DriveSystem extends Subsystem {
         PIDController xController; 
         PIDController yController; 
         ProfiledPIDController rotController;
-        xController = new PIDController(0.1, 0.0, 0.001);
-        yController = new PIDController(0.1, 0.0, 0.001);
+        xController = new PIDController(0.5, 0.0, 0.001);
+        yController = new PIDController(0.5, 0.0, 0.001);
         rotController = new ProfiledPIDController(5.0, 0.01, 0.01, new TrapezoidProfile.Constraints(4.28, 8.14));
         rotController.enableContinuousInput(0, 2 * Math.PI);
         mTrajectoryController = new HolonomicDriveController(xController, yController, rotController);
