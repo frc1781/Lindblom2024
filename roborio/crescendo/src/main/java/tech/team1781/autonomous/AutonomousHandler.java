@@ -7,6 +7,7 @@ import tech.team1781.ConfigMap;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.subsystems.Subsystem;
 import tech.team1781.utils.NetworkLogger;
+import tech.team1781.autonomous.routines.*;
 
 public class AutonomousHandler {
     private SendableChooser<AutoRoutine> mAutoChooser = new SendableChooser<>();
@@ -42,12 +43,15 @@ public class AutonomousHandler {
         mTimer.start();
         mStepIndex = 0;
         mSelectedRoutine = mAutoChooser.getSelected();
-        mSampledSteps = mAutoChooser.getSelected().getSteps();
-
-
+        mSelectedRoutine = new TestRoutine();
+        mSampledSteps = mSelectedRoutine.getSteps();
+        //mSampledSteps = mAutoChooser.getSelected().getSteps();
         sampledStep = mSelectedRoutine.getSteps()[0];
         startStep(sampledStep);
-
+        //ALWAYS THE SAME FOR TESTING!
+        System.out.println("===================================================");
+        System.out.println("= Routine Selected: " + mSelectedRoutine.getName());
+        System.out.println("===================================================");
         System.out.println("initing autohandler............");
     }
 

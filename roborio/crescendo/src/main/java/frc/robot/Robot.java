@@ -46,7 +46,7 @@ public class Robot extends TimedRobot {
    */
 
   // control and autonomous
-  private Compressor mCompressor;
+  //private Compressor mCompressor;
   private ControlSystem mControlSystem;
   private AutonomousHandler mAutonomousHandler;
   private DriverInput mDriverInput;
@@ -62,9 +62,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    mCompressor = new Compressor(ConfigMap.FIRST_PCM_ID,
-        PneumaticsModuleType.REVPH);
-    mCompressor.enableDigital();
+    // mCompressor = new Compressor(ConfigMap.FIRST_PCM_ID,
+    //     PneumaticsModuleType.REVPH);
+    // mCompressor.enableDigital();
 
     mControlSystem = new ControlSystem();
     mAutonomousHandler = new AutonomousHandler(mControlSystem,
