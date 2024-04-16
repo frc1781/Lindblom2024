@@ -91,6 +91,12 @@ public class ConfigMap {
         // // -0.077;
         // public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.8688;
         // //-0.272; // -0.735;
+
+        //MIKEY's offsets
+         public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.0454; 
+         public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.0185;
+         public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.8615; 
+         public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.8688;
           
         //RALPH's offsets
         //public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.876221; //-0.9755
@@ -100,11 +106,11 @@ public class ConfigMap {
         // public static final double ARM_OFFSET = 0.29;
 
         //RUFUS's offset
-        public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.039;
-        public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.221;
-        public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.010;
-        public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.291;
-        public static final double ARM_OFFSET = 0.556;
+        // public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.039;
+        // public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.221;
+        // public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.010;
+        // public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.291;
+        //public static final double ARM_OFFSET = 0.556;
 
         // Constants
         public static final double MIN_THRESHOLD_ARM = 0;

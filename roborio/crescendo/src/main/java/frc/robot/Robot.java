@@ -197,14 +197,14 @@ public class Robot extends TimedRobot {
     // mSaveConfigButton.setBoolean(false);
     // }
 
-    for(int i = 0; i < PDH_CHANNELS; i ++ ) {
-      NetworkLogger.logData("PDH Channel Current: " + i, mPowerDistributionHub.getCurrent(i));
-    }
+    // for(int i = 0; i < PDH_CHANNELS; i ++ ) {
+    //   NetworkLogger.logData("PDH Channel Current: " + i, mPowerDistributionHub.getCurrent(i));
+    // }
 
-    NetworkLogger.logData("PDH Power: ", mPowerDistributionHub.getTotalPower());
-    NetworkLogger.logData("PDH Total Current: ", mPowerDistributionHub.getTotalCurrent());
-    NetworkLogger.logData("PDH Total Energy: ", mPowerDistributionHub.getTotalEnergy());
-    NetworkLogger.logData("PDH Voltage: ", mPowerDistributionHub.getVoltage());
+    // NetworkLogger.logData("PDH Power: ", mPowerDistributionHub.getTotalPower());
+    // NetworkLogger.logData("PDH Total Current: ", mPowerDistributionHub.getTotalCurrent());
+    // NetworkLogger.logData("PDH Total Energy: ", mPowerDistributionHub.getTotalEnergy());
+    // NetworkLogger.logData("PDH Voltage: ", mPowerDistributionHub.getVoltage());
 
 
   }

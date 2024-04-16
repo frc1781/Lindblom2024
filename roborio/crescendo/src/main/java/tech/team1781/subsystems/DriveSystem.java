@@ -18,18 +18,12 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import tech.team1781.ConfigMap;
 import tech.team1781.ShuffleboardStyle;
 import tech.team1781.autonomous.WaypointHolder;
-import tech.team1781.control.ControlSystem;
-import tech.team1781.swerve.KrakenL2SwerveModule;
 import tech.team1781.swerve.NEOL1SwerveModule;
 import tech.team1781.swerve.SwerveModule;
 import tech.team1781.utils.EEGeometryUtil;
@@ -37,26 +31,22 @@ import tech.team1781.utils.EVector;
 import tech.team1781.utils.Limelight;
 import tech.team1781.utils.NetworkLogger;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 public class DriveSystem extends Subsystem {
 
     // Swerve Modules
-    private final SwerveModule mFrontLeft = new KrakenL2SwerveModule("Front Left Module",
+    private final SwerveModule mFrontLeft = new NEOL1SwerveModule(
             ConfigMap.FRONT_LEFT_MODULE_DRIVE_MOTOR,
             ConfigMap.FRONT_LEFT_MODULE_STEER_MOTOR, ConfigMap.FRONT_LEFT_MODULE_STEER_ENCODER,
             ConfigMap.FRONT_LEFT_MODULE_STEER_OFFSET);
-    private final SwerveModule mFrontRight = new KrakenL2SwerveModule("Front Right Module",
+    private final SwerveModule mFrontRight = new NEOL1SwerveModule(
             ConfigMap.FRONT_RIGHT_MODULE_DRIVE_MOTOR,
             ConfigMap.FRONT_RIGHT_MODULE_STEER_MOTOR, ConfigMap.FRONT_RIGHT_MODULE_STEER_ENCODER,
             ConfigMap.FRONT_RIGHT_MODULE_STEER_OFFSET);
-    private final SwerveModule mBackLeft = new KrakenL2SwerveModule("Back Left Module",
+    private final SwerveModule mBackLeft = new NEOL1SwerveModule(
             ConfigMap.BACK_LEFT_MODULE_DRIVE_MOTOR,
             ConfigMap.BACK_LEFT_MODULE_STEER_MOTOR, ConfigMap.BACK_LEFT_MODULE_STEER_ENCODER,
             ConfigMap.BACK_LEFT_MODULE_STEER_OFFSET);
-    private final SwerveModule mBackRight = new KrakenL2SwerveModule("Back Right Module",
+    private final SwerveModule mBackRight = new NEOL1SwerveModule(
             ConfigMap.BACK_RIGHT_MODULE_DRIVE_MOTOR,
             ConfigMap.BACK_RIGHT_MODULE_STEER_MOTOR, ConfigMap.BACK_RIGHT_MODULE_STEER_ENCODER,
             ConfigMap.BACK_RIGHT_MODULE_STEER_OFFSET);
@@ -516,7 +506,7 @@ public class DriveSystem extends Subsystem {
     }
 
     public Rotation2d getRobotAngle() {
-        double reportedVal = -mNavX.getRotation2d().getRadians() + mNavXOffset;
+        double reportedVal = mNavX.getRotation2d().getRadians() + mNavXOffset;
 
         reportedVal %= 2 * Math.PI;
         if (reportedVal < 0) {
