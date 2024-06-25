@@ -16,7 +16,7 @@ public class Limelight {
         NetworkTable table = NetworkTableInstance.getDefault().getTable(limelightName);
         double[] values = table.getEntry("botpose").getDoubleArray(new double[6]);
 
-        return new Pose2d(values[0], values[1], new Rotation2d(values[5]));
+        return new Pose2d(values[0], values[1], Rotation2d.fromDegrees(values[5]));
     }
 
     public static void setPipeline(String limelightName, int pipeline) {
