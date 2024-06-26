@@ -10,6 +10,7 @@ import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.SparkLimitSwitch.Type;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -31,10 +32,8 @@ import com.revrobotics.SparkLimitSwitch;
 import com.revrobotics.SparkMaxAlternateEncoder;
 
 public class Arm extends Subsystem {
-    private CANSparkMax mRightMotor;
-    private CANSparkMax mLeftMotor;
+    private CANSparkMax mRightMotor, mLeftMotor;
 
-    private RelativeEncoder mLeftEncoder;
     private AbsoluteEncoder mArmAbsoluteEncoder;
     private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.04, 0, 0,
             new TrapezoidProfile.Constraints(90, 450));
@@ -69,11 +68,6 @@ public class Arm extends Subsystem {
         mLeftMotor.restoreFactoryDefaults();
         mLeftMotor.setSmartCurrentLimit(40);
         mRightMotor.setSmartCurrentLimit(40);
-        mLeftEncoder = mLeftMotor.getEncoder();
-        //mLeftEncoder.setVelocityConversionFactor((ConfigMap.ARM_GEAR_RATIO * 360.0 * 1.27) / 60); // why 1.4? not sure,
-        mLeftEncoder.setPositionConversionFactor(ConfigMap.ARM_CONVERSION_REL_TO_ANGLE);
-        //mLeftEncoder.setPositionConversionFactor(1.0);
-        mLeftEncoder.setVelocityConversionFactor(ConfigMap.ARM_CONVERSION_REL_TO_ANGLE/60.0);
         mArmAbsoluteEncoder = mRightMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
         //mArmAbsoluteEncoder.setAverageDepth(1);
         mArmAbsoluteEncoder.setInverted(true);
@@ -83,7 +77,8 @@ public class Arm extends Subsystem {
         mRightMotor.setIdleMode(mIdleMode);
         mLeftMotor.setIdleMode(mIdleMode);
       
-        System.out.println("conversion factor: " + mLeftEncoder.getPositionConversionFactor());
+        mRightMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 10);
+
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
         mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
         mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 80);
@@ -135,7 +130,7 @@ public class Arm extends Subsystem {
         NetworkLogger.logData("Raw Absolute Arm", getAngleAbsolute());
 
         // testEntry.setDouble(getAngleAbsolute());
-        if (mLeftEncoder.getPosition() < 10) {
+        if (mArmAbsoluteEncoder.getPosition() < 10) {
             setIdleMode(IdleMode.kCoast);
         } else {
             setIdleMode(IdleMode.kBrake);
@@ -145,25 +140,14 @@ public class Arm extends Subsystem {
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
 
         //dropped to ground, reset relative encoder only when going down.
-        if (mArmAbsoluteEncoder.getPosition() < 0.24 && mLeftEncoder.getVelocity() < 0.0) {
-            mLeftEncoder.setPosition(0.01);
-        }
-        if (mLeftEncoder.getPosition() < 0.0) {
-            mLeftEncoder.setPosition(0.01);
-        }
         syncArm();
-        // if (Math.abs(mLeftEncoder.getVelocity()) < 0) {
-            // mLeftEncoder.setPosition(getAngleAbsolute());
-        // }
     }
 
     @Override
     public void init() {
-        //mSparkDataNotSentEntry.setBoolean(mLeftEncoder.setPosition(KICKSTAND_POSITION) != REVLibError.kOk);
         setDesiredState(ArmState.KICKSTAND);
         syncArm();
         mPositionPID.reset(getAngle());
-        mSparkDataNotSentEntry.setBoolean(mLeftEncoder.setPosition(getAngleAbsolute()) != REVLibError.kOk);
     }
 
     @Override
@@ -247,14 +231,13 @@ public class Arm extends Subsystem {
     private void syncArm() {
         double abs = getAngleAbsolute();
         if(abs != mPrevRecordedAngle) {
-            mLeftEncoder.setPosition(abs);
             mPrevRecordedAngle = abs;
         }
 
     }
 
     private double getAngle() {
-        return mLeftEncoder.getPosition();
+        return getAngleAbsolute();
     }
 
     private double getAngleAbsolute() {
@@ -307,7 +290,7 @@ public class Arm extends Subsystem {
     }
 
     private boolean matchesPosition() {
-        return Math.abs(mLeftEncoder.getPosition() - mDesiredPosition) < 1.5;
+        return Math.abs(mArmAbsoluteEncoder.getPosition() - mDesiredPosition) < 1.5;
     }
 
     private enum CURRENT_AIM_SPOT {
