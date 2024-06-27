@@ -1,7 +1,13 @@
 
 package tech.team1781;
 
+import org.ejml.simple.SimpleMatrix;
+
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -160,4 +166,7 @@ public class ConfigMap {
         public static final int RIGHT_HOOK_CLOSE = 8;
         public static final int TRAP_IN = 0;
         public static final int TRAP_OUT = 9;
+        
+        public final static Matrix<N3, N1> odometryDev = VecBuilder.fill(0.05, 0.05, 0.05);
+        public final static Matrix<N3, N1> visionDev = VecBuilder.fill(0.95, 0.95, 0.95);
 }

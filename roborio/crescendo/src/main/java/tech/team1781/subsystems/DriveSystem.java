@@ -110,7 +110,7 @@ public class DriveSystem extends Subsystem {
         // mOdometry = new SwerveDriveOdometry(mKinematics, getRobotAngle(),
         // getModulePositions());
         mPoseEstimator = new SwerveDrivePoseEstimator(mKinematics, new Rotation2d(), getModulePositions(),
-            new Pose2d());
+            new Pose2d(), ConfigMap.odometryDev, ConfigMap.visionDev);
         mRotController.enableContinuousInput(0, Math.PI * 2);
         mNavX.resetDisplacement();
 
@@ -219,6 +219,7 @@ public class DriveSystem extends Subsystem {
 
     private void setInitialLocalization() {
         Pose2d limelightPose = Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT);
+        mNavX.reset();
         if (!mOdometryBeenSet && limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0)
         {
             System.out.printf("limelight angle %.4f  navx angle %.4f\n", limelightPose.getRotation().getDegrees(), getNavXAngle().getDegrees());

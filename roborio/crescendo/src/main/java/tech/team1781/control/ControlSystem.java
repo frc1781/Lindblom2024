@@ -708,12 +708,13 @@ public class ControlSystem {
         Pose2d limelightPose = new Pose2d(limelightPoseTemp.getTranslation(), mDriveSystem.getRobotAngle());
 
         double dist = EVector.fromPose(limelightPose).dist(EVector.fromPose(mDriveSystem.getRobotPose()));
-        if (driveSystemSlowEnough && limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0
-                && Limelight.getNumberOfApriltags(ConfigMap.APRILTAG_LIMELIGHT) > 1) {
-            if (dist > DIST_TOLERANCE) {
-                mDriveSystem.setOdometry(limelightPose);
-            }
-        } else if (limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0 && dist >= DIST_TOLERANCE) {
+        // if (driveSystemSlowEnough && limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0
+        //         && Limelight.getNumberOfApriltags(ConfigMap.APRILTAG_LIMELIGHT) > 1) {
+        //     if (dist > DIST_TOLERANCE) {
+        //         mDriveSystem.setOdometry(limelightPose);
+        //     }
+        // } else 
+        if (limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0 && dist >= DIST_TOLERANCE) {
             mDriveSystem.updateVisionLocalization(limelightPose);
         }
     }
