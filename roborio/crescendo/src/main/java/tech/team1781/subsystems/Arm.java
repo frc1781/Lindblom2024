@@ -51,7 +51,7 @@ public class Arm extends Subsystem {
     private double mDesiredPosition = 0;
     private Pose2d mRobotPose;
     private CURRENT_AIM_SPOT mCurrentAimSpot = CURRENT_AIM_SPOT.UNDEFEINED;
-    private double KICKSTAND_POSITION = 70.0; // was 73 Was 62.0
+    private double KICKSTAND_POSITION = 72; // was 73 Was 62.0
     private double mPrevAbsoluteAngle = KICKSTAND_POSITION;
     private double mPrevRecordedAngle = 0.0;
     private IdleMode mIdleMode;
@@ -86,14 +86,14 @@ public class Arm extends Subsystem {
         mLeftMotor.burnFlash();
         mRightMotor.burnFlash();
 
-        mPositions.put(ArmState.SAFE, 70.0); 
+        mPositions.put(ArmState.SAFE, 1.31); 
         mPositions.put(ArmState.PODIUM, CURRENT_AIM_SPOT.PODIUM.getPosition());
         mPositions.put(ArmState.SUBWOOFER, CURRENT_AIM_SPOT.SUBWOOFER.getPosition()); // was 36
         mPositions.put(ArmState.AMP, 50.0); // Was 46.0
         mPositions.put(ArmState.COLLECT, 0.0);
         mPositions.put(ArmState.COLLECT_HIGH, 60.0); // Was 55.7
         mPositions.put(ArmState.SKIP, 55.0);
-        mPositions.put(ArmState.KICKSTAND, 80.0);
+        mPositions.put(ArmState.KICKSTAND, 60.0);
         mPositions.put(ArmState.LOB, CURRENT_AIM_SPOT.SUBWOOFER.getPosition());
         mPositions.put(ArmState.NOTE_ONE, CURRENT_AIM_SPOT.NOTE_1.getPosition());
         mPositions.put(ArmState.NOTE_TWO, CURRENT_AIM_SPOT.NOTE_2.getPosition());
@@ -164,6 +164,7 @@ public class Arm extends Subsystem {
         }
 
         double currentArmAngle = getAngle();
+        System.out.println(currentArmAngle);
         mArmPositionEntry.setDouble(currentArmAngle);
         if (currentArmAngle != 0.0) {
             var armDutyCycle = mPositionPID.calculate(currentArmAngle, mDesiredPosition);
