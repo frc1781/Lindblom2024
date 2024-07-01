@@ -10,6 +10,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.Odometry;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -203,6 +204,7 @@ public class DriveSystem extends Subsystem {
     @Override
     public void genericPeriodic() {
         NetworkLogger.logData("Drive System Matches State", matchesDesiredState());
+      
 
         updateOdometry();
         mRobotXEntry.setDouble(getRobotPose().getX());
@@ -217,15 +219,16 @@ public class DriveSystem extends Subsystem {
         // mField.setRobotPose(getRobotPose());
     }
 
-    private void setInitialLocalization() {
-        Pose2d limelightPose = Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT);
-        mNavX.reset();
-        if (!mOdometryBeenSet && limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0)
-        {
-            System.out.printf("limelight angle %.4f  navx angle %.4f\n", limelightPose.getRotation().getDegrees(), getNavXAngle().getDegrees());
-            mPoseEstimator.resetPosition(getNavXAngle(), getModulePositions(), limelightPose);
-        }
-    }
+    //private void setInitialLocalization() {
+    //    Pose2d limelightPose = Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT);
+       
+    //    System.out.println("put anything");
+    //    if (!mOdometryBeenSet && limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0)
+     //  {
+     //       System.out.printf("limelight angle %.4f  navx angle %.4f\n", limelightPose.getRotation().getDegrees(), getNavXAngle().getDegrees());
+     //       mPoseEstimator.resetPosition(getNavXAngle(), getModulePositions(), limelightPose);
+      //  }
+   // }
 
     @Override
     public void init() {
@@ -246,9 +249,10 @@ public class DriveSystem extends Subsystem {
               //  mHasNavXOffsetBeenSet = false;
                 mIsFieldOriented = true;
                 mIsManual = true;
-
+                
+                mOdometryBeenSet =false; //REMOVE BEFORE COMPETION
                 setDesiredState(DriveSystemState.DRIVE_MANUAL);
-                setInitialLocalization();
+  
                 break;
             case DISABLED:
                 break;
@@ -266,16 +270,25 @@ public class DriveSystem extends Subsystem {
     public void updateVisionLocalization(Pose2d visionEstimate) {
         var visionEstimateVector = EVector.fromPose2d(visionEstimate);
         var currentPose = EVector.fromPose2d(getRobotPose());
-
-        visionEstimateVector.z = currentPose.z;
-
-        if (Math.abs(currentPose.dist(visionEstimateVector)) >= 2 || visionEstimate.getX() == -99.9) {
+        if (visionEstimate.getY() == 0.0 || visionEstimate.getX() == 0.0|| visionEstimate.getX() == -99.9) {
             return;
         }
 
-        mPoseEstimator.addVisionMeasurement(visionEstimateVector.toPose2d(), Timer.getFPGATimestamp());
-    }
-
+        if (mOdometryBeenSet)
+        {
+          if (Math.abs(currentPose.dist(visionEstimateVector)) >= 2) {
+            return;
+          }
+          mPoseEstimator.addVisionMeasurement(visionEstimate, Timer.getFPGATimestamp());
+        }
+        
+        else {
+            mNavX.reset();
+            System.out.printf("resetting position limelight angle %.4f  navx angle %.4f\n", visionEstimate.getRotation().getDegrees(), getNavXAngle().getDegrees());
+            mPoseEstimator.resetPosition(getNavXAngle(), getModulePositions(), visionEstimate);
+            mOdometryBeenSet=true;
+        }
+    } 
     public void setOdometry(Pose2d pose) {
         mPoseEstimator.resetPosition(getNavXAngle(), getModulePositions(), pose);
     }

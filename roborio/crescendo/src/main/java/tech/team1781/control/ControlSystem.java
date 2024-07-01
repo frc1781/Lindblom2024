@@ -700,7 +700,6 @@ public class ControlSystem {
     public void localizationUpdates() {
         final double speedTolerance = 0.1;
         final double DIST_TOLERANCE = 0.5;
-
         ChassisSpeeds robotSpeeds = mDriveSystem.getChassisSpeeds();
         EVector chassisSpeedsVector = new EVector(robotSpeeds.vxMetersPerSecond, robotSpeeds.vyMetersPerSecond);
         boolean driveSystemSlowEnough = chassisSpeedsVector.magnitude() <= speedTolerance;
@@ -714,9 +713,9 @@ public class ControlSystem {
         //         mDriveSystem.setOdometry(limelightPose);
         //     }
         // } else 
-        if (limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0 && dist >= DIST_TOLERANCE) {
+       // if (limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0 && dist >= DIST_TOLERANCE) {
             mDriveSystem.updateVisionLocalization(limelightPose);
-        }
+       // }
     }
 
 
