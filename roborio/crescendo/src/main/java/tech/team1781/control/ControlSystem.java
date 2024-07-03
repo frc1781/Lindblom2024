@@ -187,11 +187,13 @@ public class ControlSystem {
     }
 
     public void setCollecting(boolean pushingCollect) {
+        //if(){
         if (pushingCollect) {
             mSettingStack.add(new SubsystemSetting(mArm, ArmState.COLLECT));
             mSettingStack.add(new SubsystemSetting(mScollector, ScollectorState.COLLECT));
         }
     }
+//}
 
     public void setSpit(boolean pushingSpit) {
         if (pushingSpit) {
@@ -301,6 +303,18 @@ public class ControlSystem {
             // mAimingAngle = 0.0;
         }
     }
+    public void centerOnNode(int id) {
+        Limelight.setPipeline(ConfigMap.NOTE_LIMELIGHT,
+                isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG);
+        double x = Limelight.getTX(ConfigMap.NOTE_LIMELIGHT);
+        if (x != 0.0) {
+            mAimingAngle = mLimelightAimController.calculate(x, 0);
+        } else {
+            odometryAlignment(id);
+            // mAimingAngle = 0.0;
+        }
+        
+    }
 
     public void strafeToAprilTag() {
         double tx = Limelight.getTX(ConfigMap.NOTE_LIMELIGHT);
@@ -310,9 +324,10 @@ public class ControlSystem {
             return;
         }
 
+
         mStrafeDC = -mAmpAimController.calculate(tx, 0);
     }
-
+ 
     public void odometryAlignment(int id) {
         EVector robotPose = EVector.fromPose(mDriveSystem.getRobotPose());
         EVector targetPose = EVector.fromPose(aprilTagCoords.get(id));

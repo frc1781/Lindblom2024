@@ -86,7 +86,8 @@ public class Arm extends Subsystem {
         mLeftMotor.burnFlash();
         mRightMotor.burnFlash();
 
-        mPositions.put(ArmState.SAFE, 1.31); 
+        mPositions.put(ArmState.SAFE, 40.0); 
+       // mPositions.put(ArmState.SAFE, 1.31); 
         mPositions.put(ArmState.PODIUM, CURRENT_AIM_SPOT.PODIUM.getPosition());
         mPositions.put(ArmState.SUBWOOFER, CURRENT_AIM_SPOT.SUBWOOFER.getPosition()); // was 36
         mPositions.put(ArmState.AMP, 50.0); // Was 46.0
@@ -107,7 +108,7 @@ public class Arm extends Subsystem {
     }
 
     public enum ArmState implements Subsystem.SubsystemState {
-        KICKSTAND,
+        KICKSTAND,  
         SAFE,
         PODIUM,
         SUBWOOFER,
@@ -164,7 +165,7 @@ public class Arm extends Subsystem {
         }
 
         double currentArmAngle = getAngle();
-        System.out.println(currentArmAngle);
+        //System.out.println(currentArmAngle);
         mArmPositionEntry.setDouble(currentArmAngle);
         if (currentArmAngle != 0.0) {
             var armDutyCycle = mPositionPID.calculate(currentArmAngle, mDesiredPosition);

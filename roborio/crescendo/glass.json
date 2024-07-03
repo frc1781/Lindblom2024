@@ -1,0 +1,29 @@
+{
+  "NetworkTables": {
+    "retained": {
+      "limelight": {
+        "open": true
+      }
+    },
+    "transitory": {
+      "Shuffleboard": {
+        "Autonomous": {
+          "open": true
+        },
+        "open": true
+      }
+    },
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/Autonomous/SendableChooser[0]": "String Chooser",
+      "/Shuffleboard/Electric Eagles/Field": "Field2d"
+    }
+  },
+  "NetworkTables Settings": {
+    "serverTeam": "1781",
+    "visible": false
+  },
+  "NetworkTables View": {
+    "visible": false
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "NetworkTables": {
+    "Transitory Values": {
+      "open": false
+    },
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/Autonomous/SendableChooser[0]": "String Chooser",
+      "/Shuffleboard/Electric Eagles/Field": "Field2d"
+    }
+  },
+  "NetworkTables Settings": {
+    "mode": "Client (NT3)",
+    "serverTeam": "1781",
+    "visible": false
+  }
+}
