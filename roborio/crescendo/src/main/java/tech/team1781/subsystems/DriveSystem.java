@@ -238,14 +238,12 @@ public class DriveSystem extends Subsystem {
                 mNavX.reset();
                 mNavX.zeroYaw();
                 mIsFieldOriented = true;
-               // mHasNavXOffsetBeenSet = false;
                 mOdometryBeenSet = false;
                 break;
             case TELEOP:
-              //  mHasNavXOffsetBeenSet = false;
                 mIsFieldOriented = true;
                 mIsManual = true;
-
+                mOdometryBeenSet = false;  //TEMPORARY!!
                 setDesiredState(DriveSystemState.DRIVE_MANUAL);
                 setInitialLocalization();
                 break;
