@@ -346,9 +346,7 @@ public class DriveSystem extends Subsystem {
                                         + currentPoseVector.y);
                     }
                 }
-
             }
-
         }
 
             System.out.printf("%.4f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
