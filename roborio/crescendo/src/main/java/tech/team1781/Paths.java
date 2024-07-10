@@ -2,6 +2,8 @@ package tech.team1781;
 
 import java.util.HashMap;
 
+import javax.swing.text.Position;
+
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import tech.team1781.autonomous.AutonomousBuilder;
@@ -60,6 +62,8 @@ public class Paths {
     private static final PathPlannerPath note3ToCenter4 = PathPlannerPath.fromPathFile("n3;c4");
     private static final PathPlannerPath note3ToCenter5 = PathPlannerPath.fromPathFile("n3;c5");
 
+    private static final PathPlannerPath odomTesting = PathPlannerPath.fromPathFile("p4;p5");
+
     private static final HashMap<AutonomousPosition, HashMap<AutonomousPosition, Junction>> junctions = new HashMap<>();
     private static final HashMap<String, AutonomousPosition> positionMap = new HashMap<>();
 
@@ -67,6 +71,8 @@ public class Paths {
         junctions.put(AutonomousPosition.POSITION_1, new HashMap<>());
         junctions.put(AutonomousPosition.POSITION_2, new HashMap<>());
         junctions.put(AutonomousPosition.POSITION_3, new HashMap<>());
+        junctions.put(AutonomousPosition.POSITION_4, new HashMap<>());
+        junctions.put(AutonomousPosition.POSITION_5, new HashMap<>());
         junctions.put(AutonomousPosition.NOTE_1, new HashMap<>());
         junctions.put(AutonomousPosition.NOTE_2, new HashMap<>());
         junctions.put(AutonomousPosition.NOTE_3, new HashMap<>());
@@ -127,9 +133,13 @@ public class Paths {
         addJunction(AutonomousPosition.NOTE_3, AutonomousPosition.CENTER_4, note3ToCenter4);
         addJunction(AutonomousPosition.NOTE_3, AutonomousPosition.CENTER_5, note3ToCenter5);
 
+        addJunction(AutonomousPosition.POSITION_4, AutonomousPosition.POSITION_5, odomTesting);
+
         positionMap.put("p1", AutonomousPosition.POSITION_1);
         positionMap.put("p2", AutonomousPosition.POSITION_2);
         positionMap.put("p3", AutonomousPosition.POSITION_3);
+        positionMap.put("p4", AutonomousPosition.POSITION_4);
+        positionMap.put("p5", AutonomousPosition.POSITION_5);
         positionMap.put("n1", AutonomousPosition.NOTE_1);
         positionMap.put("n2", AutonomousPosition.NOTE_2);
         positionMap.put("n3", AutonomousPosition.NOTE_3);
@@ -144,6 +154,8 @@ public class Paths {
         POSITION_1(1, 1, "p1"),
         POSITION_2(2, 1, "p2"),
         POSITION_3(3, 1, "p3"),
+        POSITION_4(0, 0, "p4"),
+        POSITION_5(2, 0, "p5"),
         POSITION_1_RED(4,1, "rp1"),
         POSITION_3_RED(5,1, "rp3"),
         NOTE_1(1, 2, "n1"),
