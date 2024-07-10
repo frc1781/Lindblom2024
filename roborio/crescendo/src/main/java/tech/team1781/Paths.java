@@ -155,7 +155,7 @@ public class Paths {
         POSITION_2(2, 1, "p2"),
         POSITION_3(3, 1, "p3"),
         POSITION_4(0, 0, "p4"),
-        POSITION_5(2, 0, "p5"),
+        POSITION_5(1, 0, "p5"),
         POSITION_1_RED(4,1, "rp1"),
         POSITION_3_RED(5,1, "rp3"),
         NOTE_1(1, 2, "n1"),
