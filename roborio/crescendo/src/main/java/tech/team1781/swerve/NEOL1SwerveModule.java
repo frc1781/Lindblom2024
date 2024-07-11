@@ -44,7 +44,7 @@ public class NEOL1SwerveModule extends SwerveModule{
         mTurnMotor.restoreFactoryDefaults();
         mTurnMotor.setInverted(true);
         mDriveMotor.setInverted(true);
-        //mDriveMotor.setClosedLoopRampRate(1.5);
+        mDriveMotor.setClosedLoopRampRate(0.5);
         mDrivePID = mDriveMotor.getPIDController();
         mTurnPID = mTurnMotor.getPIDController();
         mTurnPID.setPositionPIDWrappingMaxInput(2 * Math.PI);
