@@ -14,7 +14,6 @@ public class Paths {
     private static final PathPlannerPath position1ToNote1 = PathPlannerPath.fromPathFile("p1;n1");
     private static final PathPlannerPath position1ToNote2 = PathPlannerPath.fromPathFile("p1;n2");
     private static final PathPlannerPath position1ToNote3 = PathPlannerPath.fromPathFile("p1;n3");
-    private static final PathPlannerPath odomTesting = PathPlannerPath.fromPathFile("p4;n5");
     private static final PathPlannerPath position1ToCenter1 = PathPlannerPath.fromPathFile("p1;c1");
     private static final PathPlannerPath position1ToCenter2 = PathPlannerPath.fromPathFile("p1;c2");
     private static final PathPlannerPath position1ToCenter3 = PathPlannerPath.fromPathFile("p1;c3");
@@ -38,6 +37,8 @@ public class Paths {
     private static final PathPlannerPath position3ToCenter3 = PathPlannerPath.fromPathFile("p3;c3");
     private static final PathPlannerPath position3ToCenter4 = PathPlannerPath.fromPathFile("p3;c4");
     private static final PathPlannerPath position3ToCenter5 = PathPlannerPath.fromPathFile("p3;c5");
+
+    private static final PathPlannerPath odomTesting = PathPlannerPath.fromPathFile("p4;n4");
 
     private static final PathPlannerPath note1ToNote2 = PathPlannerPath.fromPathFile("n1;n2");
     private static final PathPlannerPath note1ToNote3 = PathPlannerPath.fromPathFile("n1;n3");
@@ -108,6 +109,8 @@ public class Paths {
         addJunction(AutonomousPosition.POSITION_3, AutonomousPosition.CENTER_4, position3ToCenter4);
         addJunction(AutonomousPosition.POSITION_3, AutonomousPosition.CENTER_5, position3ToCenter5);
 
+        addJunction(AutonomousPosition.POSITION_4, AutonomousPosition.NOTE_4, odomTesting);
+
         addJunction(AutonomousPosition.NOTE_1, AutonomousPosition.NOTE_2, note1ToNote2);
         addJunction(AutonomousPosition.NOTE_1, AutonomousPosition.NOTE_3, note1ToNote3);
         addJunction(AutonomousPosition.NOTE_1, AutonomousPosition.CENTER_1, note1ToCenter1);
@@ -132,8 +135,6 @@ public class Paths {
         addJunction(AutonomousPosition.NOTE_3, AutonomousPosition.CENTER_4, note3ToCenter4);
         addJunction(AutonomousPosition.NOTE_3, AutonomousPosition.CENTER_5, note3ToCenter5);
 
-        addJunction(AutonomousPosition.POSITION_4, AutonomousPosition.NOTE_4, odomTesting);
-
         positionMap.put("p1", AutonomousPosition.POSITION_1);
         positionMap.put("p2", AutonomousPosition.POSITION_2);
         positionMap.put("p3", AutonomousPosition.POSITION_3);
@@ -141,7 +142,7 @@ public class Paths {
         positionMap.put("n1", AutonomousPosition.NOTE_1);
         positionMap.put("n2", AutonomousPosition.NOTE_2);
         positionMap.put("n3", AutonomousPosition.NOTE_3);
-        positionMap.put("p5", AutonomousPosition.NOTE_4);
+        positionMap.put("n4", AutonomousPosition.NOTE_4);
         positionMap.put("c1", AutonomousPosition.CENTER_1);
         positionMap.put("c2", AutonomousPosition.CENTER_2);
         positionMap.put("c3", AutonomousPosition.CENTER_3);
@@ -159,7 +160,7 @@ public class Paths {
         NOTE_1(1, 2, "n1"),
         NOTE_2(2, 2, "n2"),
         NOTE_3(3, 2, "n3"),
-        NOTE_4(1, 0, "n5"),
+        NOTE_4(1, 0, "n4"),
         CENTER_1(1, 3, "c1"),
         CENTER_2(2, 3, "c2"),
         CENTER_3(3, 3, "c3"),
