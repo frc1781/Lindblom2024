@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
-import tech.team1781.autonomous.WaypointHolder;
+
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -18,7 +18,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.units.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -50,10 +49,10 @@ public class ControlSystem {
     private Climber mClimber;
     private Arm mArm;
     private LEDs mLEDs;
+
     private OperatingMode mCurrentOperatingMode;
 
     // Slew Rate Limiters for controls
-   
     private final SlewRateLimiter mXDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
     private final SlewRateLimiter mYDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
     private final SlewRateLimiter mRotDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_ROTATION_RATE_LIMIT);
@@ -91,11 +90,8 @@ public class ControlSystem {
 
     private GenericEntry mSeesAprilTagEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Sees AprilTag",
             false, ShuffleboardStyle.SEES_APRILTAG);
-
-    public static GenericEntry mSeesNoteEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Sees Note",
-            false, ShuffleboardStyle.SEES_NOTE);
-           
     private HashMap<Number, Pose2d> aprilTagCoords = new HashMap<>();
+
     private Action mCurrentAction = null;
     private SeekNoteState mCurrentSeekNoteState = SeekNoteState.SEEKING;
     private EVector mSeekNoteTargetPose = EVector.newVector(-1, -1, -1);
@@ -272,7 +268,6 @@ public class ControlSystem {
     public void autoAimingInputs() {
         mSeesAprilTagEntry.setBoolean(Limelight.getTX(ConfigMap.APRILTAG_LIMELIGHT) != 0.0);
 
-
         if (!mCenterOnAprilTagButton) {
             mAutoAiming = false;
         }
@@ -287,11 +282,10 @@ public class ControlSystem {
         }
 
         if (mAutoCenterAmp) {
-          //  strafeToAprilTag();
+            strafeToAprilTag();
         } else {
             mStrafeDC = 0;
         }
-        
 
     }
 
@@ -303,15 +297,33 @@ public class ControlSystem {
         if (x != 0.0) {
             mAimingAngle = mLimelightAimController.calculate(x, 0);
         } else {
-         //   odometryAlignment(id);
+            odometryAlignment(id);
             // mAimingAngle = 0.0;
         }
     }
-       // robotPose.z = 0;
-      //  double angle = robotPose.angleBetween(targetPose) - Math.PI;
-     //   angle = normalizeRadians(angle);
-      //  mAimingAngle = mLimelightAimController.calculate(mDriveSystem.getRobotAngle().getRadians(), angle);
-    //}
+
+    public void strafeToAprilTag() {
+        double tx = Limelight.getTX(ConfigMap.NOTE_LIMELIGHT);
+
+        if (tx == 0) {
+            mStrafeDC = 0;
+            return;
+        }
+
+        mStrafeDC = -mAmpAimController.calculate(tx, 0);
+    }
+
+    public void odometryAlignment(int id) {
+        EVector robotPose = EVector.fromPose(mDriveSystem.getRobotPose());
+        EVector targetPose = EVector.fromPose(aprilTagCoords.get(id));
+
+        robotPose.z = 0;
+
+        double angle = robotPose.angleBetween(targetPose) - Math.PI;
+        angle = normalizeRadians(angle);
+
+        mAimingAngle = mLimelightAimController.calculate(mDriveSystem.getRobotAngle().getRadians(), angle);
+    }
 
     private double normalizeRadians(double rads) {
         rads %= 2 * Math.PI;
@@ -360,15 +372,15 @@ public class ControlSystem {
         return angles[smallestAngleIndex];
     }
 
-
     public void centerNote() {
         double x = Limelight.getTX(ConfigMap.NOTE_LIMELIGHT);
-          if (x != 0.0) {
+        if (x != 0.0) {
             mAimingAngle = mNoteAimController.calculate(x, 0);
-             } 
-        
-
+        } else {
+            mAimingAngle = 0.0;
+        }
     }
+
     // public void setAction(Action desiredAction) {
     // setAutoStep(desiredAction, null, null);
     // }
@@ -515,7 +527,6 @@ public class ControlSystem {
         return !isRunningAction() && mDriveSystem.matchesDesiredState();
     }
 
-
     public void init(OperatingMode operatingMode) {
         mCurrentOperatingMode = operatingMode;
 
@@ -540,10 +551,8 @@ public class ControlSystem {
 
                 break;
             case AUTONOMOUS:
-            
-            mAutoAiming = true;
                 System.out.println();
-                Limelight.setPipeline(ConfigMap.NOTE_LIMELIGHT, ConfigMap.NOTE_LIMELIGHT_APRILTAG_PIPELINE);
+                Limelight.setPipeline(ConfigMap.NOTE_LIMELIGHT, ConfigMap.NOTE_LIMELIGHT_NOTE_PIPELINE);
                 break;
             default:
                 break;
@@ -620,9 +629,6 @@ public class ControlSystem {
                 break;
             case AUTONOMOUS:
                 localizationUpdates();
-                 mSeesNoteEntry.setBoolean(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT) != 0.0);
-        ;
-            mAutoAiming = true;
                 if (mScollector.getState() == ScollectorState.COLLECT
                         || (mScollector.getState() == ScollectorState.COLLECT_RAMP
                                 && (mDriveSystem.getState() == DriveSystemState.DRIVE_NOTE

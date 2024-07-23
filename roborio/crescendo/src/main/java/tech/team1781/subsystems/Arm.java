@@ -101,7 +101,7 @@ public class Arm extends Subsystem {
         mPositions.put(ArmState.FAR_SHOT, 58.0);
 
 
-          System.out.println(mPositions);
+
         NetworkLogger.initLog("Arm Matches State", true);
         NetworkLogger.initLog("Raw Absolute Arm", 0.0);
     }

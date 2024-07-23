@@ -82,7 +82,7 @@ public class EVector {
         return new EVector(Math.cos(angle), Math.sin(angle), 0);
     }
 
-    public static EVector  positionWithDegrees(double x, double y, double degrees) {
+    public static EVector positionWithDegrees(double x, double y, double degrees) {
         return new EVector(x, y, Math.toRadians(degrees));
     }
 
