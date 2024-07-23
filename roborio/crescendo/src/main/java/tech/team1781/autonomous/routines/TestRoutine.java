@@ -20,7 +20,8 @@ public class TestRoutine implements AutoRoutine {
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-             new AutoStep(10,Paths.getPathFromName("p4;n4")), 
+             new AutoStep(10,Paths.getPathFromName("p4;n4")),
+             new AutoStep(10,Paths.getPathFromName("n4;p4")),
         };
     }
 
