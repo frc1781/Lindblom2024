@@ -66,7 +66,7 @@ public class Paths {
     private static final PathPlannerPath note3ToCenter5 = PathPlannerPath.fromPathFile("n3;c5");
 
     private static final PathPlannerPath note4ToPosition4 = PathPlannerPath.fromPathFile("n4;p4");
-    
+
     private static final PathPlannerPath note5ToPosition4 = PathPlannerPath.fromPathFile("n5;p4");
 
     private static final HashMap<AutonomousPosition, HashMap<AutonomousPosition, Junction>> junctions = new HashMap<>();
@@ -81,6 +81,7 @@ public class Paths {
         junctions.put(AutonomousPosition.NOTE_2, new HashMap<>());
         junctions.put(AutonomousPosition.NOTE_3, new HashMap<>());
         junctions.put(AutonomousPosition.NOTE_4, new HashMap<>());
+        junctions.put(AutonomousPosition.NOTE_5, new HashMap<>());
         junctions.put(AutonomousPosition.CENTER_1, new HashMap<>());
         junctions.put(AutonomousPosition.CENTER_2, new HashMap<>());
         junctions.put(AutonomousPosition.CENTER_3, new HashMap<>());
@@ -171,7 +172,7 @@ public class Paths {
         NOTE_2(2, 2, "n2"),
         NOTE_3(3, 2, "n3"),
         NOTE_4(1, 0, "n4"),
-        NOTE_5(1, 0, "n5"),
+        NOTE_5(2, 1, "n5"),
         CENTER_1(1, 3, "c1"),
         CENTER_2(2, 3, "c2"),
         CENTER_3(3, 3, "c3"),
