@@ -573,7 +573,7 @@ public class DriveSystem extends Subsystem {
 
     private Rotation2d getNavXAngle()
     {
-        return new Rotation2d(-mNavX.getRotation2d().getRadians());
+        return new Rotation2d(mNavX.getRotation2d().getRadians());
     }
 
     public Pose2d getRobotPose() {
