@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
-
+import tech.team1781.autonomous.WaypointHolder;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -18,6 +18,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.units.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -49,10 +50,10 @@ public class ControlSystem {
     private Climber mClimber;
     private Arm mArm;
     private LEDs mLEDs;
-
     private OperatingMode mCurrentOperatingMode;
 
     // Slew Rate Limiters for controls
+   
     private final SlewRateLimiter mXDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
     private final SlewRateLimiter mYDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
     private final SlewRateLimiter mRotDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_ROTATION_RATE_LIMIT);
@@ -90,8 +91,11 @@ public class ControlSystem {
 
     private GenericEntry mSeesAprilTagEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Sees AprilTag",
             false, ShuffleboardStyle.SEES_APRILTAG);
-    private HashMap<Number, Pose2d> aprilTagCoords = new HashMap<>();
 
+    public static GenericEntry mSeesNoteEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Sees Note",
+            false, ShuffleboardStyle.SEES_NOTE);
+           
+    private HashMap<Number, Pose2d> aprilTagCoords = new HashMap<>();
     private Action mCurrentAction = null;
     private SeekNoteState mCurrentSeekNoteState = SeekNoteState.SEEKING;
     private EVector mSeekNoteTargetPose = EVector.newVector(-1, -1, -1);
@@ -133,6 +137,14 @@ public class ControlSystem {
 
         aprilTagCoords.put(1, new Pose2d(15.078597, 0.245597, new Rotation2d()));
         aprilTagCoords.put(2, new Pose2d(16.184259, 0.883391, new Rotation2d()));
+<<<<<<< Updated upstream
+=======
+        //aprilTagCoords.put(1, new Pose2d(1.2446, 7.5, new Rotation2d()));
+        //aprilTagCoords.put(2, new Pose2d(1.9304, 7.5, new Rotation2d()));
+        //aprilTagCoords.put(3, new Pose2d(3, 0, new Rotation2d()));
+        //aprilTagCoords.put(4, new Pose2d(3.4120973, 0, new Rotation2d()));
+        //aprilTagCoords.put(5, new Pose2d(0, 2, new Rotation2d()));
+>>>>>>> Stashed changes
         aprilTagCoords.put(3, new Pose2d(16.578467, 4.982443, new Rotation2d()));
         aprilTagCoords.put(4, new Pose2d(16.578467, 5.547593, new Rotation2d()));
         aprilTagCoords.put(5, new Pose2d(14.699883, 8.203925, new Rotation2d()));
@@ -268,6 +280,7 @@ public class ControlSystem {
     public void autoAimingInputs() {
         mSeesAprilTagEntry.setBoolean(Limelight.getTX(ConfigMap.APRILTAG_LIMELIGHT) != 0.0);
 
+
         if (!mCenterOnAprilTagButton) {
             mAutoAiming = false;
         }
@@ -286,6 +299,7 @@ public class ControlSystem {
         } else {
             mStrafeDC = 0;
         }
+        
 
     }
 
@@ -301,6 +315,21 @@ public class ControlSystem {
             // mAimingAngle = 0.0;
         }
     }
+<<<<<<< Updated upstream
+=======
+   // public void centerOnNode(int id) {
+    //    Limelight.setPipeline(ConfigMap.NOTE_LIMELIGHT,
+    //            isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG);
+    //    double x = Limelight.getTX(ConfigMap.NOTE_LIMELIGHT);
+    //    if (x != 0.0) {
+    //        mAimingAngle = mLimelightAimController.calculate(x, 0);
+     //   } else {
+    //        odometryAlignment(id);
+            // mAimingAngle = 0.0;
+    //    }
+        
+  //  }
+>>>>>>> Stashed changes
 
     public void strafeToAprilTag() {
         double tx = Limelight.getTX(ConfigMap.NOTE_LIMELIGHT);
@@ -316,12 +345,9 @@ public class ControlSystem {
     public void odometryAlignment(int id) {
         EVector robotPose = EVector.fromPose(mDriveSystem.getRobotPose());
         EVector targetPose = EVector.fromPose(aprilTagCoords.get(id));
-
         robotPose.z = 0;
-
         double angle = robotPose.angleBetween(targetPose) - Math.PI;
         angle = normalizeRadians(angle);
-
         mAimingAngle = mLimelightAimController.calculate(mDriveSystem.getRobotAngle().getRadians(), angle);
     }
 
@@ -372,15 +398,15 @@ public class ControlSystem {
         return angles[smallestAngleIndex];
     }
 
+
     public void centerNote() {
         double x = Limelight.getTX(ConfigMap.NOTE_LIMELIGHT);
-        if (x != 0.0) {
+          if (x != 0.0) {
             mAimingAngle = mNoteAimController.calculate(x, 0);
-        } else {
-            mAimingAngle = 0.0;
-        }
-    }
+             } 
+        
 
+    }
     // public void setAction(Action desiredAction) {
     // setAutoStep(desiredAction, null, null);
     // }
@@ -527,6 +553,7 @@ public class ControlSystem {
         return !isRunningAction() && mDriveSystem.matchesDesiredState();
     }
 
+
     public void init(OperatingMode operatingMode) {
         mCurrentOperatingMode = operatingMode;
 
@@ -551,8 +578,10 @@ public class ControlSystem {
 
                 break;
             case AUTONOMOUS:
+            
+            mAutoAiming = true;
                 System.out.println();
-                Limelight.setPipeline(ConfigMap.NOTE_LIMELIGHT, ConfigMap.NOTE_LIMELIGHT_NOTE_PIPELINE);
+                Limelight.setPipeline(ConfigMap.NOTE_LIMELIGHT, ConfigMap.NOTE_LIMELIGHT_APRILTAG_PIPELINE);
                 break;
             default:
                 break;
@@ -629,6 +658,9 @@ public class ControlSystem {
                 break;
             case AUTONOMOUS:
                 localizationUpdates();
+                 mSeesNoteEntry.setBoolean(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT) != 0.0);
+        ;
+            mAutoAiming = true;
                 if (mScollector.getState() == ScollectorState.COLLECT
                         || (mScollector.getState() == ScollectorState.COLLECT_RAMP
                                 && (mDriveSystem.getState() == DriveSystemState.DRIVE_NOTE

@@ -7,11 +7,11 @@ import tech.team1781.autonomous.AutonomousHandler.AutoRoutine;
 import tech.team1781.control.ControlSystem.Action;
 import tech.team1781.utils.EVector;
 
-public class FourNote implements AutoRoutine {
+public class FourNotePractice implements AutoRoutine {
 
     @Override
     public String getName() {
-        return "13: FourNote";
+        return "23: FourNotePractice";
     }
 
     // 1. Shoot note at p2 without zeroing on collect, see how fast we can shoot
@@ -26,7 +26,7 @@ public class FourNote implements AutoRoutine {
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-               new AutoStep(1, Action.OFF_KICKSTAND),
+                //new AutoStep(1, Action.OFF_KICKSTAND),
                 new AutoStep(6, Action.SHOOT_SUBWOOFER),
                 new AutoStep(2,Action.COLLECT_RAMP),
                 new AutoStep(1.5, Action.COLLECT_RAMP, Paths.getPathFromName("p2;n2"), true),
