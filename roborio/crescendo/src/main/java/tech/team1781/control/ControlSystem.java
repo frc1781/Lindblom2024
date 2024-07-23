@@ -137,14 +137,6 @@ public class ControlSystem {
 
         aprilTagCoords.put(1, new Pose2d(15.078597, 0.245597, new Rotation2d()));
         aprilTagCoords.put(2, new Pose2d(16.184259, 0.883391, new Rotation2d()));
-<<<<<<< Updated upstream
-=======
-        //aprilTagCoords.put(1, new Pose2d(1.2446, 7.5, new Rotation2d()));
-        //aprilTagCoords.put(2, new Pose2d(1.9304, 7.5, new Rotation2d()));
-        //aprilTagCoords.put(3, new Pose2d(3, 0, new Rotation2d()));
-        //aprilTagCoords.put(4, new Pose2d(3.4120973, 0, new Rotation2d()));
-        //aprilTagCoords.put(5, new Pose2d(0, 2, new Rotation2d()));
->>>>>>> Stashed changes
         aprilTagCoords.put(3, new Pose2d(16.578467, 4.982443, new Rotation2d()));
         aprilTagCoords.put(4, new Pose2d(16.578467, 5.547593, new Rotation2d()));
         aprilTagCoords.put(5, new Pose2d(14.699883, 8.203925, new Rotation2d()));
@@ -295,7 +287,7 @@ public class ControlSystem {
         }
 
         if (mAutoCenterAmp) {
-            strafeToAprilTag();
+          //  strafeToAprilTag();
         } else {
             mStrafeDC = 0;
         }
@@ -311,45 +303,15 @@ public class ControlSystem {
         if (x != 0.0) {
             mAimingAngle = mLimelightAimController.calculate(x, 0);
         } else {
-            odometryAlignment(id);
+         //   odometryAlignment(id);
             // mAimingAngle = 0.0;
         }
     }
-<<<<<<< Updated upstream
-=======
-   // public void centerOnNode(int id) {
-    //    Limelight.setPipeline(ConfigMap.NOTE_LIMELIGHT,
-    //            isRed() ? ConfigMap.RED_SPEAKER_APRILTAG : ConfigMap.BLUE_SPEAKER_APRILTAG);
-    //    double x = Limelight.getTX(ConfigMap.NOTE_LIMELIGHT);
-    //    if (x != 0.0) {
-    //        mAimingAngle = mLimelightAimController.calculate(x, 0);
-     //   } else {
-    //        odometryAlignment(id);
-            // mAimingAngle = 0.0;
-    //    }
-        
-  //  }
->>>>>>> Stashed changes
-
-    public void strafeToAprilTag() {
-        double tx = Limelight.getTX(ConfigMap.NOTE_LIMELIGHT);
-
-        if (tx == 0) {
-            mStrafeDC = 0;
-            return;
-        }
-
-        mStrafeDC = -mAmpAimController.calculate(tx, 0);
-    }
-
-    public void odometryAlignment(int id) {
-        EVector robotPose = EVector.fromPose(mDriveSystem.getRobotPose());
-        EVector targetPose = EVector.fromPose(aprilTagCoords.get(id));
-        robotPose.z = 0;
-        double angle = robotPose.angleBetween(targetPose) - Math.PI;
-        angle = normalizeRadians(angle);
-        mAimingAngle = mLimelightAimController.calculate(mDriveSystem.getRobotAngle().getRadians(), angle);
-    }
+       // robotPose.z = 0;
+      //  double angle = robotPose.angleBetween(targetPose) - Math.PI;
+     //   angle = normalizeRadians(angle);
+      //  mAimingAngle = mLimelightAimController.calculate(mDriveSystem.getRobotAngle().getRadians(), angle);
+    //}
 
     private double normalizeRadians(double rads) {
         rads %= 2 * Math.PI;
