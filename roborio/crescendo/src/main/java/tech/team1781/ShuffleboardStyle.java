@@ -36,9 +36,14 @@ public class ShuffleboardStyle {
         .withProperty("Color when true", "#000000"); //Gold
 
     //DriveSystem
+    public static final Style SEES_NOTE = new Style(1,1,5,3, BuiltInWidgets.kBooleanBox)
+    .withProperty("Color when false", "#800000") //Maroon
+        .withProperty("Color when true", "#ffbf00"); //Gold
+        
     public static final Style SEES_APRILTAG = new Style(1,1,5,3, BuiltInWidgets.kBooleanBox)
         .withProperty("Color when false", "#800000") //Maroon
         .withProperty("Color when true", "#ffbf00"); //Gold
+        
     public static final Style ROBOT_X = new Style(1,1,5,0, BuiltInWidgets.kTextView);
     public static final Style ROBOT_Y = new Style(1,1,6,0, BuiltInWidgets.kTextView);
     public static final Style ROBOT_THETA = new Style(1,1,7,0, BuiltInWidgets.kTextView);

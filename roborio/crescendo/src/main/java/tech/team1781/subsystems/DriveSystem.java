@@ -19,8 +19,10 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import tech.team1781.ConfigMap;
+import tech.team1781.Paths.AutonomousPosition;
 import tech.team1781.ShuffleboardStyle;
 import tech.team1781.autonomous.AutoStep;
+import tech.team1781.autonomous.AutonomousBuilder;
 import tech.team1781.autonomous.WaypointHolder;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.swerve.KrakenL2SwerveModule;
@@ -307,15 +309,14 @@ public class DriveSystem extends Subsystem {
     public void goToWaypoint() {
         double xObservedNoteAngle = 0.0;
         double currentAngle = 0.0;
-
         if (mDesiredWaypoint == null) {
             return;
         }
+  
 
         EVector currentPoseVector = EVector.fromPose(getRobotPose());
         EVector desiredWaypointPosition = mDesiredWaypoint.getPosition();
         double rotation = desiredWaypointPosition.z;
-
         ChassisSpeeds desiredChassisSpeeds = mWaypointController.calculate(
                 getRobotPose(),
                 desiredWaypointPosition.toPose2d(),
@@ -330,7 +331,6 @@ public class DriveSystem extends Subsystem {
                             desiredWaypointPosition.withZ(0));
 
             if (dist <= DISTANCE_TOLERANCE) {
-
                 xObservedNoteAngle = Math.toRadians(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT));
                 if (xObservedNoteAngle != 0.0) {
                     currentAngle = getRobotAngle().getRadians();
@@ -346,7 +346,8 @@ public class DriveSystem extends Subsystem {
                         mDesiredWaypoint.changeY(
                                 Math.sin(currentAngle) * dist
                                         + currentPoseVector.y);
-                    }
+                    } 
+
                 }
 
             }
@@ -482,6 +483,7 @@ public class DriveSystem extends Subsystem {
             setWaypoint(new WaypointHolder(x, y, rot2D.getRadians(), AutoStep.DEFAULT_SPEED));
             setDesiredState(DriveSystemState.DRIVE_NOTE);
         }
+        
     }
     
     public void setWaypoint(WaypointHolder waypoint) {
@@ -514,6 +516,14 @@ public class DriveSystem extends Subsystem {
         setWaypoint(mDesiredWaypoint);
 
     }
+    public void goToNote(){
+        if(ControlSystem.mSeesNoteEntry.setBoolean(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT) != 0.0)){
+         //   mDesiredWaypoint.WaypointHolder();
+            goToWaypoint();
+        }
+    
+    }
+ 
 
     public void driveWithChassisSpeeds(ChassisSpeeds speeds) {
         if (getState() == DriveSystemState.DRIVE_MANUAL)
@@ -622,6 +632,7 @@ public class DriveSystem extends Subsystem {
 
     private void updateOdometry() {
         // mOdometry.update(getRobotAngle(), getModulePositions());
+       goToNote();
         mPoseEstimator.update(getNavXAngle(), getModulePositions());
     }
 

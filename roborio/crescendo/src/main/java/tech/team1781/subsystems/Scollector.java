@@ -25,7 +25,7 @@ import tech.team1781.utils.NetworkLogger;
 public class Scollector extends Subsystem {
     private CANSparkMax mCollectorMotor = new CANSparkMax(ConfigMap.COLLECTOR_MOTOR, CANSparkMax.MotorType.kBrushless);
     private CANSparkFlex mTopShooterMotor = new CANSparkFlex(ConfigMap.SHOOTER_TOP_MOTOR,
-            CANSparkFlex.MotorType.kBrushless);
+      CANSparkFlex.MotorType.kBrushless); 
     private CANSparkFlex mBottomShooterMotor = new CANSparkFlex(ConfigMap.SHOOTER_BOTTOM_MOTOR,
             CANSparkFlex.MotorType.kBrushless);
 
@@ -58,12 +58,10 @@ public class Scollector extends Subsystem {
         super("Scollector", ScollectorState.IDLE);
         mCollectorMotor.setIdleMode(IdleMode.kBrake);
         mBottomShooterMotor.setIdleMode(IdleMode.kCoast);
-        mTopShooterMotor.setIdleMode(IdleMode.kCoast);
-        mTopShooterMotor.setInverted(false);
+        mTopShooterMotor.setIdleMode(IdleMode.kCoast); 
+        mTopShooterMotor.setInverted(false); 
         mBottomShooterMotor.setInverted(true);
-
         final double conversionFactor = 0.100203 * 1 / 60;
-
         mBottomShooterMotor.getEncoder().setPositionConversionFactor(conversionFactor);
         mBottomShooterMotor.getEncoder().setVelocityConversionFactor(conversionFactor);
         mTopShooterMotor.getEncoder().setPositionConversionFactor(conversionFactor);
@@ -105,7 +103,7 @@ public class Scollector extends Subsystem {
     public void genericPeriodic() {
         NetworkLogger.logData("Scollector Matches State", matchesDesiredState());
 
-        mTopShooterVelocity.setDouble(mTopShooterMotor.getEncoder().getVelocity());
+        mTopShooterVelocity.setDouble(mTopShooterMotor.getEncoder().getVelocity());//uncomment after top shooter motor works
         mBottomShooterVelocity.setDouble(mBottomShooterMotor.getEncoder().getVelocity());
         mReadyToShootEntry.setBoolean(shooterAtSpeed());
         mHasNoteEntry.setBoolean(hasNote());
@@ -240,26 +238,26 @@ public class Scollector extends Subsystem {
 
     public boolean shooterAtSpeed() {
         double leftSpeed = mBottomShooterMotor.getEncoder().getVelocity();
-        double rightSpeed = mTopShooterMotor.getEncoder().getVelocity();
+        double rightSpeed = mTopShooterMotor.getEncoder().getVelocity();//uncomment after top shooter motor works
         double leftDiff = Math.abs(leftSpeed - ConfigMap.MAX_SHOOTER_SPEED);
-        double rightDiff = Math.abs(rightSpeed - ConfigMap.MAX_SHOOTER_SPEED);
+        double rightDiff = Math.abs(rightSpeed - ConfigMap.MAX_SHOOTER_SPEED);//uncomment after top shooter motor works
         double point = ConfigMap.MAX_SHOOTER_SPEED - 1;
         final double TOLERANCE = 0.1;
 
-        return leftSpeed >= point && rightSpeed >= point;
-
+        return leftSpeed >= point && rightSpeed >= point;//uncomment after top shooter motor works
+//return leftSpeed >=  point;//delete after top shooter is fixed
     }
 
     public boolean shooterAtSpeed(double speed) {
         double leftSpeed = mBottomShooterMotor.getEncoder().getVelocity();
-        double rightSpeed = mTopShooterMotor.getEncoder().getVelocity();
+        double rightSpeed = mTopShooterMotor.getEncoder().getVelocity();//uncomment after top shooter motor works
         double leftDiff = Math.abs(leftSpeed - ConfigMap.MAX_SHOOTER_SPEED);
-        double rightDiff = Math.abs(rightSpeed - ConfigMap.MAX_SHOOTER_SPEED);
+        double rightDiff = Math.abs(rightSpeed - ConfigMap.MAX_SHOOTER_SPEED);//uncomment after top shooter motor works
         double point = speed;
         final double TOLERANCE = 0.1;
 
-        return leftSpeed >= point && rightSpeed >= point;
-
+        return leftSpeed >= point && rightSpeed >= point;//uncomment after top shooter motor works
+       //return leftSpeed >=  point;//delete after top shooter is fixed
     }
 
     public void setArmReadyToShoot(boolean armReady) {
