@@ -13,21 +13,22 @@ import java.nio.file.Path;
 
 import com.pathplanner.lib.path.PathPlannerPath;
 
-public class BluePractice implements AutoRoutine {
+public class ThreeNotePractice implements AutoRoutine {
 
     @Override
     public String getName() {
-        return "20: BluePractice";
+        return "21: ThreeNotePractice";
     }
 
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-       new AutoStep(5, Paths.getPathFromName("bluePractice1")),
-       new AutoStep(2,Action.COLLECT_RAMP),
-       new AutoStep(5, Paths.getPathFromName("bluePractice2")),
-       new AutoStep(5, Paths.getPathFromName("bluePractice4")),
-       new AutoStep(5, Paths.getPathFromName("bluePractice3"))
+       new AutoStep(3, Paths.getPathFromName("threeNote1")),
+       new AutoStep(3, Paths.getPathFromName("threeNote2")),
+       new AutoStep(3, Paths.getPathFromName("threeNote3")),
+       new AutoStep(3, Paths.getPathFromName("threeNote4")),
+       new AutoStep(3, Paths.getPathFromName("threeNote5")),
+       new AutoStep(3, Paths.getPathFromName("threeNote6"))
         };
     }
 }

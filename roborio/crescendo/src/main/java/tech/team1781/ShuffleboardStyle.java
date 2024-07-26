@@ -19,6 +19,10 @@ public class ShuffleboardStyle {
     public static final Style HAS_NOTE = new Style(1, 1, 4, 1, BuiltInWidgets.kBooleanBox)
         .withProperty("Color when false", "#800000") //Maroon
         .withProperty("Color when true", "#ffbf00"); //Gold
+    public static final Style SEES_NOTE = new Style(1,1,5,3, BuiltInWidgets.kBooleanBox)
+        .withProperty("Color when false", "#800000") //Maroon
+        .withProperty("Color when true", "#ffbf00"); //Gold
+            
     public static final Style TOP_SHOOTER = new Style(1,1,4,2, BuiltInWidgets.kNumberBar)
         .withProperty("Min", 0)
         .withProperty("Max", ConfigMap.MAX_SHOOTER_SPEED);

@@ -86,14 +86,14 @@ public class Arm extends Subsystem {
         mLeftMotor.burnFlash();
         mRightMotor.burnFlash();
 
-        mPositions.put(ArmState.SAFE, 70.0); 
+        mPositions.put(ArmState.SAFE, 30.0); 
         mPositions.put(ArmState.PODIUM, CURRENT_AIM_SPOT.PODIUM.getPosition());
         mPositions.put(ArmState.SUBWOOFER, CURRENT_AIM_SPOT.SUBWOOFER.getPosition()); // was 36
         mPositions.put(ArmState.AMP, 50.0); // Was 46.0
         mPositions.put(ArmState.COLLECT, 0.0);
         mPositions.put(ArmState.COLLECT_HIGH, 60.0); // Was 55.7
         mPositions.put(ArmState.SKIP, 55.0);
-        mPositions.put(ArmState.KICKSTAND, 80.0);
+        mPositions.put(ArmState.KICKSTAND, 30.0);
         mPositions.put(ArmState.LOB, CURRENT_AIM_SPOT.SUBWOOFER.getPosition());
         mPositions.put(ArmState.NOTE_ONE, CURRENT_AIM_SPOT.NOTE_1.getPosition());
         mPositions.put(ArmState.NOTE_TWO, CURRENT_AIM_SPOT.NOTE_2.getPosition());
@@ -225,7 +225,6 @@ public class Arm extends Subsystem {
         mRightMotor.setIdleMode(mode);
         System.out.println(mode);
         mIdleMode = mode;
-        
     }
 
     private void syncArm() {
@@ -233,7 +232,6 @@ public class Arm extends Subsystem {
         if(abs != mPrevRecordedAngle) {
             mPrevRecordedAngle = abs;
         }
-
     }
 
     private double getAngle() {

@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import tech.team1781.DriverInput;
 import tech.team1781.autonomous.AutonomousHandler;
+import tech.team1781.autonomous.AutonomousHandler.AutoRoutine;
 import tech.team1781.autonomous.RoutineOverException;
 import tech.team1781.autonomous.routines.*;
 import tech.team1781.control.ControlSystem;
@@ -91,6 +92,8 @@ public class Robot extends TimedRobot {
         new BlueP3C4C3Score(),
         new P1C1(),
         new BlueP1C1(),
+        new BluePractice(),
+        new ThreeNotePractice(),
         new TestRoutine());
 
     mDriverInput = new DriverInput();

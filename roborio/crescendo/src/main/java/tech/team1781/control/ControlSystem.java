@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
+import tech.team1781.autonomous.WaypointHolder;
 
 import com.pathplanner.lib.path.PathPlannerPath;
+import edu.wpi.first.units.Distance;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -91,7 +93,8 @@ public class ControlSystem {
     private GenericEntry mSeesAprilTagEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Sees AprilTag",
             false, ShuffleboardStyle.SEES_APRILTAG);
     private HashMap<Number, Pose2d> aprilTagCoords = new HashMap<>();
-
+    public static GenericEntry mSeesNoteEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Sees Note",
+    false, ShuffleboardStyle.SEES_NOTE);
     private Action mCurrentAction = null;
     private SeekNoteState mCurrentSeekNoteState = SeekNoteState.SEEKING;
     private EVector mSeekNoteTargetPose = EVector.newVector(-1, -1, -1);
@@ -282,7 +285,7 @@ public class ControlSystem {
         }
 
         if (mAutoCenterAmp) {
-            strafeToAprilTag();
+        //    strafeToAprilTag();
         } else {
             mStrafeDC = 0;
         }
@@ -297,7 +300,7 @@ public class ControlSystem {
         if (x != 0.0) {
             mAimingAngle = mLimelightAimController.calculate(x, 0);
         } else {
-            odometryAlignment(id);
+       //     odometryAlignment(id);
             // mAimingAngle = 0.0;
         }
     }
