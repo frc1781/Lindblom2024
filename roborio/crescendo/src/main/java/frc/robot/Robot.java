@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.util.datalog.DataLog;
@@ -63,6 +67,21 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
+    Logger.recordMetadata("RobotName", "GLaDOS");
+    Logger.recordMetadata("Team", "1781");
+
+    if (isReal()) {
+      Logger.addDataReceiver(new WPILOGWriter());
+      Logger.addDataReceiver(new NT4Publisher());
+
+      new PowerDistribution(1, PowerDistribution.ModuleType.kRev);
+    } else {
+      //setUseTiming(false);
+      Logger.addDataReceiver(new NT4Publisher());
+    }
+
+    Logger.start();
+
     mCompressor = new Compressor(ConfigMap.FIRST_PCM_ID,
         PneumaticsModuleType.REVPH);
     mCompressor.enableDigital();

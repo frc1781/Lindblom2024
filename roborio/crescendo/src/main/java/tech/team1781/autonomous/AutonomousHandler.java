@@ -1,5 +1,7 @@
 package tech.team1781.autonomous;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -31,13 +33,11 @@ public class AutonomousHandler {
         ConfigMap.AUTONOMOUS_TAB.add(mAutoChooser).withSize(2, 1);
 
         mControlSystem = controlSystem;
-        System.out.println("=================================================================");
-        System.out.println("THIS IS THE AUTO NAME: " + mAutoChooser.getSelected());
-        System.out.println("=================================================================");
+        Logger.recordOutput("Autonomous/ChosenRoutine", mAutoChooser.getSelected().getName());
 
-        NetworkLogger.initLog("Auto Step", "EMPTY");
-        NetworkLogger.initLog("End Condition", "EMPTY");
-        NetworkLogger.initLog("Time", 0.0);
+        Logger.recordOutput("Autonomous/CurrentStep", "None");
+        Logger.recordOutput("Autonomous/EndCodition", "None");
+        Logger.recordOutput("Autonomous/Time", 0.0);
     }
 
     public void init() {
@@ -47,7 +47,7 @@ public class AutonomousHandler {
         mSelectedRoutine = mAutoChooser.getSelected();
         mSampledSteps = mAutoChooser.getSelected().getSteps();
 
-        System.out.println("THIS IS THE AUTO NAME: " + mSelectedRoutine.getName());
+        Logger.recordOutput("Autonomous/Routine", mSelectedRoutine.getName());
 
         sampledStep = mSelectedRoutine.getSteps()[0];
         startStep(sampledStep);
@@ -56,8 +56,7 @@ public class AutonomousHandler {
     }
 
     public void run() throws RoutineOverException {
-        // mStepTimeEntry.setDouble(mTimer.get());
-        NetworkLogger.logData("Time", mTimer.get());
+        Logger.recordOutput("Autonomous/Timer", mTimer.get());
 
         try {
             boolean controlSystemFinished = mControlSystem.stepIsFinished();
@@ -65,7 +64,6 @@ public class AutonomousHandler {
             boolean stepFinished = controlSystemFinished || timerFinished; 
 
             if (stepFinished) {
-                // mEndConditionEntry.setString(controlSystemFinished ? "Control System Finished" : "Timer Finished");
                 NetworkLogger.logData("End Condition", controlSystemFinished ? "Control System Finished" : "Timer Finished");
                 mStepIndex++;
                 mTimer.reset();
