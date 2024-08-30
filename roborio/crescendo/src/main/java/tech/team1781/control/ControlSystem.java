@@ -217,11 +217,6 @@ public class ControlSystem {
         }
     }
 
-    public void calibratePosition() {
-        mDriveSystem.setOdometry(new Pose2d(Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT).getTranslation(),
-                mDriveSystem.getRobotAngle()));
-    }
-
     public void setPrepareToShoot(boolean pushingPrepare) {
         if (pushingPrepare) {
             mSettingStack.add(new SubsystemSetting(mArm, ArmState.AUTO_ANGLE));

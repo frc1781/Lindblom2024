@@ -224,7 +224,7 @@ public class DriveSystem extends Subsystem {
             System.out.printf("limelight angle %.4f  navx angle %.4f\n", limelightPose.getRotation().getDegrees(), getNavXAngle().getDegrees());
             mPoseEstimator.resetPosition(getNavXAngle(), getModulePositions(), limelightPose);
         }
-    }
+    } 
 
     @Override
     public void init() {
@@ -275,6 +275,7 @@ public class DriveSystem extends Subsystem {
         mPoseEstimator.addVisionMeasurement(visionEstimateVector.toPose2d(), Timer.getFPGATimestamp());
     }
 
+    // TODO: Remove in favour of setInitalLocalization
     public void setOdometry(Pose2d pose) {
         mPoseEstimator.resetPosition(getNavXAngle(), getModulePositions(), pose);
     }
