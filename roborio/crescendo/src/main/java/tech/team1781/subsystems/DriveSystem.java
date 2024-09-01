@@ -30,8 +30,6 @@ import tech.team1781.utils.EVector;
 import tech.team1781.utils.Limelight;
 import tech.team1781.utils.NetworkLogger;
 
-import java.io.ObjectInputFilter;
-
 public class DriveSystem extends Subsystem {
 
     // Swerve Modules
@@ -59,8 +57,6 @@ public class DriveSystem extends Subsystem {
 
     private SwerveDrivePoseEstimator mPoseEstimator;
     private boolean mIsFieldOriented = true;
-   // private double mNavXOffset = 0;
-    //private boolean mHasNavXOffsetBeenSet = false;
     private boolean mOdometryBeenSet = false;
     // Sensors
     private AHRS mNavX = new AHRS(SPI.Port.kMXP);
@@ -178,15 +174,11 @@ public class DriveSystem extends Subsystem {
                 return matchesDesiredPosition();
             case DRIVE_ROTATION:
                 return matchesRotation(mDesiredWaypoint.getPosition().z);
-            // return false;
             case DRIVE_TRAJECTORY:
                 return matchesPosition(mDesiredTrajectory.getEndState().getTargetHolonomicPose())
                         && (currentTime >= mDesiredTrajectory.getTotalTimeSeconds());
             case DRIVE_MANUAL:
                 return true;
-            // case DRIVE_NOTE:
-            // return true;
-            // return mIsManual;
             default:
                 return false;
         }
@@ -275,31 +267,17 @@ public class DriveSystem extends Subsystem {
         mPoseEstimator.addVisionMeasurement(visionEstimateVector.toPose2d(), Timer.getFPGATimestamp());
     }
 
-    // TODO: Remove in favour of setInitalLocalization
-    public void setOdometry(Pose2d pose) {
-        mPoseEstimator.resetPosition(getNavXAngle(), getModulePositions(), pose);
-    }
-
     public void setNavXOffset(Rotation2d offset) {
-       // if (mHasNavXOffsetBeenSet) {
-        //    return;
-       // }
-
         offset = EEGeometryUtil.normalizeAngle(offset);
-       // mNavXOffset = offset.getRadians();
         System.out.printf("set navx offset, setting estimator with %.2f getRobotAngle and %.2f robotPose\n",
            getRobotAngle().getDegrees(),
            getRobotPose().getRotation().getDegrees());
         mPoseEstimator = new SwerveDrivePoseEstimator(mKinematics, getNavXAngle(), getModulePositions(),
                 getRobotPose());
-        // mPoseEstimator.resetPosition(getRobotAngle(), getModulePositions(), )
-      //  mHasNavXOffsetBeenSet = true;
     }
 
     public void zeroNavX() {
         mNavX.setAngleAdjustment(0);
-      //  mNavXOffset = 0.0;
-      //  mHasNavXOffsetBeenSet = true;
         mNavX.zeroYaw();
         mPoseEstimator.resetPosition(getNavXAngle(), getModulePositions(), 
             new Pose2d(getRobotPose().getTranslation(), new Rotation2d()));
@@ -371,13 +349,6 @@ public class DriveSystem extends Subsystem {
                     //mNavXOffset
             );
 
-        // System.out.println("Desired Pose: " + desiredWaypointPosition.withZ(rotation)
-        // + " Current Pose: "
-        // + EVector.fromPose2d(currentPose) + " X: " +
-        // desiredChassisSpeeds.vxMetersPerSecond + " Y: " +
-        // desiredChassisSpeeds.vyMetersPerSecond + " Rot: " +
-        // desiredChassisSpeeds.omegaRadiansPerSecond);
-
         driveWithChassisSpeeds(desiredChassisSpeeds);
     }
 
@@ -415,15 +386,6 @@ public class DriveSystem extends Subsystem {
     }
 
     public void setTrajectoryFromPath(PathPlannerPath path) {
-        Pose2d startingPose = path.getPreviewStartingHolonomicPose();
-        Rotation2d startingOrientation = startingPose.getRotation();
-        if (!mOdometryBeenSet) {
-            setOdometry(startingPose);
-            setNavXOffset(startingOrientation);
-            mOdometryBeenSet = true;
-        }
-
-        // also use current speed of robot
         PathPlannerTrajectory pathTrajectory = new PathPlannerTrajectory(path, new ChassisSpeeds(), getRobotAngle());
         setTrajectory(pathTrajectory);
     }
@@ -454,24 +416,6 @@ public class DriveSystem extends Subsystem {
                     targetOrientation
             );
 
-            //time requested (x, y, h, v, r) current (x, y, r) desired speeds (x, y,r)
-            // System.out.printf("%.4f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
-            //         trajectoryTimer.get(),
-            //         targetPose.getX(),
-            //         targetPose.getY(),
-            //         targetPose.getRotation().getDegrees(),
-            //         pathplannerState.velocityMps,
-            //         targetOrientation.getDegrees(),
-            //         getRobotPose().getX(),
-            //         getRobotPose().getY(),
-            //         mFrontLeft.getCurrentState().speedMetersPerSecond,
-            //         getRobotPose().getRotation().getDegrees(),
-            //         speed.vxMetersPerSecond,
-            //         speed.vyMetersPerSecond,
-            //         speed.omegaRadiansPerSecond,
-            //         mNavXOffset
-            // );
-
             driveWithChassisSpeeds(speed);
 
         } else if (Limelight.getTX(ConfigMap.NOTE_LIMELIGHT) != 0.0) {
@@ -489,12 +433,6 @@ public class DriveSystem extends Subsystem {
         mDesiredWaypoint = waypoint.copy();
         mDesiredTrajectory = null;
         mIsManual = false;
-
-        if (!mOdometryBeenSet) {
-            setOdometry(mDesiredWaypoint.getPosition().toPose2d());
-            setNavXOffset(Rotation2d.fromRadians(mDesiredWaypoint.getPosition().z));
-            mOdometryBeenSet = true;
-        }
 
         mXController.reset();
         mYController.reset();
@@ -519,9 +457,6 @@ public class DriveSystem extends Subsystem {
     public void driveWithChassisSpeeds(ChassisSpeeds speeds) {
         if (getState() == DriveSystemState.DRIVE_MANUAL)
             return;
-        // System.out.println("Driving: " + speeds.vxMetersPerSecond + " " +
-        // speeds.vyMetersPerSecond + " "
-        // + speeds.omegaRadiansPerSecond);
 
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
@@ -622,7 +557,6 @@ public class DriveSystem extends Subsystem {
     }
 
     private void updateOdometry() {
-        // mOdometry.update(getRobotAngle(), getModulePositions());
         mPoseEstimator.update(getNavXAngle(), getModulePositions());
     }
 

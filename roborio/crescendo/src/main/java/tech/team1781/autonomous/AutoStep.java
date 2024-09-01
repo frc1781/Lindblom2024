@@ -7,7 +7,7 @@ import tech.team1781.ConfigMap;
 import tech.team1781.control.ControlSystem.Action;
 import tech.team1781.utils.EVector;
 
-public class AutoStep {
+public class  AutoStep {
     private double mMaxTime = -1;
     private Action mAction = null;
     private WaypointHolder mWaypointHolder = null;

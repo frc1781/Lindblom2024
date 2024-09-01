@@ -18,10 +18,6 @@ public class AutonomousHandler {
     private AutoStep sampledStep;
     private AutoStep[] mSampledSteps;
 
-    // private GenericEntry mAutoStepEntry = ConfigMap.LOG_TAB.add("Autonomous/Auto Step", "EMPTY").getEntry();
-    // private GenericEntry mEndConditionEntry = ConfigMap.LOG_TAB.add("End Condition", "EMPTY").getEntry();
-    // private GenericEntry mStepTimeEntry = ConfigMap.LOG_TAB.add("Step Time", 0.0).getEntry();
-
     public AutonomousHandler(ControlSystem controlSystem, AutoRoutine... routines) {
         mAutoChooser.setDefaultOption(routines[0].getName(), routines[0]);
         for (AutoRoutine routine : routines) {
@@ -56,7 +52,6 @@ public class AutonomousHandler {
     }
 
     public void run() throws RoutineOverException {
-        // mStepTimeEntry.setDouble(mTimer.get());
         NetworkLogger.logData("Time", mTimer.get());
 
         try {
@@ -65,7 +60,6 @@ public class AutonomousHandler {
             boolean stepFinished = controlSystemFinished || timerFinished; 
 
             if (stepFinished) {
-                // mEndConditionEntry.setString(controlSystemFinished ? "Control System Finished" : "Timer Finished");
                 NetworkLogger.logData("End Condition", controlSystemFinished ? "Control System Finished" : "Timer Finished");
                 mStepIndex++;
                 mTimer.reset();
@@ -81,11 +75,9 @@ public class AutonomousHandler {
     }
 
     private void startStep(AutoStep step) {
-        // mAutoStepEntry.setString("Step: [" + mStepIndex + "]: " + step.toString());
         NetworkLogger.logData("Auto Step", "Step: [" + mStepIndex + "]: " + step.toString());
         System.out.println("new step! " + step.toString());
         System.out.println(step.toString() + " ==================================================================== " + mStepIndex);
-        // mControlSystem.setAutoStep(step.getAction(), step.getPosition(), step.getPath());
         mControlSystem.setAutoStep(step);
     }
 

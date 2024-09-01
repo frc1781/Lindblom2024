@@ -159,17 +159,6 @@ public class Scollector extends Subsystem {
                 driveMotors();
                 break;
             case COLLECT_AUTO_LOB:
-                // if (!hasNote()) {
-                //     collect();
-                //     System.out.println("aaaaaaaaaaaa");
-                // } else if (mArmInPosition && (noteCloseToShooter() || hasNote()) && shooterAtSpeed(ConfigMap.MIN_SHOOTER_SPEED)) {
-                //     shoot();
-                //     System.out.println("bbbbbbbbbbbbb");
-                // } else {
-                //     mCollectorMotor.set(0);
-                //     System.out.println("cccccccccccccccccc: " + mArmInPosition + " :: " + noteCloseToShooter() + " :: " + hasNote() + " :: " + shooterAtSpeed(ConfigMap.MIN_SHOOTER_SPEED));
-                // }
-
                 driveMotors();
                 break;
             case RAMP_SHOOTER:
