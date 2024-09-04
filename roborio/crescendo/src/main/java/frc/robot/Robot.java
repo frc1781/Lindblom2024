@@ -205,14 +205,14 @@ public class Robot extends TimedRobot {
     });
 
     for(int i = 0; i < PDH_CHANNELS; i ++ ) {
-      NetworkLogger.initLog("PDH Channel Current: " + i, 0);
+      Logger.recordOutput("PDH Channel Current: " + i, 0);
     }
     
-    NetworkLogger.initLog("PDH Power: ", 0);
-    NetworkLogger.initLog("PDH Total Current: ", 0);
-    NetworkLogger.initLog("PDH Total Energy: ", 0);
-    NetworkLogger.initLog("PDH Total Power: ", 0);
-    NetworkLogger.initLog("PDH Voltage: ", 0);
+    Logger.recordOutput("PDH Power: ", 0);
+    Logger.recordOutput("PDH Total Current: ", 0);
+    Logger.recordOutput("PDH Total Energy: ", 0);
+    Logger.recordOutput("PDH Total Power: ", 0);
+    Logger.recordOutput("PDH Voltage: ", 0);
     
   }
 
@@ -224,13 +224,13 @@ public class Robot extends TimedRobot {
     // }
 
     for(int i = 0; i < PDH_CHANNELS; i ++ ) {
-      NetworkLogger.logData("PDH Channel Current: " + i, mPowerDistributionHub.getCurrent(i));
+      Logger.recordOutput("PDH Channel Current: " + i, mPowerDistributionHub.getCurrent(i));
     }
 
-    NetworkLogger.logData("PDH Power: ", mPowerDistributionHub.getTotalPower());
-    NetworkLogger.logData("PDH Total Current: ", mPowerDistributionHub.getTotalCurrent());
-    NetworkLogger.logData("PDH Total Energy: ", mPowerDistributionHub.getTotalEnergy());
-    NetworkLogger.logData("PDH Voltage: ", mPowerDistributionHub.getVoltage());
+    Logger.recordOutput("PDH Power: ", mPowerDistributionHub.getTotalPower());
+    Logger.recordOutput("PDH Total Current: ", mPowerDistributionHub.getTotalCurrent());
+    Logger.recordOutput("PDH Total Energy: ", mPowerDistributionHub.getTotalEnergy());
+    Logger.recordOutput("PDH Voltage: ", mPowerDistributionHub.getVoltage());
 
 
   }

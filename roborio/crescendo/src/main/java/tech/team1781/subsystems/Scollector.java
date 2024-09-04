@@ -2,6 +2,8 @@ package tech.team1781.subsystems;
 
 import java.util.ArrayList;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.playingwithfusion.TimeOfFlight;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkMax;
@@ -93,7 +95,7 @@ public class Scollector extends Subsystem {
         System.out.println("top motor faults: " + mTopShooterMotor.getFaults());
         System.out.println("top motor faults: " + mBottomShooterMotor.getFaults());
 
-        NetworkLogger.initLog("Scollector Matches State", true);
+        Logger.recordOutput("Scollector Matches State", true);
     }
 
     public enum ScollectorState implements SubsystemState {
@@ -103,7 +105,7 @@ public class Scollector extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-        NetworkLogger.logData("Scollector Matches State", matchesDesiredState());
+        Logger.recordOutput("Scollector Matches State", matchesDesiredState());
 
         mTopShooterVelocity.setDouble(mTopShooterMotor.getEncoder().getVelocity());
         mBottomShooterVelocity.setDouble(mBottomShooterMotor.getEncoder().getVelocity());

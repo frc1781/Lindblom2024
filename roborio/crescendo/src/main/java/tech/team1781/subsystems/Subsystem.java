@@ -1,5 +1,7 @@
 package tech.team1781.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+
 import tech.team1781.utils.NetworkLogger;
 
 public abstract class Subsystem {
@@ -13,7 +15,7 @@ public abstract class Subsystem {
     name = _name;
     defaultState = _defaultState;
     currentState = defaultState;
-    NetworkLogger.initLog(_name, _defaultState);
+    Logger.recordOutput(_name, _defaultState.toString());
    }
 
    public void setOperatingMode(OperatingMode mode) {
@@ -40,7 +42,7 @@ public abstract class Subsystem {
       System.out.println(desiredState);
 
       currentState = desiredState;
-      NetworkLogger.logData(getName(), getState().toString());
+      Logger.recordOutput(getName(), getState().toString());
       System.out.println("Changing " + name +  "'s state to " + desiredState);
    }
    

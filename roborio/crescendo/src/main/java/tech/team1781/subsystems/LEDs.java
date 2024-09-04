@@ -1,5 +1,7 @@
 package tech.team1781.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.Timer;
@@ -21,7 +23,7 @@ public class LEDs extends Subsystem {
     public LEDs() {
         super("LEDs", LedState.DEFAULT);
 
-        NetworkLogger.initLog("LEDs Matches State", true);
+        Logger.recordOutput("LEDs Matches State", true);
     }
 
     public enum LedState implements SubsystemState {
@@ -35,7 +37,7 @@ public class LEDs extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-        NetworkLogger.logData("LEDs Matches State", matchesDesiredState());
+        Logger.recordOutput("LEDs Matches State", matchesDesiredState());
     }
 
     @Override
