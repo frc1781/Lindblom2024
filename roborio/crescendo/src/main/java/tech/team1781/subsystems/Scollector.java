@@ -235,6 +235,7 @@ public class Scollector extends Subsystem {
         if (!mTopTof.isRangeValid() && mTopTof.getRange() == 0.0) {
             return false;
         }
+        System.out.println(mTopTof.getRange());
         return mTopTof.getRange() <= 400;
     }
 
