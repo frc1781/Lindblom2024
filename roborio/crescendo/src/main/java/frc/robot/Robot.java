@@ -91,7 +91,10 @@ public class Robot extends TimedRobot {
         new BlueP3C4C3Score(),
         new P1C1(),
         new BlueP1C1(),
-        new TestRoutineForward());
+        new TestRoutineForward(),
+        new TestRoutineBackward(),
+        new TestRoutineLeft(),
+        new TestRoutineRight());
 
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
