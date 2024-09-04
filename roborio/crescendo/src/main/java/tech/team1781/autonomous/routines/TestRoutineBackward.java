@@ -14,13 +14,13 @@ public class TestRoutineBackward implements AutoRoutine {
 
     @Override
     public String getName() {
-        return "Test Routine";
+        return "Test Routine Backward";
     }
 
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-                new AutoStep(5, Paths.getPathFromName("testBackward")),
+                new AutoStep(5, Paths.getPathFromName("pathBackward")),
 
         };
     }

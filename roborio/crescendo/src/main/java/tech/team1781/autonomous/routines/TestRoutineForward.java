@@ -14,7 +14,7 @@ public class TestRoutineForward implements AutoRoutine {
 
     @Override
     public String getName() {
-        return "Test Routine";
+        return "Test Routine Forward";
     }
 
     @Override

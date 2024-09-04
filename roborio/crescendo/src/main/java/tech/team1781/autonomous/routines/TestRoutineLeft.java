@@ -14,7 +14,7 @@ public class TestRoutineLeft implements AutoRoutine {
 
     @Override
     public String getName() {
-        return "Test Routine";
+        return "Test Routine Left";
     }
 
     @Override
