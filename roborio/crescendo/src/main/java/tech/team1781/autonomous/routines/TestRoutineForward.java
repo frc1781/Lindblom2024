@@ -10,7 +10,7 @@ import tech.team1781.utils.EVector;
 
 import java.nio.file.Path;
 
-public class TestRoutine implements AutoRoutine {
+public class TestRoutineForward implements AutoRoutine {
 
     @Override
     public String getName() {
@@ -20,10 +20,7 @@ public class TestRoutine implements AutoRoutine {
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-                new AutoStep(5, Paths.getPathFromName("testForward")),
-                new AutoStep(5, Paths.getPathFromName("testBackward")),
-                new AutoStep(5, Paths.getPathFromName("testLeft")),
-                new AutoStep(5, Paths.getPathFromName("testRight"))
+                new AutoStep(5, Paths.getPathFromName("pathForward")),
 
         };
     }
