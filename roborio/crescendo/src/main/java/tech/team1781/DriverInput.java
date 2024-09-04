@@ -45,6 +45,9 @@ public class DriverInput {
             ret_val.y = selectedController.getRightY();
         }
 
+        ret_val.x = Math.abs(ret_val.x) <= 0.1 ? 0 : ret_val.x;
+        ret_val.y = Math.abs(ret_val.y) <= 0.1 ? 0 : ret_val.y;
+
         return ret_val;
     }
 
