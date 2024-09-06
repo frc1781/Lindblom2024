@@ -47,12 +47,12 @@ public class Climber extends Subsystem {
         mLeftClimberMotor.burnFlash();
         mRightClimberMotor.burnFlash();
 
-        Logger.recordOutput("Climber Matches State", true);
-        Logger.recordOutput("Climber Left Duty Cycle", 0.0);
-        Logger.recordOutput("Climber Right Duty Cycle", 0.0);
+        Logger.recordOutput("Climber/Matches State", true);
+        Logger.recordOutput("Climber/LeftDutyCycle", 0.0);
+        Logger.recordOutput("Climber/RightDutyCycle", 0.0);
 
-        Logger.recordOutput("Climber Left Position", 0.0);
-        Logger.recordOutput("Climber Right Position", 0.0);
+        Logger.recordOutput("Climber/LeftPosition", 0.0);
+        Logger.recordOutput("Climber/RightPosition", 0.0);
     }
 
     public enum ClimberState implements Subsystem.SubsystemState {
@@ -61,7 +61,7 @@ public class Climber extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-        Logger.recordOutput("Climber Matches State", matchesDesiredState());
+        Logger.recordOutput("Climber/MatchesState", matchesDesiredState());
 
         if(mLeftReverseLimitSwitch.isPressed()) {
             mLeftClimberEncoder.setPosition(0);
@@ -139,11 +139,11 @@ public class Climber extends Subsystem {
         mLeftClimberMotor.set(leftDutyCycle);
         mRightClimberMotor.set(rightDutyCycle);
 
-        Logger.recordOutput("Climber Left Duty Cycle", leftDutyCycle);
-        Logger.recordOutput("Climber Right Duty Cycle", rightDutyCycle);
+        Logger.recordOutput("Climber/LeftDutyCycle", leftDutyCycle);
+        Logger.recordOutput("Climber/RightDutyCycle", rightDutyCycle);
 
-        Logger.recordOutput("Climber Left Position", mLeftClimberMotor.getEncoder().getPosition());
-        Logger.recordOutput("Climber Right Position", mRightClimberMotor.getEncoder().getPosition());
+        Logger.recordOutput("Climber/LeftPosition", mLeftClimberMotor.getEncoder().getPosition());
+        Logger.recordOutput("Climber/RightPosition", mRightClimberMotor.getEncoder().getPosition());
         // mTrapHookMotor.set(trapHookDutyCycle);
         // System.out.printf("trap dc: %.2f\n", trapHookDutyCycle);
     }

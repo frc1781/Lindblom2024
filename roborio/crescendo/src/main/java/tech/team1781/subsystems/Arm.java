@@ -105,8 +105,8 @@ public class Arm extends Subsystem {
 
 
 
-        Logger.recordOutput("Arm Matches State", true);
-        Logger.recordOutput("Raw Absolute Arm", 0.0);
+        Logger.recordOutput("Arm/MatchesState", true);
+        Logger.recordOutput("Arm/RawAbsoluteArm", 0.0);
     }
 
     public enum ArmState implements Subsystem.SubsystemState {
@@ -129,8 +129,8 @@ public class Arm extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-       Logger.recordOutput("Arm Matches State", matchesDesiredState());
-        Logger.recordOutput("Raw Absolute Arm", getAngleAbsolute());
+       Logger.recordOutput("Arm/ArmMatchesState", matchesDesiredState());
+        Logger.recordOutput("Arm/RawAbsoluteArm", getAngleAbsolute());
 
         // testEntry.setDouble(getAngleAbsolute());
         if (mArmAbsoluteEncoder.getPosition() < 10) {

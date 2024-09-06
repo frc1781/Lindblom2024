@@ -15,7 +15,7 @@ public abstract class Subsystem {
     name = _name;
     defaultState = _defaultState;
     currentState = defaultState;
-    Logger.recordOutput(_name, _defaultState.toString());
+    Logger.recordOutput(_name + "/CurrentState", _defaultState.toString());
    }
 
    public void setOperatingMode(OperatingMode mode) {
@@ -42,7 +42,7 @@ public abstract class Subsystem {
       System.out.println(desiredState);
 
       currentState = desiredState;
-      Logger.recordOutput(getName(), getState().toString());
+      Logger.recordOutput(getName() + "/CurrentState", getState().toString());
       System.out.println("Changing " + name +  "'s state to " + desiredState);
    }
    

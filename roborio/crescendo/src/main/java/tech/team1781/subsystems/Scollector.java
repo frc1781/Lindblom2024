@@ -95,7 +95,7 @@ public class Scollector extends Subsystem {
         System.out.println("top motor faults: " + mTopShooterMotor.getFaults());
         System.out.println("top motor faults: " + mBottomShooterMotor.getFaults());
 
-        Logger.recordOutput("Scollector Matches State", true);
+        Logger.recordOutput("Scollector/MatchesState", true);
     }
 
     public enum ScollectorState implements SubsystemState {
@@ -105,7 +105,7 @@ public class Scollector extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-        Logger.recordOutput("Scollector Matches State", matchesDesiredState());
+        Logger.recordOutput("Scollector/Matchesstate", matchesDesiredState());
 
         mTopShooterVelocity.setDouble(mTopShooterMotor.getEncoder().getVelocity());
         mBottomShooterVelocity.setDouble(mBottomShooterMotor.getEncoder().getVelocity());

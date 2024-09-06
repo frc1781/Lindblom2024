@@ -23,7 +23,7 @@ public class LEDs extends Subsystem {
     public LEDs() {
         super("LEDs", LedState.DEFAULT);
 
-        Logger.recordOutput("LEDs Matches State", true);
+        Logger.recordOutput("LEDs/MatchesState", true);
     }
 
     public enum LedState implements SubsystemState {
@@ -37,7 +37,7 @@ public class LEDs extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-        Logger.recordOutput("LEDs Matches State", matchesDesiredState());
+        Logger.recordOutput("LEDs/MatchesState", matchesDesiredState());
     }
 
     @Override

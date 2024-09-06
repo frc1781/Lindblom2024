@@ -154,7 +154,7 @@ public class ControlSystem {
 
         mStepTime = new Timer();
 
-        Logger.recordOutput("Current ControlSystem Action", "None");
+        Logger.recordOutput("ControlSystem/CurrentControlSystemAction", "None");
     }
 
     public static boolean isRed() {
@@ -562,7 +562,7 @@ public class ControlSystem {
     }
 
     public void run(DriverInput driverInput) {
-        Logger.recordOutput("Current ControlSystem Action", mCurrentAction);
+        Logger.recordOutput("ControlSystem/CurrentControlSystemAction", mCurrentAction);
 
         mArm.updateAimSpots(mDriveSystem.getRobotPose());
 
