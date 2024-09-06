@@ -630,11 +630,8 @@ public class ControlSystem {
             case AUTONOMOUS:
                 localizationUpdates();
                 if (mScollector.getState() == ScollectorState.COLLECT
-                        || (mScollector.getState() == ScollectorState.COLLECT_RAMP
-                                && (mDriveSystem.getState() == DriveSystemState.DRIVE_NOTE
-                                        || mDriveSystem.getState() == DriveSystemState.DRIVE_SETPOINT || mDriveSystem.getState() == DriveSystemState.DRIVE_TRAJECTORY))
-                        || (mScollector.getState() == ScollectorState.COLLECT_AUTO_SHOOT
-                                && (mArm.getState() != ArmState.NOTE_ONE && mArm.getState() != ArmState.NOTE_THREE))) {
+                        || (mScollector.getState() == ScollectorState.COLLECT_RAMP && (mDriveSystem.getState() == DriveSystemState.DRIVE_NOTE || mDriveSystem.getState() == DriveSystemState.DRIVE_SETPOINT || mDriveSystem.getState() == DriveSystemState.DRIVE_TRAJECTORY))
+                        || (mScollector.getState() == ScollectorState.COLLECT_AUTO_SHOOT && (mArm.getState() != ArmState.NOTE_ONE && mArm.getState() != ArmState.NOTE_THREE))) {
                     if (mScollector.hasNote() || mScollector.noteCloseToShooter()) {
                         mArm.setDesiredState(ArmState.AUTO_ANGLE);
                     } else {

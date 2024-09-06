@@ -94,7 +94,11 @@ public class Robot extends TimedRobot {
         new TestRoutineForward(),
         new TestRoutineBackward(),
         new TestRoutineLeft(),
-        new TestRoutineRight());
+        new TestRoutineRight(),
+        new TestRoutineFrontLeft(),
+        new TestRoutineFrontRight(),
+        new TestRoutineBackLeft(),
+        new TestRoutineBackRight());
 
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
