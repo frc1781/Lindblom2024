@@ -29,7 +29,7 @@ import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
 import tech.team1781.utils.EEGeometryUtil;
 import tech.team1781.utils.EVector;
-import tech.team1781.utils.NetworkLogger;
+
 import tech.team1781.utils.PreferenceHandler;
 import tech.team1781.utils.PreferenceHandler.ValueHolder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;

@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import tech.team1781.control.ControlSystem;
-import tech.team1781.utils.NetworkLogger;
+
 
 public class LEDs extends Subsystem {
     private final int LED_LENGTH = 75;

@@ -27,7 +27,7 @@ import tech.team1781.ConfigMap;
 import tech.team1781.ShuffleboardStyle;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.utils.EVector;
-import tech.team1781.utils.NetworkLogger;
+
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PowerDistribution;
 

@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import tech.team1781.ConfigMap;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.subsystems.Subsystem;
-import tech.team1781.utils.NetworkLogger;
+
 
 public class AutonomousHandler {
     private SendableChooser<AutoRoutine> mAutoChooser = new SendableChooser<>();

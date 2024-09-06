@@ -2,7 +2,7 @@ package tech.team1781.subsystems;
 
 import org.littletonrobotics.junction.Logger;
 
-import tech.team1781.utils.NetworkLogger;
+
 
 public abstract class Subsystem {
    protected final String name;

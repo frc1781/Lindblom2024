@@ -8,7 +8,7 @@ import org.littletonrobotics.junction.Logger;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.SparkLimitSwitch.Type;
 import tech.team1781.ConfigMap;
-import tech.team1781.utils.NetworkLogger;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DriverStation;
 

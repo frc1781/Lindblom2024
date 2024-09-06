@@ -21,7 +21,7 @@ import tech.team1781.ConfigMap;
 import tech.team1781.ShuffleboardStyle;
 import tech.team1781.subsystems.LEDs.LedState;
 import tech.team1781.utils.EVector;
-import tech.team1781.utils.NetworkLogger;
+
 
 //EXAMPLE SUBSYSTEM, NOT FOR ACTUAL BOT
 public class Scollector extends Subsystem {

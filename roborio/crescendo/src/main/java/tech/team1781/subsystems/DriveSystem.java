@@ -28,7 +28,7 @@ import tech.team1781.swerve.SwerveModule;
 import tech.team1781.utils.EEGeometryUtil;
 import tech.team1781.utils.EVector;
 import tech.team1781.utils.Limelight;
-import tech.team1781.utils.NetworkLogger;
+
 
 import java.io.ObjectInputFilter;
 
@@ -204,7 +204,7 @@ public class DriveSystem extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-        Logger.recordOutput("Drive System/Matches State", matchesDesiredState());
+        Logger.recordOutput("DriveSystem/MatchesState", matchesDesiredState());
         updateOdometry();
         mRobotXEntry.setDouble(getRobotPose().getX());
         mRobotYEntry.setDouble(getRobotPose().getY());
@@ -217,6 +217,7 @@ public class DriveSystem extends Subsystem {
         mField.setRobotPose(getRobotPose());
         // mField.setRobotPose(getRobotPose());
          Logger.recordOutput("DriveSystem/CurrentPose", getRobotPose());
+         Logger.recordOutput("DriveSystem/SwervePositions", getModulePositions());
     }
 
     private void setInitialLocalization() {
