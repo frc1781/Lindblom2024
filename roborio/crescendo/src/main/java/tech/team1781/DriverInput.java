@@ -49,18 +49,32 @@ public class DriverInput {
             ret_val.x = 0;
         }
         else {
-            Math.abs(ret_val.x);
-            ret_val.x -= ConfigMap.DEADZONE;
-            ret_val.x *= 1/(1-ConfigMap.DEADZONE);
+            if (ret_val.x < 0) {
+                Math.abs(ret_val.x);
+                ret_val.x -= ConfigMap.DEADZONE;
+                ret_val.x *= 1/(1 - ConfigMap.DEADZONE);
+                ret_val.x *= -1;
+            }
+            else {
+                ret_val.x -= ConfigMap.DEADZONE;
+                ret_val.x *= 1/(1 - ConfigMap.DEADZONE);
+            }
         }
 
         if(Math.abs(ret_val.y) <= ConfigMap.DEADZONE) {
             ret_val.y = 0;
         }
         else {
-            Math.abs(ret_val.y);
-            ret_val.y -= ConfigMap.DEADZONE;
-            ret_val.y *= 1/(1-ConfigMap.DEADZONE);
+            if (ret_val.y < 0) {
+                Math.abs(ret_val.y);
+                ret_val.y -= ConfigMap.DEADZONE;
+                ret_val.y *= 1/(1 - ConfigMap.DEADZONE);
+                ret_val.y *= -1;
+            }
+            else {
+                ret_val.y -= ConfigMap.DEADZONE;
+                ret_val.y *= 1/(1 - ConfigMap.DEADZONE);
+            }
         }
 
         return ret_val;
