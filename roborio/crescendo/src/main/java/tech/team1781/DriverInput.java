@@ -45,8 +45,23 @@ public class DriverInput {
             ret_val.y = selectedController.getRightY();
         }
 
-        ret_val.x = Math.abs(ret_val.x) <= 0.1 ? 0 : ret_val.x;
-        ret_val.y = Math.abs(ret_val.y) <= 0.1 ? 0 : ret_val.y;
+        if(Math.abs(ret_val.x) <= ConfigMap.DEADZONE) {
+            ret_val.x = 0;
+        }
+        else {
+            Math.abs(ret_val.x);
+            ret_val.x -= ConfigMap.DEADZONE;
+            ret_val.x *= 1/(1-ConfigMap.DEADZONE);
+        }
+
+        if(Math.abs(ret_val.y) <= ConfigMap.DEADZONE) {
+            ret_val.y = 0;
+        }
+        else {
+            Math.abs(ret_val.y);
+            ret_val.y -= ConfigMap.DEADZONE;
+            ret_val.y *= 1/(1-ConfigMap.DEADZONE);
+        }
 
         return ret_val;
     }
