@@ -1,11 +1,13 @@
 package tech.team1781.subsystems;
 
+import tech.team1781.control.ControlSystem;
 import tech.team1781.utils.NetworkLogger;
 
 public abstract class Subsystem {
    protected final String name;
    protected double currentTime;
-   protected OperatingMode currentMode; 
+   protected OperatingMode currentMode;
+   protected ControlSystem controlSystem; 
    private final SubsystemState defaultState;
    protected SubsystemState currentState;
 
@@ -20,6 +22,10 @@ public abstract class Subsystem {
       currentMode = mode;
       System.out.println(name + " initialized into operating mode " + mode.toString());
       init();
+   }
+
+   public void setControlSystem(ControlSystem cs) {
+      controlSystem = cs;
    }
 
    public abstract void genericPeriodic();
