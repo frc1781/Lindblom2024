@@ -220,9 +220,6 @@ public class Robot extends LoggedRobot {
     // PreferenceHandler.updateValues();
     // mSaveConfigButton.setBoolean(false);
     // }
-
-   
-
   }
 
   @Override
