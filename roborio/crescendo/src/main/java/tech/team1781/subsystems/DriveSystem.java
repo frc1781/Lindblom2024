@@ -22,6 +22,7 @@ import tech.team1781.ConfigMap;
 import tech.team1781.ShuffleboardStyle;
 import tech.team1781.autonomous.AutoStep;
 import tech.team1781.autonomous.WaypointHolder;
+import tech.team1781.autonomous.AutonomousHandler.AutoRoutine;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.swerve.KrakenL2SwerveModule;
 import tech.team1781.swerve.SwerveModule;
@@ -210,11 +211,16 @@ public class DriveSystem extends Subsystem {
     }
 
     private void setInitialLocalization() {
-        Pose2d limelightPose = Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT);
-        if (!mOdometryBeenSet && limelightPose.getY() != 0.0 && limelightPose.getX() != 0.0)
+        if (!mOdometryBeenSet && Limelight.getTV(ConfigMap.APRILTAG_LIMELIGHT) != 1 && currentMode == OperatingMode.TELEOP)
         {
+            Pose2d limelightPose = Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT);
             System.out.printf("limelight angle %.4f  navx angle %.4f\n", limelightPose.getRotation().getDegrees(), getNavXAngle().getDegrees());
             mPoseEstimator.resetPosition(getNavXAngle(), getModulePositions(), limelightPose);
+            mOdometryBeenSet = true;
+        } else if (!mOdometryBeenSet && currentMode == OperatingMode.AUTONOMOUS) {
+            Pose2d firstPose = controlSystem.getAutoStartingPose2d();
+            mPoseEstimator.resetPosition(getNavXAngle(), getModulePositions(), firstPose);
+            mOdometryBeenSet = true;
         }
     } 
 

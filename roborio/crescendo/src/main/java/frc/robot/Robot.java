@@ -38,7 +38,6 @@ public class Robot extends TimedRobot {
         PneumaticsModuleType.REVPH);
     mCompressor.enableDigital();
 
-    mControlSystem = new ControlSystem();
     mAutonomousHandler = new AutonomousHandler(mControlSystem,
         new P1N1Subwoofer(),
         new P2N2Subwoofer(),
@@ -64,6 +63,7 @@ public class Robot extends TimedRobot {
         new BlueP1C1(),
         new TestRoutine());
 
+    mControlSystem = new ControlSystem(mAutonomousHandler);
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
     DataLogManager.start();

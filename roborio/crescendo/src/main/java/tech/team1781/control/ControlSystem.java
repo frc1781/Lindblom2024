@@ -17,6 +17,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput.ControllerSide;
 import tech.team1781.autonomous.AutoStep;
+import tech.team1781.autonomous.AutonomousHandler;
+import tech.team1781.autonomous.AutonomousHandler.AutoRoutine;
 import tech.team1781.subsystems.*;
 import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.DriveSystem.DriveSystemState;
@@ -42,6 +44,8 @@ public class ControlSystem {
     private LEDs mLEDs;
 
     private OperatingMode mCurrentOperatingMode;
+
+    private AutonomousHandler autonomousHandler;
 
     // Slew Rate Limiters for controls
     private final SlewRateLimiter mXDriveLimiter = new SlewRateLimiter(ConfigMap.DRIVER_TRANSLATION_RATE_LIMIT);
@@ -89,7 +93,7 @@ public class ControlSystem {
         COLLECT_RAMP_STAY_DOWN
     }
 
-    public ControlSystem() {
+    public ControlSystem(AutonomousHandler aHandler) {
         mDriveSystem = new DriveSystem();
         mScollector = new Scollector();
         mClimber = new Climber();
@@ -123,6 +127,7 @@ public class ControlSystem {
         initActions();
 
         mStepTime = new Timer();
+        autonomousHandler = aHandler;
 
         NetworkLogger.logData("Current ControlSystem Action", "None");
     }
@@ -416,7 +421,7 @@ public class ControlSystem {
                 mSettingStack.clear();
                 mXDriveLimiter.reset(0);
                 mYDriveLimiter.reset(0);
-                mRotDriveLimiter.reset(0);
+                mRotDriveLimiter.reset(0); 
                 mDriveSystem.setDesiredState(DriveSystem.DriveSystemState.DRIVE_MANUAL);
                 break;
             case AUTONOMOUS:
@@ -692,6 +697,14 @@ public class ControlSystem {
 
     public void disabledLighting() {
         mLEDs.setDesiredState(LedState.DEFAULT);
+    }
+
+    public AutoRoutine getAutoRoutine() {
+        return autonomousHandler.getAutoRoutine();
+    }
+
+    public Pose2d getAutoStartingPose2d() {
+        return autonomousHandler.getStartPosition();
     }
 
     private enum SeekNoteState {
