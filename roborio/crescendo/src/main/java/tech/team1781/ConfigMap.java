@@ -123,6 +123,8 @@ public class ConfigMap {
         public static final double DRIVER_TRANSLATION_RATE_LIMIT = 1.2;
         public static final double DRIVER_ROTATION_RATE_LIMIT = 1.2;
         public static final double DRIVER_ROTATION_INPUT_MULTIPIER = 0.5;
+        
+        public static final double DEADZONE = 0.1;
        
         public static final String RESET_NAVX = "START";
         public static final String DRIVER_REJECT = "BACK";
