@@ -4,6 +4,11 @@
 
 package frc.robot;
 
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.util.datalog.DataLog;
@@ -39,7 +44,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
  * build.gradle file in the
  * project.
  */
-public class Robot extends TimedRobot {
+public class Robot extends LoggedRobot {
   /**
    * This function is run when the robot is first started up and should be used
    * for any
@@ -63,6 +68,21 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
+    Logger.recordMetadata("RobotName", "GLaDOS");
+    Logger.recordMetadata("Team", "1781");
+
+    if (isReal()) {
+      Logger.addDataReceiver(new WPILOGWriter());
+      Logger.addDataReceiver(new NT4Publisher());
+
+      new PowerDistribution(1, PowerDistribution.ModuleType.kRev);
+    } else {
+      //setUseTiming(false);
+      Logger.addDataReceiver(new NT4Publisher());
+    }
+
+    Logger.start();
+
     mCompressor = new Compressor(ConfigMap.FIRST_PCM_ID,
         PneumaticsModuleType.REVPH);
     mCompressor.enableDigital();
@@ -193,14 +213,14 @@ public class Robot extends TimedRobot {
     });
 
     for(int i = 0; i < PDH_CHANNELS; i ++ ) {
-      NetworkLogger.initLog("PDH Channel Current: " + i, 0);
+      Logger.recordOutput("PDH Channel Current: " + i, 0);
     }
     
-    NetworkLogger.initLog("PDH Power: ", 0);
-    NetworkLogger.initLog("PDH Total Current: ", 0);
-    NetworkLogger.initLog("PDH Total Energy: ", 0);
-    NetworkLogger.initLog("PDH Total Power: ", 0);
-    NetworkLogger.initLog("PDH Voltage: ", 0);
+    Logger.recordOutput("PDH Power: ", 0);
+    Logger.recordOutput("PDH Total Current: ", 0);
+    Logger.recordOutput("PDH Total Energy: ", 0);
+    Logger.recordOutput("PDH Total Power: ", 0);
+    Logger.recordOutput("PDH Voltage: ", 0);
     
   }
 
@@ -212,13 +232,13 @@ public class Robot extends TimedRobot {
     // }
 
     for(int i = 0; i < PDH_CHANNELS; i ++ ) {
-      NetworkLogger.logData("PDH Channel Current: " + i, mPowerDistributionHub.getCurrent(i));
+      Logger.recordOutput("PDH Channel Current: " + i, mPowerDistributionHub.getCurrent(i));
     }
 
-    NetworkLogger.logData("PDH Power: ", mPowerDistributionHub.getTotalPower());
-    NetworkLogger.logData("PDH Total Current: ", mPowerDistributionHub.getTotalCurrent());
-    NetworkLogger.logData("PDH Total Energy: ", mPowerDistributionHub.getTotalEnergy());
-    NetworkLogger.logData("PDH Voltage: ", mPowerDistributionHub.getVoltage());
+    Logger.recordOutput("PDH Power: ", mPowerDistributionHub.getTotalPower());
+    Logger.recordOutput("PDH Total Current: ", mPowerDistributionHub.getTotalCurrent());
+    Logger.recordOutput("PDH Total Energy: ", mPowerDistributionHub.getTotalEnergy());
+    Logger.recordOutput("PDH Voltage: ", mPowerDistributionHub.getVoltage());
 
 
   }

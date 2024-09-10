@@ -2,6 +2,9 @@ package tech.team1781.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkLimitSwitch;
+
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.SparkLimitSwitch.Type;
 import tech.team1781.ConfigMap;
@@ -44,12 +47,12 @@ public class Climber extends Subsystem {
         mLeftClimberMotor.burnFlash();
         mRightClimberMotor.burnFlash();
 
-        NetworkLogger.initLog("Climber Matches State", true);
-        NetworkLogger.initLog("Climber Left Duty Cycle", 0.0);
-        NetworkLogger.initLog("Climber Right Duty Cycle", 0.0);
+        Logger.recordOutput("Climber Matches State", true);
+        Logger.recordOutput("Climber Left Duty Cycle", 0.0);
+        Logger.recordOutput("Climber Right Duty Cycle", 0.0);
 
-        NetworkLogger.initLog("Climber Left Position", 0.0);
-        NetworkLogger.initLog("Climber Right Position", 0.0);
+        Logger.recordOutput("Climber Left Position", 0.0);
+        Logger.recordOutput("Climber Right Position", 0.0);
     }
 
     public enum ClimberState implements Subsystem.SubsystemState {
@@ -58,7 +61,7 @@ public class Climber extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-        NetworkLogger.logData("Climber Matches State", matchesDesiredState());
+        Logger.recordOutput("Climber Matches State", matchesDesiredState());
 
         if(mLeftReverseLimitSwitch.isPressed()) {
             mLeftClimberEncoder.setPosition(0);
@@ -136,11 +139,11 @@ public class Climber extends Subsystem {
         mLeftClimberMotor.set(leftDutyCycle);
         mRightClimberMotor.set(rightDutyCycle);
 
-        NetworkLogger.initLog("Climber Left Duty Cycle", leftDutyCycle);
-        NetworkLogger.initLog("Climber Right Duty Cycle", rightDutyCycle);
+        Logger.recordOutput("Climber Left Duty Cycle", leftDutyCycle);
+        Logger.recordOutput("Climber Right Duty Cycle", rightDutyCycle);
 
-        NetworkLogger.initLog("Climber Left Position", mLeftClimberMotor.getEncoder().getPosition());
-        NetworkLogger.initLog("Climber Right Position", mRightClimberMotor.getEncoder().getPosition());
+        Logger.recordOutput("Climber Left Position", mLeftClimberMotor.getEncoder().getPosition());
+        Logger.recordOutput("Climber Right Position", mRightClimberMotor.getEncoder().getPosition());
         // mTrapHookMotor.set(trapHookDutyCycle);
         // System.out.printf("trap dc: %.2f\n", trapHookDutyCycle);
     }

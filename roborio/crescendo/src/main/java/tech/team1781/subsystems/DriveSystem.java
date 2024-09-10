@@ -32,6 +32,8 @@ import tech.team1781.utils.NetworkLogger;
 
 import java.io.ObjectInputFilter;
 
+import org.littletonrobotics.junction.Logger;
+
 public class DriveSystem extends Subsystem {
 
     // Swerve Modules
@@ -121,11 +123,11 @@ public class DriveSystem extends Subsystem {
                         (int) ShuffleboardStyle.ROBOT_POSITION_FIELD.size.y);
         mRotGoToController.enableContinuousInput(0, Math.PI * 2);
 
-        NetworkLogger.initLog("Note Aim Requested Rotation", 0);
-        NetworkLogger.initLog("Drive System Matches State", true);
+        Logger.recordOutput("Note Aim Requested Rotation", 0);
+        Logger.recordOutput("Drive System Matches State", true);
 
-        NetworkLogger.initLog("Drive System Desired Velocities", EVector.newVector());
-        NetworkLogger.initLog("Drive System Desired Velocity Magnitude", 0.0);
+        Logger.recordOutput("Drive System Desired Velocities", EVector.newVector().toPose2d());
+       Logger.recordOutput("Drive System Desired Velocity Magnitude", 0.0);
     }
 
     public enum DriveSystemState implements Subsystem.SubsystemState {
@@ -202,7 +204,7 @@ public class DriveSystem extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-        NetworkLogger.logData("Drive System Matches State", matchesDesiredState());
+        Logger.recordOutput("Drive System Matches State", matchesDesiredState());
 
         updateOdometry();
         mRobotXEntry.setDouble(getRobotPose().getX());
@@ -559,8 +561,8 @@ public class DriveSystem extends Subsystem {
 
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
 
-        NetworkLogger.logData("Drive System Desired Velocities", EVector.newVector(xSpeed, ySpeed, rot));
-        NetworkLogger.logData("Drive System Desired Velocity Magnitude",
+        Logger.recordOutput("Drive System Desired Velocities", EVector.newVector(xSpeed, ySpeed, rot).toPose2d());
+        Logger.recordOutput("Drive System Desired Velocity Magnitude",
                 EVector.newVector(xSpeed, ySpeed, rot).magnitude());
 
         mFrontLeft.setDesiredState(moduleStates[0]);

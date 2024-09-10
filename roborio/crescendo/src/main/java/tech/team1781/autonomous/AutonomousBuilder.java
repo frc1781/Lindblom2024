@@ -3,6 +3,8 @@ package tech.team1781.autonomous;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
 
@@ -67,6 +69,7 @@ public class AutonomousBuilder {
                     + " ############################################################################################################# ");
 
             PathPlannerTrajectory tempTraj = path.getTrajectory(new ChassisSpeeds(), new Rotation2d());
+            Logger.recordOutput("Autonomus/currentPath", path.toString()  );
             final double shootWaitTimeAfterPath = 2.5;
             currentStep = new AutoStep(tempTraj.getTotalTimeSeconds() + shootWaitTimeAfterPath,
                     Action.COLLECT_AUTO_SHOOT, path);

@@ -2,6 +2,9 @@ package tech.team1781.subsystems;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
+
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
@@ -102,8 +105,8 @@ public class Arm extends Subsystem {
 
 
 
-        NetworkLogger.initLog("Arm Matches State", true);
-        NetworkLogger.initLog("Raw Absolute Arm", 0.0);
+        Logger.recordOutput("Arm Matches State", true);
+        Logger.recordOutput("Raw Absolute Arm", 0.0);
     }
 
     public enum ArmState implements Subsystem.SubsystemState {
@@ -126,8 +129,8 @@ public class Arm extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-        NetworkLogger.logData("Arm Matches State", matchesDesiredState());
-        NetworkLogger.logData("Raw Absolute Arm", getAngleAbsolute());
+       Logger.recordOutput("Arm Matches State", matchesDesiredState());
+        Logger.recordOutput("Raw Absolute Arm", getAngleAbsolute());
 
         // testEntry.setDouble(getAngleAbsolute());
         if (mArmAbsoluteEncoder.getPosition() < 10) {

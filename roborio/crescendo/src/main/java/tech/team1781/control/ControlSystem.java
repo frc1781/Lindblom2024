@@ -7,6 +7,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -152,7 +154,7 @@ public class ControlSystem {
 
         mStepTime = new Timer();
 
-        NetworkLogger.logData("Current ControlSystem Action", "None");
+        Logger.recordOutput("Current ControlSystem Action", "None");
     }
 
     public static boolean isRed() {
@@ -560,7 +562,7 @@ public class ControlSystem {
     }
 
     public void run(DriverInput driverInput) {
-        NetworkLogger.logData("Current ControlSystem Action", mCurrentAction);
+        Logger.recordOutput("Current ControlSystem Action", mCurrentAction);
 
         mArm.updateAimSpots(mDriveSystem.getRobotPose());
 
