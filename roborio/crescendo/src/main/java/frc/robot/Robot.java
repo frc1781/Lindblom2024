@@ -98,15 +98,6 @@ public class Robot extends TimedRobot {
     DataLogManager.start();
     DriverStation.startDataLog(DataLogManager.getLog());
 
-    // PreferenceHandler.addValue("frontLeftOffset",
-    // ConfigMap.FRONT_LEFT_MODULE_STEER_OFFSET);
-    // PreferenceHandler.addValue("frontRightOffset",
-    // ConfigMap.FRONT_RIGHT_MODULE_STEER_OFFSET);
-    // PreferenceHandler.addValue("backLeftOffset",
-    // ConfigMap.BACK_LEFT_MODULE_STEER_OFFSET);
-    // PreferenceHandler.addValue("backRightOffset",
-    // ConfigMap.BACK_RIGHT_MODULE_STEER_OFFSET);
-
     mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT, (isPressed) -> {
       mControlSystem.setCollecting(isPressed);
     });
@@ -153,18 +144,6 @@ public class Robot extends TimedRobot {
       }
     });
 
-    // mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT,
-    // ConfigMap.NOTE_COLLECTION, (isHeld) -> {
-    // mControlSystem.setAutoCollectionButton(isHeld);
-    // });
-
-    // mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT,
-    // ConfigMap.CALIBRATE_POSITION, (isPressed) -> {
-    // if (isPressed) {
-    // mControlSystem.calibratePosition();
-    // }
-    // });
-
     mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT_HIGH, (isPressed) -> {
       mControlSystem.setCollectHigh(isPressed);
     });
@@ -199,11 +178,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    // if (mSaveConfigButton.getBoolean(false)) {
-    // PreferenceHandler.updateValues();
-    // mSaveConfigButton.setBoolean(false);
-    // }
-
     for(int i = 0; i < PDH_CHANNELS; i ++ ) {
       NetworkLogger.logData("PDH Channel Current: " + i, mPowerDistributionHub.getCurrent(i));
     }
@@ -212,8 +186,6 @@ public class Robot extends TimedRobot {
     NetworkLogger.logData("PDH Total Current: ", mPowerDistributionHub.getTotalCurrent());
     NetworkLogger.logData("PDH Total Energy: ", mPowerDistributionHub.getTotalEnergy());
     NetworkLogger.logData("PDH Voltage: ", mPowerDistributionHub.getVoltage());
-
-
   }
 
   @Override
@@ -231,7 +203,6 @@ public class Robot extends TimedRobot {
         mAutonomousHandler.run();
       } catch (RoutineOverException e) {
         mAutoRoutineOver = true;
-        // e.printStackTrace();
       }
     }
 
@@ -246,7 +217,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    mControlSystem.run(mDriverInput.run()); // add copilot input
+    mControlSystem.run(mDriverInput.run());
   }
 
   @Override

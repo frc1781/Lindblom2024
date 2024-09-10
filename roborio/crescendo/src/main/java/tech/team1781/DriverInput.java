@@ -110,9 +110,6 @@ public class DriverInput {
             } else if (!buttonPressed && mPressedButtons.contains(key)) {
                 mPressedButtons.remove(key);
             }
-
-            // System.out.printf("%s :: %b %n", key, buttonPressed);
-
         }
     }
 
