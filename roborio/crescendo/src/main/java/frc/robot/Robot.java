@@ -29,7 +29,7 @@ import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
 import tech.team1781.utils.EEGeometryUtil;
 import tech.team1781.utils.EVector;
-import tech.team1781.utils.NetworkLogger;
+
 import tech.team1781.utils.PreferenceHandler;
 import tech.team1781.utils.PreferenceHandler.ValueHolder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -210,19 +210,9 @@ public class Robot extends LoggedRobot {
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.LOB, (isHeld) -> {
       mControlSystem.lobNote(isHeld);
-    });
+    });}
 
-    for(int i = 0; i < PDH_CHANNELS; i ++ ) {
-      Logger.recordOutput("PDH Channel Current: " + i, 0);
-    }
     
-    Logger.recordOutput("PDH Power: ", 0);
-    Logger.recordOutput("PDH Total Current: ", 0);
-    Logger.recordOutput("PDH Total Energy: ", 0);
-    Logger.recordOutput("PDH Total Power: ", 0);
-    Logger.recordOutput("PDH Voltage: ", 0);
-    
-  }
 
   @Override
   public void robotPeriodic() {
@@ -231,15 +221,7 @@ public class Robot extends LoggedRobot {
     // mSaveConfigButton.setBoolean(false);
     // }
 
-    for(int i = 0; i < PDH_CHANNELS; i ++ ) {
-      Logger.recordOutput("PDH Channel Current: " + i, mPowerDistributionHub.getCurrent(i));
-    }
-
-    Logger.recordOutput("PDH Power: ", mPowerDistributionHub.getTotalPower());
-    Logger.recordOutput("PDH Total Current: ", mPowerDistributionHub.getTotalCurrent());
-    Logger.recordOutput("PDH Total Energy: ", mPowerDistributionHub.getTotalEnergy());
-    Logger.recordOutput("PDH Voltage: ", mPowerDistributionHub.getVoltage());
-
+   
 
   }
 

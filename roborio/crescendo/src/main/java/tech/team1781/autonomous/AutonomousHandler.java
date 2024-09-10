@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import tech.team1781.ConfigMap;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.subsystems.Subsystem;
-import tech.team1781.utils.NetworkLogger;
+
 
 public class AutonomousHandler {
     private SendableChooser<AutoRoutine> mAutoChooser = new SendableChooser<>();
@@ -64,7 +64,7 @@ public class AutonomousHandler {
             boolean stepFinished = controlSystemFinished || timerFinished; 
 
             if (stepFinished) {
-                Logger.recordOutput("EndCondition",controlSystemFinished ? "Control System Finished" : "Timer Finished" );
+                Logger.recordOutput("Autonomus/EndCondition",controlSystemFinished ? "Control System Finished" : "Timer Finished" );
                 mStepIndex++;
                 mTimer.reset();
                 mTimer.start();
@@ -80,7 +80,7 @@ public class AutonomousHandler {
 
     private void startStep(AutoStep step) {
         // mAutoStepEntry.setString("Step: [" + mStepIndex + "]: " + step.toString());
-         Logger.recordOutput("AutoStep", "Step: [" + mStepIndex + "]: " + step.toString());
+         Logger.recordOutput("Autonomus/AutoStep", "Step: [" + mStepIndex + "]: " + step.toString());
         System.out.println("new step! " + step.toString());
         System.out.println(step.toString() + " ==================================================================== " + mStepIndex);
         // mControlSystem.setAutoStep(step.getAction(), step.getPosition(), step.getPath());

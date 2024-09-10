@@ -28,7 +28,7 @@ import tech.team1781.swerve.SwerveModule;
 import tech.team1781.utils.EEGeometryUtil;
 import tech.team1781.utils.EVector;
 import tech.team1781.utils.Limelight;
-import tech.team1781.utils.NetworkLogger;
+
 
 import java.io.ObjectInputFilter;
 
@@ -108,7 +108,7 @@ public class DriveSystem extends Subsystem {
     private Field2d mField = new Field2d();
 
     public DriveSystem() {
-        super("Drive System", DriveSystemState.DRIVE_MANUAL);
+        super("DriveSystem", DriveSystemState.DRIVE_MANUAL);
         // mOdometry = new SwerveDriveOdometry(mKinematics, getRobotAngle(),
         // getModulePositions());
         mPoseEstimator = new SwerveDrivePoseEstimator(mKinematics, new Rotation2d(), getModulePositions(),
@@ -123,11 +123,11 @@ public class DriveSystem extends Subsystem {
                         (int) ShuffleboardStyle.ROBOT_POSITION_FIELD.size.y);
         mRotGoToController.enableContinuousInput(0, Math.PI * 2);
 
-        Logger.recordOutput("Note Aim Requested Rotation", 0);
-        Logger.recordOutput("Drive System Matches State", true);
+        Logger.recordOutput("DriveSystem/NoteRequestedRotation", 0);
+        Logger.recordOutput("DriveSystem/MatchesState", true);
 
-        Logger.recordOutput("Drive System Desired Velocities", EVector.newVector().toPose2d());
-       Logger.recordOutput("Drive System Desired Velocity Magnitude", 0.0);
+        Logger.recordOutput("DriveSystem/DesiredVelocities", EVector.newVector().toPose2d());
+       Logger.recordOutput("DriveSystem/DesiredVelocityMagnitude", 0.0);
     }
 
     public enum DriveSystemState implements Subsystem.SubsystemState {
@@ -204,8 +204,7 @@ public class DriveSystem extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-        Logger.recordOutput("Drive System Matches State", matchesDesiredState());
-
+        Logger.recordOutput("DriveSystem/MatchesState", matchesDesiredState());
         updateOdometry();
         mRobotXEntry.setDouble(getRobotPose().getX());
         mRobotYEntry.setDouble(getRobotPose().getY());
@@ -217,6 +216,8 @@ public class DriveSystem extends Subsystem {
         mRobotThetaEntry.setDouble(getRobotAngle().getRadians());
         mField.setRobotPose(getRobotPose());
         // mField.setRobotPose(getRobotPose());
+         Logger.recordOutput("DriveSystem/CurrentPose", getRobotPose());
+         Logger.recordOutput("DriveSystem/SwervePositions", getModulePositions());
     }
 
     private void setInitialLocalization() {
@@ -561,8 +562,8 @@ public class DriveSystem extends Subsystem {
 
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
 
-        Logger.recordOutput("Drive System Desired Velocities", EVector.newVector(xSpeed, ySpeed, rot).toPose2d());
-        Logger.recordOutput("Drive System Desired Velocity Magnitude",
+        Logger.recordOutput("Drive System/DesiredVelocities", EVector.newVector(xSpeed, ySpeed, rot).toPose2d());
+        Logger.recordOutput("Drive System/DesiredVelocity Magnitude",
                 EVector.newVector(xSpeed, ySpeed, rot).magnitude());
 
         mFrontLeft.setDesiredState(moduleStates[0]);

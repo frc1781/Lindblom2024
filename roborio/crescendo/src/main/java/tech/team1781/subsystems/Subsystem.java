@@ -1,13 +1,13 @@
 package tech.team1781.subsystems;
 
 import org.littletonrobotics.junction.Logger;
-
-import tech.team1781.utils.NetworkLogger;
+import tech.team1781.control.ControlSystem;
 
 public abstract class Subsystem {
    protected final String name;
    protected double currentTime;
-   protected OperatingMode currentMode; 
+   protected OperatingMode currentMode;
+   protected ControlSystem controlSystem; 
    private final SubsystemState defaultState;
    protected SubsystemState currentState;
 
@@ -15,13 +15,17 @@ public abstract class Subsystem {
     name = _name;
     defaultState = _defaultState;
     currentState = defaultState;
-    Logger.recordOutput(_name, _defaultState.toString());
+    Logger.recordOutput(_name + "/CurrentState", _defaultState.toString());
    }
 
    public void setOperatingMode(OperatingMode mode) {
       currentMode = mode;
       System.out.println(name + " initialized into operating mode " + mode.toString());
       init();
+   }
+
+   public void setControlSystem(ControlSystem cs) {
+      controlSystem = cs;
    }
 
    public abstract void genericPeriodic();
@@ -42,7 +46,7 @@ public abstract class Subsystem {
       System.out.println(desiredState);
 
       currentState = desiredState;
-      Logger.recordOutput(getName(), getState().toString());
+      Logger.recordOutput(getName() + "/CurrentState", getState().toString());
       System.out.println("Changing " + name +  "'s state to " + desiredState);
    }
    

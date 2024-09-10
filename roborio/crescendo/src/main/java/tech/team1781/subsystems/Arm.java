@@ -27,7 +27,7 @@ import tech.team1781.ConfigMap;
 import tech.team1781.ShuffleboardStyle;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.utils.EVector;
-import tech.team1781.utils.NetworkLogger;
+
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PowerDistribution;
 
@@ -105,8 +105,8 @@ public class Arm extends Subsystem {
 
 
 
-        Logger.recordOutput("Arm Matches State", true);
-        Logger.recordOutput("Raw Absolute Arm", 0.0);
+        Logger.recordOutput("Arm/MatchesState", true);
+        Logger.recordOutput("Arm/RawAbsoluteArm", 0.0);
     }
 
     public enum ArmState implements Subsystem.SubsystemState {
@@ -129,8 +129,8 @@ public class Arm extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-       Logger.recordOutput("Arm Matches State", matchesDesiredState());
-        Logger.recordOutput("Raw Absolute Arm", getAngleAbsolute());
+       Logger.recordOutput("Arm/ArmMatchesState", matchesDesiredState());
+        Logger.recordOutput("Arm/RawAbsoluteArm", getAngleAbsolute());
 
         // testEntry.setDouble(getAngleAbsolute());
         if (mArmAbsoluteEncoder.getPosition() < 10) {

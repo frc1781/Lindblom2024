@@ -38,7 +38,7 @@ import tech.team1781.DriverInput;
 import tech.team1781.ShuffleboardStyle;
 import tech.team1781.utils.Limelight;
 // import tech.team1781.subsystems.Climber.TrapState;
-import tech.team1781.utils.NetworkLogger;
+
 
 public class ControlSystem {
     private HashMap<Action, SubsystemSetting[]> mActions = new HashMap<Action, SubsystemSetting[]>();
@@ -154,7 +154,7 @@ public class ControlSystem {
 
         mStepTime = new Timer();
 
-        Logger.recordOutput("Current ControlSystem Action", "None");
+        Logger.recordOutput("ControlSystem/CurrentControlSystemAction", "None");
     }
 
     public static boolean isRed() {
@@ -173,6 +173,13 @@ public class ControlSystem {
         double yVelocity = -translation.x * mult;
         // rotation
         double rotVelocity = -rotation.x * ConfigMap.DRIVER_ROTATION_INPUT_MULTIPIER + ((triggers.x) - (triggers.y));
+
+        Logger.recordOutput("Driver/movement/x", translation.x);
+        Logger.recordOutput("Driver/rotation/x", rotation.x);
+
+        Logger.recordOutput("Driver/movement/y", translation.y);
+        Logger.recordOutput("Driver/rotation/y", rotation.y);
+
 
         mDriveSystem.driveRaw(
                 mAutoCenterAmp ? mStrafeDC
@@ -562,7 +569,7 @@ public class ControlSystem {
     }
 
     public void run(DriverInput driverInput) {
-        Logger.recordOutput("Current ControlSystem Action", mCurrentAction);
+        Logger.recordOutput("ControlSystem/CurrentControlSystemAction", mCurrentAction);
 
         mArm.updateAimSpots(mDriveSystem.getRobotPose());
 
