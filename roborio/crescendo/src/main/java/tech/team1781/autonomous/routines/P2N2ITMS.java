@@ -18,7 +18,8 @@ public class P2N2ITMS implements AutoRoutine {
        return new AutoStep[] {
             new AutoStep(6, Action.SHOOT_SUBWOOFER),
             new AutoStep(5, Action.COLLECT, Paths.getPathFromName("p2;n2")),
+            new AutoStep(5, Paths.getPathFromName("n2;p2")),
+            new AutoStep(10, Action.SHOOT_SUBWOOFER)
        };
     }
-    
 }
