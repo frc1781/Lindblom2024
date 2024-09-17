@@ -118,7 +118,8 @@ public class Robot extends LoggedRobot {
         new TestRoutineFrontLeft(),
         new TestRoutineFrontRight(),
         new TestRoutineBackLeft(),
-        new TestRoutineBackRight());
+        new TestRoutineBackRight(),
+        new TestRoutineShoot());
 
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
