@@ -20,9 +20,7 @@ public class TestRoutine implements AutoRoutine {
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-                new AutoStep(5, Action.OFF_KICKSTAND),
-                new AutoStep(5, Action.SHOOT_SUBWOOFER_NO_AIM)
-
+            new AutoStep(1, Positions.P2)
         };
     }
 
