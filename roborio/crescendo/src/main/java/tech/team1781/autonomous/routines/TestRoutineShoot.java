@@ -20,7 +20,7 @@ public class TestRoutineShoot implements AutoRoutine {
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-            new AutoStep(5, Action.SHOOT_SUBWOOFER)
+            new AutoStep(5, Action.SHOOT)
         };
     }
 
