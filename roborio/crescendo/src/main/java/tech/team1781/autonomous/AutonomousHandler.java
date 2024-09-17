@@ -1,5 +1,9 @@
 package tech.team1781.autonomous;
 
+import org.littletonrobotics.junction.Logger;
+
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.util.concurrent.Event;
@@ -8,8 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import tech.team1781.ConfigMap;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.subsystems.Subsystem;
-import tech.team1781.utils.EVector;
-import tech.team1781.utils.NetworkLogger;
+
 
 public class AutonomousHandler {
     private SendableChooser<AutoRoutine> mAutoChooser = new SendableChooser<>();
@@ -30,13 +33,11 @@ public class AutonomousHandler {
         ConfigMap.AUTONOMOUS_TAB.add(mAutoChooser).withSize(2, 1);
 
         mControlSystem = controlSystem;
-        System.out.println("=================================================================");
-        System.out.println("THIS IS THE AUTO NAME: " + mAutoChooser.getSelected());
-        System.out.println("=================================================================");
+        Logger.recordOutput("Autonomous/ChosenRoutine", mAutoChooser.getSelected().getName());
 
-        NetworkLogger.initLog("Auto Step", "EMPTY");
-        NetworkLogger.initLog("End Condition", "EMPTY");
-        NetworkLogger.initLog("Time", 0.0);
+        Logger.recordOutput("Autonomous/CurrentStep", "None");
+        Logger.recordOutput("Autonomous/EndCodition", "None");
+        Logger.recordOutput("Autonomous/Time", 0.0);
     }
 
     public void init() {
@@ -46,7 +47,7 @@ public class AutonomousHandler {
         mSelectedRoutine = mAutoChooser.getSelected();
         mSampledSteps = mAutoChooser.getSelected().getSteps();
 
-        System.out.println("THIS IS THE AUTO NAME: " + mSelectedRoutine.getName());
+        Logger.recordOutput("Autonomous/Routine", mSelectedRoutine.getName());
 
         sampledStep = mSelectedRoutine.getSteps()[0];
         startStep(sampledStep);
@@ -55,7 +56,7 @@ public class AutonomousHandler {
     }
 
     public void run() throws RoutineOverException {
-        NetworkLogger.logData("Time", mTimer.get());
+        Logger.recordOutput("Autonomous/Timer", mTimer.get());
 
         try {
             boolean controlSystemFinished = mControlSystem.stepIsFinished();
@@ -63,8 +64,7 @@ public class AutonomousHandler {
             boolean stepFinished = controlSystemFinished || timerFinished;
 
             if (stepFinished) {
-                NetworkLogger.logData("End Condition",
-                        controlSystemFinished ? "Control System Finished" : "Timer Finished");
+                Logger.recordOutput("Autonomus/EndCondition",controlSystemFinished ? "Control System Finished" : "Timer Finished" );
                 mStepIndex++;
                 mTimer.reset();
                 mTimer.start();
@@ -79,7 +79,8 @@ public class AutonomousHandler {
     }
 
     private void startStep(AutoStep step) {
-        NetworkLogger.logData("Auto Step", "Step: [" + mStepIndex + "]: " + step.toString());
+        // mAutoStepEntry.setString("Step: [" + mStepIndex + "]: " + step.toString());
+         Logger.recordOutput("Autonomus/AutoStep", "Step: [" + mStepIndex + "]: " + step.toString());
         System.out.println("new step! " + step.toString());
         System.out.println(step.toString() + " ==================================================================== "
                 + mStepIndex);

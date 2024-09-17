@@ -4,6 +4,21 @@
 
 package frc.robot;
 
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import tech.team1781.ConfigMap;
@@ -16,11 +31,26 @@ import tech.team1781.autonomous.RoutineOverException;
 import tech.team1781.autonomous.routines.*;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
-import tech.team1781.utils.NetworkLogger;
+
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 
-public class Robot extends TimedRobot {
+/**
+ * The VM is configured to automatically run this class, and to call the
+ * functions corresponding to
+ * each mode, as described in the TimedRobot documentation. If you change the
+ * name of this class or
+ * the package after creating this project, you must also update the
+ * build.gradle file in the
+ * project.
+ */
+public class Robot extends LoggedRobot {
+  /**
+   * This function is run when the robot is first started up and should be used
+   * for any
+   * initialization code.
+   */
+
   private Compressor mCompressor;
   private ControlSystem mControlSystem;
   private AutonomousHandler mAutonomousHandler;
@@ -34,6 +64,21 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
+    Logger.recordMetadata("RobotName", "GLaDOS");
+    Logger.recordMetadata("Team", "1781");
+
+    if (isReal()) {
+      Logger.addDataReceiver(new WPILOGWriter());
+      Logger.addDataReceiver(new NT4Publisher());
+
+      new PowerDistribution(1, PowerDistribution.ModuleType.kRev);
+    } else {
+      //setUseTiming(false);
+      Logger.addDataReceiver(new NT4Publisher());
+    }
+
+    Logger.start();
+
     mCompressor = new Compressor(ConfigMap.FIRST_PCM_ID,
         PneumaticsModuleType.REVPH);
     mCompressor.enableDigital();
@@ -113,27 +158,49 @@ public class Robot extends TimedRobot {
       }
     });
 
-    for(int i = 0; i < PDH_CHANNELS; i ++ ) {
-      NetworkLogger.initLog("PDH Channel Current: " + i, 0);
-    }
+    // mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT,
+    // ConfigMap.NOTE_COLLECTION, (isHeld) -> {
+    // mControlSystem.setAutoCollectionButton(isHeld);
+    // });
+
+    // mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT,
+    // ConfigMap.CALIBRATE_POSITION, (isPressed) -> {
+    // if (isPressed) {
+    // mControlSystem.calibratePosition();
+    // }
+    // });
+
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT_HIGH, (isPressed) -> {
+      mControlSystem.setCollectHigh(isPressed);
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SCORE_AMP, (isPressed) -> {
+      mControlSystem.setAmp(isPressed);
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SCORE_PODIUM, (isPressed) -> {
+      mControlSystem.shootPodium(isPressed);
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.AUTO_AIM, (isHeld) -> {
+      mControlSystem.setCenteringOnAprilTag(isHeld);
+    });
+
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.LOB, (isHeld) -> {
+      mControlSystem.lobNote(isHeld);
+    });}
+
     
-    NetworkLogger.initLog("PDH Power: ", 0);
-    NetworkLogger.initLog("PDH Total Current: ", 0);
-    NetworkLogger.initLog("PDH Total Energy: ", 0);
-    NetworkLogger.initLog("PDH Total Power: ", 0);
-    NetworkLogger.initLog("PDH Voltage: ", 0);
-  }
 
   @Override
   public void robotPeriodic() {
-    for(int i = 0; i < PDH_CHANNELS; i ++ ) {
-      NetworkLogger.logData("PDH Channel Current: " + i, mPowerDistributionHub.getCurrent(i));
-    }
+    // if (mSaveConfigButton.getBoolean(false)) {
+    // PreferenceHandler.updateValues();
+    // mSaveConfigButton.setBoolean(false);
+    // }
 
-    NetworkLogger.logData("PDH Power: ", mPowerDistributionHub.getTotalPower());
-    NetworkLogger.logData("PDH Total Current: ", mPowerDistributionHub.getTotalCurrent());
-    NetworkLogger.logData("PDH Total Energy: ", mPowerDistributionHub.getTotalEnergy());
-    NetworkLogger.logData("PDH Voltage: ", mPowerDistributionHub.getVoltage());
+   
+
   }
 
   @Override

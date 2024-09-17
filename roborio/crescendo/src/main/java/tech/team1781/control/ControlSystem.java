@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
 
+import org.littletonrobotics.junction.Logger;
+
+import com.pathplanner.lib.path.PathPlannerPath;
+
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -30,7 +34,6 @@ import tech.team1781.utils.EVector;
 import tech.team1781.DriverInput;
 import tech.team1781.ShuffleboardStyle;
 import tech.team1781.utils.Limelight;
-import tech.team1781.utils.NetworkLogger;
 
 public class ControlSystem {
     private HashMap<Action, SubsystemManager[]> mActions = new HashMap<Action, SubsystemManager[]>();
@@ -129,7 +132,7 @@ public class ControlSystem {
         mStepTime = new Timer();
         autonomousHandler = aHandler;
 
-        NetworkLogger.logData("Current ControlSystem Action", "None");
+        Logger.recordOutput("ControlSystem/CurrentControlSystemAction", "None");
     }
 
     public static boolean isRed() {
@@ -148,6 +151,13 @@ public class ControlSystem {
         double yVelocity = -translation.x * mult;
         // rotation
         double rotVelocity = -rotation.x * ConfigMap.DRIVER_ROTATION_INPUT_MULTIPIER + ((triggers.x) - (triggers.y));
+
+        Logger.recordOutput("Driver/movement/x", translation.x);
+        Logger.recordOutput("Driver/rotation/x", rotation.x);
+
+        Logger.recordOutput("Driver/movement/y", translation.y);
+        Logger.recordOutput("Driver/rotation/y", rotation.y);
+
 
         mDriveSystem.driveRaw(
                 mAutoCenterAmp ? mStrafeDC
@@ -433,7 +443,7 @@ public class ControlSystem {
     }
 
     public void run(DriverInput driverInput) {
-        NetworkLogger.logData("Current ControlSystem Action", mCurrentAction);
+        Logger.recordOutput("ControlSystem/CurrentControlSystemAction", mCurrentAction);
 
         mArm.updateAimSpots(mDriveSystem.getRobotPose());
 
