@@ -146,11 +146,8 @@ public class Scollector extends Subsystem {
                 mCollectorMotor.set(1);
                 mTopPID.setReference(0, ControlType.kVelocity);
                 break;
-            case SHOOT:
-                driveMotors();
-                if (shooterAtSpeed()) {
-                    shoot();
-                 }
+            case SHOOT:                
+                shoot();
                 break;
             case COLLECT_AUTO_SHOOT:
                 if (!hasNote()) {
