@@ -196,20 +196,27 @@ public class DriveSystem extends Subsystem {
 
     @Override
     public void genericPeriodic() {
+        Logger.recordOutput("DriveSystem/OdometryBeenSet", mOdometryBeenSet);
+        Logger.recordOutput("DriveSystem/CurrentPose", getRobotPose());
+        Logger.recordOutput("DriveSystem/SwervePositions", getModulePositions());
         Logger.recordOutput("DriveSystem/MatchesState", matchesDesiredState());
-        updateOdometry();
-        mRobotXEntry.setDouble(getRobotPose().getX());
-        mRobotYEntry.setDouble(getRobotPose().getY());
-        mRobotXSpeedEntry.setDouble(Math.abs(getChassisSpeeds().vxMetersPerSecond));
-        mRobotYSpeedEntry.setDouble(Math.abs(getChassisSpeeds().vyMetersPerSecond));
-        mRobotVelocityEntry.setDouble(
-                EVector.newVector(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond)
-                        .magnitude());
-        mRobotThetaEntry.setDouble(getRobotAngle().getRadians());
-        mField.setRobotPose(getRobotPose());
-        // mField.setRobotPose(getRobotPose());
-         Logger.recordOutput("DriveSystem/CurrentPose", getRobotPose());
-         Logger.recordOutput("DriveSystem/SwervePositions", getModulePositions());
+        
+        if (mOdometryBeenSet && currentMode == OperatingMode.AUTONOMOUS) {
+            updateOdometry();
+            mRobotXEntry.setDouble(getRobotPose().getX());
+            mRobotYEntry.setDouble(getRobotPose().getY());
+            mRobotXSpeedEntry.setDouble(Math.abs(getChassisSpeeds().vxMetersPerSecond));
+            mRobotYSpeedEntry.setDouble(Math.abs(getChassisSpeeds().vyMetersPerSecond));
+            mRobotVelocityEntry.setDouble(
+                    EVector.newVector(getChassisSpeeds().vxMetersPerSecond, getChassisSpeeds().vyMetersPerSecond)
+                            .magnitude());
+            mRobotThetaEntry.setDouble(getRobotAngle().getRadians());
+            mField.setRobotPose(getRobotPose());
+            // mField.setRobotPose(getRobotPose());
+        } else if (currentMode == OperatingMode.AUTONOMOUS) {
+            setInitialLocalization();
+            System.out.println("retrying...");
+        }
     }
 
     private void setInitialLocalization() {
@@ -220,9 +227,14 @@ public class DriveSystem extends Subsystem {
             mPoseEstimator.resetPosition(getNavXAngle(), getModulePositions(), limelightPose);
             mOdometryBeenSet = true;
         } else if (!mOdometryBeenSet && currentMode == OperatingMode.AUTONOMOUS) {
-            Pose2d firstPose = controlSystem.getAutoStartingPose2d();
-            mPoseEstimator.resetPosition(getNavXAngle(), getModulePositions(), firstPose);
-            mOdometryBeenSet = true;
+            try {
+                Pose2d firstPose = controlSystem.getAutoStartingPose2d();
+                
+                mPoseEstimator.resetPosition(getNavXAngle(), getModulePositions(), firstPose);
+                mOdometryBeenSet = true;
+            } catch (Exception e) {
+                System.err.println(e);
+            }
         }
     } 
 
@@ -240,7 +252,9 @@ public class DriveSystem extends Subsystem {
                 mIsFieldOriented = true;
                // mHasNavXOffsetBeenSet = false;
                 mOdometryBeenSet = false;
-                break;
+                Logger.recordOutput("DriveSystem/OdometryBeenSet", mOdometryBeenSet);
+                setInitialLocalization();
+                break;  
             case TELEOP:
               //  mHasNavXOffsetBeenSet = false;
                 mIsFieldOriented = true;
@@ -273,6 +287,10 @@ public class DriveSystem extends Subsystem {
         }
 
         mPoseEstimator.addVisionMeasurement(visionEstimateVector.toPose2d(), Timer.getFPGATimestamp());
+    }
+
+    public boolean hasOdometryBeenSet() {
+        return mOdometryBeenSet;
     }
 
     public void setNavXOffset(Rotation2d offset) {

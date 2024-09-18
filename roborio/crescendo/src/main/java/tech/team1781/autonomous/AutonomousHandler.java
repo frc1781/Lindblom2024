@@ -24,15 +24,13 @@ public class AutonomousHandler {
     private AutoStep sampledStep;
     private AutoStep[] mSampledSteps;
 
-    public AutonomousHandler(ControlSystem controlSystem, AutoRoutine... routines) {
+    public AutonomousHandler(AutoRoutine... routines) {
         mAutoChooser.setDefaultOption(routines[0].getName(), routines[0]);
         for (AutoRoutine routine : routines) {
             mAutoChooser.addOption(routine.getName(), routine);
         }
 
         ConfigMap.AUTONOMOUS_TAB.add(mAutoChooser).withSize(2, 1);
-
-        mControlSystem = controlSystem;
         Logger.recordOutput("Autonomous/ChosenRoutine", mAutoChooser.getSelected().getName());
 
         Logger.recordOutput("Autonomous/CurrentStep", "None");
@@ -40,14 +38,20 @@ public class AutonomousHandler {
         Logger.recordOutput("Autonomous/Time", 0.0);
     }
 
+    public void setControlSystem(ControlSystem controlSystem) {
+        mControlSystem = controlSystem;
+    }
+
     public void init() {
         mTimer.reset();
         mTimer.start();
         mStepIndex = 0;
         mSelectedRoutine = mAutoChooser.getSelected();
+        System.out.println(mSelectedRoutine);
         mSampledSteps = mAutoChooser.getSelected().getSteps();
 
-        Logger.recordOutput("Autonomous/Routine", mSelectedRoutine.getName());
+        Logger.recordOutput("Autonomous/Routine",  mSelectedRoutine.getName());
+        Logger.recordOutput("Autonomous/ChosenRoutine", mAutoChooser.getSelected().getName());
 
         sampledStep = mSelectedRoutine.getSteps()[0];
         startStep(sampledStep);
@@ -64,7 +68,7 @@ public class AutonomousHandler {
             boolean stepFinished = controlSystemFinished || timerFinished;
 
             if (stepFinished) {
-                Logger.recordOutput("Autonomus/EndCondition",controlSystemFinished ? "Control System Finished" : "Timer Finished" );
+                Logger.recordOutput("Autonomous/EndCondition",controlSystemFinished ? "Control System Finished" : "Timer Finished" );
                 mStepIndex++;
                 mTimer.reset();
                 mTimer.start();
@@ -80,7 +84,7 @@ public class AutonomousHandler {
 
     private void startStep(AutoStep step) {
         // mAutoStepEntry.setString("Step: [" + mStepIndex + "]: " + step.toString());
-         Logger.recordOutput("Autonomus/AutoStep", "Step: [" + mStepIndex + "]: " + step.toString());
+         Logger.recordOutput("Autonomous/AutoStep", "Step: [" + mStepIndex + "]: " + step.toString());
         System.out.println("new step! " + step.toString());
         System.out.println(step.toString() + " ==================================================================== "
                 + mStepIndex);
@@ -91,15 +95,16 @@ public class AutonomousHandler {
         return mSelectedRoutine;
     }
 
-    public Pose2d getStartPosition() {
+    public Pose2d getStartPosition() throws NoAutoRoutineException {
         if (mSelectedRoutine != null) {
             for (int i = 0; i < mSampledSteps.length; i++) {
+                System.out.println(i);
                 switch (mSampledSteps[i].getType()) {
                     case POSITION:
                     case POSITION_AND_ACTION:
                         return mSampledSteps[i].getWaypointHolder().getPosition().toPose2d();
-                    case PATH:
                     case PATH_AND_ACTION:
+                    case PATH:
                         return mSampledSteps[i].getPath().getPreviewStartingHolonomicPose();
                     case WAIT:
                     case NOTE_POSITION:
@@ -110,10 +115,19 @@ public class AutonomousHandler {
                         continue;
                 }
             }
+        } else {
+            System.out.println("selected routine in null");
         }
 
-        return new Pose2d();
+        throw new NoAutoRoutineException();
     }
+
+    public class NoAutoRoutineException extends Exception {
+        @Override 
+        public void printStackTrace() {
+         System.out.printf("The routine was null or invalid. We should wait till we being auto.");
+        }
+    } 
 
     public interface AutoRoutine {
 

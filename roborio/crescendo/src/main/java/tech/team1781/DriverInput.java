@@ -77,9 +77,6 @@ public class DriverInput {
             }
         }
 
-        System.out.println(ret_val.x);
-        System.out.println(ret_val.y);
-
         return ret_val;
     }
 

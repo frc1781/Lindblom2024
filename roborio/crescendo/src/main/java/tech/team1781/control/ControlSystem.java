@@ -23,6 +23,7 @@ import tech.team1781.DriverInput.ControllerSide;
 import tech.team1781.autonomous.AutoStep;
 import tech.team1781.autonomous.AutonomousHandler;
 import tech.team1781.autonomous.AutonomousHandler.AutoRoutine;
+import tech.team1781.autonomous.AutonomousHandler.NoAutoRoutineException;
 import tech.team1781.subsystems.*;
 import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.DriveSystem.DriveSystemState;
@@ -420,6 +421,7 @@ public class ControlSystem {
 
         for (Subsystem subsystem : mSubsystems) {
             subsystem.setOperatingMode(operatingMode);
+            subsystem.setControlSystem(this);
         }
         interruptAction();
 
@@ -713,7 +715,7 @@ public class ControlSystem {
         return autonomousHandler.getAutoRoutine();
     }
 
-    public Pose2d getAutoStartingPose2d() {
+    public Pose2d getAutoStartingPose2d() throws NoAutoRoutineException{
         return autonomousHandler.getStartPosition();
     }
 

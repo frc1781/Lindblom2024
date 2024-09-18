@@ -83,7 +83,7 @@ public class Robot extends LoggedRobot {
         PneumaticsModuleType.REVPH);
     mCompressor.enableDigital();
 
-    mAutonomousHandler = new AutonomousHandler(mControlSystem,
+    mAutonomousHandler = new AutonomousHandler(
         new P1N1Subwoofer(),
         new P2N2Subwoofer(),
         new P3N3Subwoofer(),
@@ -109,6 +109,8 @@ public class Robot extends LoggedRobot {
         new TestRoutine());
 
     mControlSystem = new ControlSystem(mAutonomousHandler);
+    mAutonomousHandler.setControlSystem(mControlSystem);
+    
     mDriverInput = new DriverInput();
     mControlSystem.init(OperatingMode.DISABLED);
     DataLogManager.start();
