@@ -44,47 +44,46 @@ public class AutonomousHandler {
 
     public void init() {
         mTimer.reset();
-        mTimer.start();
         mStepIndex = 0;
         mSelectedRoutine = mAutoChooser.getSelected();
-        System.out.println(mSelectedRoutine);
-        mSampledSteps = mAutoChooser.getSelected().getSteps();
+        mSampledSteps = mSelectedRoutine.getSteps();
+        sampledStep = mSelectedRoutine.getSteps()[0];
 
         Logger.recordOutput("Autonomous/Routine",  mSelectedRoutine.getName());
         Logger.recordOutput("Autonomous/ChosenRoutine", mAutoChooser.getSelected().getName());
-
-        sampledStep = mSelectedRoutine.getSteps()[0];
-        startStep(sampledStep);
-
         System.out.println("initing autohandler............");
     }
 
     public void run() throws RoutineOverException {
         Logger.recordOutput("Autonomous/Timer", mTimer.get());
+        Logger.recordOutput("Autonomous/StepIndex", mStepIndex);
 
         try {
             boolean controlSystemFinished = mControlSystem.stepIsFinished();
             boolean timerFinished = mTimer.get() > sampledStep.getMaxTime();
             boolean stepFinished = controlSystemFinished || timerFinished;
 
-            if (stepFinished) {
+            if (stepFinished || mStepIndex == 0) {
                 Logger.recordOutput("Autonomous/EndCondition",controlSystemFinished ? "Control System Finished" : "Timer Finished" );
-                mStepIndex++;
                 mTimer.reset();
                 mTimer.start();
                 sampledStep = mSampledSteps[mStepIndex];
                 startStep(sampledStep);
+
+                mStepIndex++;
             }
 
         } catch (Exception e) {
+            System.out.println(e);
             mControlSystem.interruptAction();
+            
             throw new RoutineOverException(mSelectedRoutine.getName());
         }
     }
 
     private void startStep(AutoStep step) {
         // mAutoStepEntry.setString("Step: [" + mStepIndex + "]: " + step.toString());
-         Logger.recordOutput("Autonomous/AutoStep", "Step: [" + mStepIndex + "]: " + step.toString());
+        Logger.recordOutput("Autonomous/AutoStep", "Step: [" + mStepIndex + "]: " + step.toString());
         System.out.println("new step! " + step.toString());
         System.out.println(step.toString() + " ==================================================================== "
                 + mStepIndex);

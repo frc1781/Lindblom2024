@@ -139,6 +139,10 @@ public class DriveSystem extends Subsystem {
     @Override
     public void getToState() {
         // System.out.println(getState());
+        if (!mOdometryBeenSet) {
+            return;
+        }
+
         switch ((DriveSystemState) getState()) {
             case DRIVE_SETPOINT:
             case DRIVE_NOTE:
@@ -201,7 +205,7 @@ public class DriveSystem extends Subsystem {
         Logger.recordOutput("DriveSystem/SwervePositions", getModulePositions());
         Logger.recordOutput("DriveSystem/MatchesState", matchesDesiredState());
         
-        if (mOdometryBeenSet && currentMode == OperatingMode.AUTONOMOUS) {
+        if (mOdometryBeenSet) {
             updateOdometry();
             mRobotXEntry.setDouble(getRobotPose().getX());
             mRobotYEntry.setDouble(getRobotPose().getY());
@@ -212,7 +216,6 @@ public class DriveSystem extends Subsystem {
                             .magnitude());
             mRobotThetaEntry.setDouble(getRobotAngle().getRadians());
             mField.setRobotPose(getRobotPose());
-            // mField.setRobotPose(getRobotPose());
         } else if (currentMode == OperatingMode.AUTONOMOUS) {
             setInitialLocalization();
             System.out.println("retrying...");

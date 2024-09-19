@@ -539,6 +539,10 @@ public class ControlSystem {
         localizationUpdates();
     }
 
+    public boolean hasOdometryBeenSet() {
+        return mDriveSystem.hasOdometryBeenSet();
+    }
+
     private boolean isCurrentlyAutoAiming() {
         return mCurrentAction == Action.AUTO_AIM_SHOOT
                 || mCurrentAction == Action.SHOOT_NOTE_ONE

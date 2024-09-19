@@ -207,8 +207,8 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousInit() {
-    mControlSystem.init(OperatingMode.AUTONOMOUS);
     mAutonomousHandler.init();
+    mControlSystem.init(OperatingMode.AUTONOMOUS);
     mRanAuto = true;
     mAutoRoutineOver = false;
   }
