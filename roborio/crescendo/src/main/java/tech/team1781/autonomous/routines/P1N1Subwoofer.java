@@ -1,6 +1,9 @@
 package tech.team1781.autonomous.routines;
 
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 import tech.team1781.Paths;
 import tech.team1781.autonomous.AutoStep;
 import tech.team1781.autonomous.Positions;
@@ -18,8 +21,15 @@ public class P1N1Subwoofer implements AutoRoutine {
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
+<<<<<<< Updated upstream
                 new AutoStep(5, Action.SHOOT_SUBWOOFER_NO_AIM),
                 new AutoStep(5, Action.COLLECT, Paths.getPathFromName("p1;n1")),
+=======
+                
+                new AutoStep(5, Action.SHOOT_SUBWOOFER_NO_AIM),
+                new AutoStep(5, Paths.getPathFromName("p1;n1")),
+                new AutoStep(2, Action.COLLECT),
+>>>>>>> Stashed changes
                 new AutoStep(2, Action.AUTO_AIM_SHOOT),
         };
     }
