@@ -94,7 +94,8 @@ public class ControlSystem {
         SHOOT_SUBWOOFER,
         SHOOT_SUBWOOFER_NO_AIM,
         REJECT_NOTE,
-        COLLECT_RAMP_STAY_DOWN
+        COLLECT_RAMP_STAY_DOWN,
+        COLLECT_SEEK
     }
 
     public ControlSystem(AutonomousHandler aHandler) {
@@ -615,6 +616,9 @@ public class ControlSystem {
         Pose2d limelightPoseTemp = Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT);
         Pose2d limelightPose = new Pose2d(limelightPoseTemp.getTranslation(), mDriveSystem.getRobotAngle());
 
+        Logger.recordOutput("ControlSystem/LimelightPoseRAW", limelightPoseTemp);
+        Logger.recordOutput("ControlSystem/LimelightPoseProcessed", limelightPose);
+
         if (chassisSpeedsVector.magnitude() <= speedTolerance
                 && limelightPose.getY() != 0.0
                 && limelightPose.getX() != 0.0
@@ -689,6 +693,12 @@ public class ControlSystem {
         defineAction(Action.COLLECT_RAMP_STAY_DOWN,
                 new SubsystemManager(mArm, ArmState.COLLECT),
                 new SubsystemManager(mScollector, ScollectorState.COLLECT_RAMP));
+
+        defineAction(Action.COLLECT_SEEK,
+                new SubsystemManager(mArm, ArmState.COLLECT),
+                new SubsystemManager(mScollector, ScollectorState.COLLECT_RAMP),
+                new SubsystemManager(mDriveSystem, DriveSystemState.DRIVE_NOTE)
+        );
 
     }
 

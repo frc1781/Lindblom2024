@@ -130,6 +130,7 @@ public class DriveSystem extends Subsystem {
     public enum DriveSystemState implements Subsystem.SubsystemState {
         DRIVE_SETPOINT,
         DRIVE_NOTE,
+        DRIVE_SEEK,
         DRIVE_TRAJECTORY,
         DRIVE_MANUAL,
         DRIVE_ROTATION,
@@ -145,6 +146,9 @@ public class DriveSystem extends Subsystem {
         }
 
         switch ((DriveSystemState) getState()) {
+            case DRIVE_SEEK:
+                
+                break;
             case DRIVE_SETPOINT:
             case DRIVE_NOTE:
                 goToWaypoint();
@@ -207,7 +211,8 @@ public class DriveSystem extends Subsystem {
         Logger.recordOutput("DriveSystem/MatchesState", matchesDesiredState());
         Logger.recordOutput("DriveSystem/DesiredPosition", mDesiredPosition);
         Logger.recordOutput("DriveSystem/MatchesDesiredPosition", matchesPosition(mDesiredPosition));
-        
+        //Logger.recordOutput("DriveSystem/DesiredTrajectory", mDesiredTrajectory.);
+
         if (mOdometryBeenSet) {
             updateOdometry();
             mRobotXEntry.setDouble(getRobotPose().getX());
@@ -501,9 +506,9 @@ public class DriveSystem extends Subsystem {
 
     public boolean matchesPosition(Pose2d other) {
         final double TOLERANCE = 0.2;
-        EVector currentPose = EVector.fromPose(getRobotPose());
-        EVector otherPose = EVector.fromPose(other);
-        double dist = currentPose.dist(otherPose);
+        double dist = other.getTranslation().getDistance(getRobotPose().getTranslation());
+
+        Logger.recordOutput("DriveSystem/DistanceFromDP", dist);
         return dist <= TOLERANCE;
     }
 

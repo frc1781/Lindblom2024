@@ -64,7 +64,7 @@ public class AutonomousHandler {
             boolean stepFinished = controlSystemFinished || timerFinished;
 
             if (stepFinished || mStepIndex == 0) {
-                Logger.recordOutput("Autonomous/EndCondition",controlSystemFinished ? "Control System Finished" : "Timer Finished" );
+                Logger.recordOutput("Autonomous/EndCondition", controlSystemFinished ? "Control System Finished" : "Timer Finished" );
                 mTimer.reset();
                 mTimer.start();
                 sampledStep = mSampledSteps[mStepIndex];
