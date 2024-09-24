@@ -26,7 +26,7 @@ public class P1C1 implements AutoRoutine {
                 new AutoStep(3, Action.COLLECT_RAMP, Positions.C1.withX(Positions.C1.x + 1).withZ(Math.toRadians(225)), true),
                 new AutoStep(1.5, Action.COLLECT_RAMP_STAY_DOWN, EVector.positionWithDegrees(5, 6.8, 0)),
                 new AutoStep(2.5, Action.COLLECT_RAMP, EVector.positionWithDegrees(4.25, 4.9, 0)),
-                new AutoStep(2.5, Action.SHOOT_FAR),
+                new AutoStep(2.5, Action.SHOOT_FAR)
 
         };
     }
