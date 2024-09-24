@@ -102,6 +102,7 @@ public class DriveSystem extends Subsystem {
             "Overall Velocity", -1, ShuffleboardStyle.ROBOT_VELOCITY);
 
     private Field2d mField = new Field2d();
+    private Pose2d mDesiredPosition = new Pose2d();
 
     public DriveSystem() {
         super("DriveSystem", DriveSystemState.DRIVE_MANUAL);
@@ -173,7 +174,6 @@ public class DriveSystem extends Subsystem {
 
     @Override
     public boolean matchesDesiredState() {
-
         switch ((DriveSystemState) getState()) {
             case DRIVE_SETPOINT:
             case DRIVE_NOTE:
@@ -181,6 +181,7 @@ public class DriveSystem extends Subsystem {
             case DRIVE_ROTATION:
                 return matchesRotation(mDesiredWaypoint.getPosition().z);
             case DRIVE_TRAJECTORY:
+                mDesiredPosition = mDesiredTrajectory.getEndState().getTargetHolonomicPose();
                 return matchesPosition(mDesiredTrajectory.getEndState().getTargetHolonomicPose())
                         && (currentTime >= mDesiredTrajectory.getTotalTimeSeconds());
             case DRIVE_MANUAL:
@@ -204,6 +205,8 @@ public class DriveSystem extends Subsystem {
         Logger.recordOutput("DriveSystem/CurrentPose", getRobotPose());
         Logger.recordOutput("DriveSystem/SwervePositions", getModulePositions());
         Logger.recordOutput("DriveSystem/MatchesState", matchesDesiredState());
+        Logger.recordOutput("DriveSystem/DesiredPosition", mDesiredPosition);
+        Logger.recordOutput("DriveSystem/MatchesDesiredPosition", matchesPosition(mDesiredPosition));
         
         if (mOdometryBeenSet) {
             updateOdometry();
@@ -497,7 +500,7 @@ public class DriveSystem extends Subsystem {
     }
 
     public boolean matchesPosition(Pose2d other) {
-        final double TOLERANCE = 0.1;
+        final double TOLERANCE = 0.2;
         EVector currentPose = EVector.fromPose(getRobotPose());
         EVector otherPose = EVector.fromPose(other);
         double dist = currentPose.dist(otherPose);

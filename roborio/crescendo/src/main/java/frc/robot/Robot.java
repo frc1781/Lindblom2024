@@ -106,7 +106,8 @@ public class Robot extends LoggedRobot {
         new BlueP3C4C3Score(),
         new P1C1(),
         new BlueP1C1(),
-        new TestRoutine());
+        new TestRoutine(),
+        new TestP2N2());
 
     mControlSystem = new ControlSystem(mAutonomousHandler);
     mAutonomousHandler.setControlSystem(mControlSystem);

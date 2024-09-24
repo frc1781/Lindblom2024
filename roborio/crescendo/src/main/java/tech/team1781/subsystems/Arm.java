@@ -129,7 +129,7 @@ public class Arm extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-       Logger.recordOutput("Arm/ArmMatchesState", matchesDesiredState());
+       Logger.recordOutput("Arm/MatchesState", matchesDesiredState());
         Logger.recordOutput("Arm/RawAbsoluteArm", getAngleAbsolute());
 
         // testEntry.setDouble(getAngleAbsolute());
@@ -142,7 +142,6 @@ public class Arm extends Subsystem {
 
         mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
 
-        //dropped to ground, reset relative encoder only when going down.
         syncArm();
     }
 
@@ -293,7 +292,7 @@ public class Arm extends Subsystem {
     }
 
     private boolean matchesPosition() {
-        return Math.abs(mArmAbsoluteEncoder.getPosition() - mDesiredPosition) < 1.5;
+        return Math.abs(getAngleAbsolute() - mDesiredPosition) < 1.5;
     }
 
     private enum CURRENT_AIM_SPOT {

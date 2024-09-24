@@ -105,12 +105,12 @@ public class Scollector extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-        Logger.recordOutput("Scollector/Matchesstate", matchesDesiredState());
-
-        mTopShooterVelocity.setDouble(mTopShooterMotor.getEncoder().getVelocity());
-        mBottomShooterVelocity.setDouble(mBottomShooterMotor.getEncoder().getVelocity());
-        mReadyToShootEntry.setBoolean(shooterAtSpeed());
-        mHasNoteEntry.setBoolean(hasNote());
+        Logger.recordOutput("Scollector/MatchesState", matchesDesiredState());
+        Logger.recordOutput("Scollector/HasNote", hasNote());
+        Logger.recordOutput("Scollector/NoteCloseToShooter", noteCloseToShooter());
+        Logger.recordOutput("Scollector/ShooterAtSpeed", shooterAtSpeed());
+        Logger.recordOutput("Scollector/TopShooterSpeedVelocity", mTopShooterMotor.getEncoder().getVelocity());
+        Logger.recordOutput("Scollector/BottomShooterSpeedVelocity", mBottomShooterMotor.getEncoder().getVelocity());
     }
 
     @Override
@@ -173,7 +173,6 @@ public class Scollector extends Subsystem {
             case SHOOT_ASAP:
                 if (mArmInPosition) {
                     shoot();
-                } else {
                 }
 
                 driveMotors();
@@ -191,7 +190,7 @@ public class Scollector extends Subsystem {
             case SPIT:
                 return mCollectorMotor.get() == -1;
             case COLLECT_RAMP:
-                return true;
+                return hasNote();
             case COLLECT_AUTO_LOB:
             case COLLECT_AUTO_SHOOT:
             case SHOOT:
