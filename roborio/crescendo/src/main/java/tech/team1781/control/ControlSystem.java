@@ -697,7 +697,7 @@ public class ControlSystem {
         defineAction(Action.COLLECT_SEEK,
                 new SubsystemManager(mArm, ArmState.COLLECT),
                 new SubsystemManager(mScollector, ScollectorState.COLLECT_RAMP),
-                new SubsystemManager(mDriveSystem, DriveSystemState.DRIVE_NOTE)
+                new SubsystemManager(mDriveSystem, DriveSystemState.DRIVE_TRAJECTORY_NOTE)
         );
 
     }

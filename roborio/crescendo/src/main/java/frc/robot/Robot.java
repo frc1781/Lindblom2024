@@ -87,6 +87,7 @@ public class Robot extends LoggedRobot {
         new P1N1Subwoofer(),
         new P2N2Subwoofer(),
         new P3N3Subwoofer(),
+        new P1N1N2Subwoofer(),
         new P1N1C1Subwoofer(),
         new P2N2C2Subwoofer(),
         new P3N3C5Subwoofer(),

@@ -440,12 +440,24 @@ public class DriveSystem extends Subsystem {
 
 
 
-        if (getState() != DriveSystemState.DRIVE_TRAJECTORY_NOTE || 
-            Limelight.getTX(ConfigMap.NOTE_LIMELIGHT) == 0.0 || 
-            currentPose.dist(endPose) > END_DIST_TOLERANCE) {
+        if (currentPose.dist(endPose) > END_DIST_TOLERANCE) {
             var pathplannerState = mDesiredTrajectory.sample(trajectoryTimer.get());
-            Pose2d targetPose = new Pose2d(pathplannerState.positionMeters, pathplannerState.heading);
+
             Rotation2d targetOrientation = EEGeometryUtil.normalizeAngle(pathplannerState.getTargetHolonomicPose().getRotation());
+            
+            // if (Limelight.getTV(ConfigMap.NOTE_LIMELIGHT) == 1) {
+            //     double xOffset = Limelight.getTX(ConfigMap.NOTE_LIMELIGHT);
+            //     Rotation2d rotationOffset = Rotation2d.fromDegrees(xOffset);
+
+            //     Logger.recordOutput("DriveSystem/NoteCenteringOffset",  xOffset);
+            //     Logger.recordOutput("DriveSystem/PathHeading", pathplannerState.heading);
+            //     pathplannerState.heading =  pathplannerState.heading.plus(rotationOffset);
+            // }
+
+            Pose2d targetPose = new Pose2d(pathplannerState.positionMeters, pathplannerState.heading);
+
+    //        Logger.recordOutput("DriveSystem/TargetPathPose", targetPose);
+
             speed = mTrajectoryController.calculate(
                     getRobotPose(),
                     targetPose,
@@ -454,16 +466,16 @@ public class DriveSystem extends Subsystem {
             );
 
             driveWithChassisSpeeds(speed);
-
-        } else if (Limelight.getTX(ConfigMap.NOTE_LIMELIGHT) != 0.0) {
-            Pose2d pose = mDesiredTrajectory.getEndState().getTargetHolonomicPose();
-            double x = (pose.getX() * (ControlSystem.isRed() ? -1 : 1)) + (ControlSystem.isRed() ? EEGeometryUtil.FIELD_LENGTH : 0);
-            double y = pose.getY();
-            double rot = ControlSystem.isRed() ? (-pose.getRotation().getRadians()) + Math.PI : pose.getRotation().getRadians();
-            Rotation2d rot2D = EEGeometryUtil.normalizeAngle(new Rotation2d(rot));
-            setWaypoint(new WaypointHolder(x, y, rot2D.getRadians(), AutoStep.DEFAULT_SPEED));
-            setDesiredState(DriveSystemState.DRIVE_NOTE);
         }
+            // } else if (Limelight.getTX(ConfigMap.NOTE_LIMELIGHT) != 0.0) {
+        //     Pose2d pose = mDesiredTrajectory.getEndState().getTargetHolonomicPose();
+        //     double x = (pose.getX() * (ControlSystem.isRed() ? -1 : 1)) + (ControlSystem.isRed() ? EEGeometryUtil.FIELD_LENGTH : 0);
+        //     double y = pose.getY();
+        //     double rot = ControlSystem.isRed() ? (-pose.getRotation().getRadians()) + Math.PI : pose.getRotation().getRadians();
+        //     Rotation2d rot2D = EEGeometryUtil.normalizeAngle(new Rotation2d(rot));
+        //     setWaypoint(new WaypointHolder(x, y, rot2D.getRadians(), AutoStep.DEFAULT_SPEED));
+        //     setDesiredState(DriveSystemState.DRIVE_NOTE);
+        // }
     }
     
     public void setWaypoint(WaypointHolder waypoint) {

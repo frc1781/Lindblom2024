@@ -7,21 +7,21 @@ import tech.team1781.autonomous.AutonomousHandler.AutoRoutine;
 import tech.team1781.control.ControlSystem.Action;
 import tech.team1781.utils.EVector;
 
-public class P2N2N1Subwoofer implements AutoRoutine{
+public class P1N1N2Subwoofer implements AutoRoutine{
 
     @Override
     public String getName() {
-        return "10: P2N2N1Subwoofer";
+        return "P1N1N2Subwoofer";
     }
 
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
             new AutoStep(6, Action.SHOOT_SUBWOOFER_NO_AIM),
-            new AutoStep(5, Action.COLLECT_RAMP, Paths.getPathFromName("p2;n2")),
-            new AutoStep(2, Action.SHOOT_NOTE_TWO),
-            new AutoStep(5, Action.COLLECT_RAMP, Paths.getPathFromName("n2;n1")),
+            new AutoStep(5, Action.COLLECT_RAMP, Paths.getPathFromName("p1;n1")),
             new AutoStep(2, Action.SHOOT_NOTE_ONE),
+            new AutoStep(5, Action.COLLECT_RAMP, Paths.getPathFromName("n1;n2")),
+            new AutoStep(2, Action.SHOOT_NOTE_TWO),
         };
     }
     
