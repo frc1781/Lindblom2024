@@ -3,6 +3,8 @@ package tech.team1781.subsystems;
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
+import com.pathplanner.lib.util.PathPlannerLogging;
+
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -429,6 +431,8 @@ public class DriveSystem extends Subsystem {
     public void setTrajectoryFromPath(PathPlannerPath path) {
         PathPlannerTrajectory pathTrajectory = new PathPlannerTrajectory(path, new ChassisSpeeds(), getRobotAngle());
         setTrajectory(pathTrajectory);
+
+        
     }
 
     public void followTrajectory() {
@@ -446,10 +450,13 @@ public class DriveSystem extends Subsystem {
                 distanceFromEndPose > END_DIST_TOLERANCE) {
             PathPlannerTrajectory.State pathplannerState = mDesiredTrajectory.sample(trajectoryTimer.get());
 
-/*            if (Limelight.getTV(ConfigMap.NOTE_LIMELIGHT) == 1) {
-                Rotation2d visionNoteOffset = Rotation2d.fromDegrees(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT));
-                pathplannerState.heading = pathplannerState.heading.plus(visionNoteOffset);
-            }*/
+            // if (Limelight.getTV(ConfigMap.NOTE_LIMELIGHT) == 1) {
+            //     Rotation2d visionNoteOffset = Rotation2d.fromDegrees(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT));
+            //     pathplannerState.heading = pathplannerState.heading.plus(visionNoteOffset);
+            //     Logger.recordOutput("DriveSystem/NoteTargeting", true);
+            // } else {
+            //     Logger.recordOutput("DriveSystem/NoteTargeting", false);
+            // }
 
             Pose2d targetPose = new Pose2d(pathplannerState.positionMeters, pathplannerState.heading);
             Rotation2d targetOrientation = EEGeometryUtil
@@ -459,6 +466,14 @@ public class DriveSystem extends Subsystem {
                     targetPose,
                     pathplannerState.velocityMps,
                     targetOrientation);
+
+                    Logger.recordOutput("DriveSystem/TargetTrajectory", targetPose);
+
+
+            double distanceFromPath = targetPose.getTranslation().getDistance(getRobotPose().getTranslation());
+                if (distanceFromPath > 1) {
+
+                }
 
             driveWithChassisSpeeds(speed);
         } else if (Limelight.getTX(ConfigMap.NOTE_LIMELIGHT) != 0.0) {
@@ -472,6 +487,8 @@ public class DriveSystem extends Subsystem {
             setWaypoint(new WaypointHolder(x, y, rot2D.getRadians(), AutoStep.DEFAULT_SPEED));
             setDesiredState(DriveSystemState.DRIVE_NOTE);
         }
+
+        
     }
 
     public void setWaypoint(WaypointHolder waypoint) {

@@ -620,6 +620,7 @@ public class ControlSystem {
         Logger.recordOutput("ControlSystem/LimelightPoseProcessed", limelightPose);
 
         if (//chassisSpeedsVector.magnitude() <= speedTolerance &&
+        
                  limelightPose.getY() != 0.0
                 && limelightPose.getX() != 0.0
                 && Limelight.getNumberOfApriltags(ConfigMap.APRILTAG_LIMELIGHT) > 1) {
