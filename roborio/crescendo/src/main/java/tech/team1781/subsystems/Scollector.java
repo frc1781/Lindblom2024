@@ -2,6 +2,8 @@ package tech.team1781.subsystems;
 
 import java.util.ArrayList;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.playingwithfusion.TimeOfFlight;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkMax;
@@ -19,7 +21,7 @@ import tech.team1781.ConfigMap;
 import tech.team1781.ShuffleboardStyle;
 import tech.team1781.subsystems.LEDs.LedState;
 import tech.team1781.utils.EVector;
-import tech.team1781.utils.NetworkLogger;
+
 
 //EXAMPLE SUBSYSTEM, NOT FOR ACTUAL BOT
 public class Scollector extends Subsystem {
@@ -93,7 +95,7 @@ public class Scollector extends Subsystem {
         System.out.println("top motor faults: " + mTopShooterMotor.getFaults());
         System.out.println("top motor faults: " + mBottomShooterMotor.getFaults());
 
-        NetworkLogger.initLog("Scollector Matches State", true);
+        Logger.recordOutput("Scollector/MatchesState", true);
     }
 
     public enum ScollectorState implements SubsystemState {
@@ -103,12 +105,12 @@ public class Scollector extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-        NetworkLogger.logData("Scollector Matches State", matchesDesiredState());
-
-        mTopShooterVelocity.setDouble(mTopShooterMotor.getEncoder().getVelocity());
-        mBottomShooterVelocity.setDouble(mBottomShooterMotor.getEncoder().getVelocity());
-        mReadyToShootEntry.setBoolean(shooterAtSpeed());
-        mHasNoteEntry.setBoolean(hasNote());
+        Logger.recordOutput("Scollector/MatchesState", matchesDesiredState());
+        Logger.recordOutput("Scollector/HasNote", hasNote());
+        Logger.recordOutput("Scollector/NoteCloseToShooter", noteCloseToShooter());
+        Logger.recordOutput("Scollector/ShooterAtSpeed", shooterAtSpeed());
+        Logger.recordOutput("Scollector/TopShooterSpeedVelocity", mTopShooterMotor.getEncoder().getVelocity());
+        Logger.recordOutput("Scollector/BottomShooterSpeedVelocity", mBottomShooterMotor.getEncoder().getVelocity());
     }
 
     @Override
@@ -159,17 +161,6 @@ public class Scollector extends Subsystem {
                 driveMotors();
                 break;
             case COLLECT_AUTO_LOB:
-                // if (!hasNote()) {
-                //     collect();
-                //     System.out.println("aaaaaaaaaaaa");
-                // } else if (mArmInPosition && (noteCloseToShooter() || hasNote()) && shooterAtSpeed(ConfigMap.MIN_SHOOTER_SPEED)) {
-                //     shoot();
-                //     System.out.println("bbbbbbbbbbbbb");
-                // } else {
-                //     mCollectorMotor.set(0);
-                //     System.out.println("cccccccccccccccccc: " + mArmInPosition + " :: " + noteCloseToShooter() + " :: " + hasNote() + " :: " + shooterAtSpeed(ConfigMap.MIN_SHOOTER_SPEED));
-                // }
-
                 driveMotors();
                 break;
             case RAMP_SHOOTER:
@@ -182,7 +173,6 @@ public class Scollector extends Subsystem {
             case SHOOT_ASAP:
                 if (mArmInPosition) {
                     shoot();
-                } else {
                 }
 
                 driveMotors();
@@ -200,7 +190,7 @@ public class Scollector extends Subsystem {
             case SPIT:
                 return mCollectorMotor.get() == -1;
             case COLLECT_RAMP:
-                return true;
+                return hasNote();
             case COLLECT_AUTO_LOB:
             case COLLECT_AUTO_SHOOT:
             case SHOOT:
