@@ -291,9 +291,9 @@ public class DriveSystem extends Subsystem {
         var visionEstimateVector = EVector.fromPose2d(visionEstimate);
         var currentPose = EVector.fromPose2d(getRobotPose());
 
-        visionEstimateVector.z = currentPose.z;
+        double dist = getRobotPose().getTranslation().getDistance(visionEstimate.getTranslation());
 
-        if (Math.abs(currentPose.dist(visionEstimateVector)) >= 2 || visionEstimate.getX() == -99.9) {
+        if (Math.abs(dist) >= 2 || visionEstimate.getX() == -99.9) {
             return;
         }
 
