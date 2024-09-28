@@ -17,11 +17,11 @@ public class P1N1N2Subwoofer implements AutoRoutine{
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-            new AutoStep(6, Action.SHOOT_SUBWOOFER_NO_AIM),
-            new AutoStep(5, Action.COLLECT_RAMP, Paths.getPathFromName("p1;n1")),
-            new AutoStep(2, Action.SHOOT_NOTE_ONE),
+/*            new AutoStep(6, Action.SHOOT_SUBWOOFER_NO_AIM),*/
+            new AutoStep(5, Paths.getPathFromName("p1;n1")),
+/*            new AutoStep(2, Action.SHOOT_NOTE_ONE),
             new AutoStep(5, Action.COLLECT_RAMP, Paths.getPathFromName("n1;n2")),
-            new AutoStep(2, Action.SHOOT_NOTE_TWO),
+            new AutoStep(2, Action.SHOOT_NOTE_TWO),*/
         };
     }
     
