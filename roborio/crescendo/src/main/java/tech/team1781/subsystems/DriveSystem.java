@@ -292,7 +292,6 @@ public class DriveSystem extends Subsystem {
 
     public void updateVisionLocalization(Pose2d visionEstimate) {
         var visionEstimateVector = EVector.fromPose2d(visionEstimate);
-        var currentPose = EVector.fromPose2d(getRobotPose());
 
         double dist = getRobotPose().getTranslation().getDistance(visionEstimate.getTranslation());
 
@@ -444,19 +443,11 @@ public class DriveSystem extends Subsystem {
 
         double distanceFromEndPose = getRobotPose().getTranslation().getDistance(mDesiredPosition.getTranslation());
 
-        final double END_DIST_TOLERANCE = 1.5; // in meters
+        final double END_DIST_TOLERANCE = 0.1; // in meters
 
         if (getState() != DriveSystemState.DRIVE_TRAJECTORY_NOTE ||
                 distanceFromEndPose > END_DIST_TOLERANCE) {
             PathPlannerTrajectory.State pathplannerState = mDesiredTrajectory.sample(trajectoryTimer.get());
-
-            // if (Limelight.getTV(ConfigMap.NOTE_LIMELIGHT) == 1) {
-            //     Rotation2d visionNoteOffset = Rotation2d.fromDegrees(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT));
-            //     pathplannerState.heading = pathplannerState.heading.plus(visionNoteOffset);
-            //     Logger.recordOutput("DriveSystem/NoteTargeting", true);
-            // } else {
-            //     Logger.recordOutput("DriveSystem/NoteTargeting", false);
-            // }
 
             Pose2d targetPose = new Pose2d(pathplannerState.positionMeters, pathplannerState.heading);
             Rotation2d targetOrientation = EEGeometryUtil
