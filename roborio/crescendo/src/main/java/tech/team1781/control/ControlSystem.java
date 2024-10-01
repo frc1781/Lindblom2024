@@ -609,9 +609,9 @@ public class ControlSystem {
     //TODO: Review to make sure this method works as expected, which is to update position when conditions are ideal.
     //TODO: TEST ON ROBOT
     public void localizationUpdates() {
-        final double speedTolerance = 0.1;
-        ChassisSpeeds robotSpeeds = mDriveSystem.getChassisSpeeds();
-        EVector chassisSpeedsVector = new EVector(robotSpeeds.vxMetersPerSecond, robotSpeeds.vyMetersPerSecond);
+        //final double speedTolerance = 0.1;
+        //ChassisSpeeds robotSpeeds = mDriveSystem.getChassisSpeeds();
+        //EVector chassisSpeedsVector = new EVector(robotSpeeds.vxMetersPerSecond, robotSpeeds.vyMetersPerSecond);
 
         Pose2d limelightPoseTemp = Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT);
         Pose2d limelightPose = new Pose2d(limelightPoseTemp.getTranslation(), mDriveSystem.getRobotAngle());
@@ -620,11 +620,14 @@ public class ControlSystem {
         Logger.recordOutput("ControlSystem/LimelightPoseProcessed", limelightPose);
 
         if (//chassisSpeedsVector.magnitude() <= speedTolerance &&
-        
                  limelightPose.getY() != 0.0
                 && limelightPose.getX() != 0.0
-                && Limelight.getNumberOfApriltags(ConfigMap.APRILTAG_LIMELIGHT) > 1) {
+                && Limelight.getNumberOfApriltags(ConfigMap.APRILTAG_LIMELIGHT) > 1
+                && mCurrentOperatingMode == OperatingMode.AUTONOMOUS) {
                 mDriveSystem.updateVisionLocalization(limelightPose);
+                Logger.recordOutput("Limelight/UpdatingPose", true);
+        } else {
+            Logger.recordOutput("Limelight/UpdatingPose", false);
         }
     }
 
