@@ -9,13 +9,13 @@ public class TestRoutine implements AutoRoutine {
 
     @Override
     public String getName() {
-        return "Test Routine";
+        return "Test Routine2";
     }
 
     @Override
     public AutoStep[] getSteps() {  
         return new AutoStep[] {
-            new AutoStep(10, Action.COLLECT, Paths.getPathFromName("p1;c1"))
+            new AutoStep(10, Paths.getPathFromName("tpath")),
         };
     }
 

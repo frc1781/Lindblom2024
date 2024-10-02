@@ -35,7 +35,7 @@ public class AutonomousHandler {
 
         Logger.recordOutput("Autonomous/CurrentStep", "None");
         Logger.recordOutput("Autonomous/EndCodition", "None");
-        Logger.recordOutput("Autonomous/Time", 0.0);
+        Logger.recordOutput("Autonomous/Timer", 0.0);
     }
 
     public void setControlSystem(ControlSystem controlSystem) {
