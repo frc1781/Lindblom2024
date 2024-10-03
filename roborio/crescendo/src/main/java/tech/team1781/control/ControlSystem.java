@@ -139,7 +139,7 @@ public class ControlSystem {
 
     public static boolean isRed() {
         var alliance = DriverStation.getAlliance();
-        if (alliance.isPresent()) {
+        if (alliance.isEmpty()) {
             return false;
         }
 
