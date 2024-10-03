@@ -26,18 +26,14 @@ public class FourNote implements AutoRoutine {
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-                new AutoStep(100, Action.OFF_KICKSTAND),
                 new AutoStep(6, Action.SHOOT_SUBWOOFER),
                 new AutoStep(2,Action.COLLECT_RAMP),
                 new AutoStep(1.5, Action.COLLECT_RAMP, Paths.getPathFromName("p2;n2"), true),
-                new AutoStep(1.5, Action.COLLECT_RAMP, Paths.getPathFromName("n2;p2")),
-                new AutoStep(2, Action.SHOOT_SUBWOOFER),
-                new AutoStep(1.5, Action.COLLECT_RAMP, Paths.getPathFromName("p2;n3"), true),
-                new AutoStep(1.5, Action.COLLECT_RAMP, Paths.getPathFromName("n3;p2")),
-                new AutoStep(2, Action.SHOOT_SUBWOOFER),
-                new AutoStep(1.5, Action.COLLECT_RAMP, Paths.getPathFromName("p2;n1"), true),
-                new AutoStep(2, Action.COLLECT_RAMP, Paths.getPathFromName("n1;p2")),
-                new AutoStep(2, Action.SHOOT_SUBWOOFER)
+                new AutoStep(2, Action.SHOOT_NOTE_TWO),
+                new AutoStep(1.5, Action.COLLECT_RAMP, Paths.getPathFromName("n2;n3"), true),
+                new AutoStep(2, Action.SHOOT_NOTE_THREE),
+                new AutoStep(1.5, Action.COLLECT_RAMP, Paths.getPathFromName("n3;n1"), true),
+                new AutoStep(2, Action.SHOOT_NOTE_ONE)
         };
     }
 

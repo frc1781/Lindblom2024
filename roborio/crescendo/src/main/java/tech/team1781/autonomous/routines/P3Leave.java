@@ -17,7 +17,6 @@ public class P3Leave implements AutoRoutine{
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-            
             new AutoStep(5, Action.SHOOT_SUBWOOFER_NO_AIM),
             new AutoStep(4,Action.COLLECT_RAMP,Paths.getPathFromName("p3;c5")),
             new AutoStep(4,Paths.getPathFromName("c5;shoot")),

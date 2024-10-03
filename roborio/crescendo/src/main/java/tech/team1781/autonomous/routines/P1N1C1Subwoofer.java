@@ -19,10 +19,10 @@ public class P1N1C1Subwoofer implements AutoRoutine {
         return new AutoStep[] {
                 new AutoStep(5, Action.SHOOT_SUBWOOFER_NO_AIM),
                 new AutoStep(5, Action.COLLECT_RAMP, Paths.getPathFromName("p1;n1")),
-                new AutoStep(5, Action.SHOOT_SUBWOOFER_NO_AIM),
-                new AutoStep(5, Action.COLLECT_RAMP, Paths.getPathFromName("p1;n1")),
-                new AutoStep(5, Action.COLLECT_RAMP, Paths.getPathFromName("c1;shootAmpSide")),
-                new AutoStep(2.5, Action.SHOOT_FAR),
+                new AutoStep(5, Action.SHOOT_NOTE_ONE),
+                new AutoStep(5, Action.COLLECT_RAMP, Paths.getPathFromName("n1;c1")),
+                new AutoStep(5, Action.COLLECT_RAMP, Paths.getPathFromName("c1;n1")),
+                new AutoStep(5, Action.SHOOT_NOTE_ONE)
         };
     }
 

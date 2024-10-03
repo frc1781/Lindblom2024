@@ -20,12 +20,9 @@ public class P3C5N3 implements AutoRoutine {
                 
                 new AutoStep(3, Action.SHOOT_SUBWOOFER_NO_AIM),
                 new AutoStep(2.0, Action.COLLECT_RAMP, Paths.getPathFromName("p3;c5")),
-                // new AutoStep(5, Action.COLLECT_RAMP, Positions.P3),
-                // option for not quite P3
                 new AutoStep(4,Paths.getPathFromName("c5;shoot")),
-                new AutoStep(3, Action.SHOOT_SUBWOOFER_NO_AIM),
+                new AutoStep(3, Action.SHOOT_FAR),
                 new AutoStep(4,Action.COLLECT_RAMP,Paths.getPathFromName("shoot;n3")),
-                        // Positions.P3.withX(Positions.P3.x + 0.5).withY(Positions.P3.y + 0.3)),
                 new AutoStep(5, Action.SHOOT_NOTE_THREE)
         };
     }
