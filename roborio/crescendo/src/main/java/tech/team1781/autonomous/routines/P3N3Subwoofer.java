@@ -22,7 +22,7 @@ public class P3N3Subwoofer implements AutoRoutine{
             new AutoStep(5, Paths.getPathFromName("n3;p3")),
             new AutoStep(2, Action.SHOOT_SUBWOOFER),
 
-        };
+        };  
     }
     
 }
