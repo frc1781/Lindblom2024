@@ -632,7 +632,7 @@ public class ControlSystem {
 
     private void initActions() {
         defineAction(Action.SHOOT_SUBWOOFER_NO_AIM,
-                new SubsystemManager(mScollector, ScollectorState.SHOOT_ASAP),
+                new SubsystemManager(mScollector, ScollectorState.RAMP_SHOOT),
                 new SubsystemManager(mArm, ArmState.SUBWOOFER));
 
         defineAction(Action.SHOOT_FAR,
