@@ -633,7 +633,7 @@ public class ControlSystem {
 
     private void initActions() {
         defineAction(Action.SHOOT_SUBWOOFER_NO_AIM,
-                new SubsystemManager(mScollector, ScollectorState.SHOOT_ASAP),
+                new SubsystemManager(mScollector, ScollectorState.RAMP_SHOOT),
                 new SubsystemManager(mArm, ArmState.SUBWOOFER));
 
         defineAction(Action.SHOOT_FAR,
@@ -646,7 +646,7 @@ public class ControlSystem {
 
         defineAction(Action.SHOOT_NOTE_TWO,
                 new SubsystemManager(mArm, ArmState.NOTE_TWO),
-                new SubsystemManager(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
+                new SubsystemManager(mScollector, ScollectorState.RAMP_SHOOT));
 
         defineAction(Action.RAMP_SHOOTER,
                 new SubsystemManager(mArm, ArmState.SAFE),
@@ -688,11 +688,11 @@ public class ControlSystem {
 
         defineAction(Action.SHOOT_NOTE_ONE,
                 new SubsystemManager(mArm, ArmState.NOTE_ONE),
-                new SubsystemManager(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
+                new SubsystemManager(mScollector, ScollectorState.RAMP_SHOOT));
 
         defineAction(Action.SHOOT_NOTE_THREE,
                 new SubsystemManager(mArm, ArmState.NOTE_THREE),
-                new SubsystemManager(mScollector, ScollectorState.COLLECT_AUTO_SHOOT));
+                new SubsystemManager(mScollector, ScollectorState.RAMP_SHOOT));
 
         defineAction(Action.COLLECT_RAMP_STAY_DOWN,
                 new SubsystemManager(mArm, ArmState.COLLECT),

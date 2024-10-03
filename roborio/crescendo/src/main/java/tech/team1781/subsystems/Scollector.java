@@ -100,7 +100,7 @@ public class Scollector extends Subsystem {
 
     public enum ScollectorState implements SubsystemState {
         IDLE, COLLECT, SPIT, SHOOT, COLLECT_RAMP, COLLECT_AUTO_SHOOT, RAMP_SHOOTER, LOB, SHOOT_ASAP, COLLECT_RAMP_LOB,
-        COLLECT_AUTO_LOB
+        COLLECT_AUTO_LOB, RAMP_SHOOT
     }
 
     @Override
@@ -177,6 +177,13 @@ public class Scollector extends Subsystem {
 
                 driveMotors();
                 break;
+            case RAMP_SHOOT:
+                if (mArmInPosition && shooterAtSpeed()) {
+                    shoot();
+                }
+
+                driveMotors();
+                break;
         }
     }
 
@@ -195,6 +202,7 @@ public class Scollector extends Subsystem {
             case COLLECT_AUTO_SHOOT:
             case SHOOT:
             case LOB:
+            case RAMP_SHOOT:
             case SHOOT_ASAP:
                 return !hasNote() && !noteCloseToShooter();
             case RAMP_SHOOTER:
