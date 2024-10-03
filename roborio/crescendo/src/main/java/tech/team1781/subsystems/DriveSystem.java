@@ -121,12 +121,16 @@ public class DriveSystem extends Subsystem {
 
     @Override
     public void getToState() {
+        ChassisSpeeds speed = getChassisSpeeds();
+
         Logger.recordOutput("DriveSystem/OdometryBeenSet", mOdometryBeenSet);
         Logger.recordOutput("DriveSystem/CurrentPose", getRobotPose());
         Logger.recordOutput("DriveSystem/SwervePositions", getModulePositions());
         Logger.recordOutput("DriveSystem/MatchesState", matchesDesiredState());
         Logger.recordOutput("DriveSystem/DesiredPosition", mDesiredPosition);
         Logger.recordOutput("DriveSystem/MatchesDesiredPosition", matchesPosition(mDesiredPosition));
+        Logger.recordOutput("DriveSystem/TotalVelocity", speed.vxMetersPerSecond + speed.vyMetersPerSecond);
+
         if (trajectoryTimer != null) {
             Logger.recordOutput("DriveSystem/TrajectoryTimer", trajectoryTimer.get());
         } else {
@@ -138,9 +142,6 @@ public class DriveSystem extends Subsystem {
         }
 
         switch ((DriveSystemState) getState()) {
-            case DRIVE_SEEK:
-
-                break;
             case DRIVE_SETPOINT:
             case DRIVE_NOTE:
                 goToWaypoint();
@@ -151,8 +152,6 @@ public class DriveSystem extends Subsystem {
             case DRIVE_TRAJECTORY_NOTE:
             case DRIVE_TRAJECTORY:
                 followTrajectory();
-                break;
-            case DRIVE_MANUAL:
                 break;
             default:
                 break;
@@ -462,8 +461,8 @@ public class DriveSystem extends Subsystem {
 
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
 
-        Logger.recordOutput("Drive System/DesiredVelocities", EVector.newVector(xSpeed, ySpeed, rot).toPose2d());
-        Logger.recordOutput("Drive System/DesiredVelocity Magnitude",
+        Logger.recordOutput("DriveSystem/DesiredVelocities", EVector.newVector(xSpeed, ySpeed, rot).toPose2d());
+        Logger.recordOutput("DriveSystem/DesiredVelocity Magnitude",
                 EVector.newVector(xSpeed, ySpeed, rot).magnitude());
 
         mFrontLeft.setDesiredState(moduleStates[0]);

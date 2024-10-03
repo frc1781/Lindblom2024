@@ -147,8 +147,7 @@ public class ControlSystem {
     }
 
     public void driverDriving(EVector translation, EVector rotation, EVector triggers) {
-        boolean isRed = DriverStation.getAlliance().get() == Alliance.Red;
-        int mult = isRed ? -1 : 1;
+        int mult = isRed() ? -1 : 1;
         final double triggermult = 0;
         triggers.mult(triggermult);
 
