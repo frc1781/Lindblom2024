@@ -1,5 +1,6 @@
 package tech.team1781.autonomous;
 
+import com.pathplanner.lib.path.PathPlannerPath;
 import org.littletonrobotics.junction.Logger;
 
 import org.littletonrobotics.junction.Logger;
@@ -13,6 +14,11 @@ import tech.team1781.ConfigMap;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.subsystems.Subsystem;
 
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 
 public class AutonomousHandler {
     private SendableChooser<AutoRoutine> mAutoChooser = new SendableChooser<>();
@@ -20,6 +26,10 @@ public class AutonomousHandler {
     private ControlSystem mControlSystem;
     private int mStepIndex = 0;
     private Timer mTimer = new Timer();
+    private HashMap<Integer, PathPlannerPath> mPaths;
+
+    private boolean pathsGeneratedForRed;
+
 
     private AutoStep sampledStep;
     private AutoStep[] mSampledSteps;
@@ -29,6 +39,8 @@ public class AutonomousHandler {
         for (AutoRoutine routine : routines) {
             mAutoChooser.addOption(routine.getName(), routine);
         }
+
+        mPaths = new HashMap<>();
 
         ConfigMap.AUTONOMOUS_TAB.add(mAutoChooser).withSize(2, 1);
         Logger.recordOutput("Autonomous/ChosenRoutine", mAutoChooser.getSelected().getName());
@@ -42,12 +54,31 @@ public class AutonomousHandler {
         mControlSystem = controlSystem;
     }
 
+    public void checkSelectedRoutine() {
+        if (mAutoChooser.getSelected() == null) return;
+
+        boolean currentAlliance = ControlSystem.isRed();
+
+        if (mSelectedRoutine != mAutoChooser.getSelected() || pathsGeneratedForRed != currentAlliance) {
+            mTimer.reset();
+            mStepIndex = 0;
+            mSelectedRoutine = mAutoChooser.getSelected();
+            mSampledSteps = mSelectedRoutine.getSteps();
+
+            pathsGeneratedForRed = currentAlliance;
+        }
+    }
+
     public void init() {
-        mTimer.reset();
-        mStepIndex = 0;
-        mSelectedRoutine = mAutoChooser.getSelected();
-        mSampledSteps = mSelectedRoutine.getSteps();
-        sampledStep = mSelectedRoutine.getSteps()[0];
+        boolean currentAlliance = ControlSystem.isRed();
+
+        if (mSelectedRoutine != mAutoChooser.getSelected() || pathsGeneratedForRed != currentAlliance) {
+            mTimer.reset();
+            mStepIndex = 0;
+            mSelectedRoutine = mAutoChooser.getSelected();
+            mSampledSteps = mSelectedRoutine.getSteps();
+            sampledStep = mSelectedRoutine.getSteps()[0];
+        }
 
         Logger.recordOutput("Autonomous/Routine",  mSelectedRoutine.getName());
         Logger.recordOutput("Autonomous/ChosenRoutine", mAutoChooser.getSelected().getName());
@@ -82,7 +113,6 @@ public class AutonomousHandler {
     }
 
     private void startStep(AutoStep step) {
-        // mAutoStepEntry.setString("Step: [" + mStepIndex + "]: " + step.toString());
         Logger.recordOutput("Autonomous/AutoStep", "Step: [" + mStepIndex + "]: " + step.toString());
         System.out.println("new step! " + step.toString());
         System.out.println(step.toString() + " ==================================================================== "
@@ -126,7 +156,7 @@ public class AutonomousHandler {
         public void printStackTrace() {
          System.out.printf("The routine was null or invalid. We should wait till we being auto.");
         }
-    } 
+    }
 
     public interface AutoRoutine {
 

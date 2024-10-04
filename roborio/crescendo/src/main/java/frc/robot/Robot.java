@@ -35,6 +35,8 @@ import tech.team1781.subsystems.Subsystem.OperatingMode;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 
+import java.sql.Driver;
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to
@@ -61,6 +63,7 @@ public class Robot extends LoggedRobot {
   private boolean mRanTeleop = false;
   private boolean mRanAuto = false;
   private boolean mAutoRoutineOver = false;
+  private DriverStation.Alliance currentAlliance;
 
   @Override
   public void robotInit() {
@@ -243,12 +246,15 @@ public class Robot extends LoggedRobot {
     if (mRanAuto && mRanTeleop) {
       DataLogManager.stop();
     }
+
+    mAutonomousHandler.checkSelectedRoutine();
     mControlSystem.disabledLighting();
   }
 
   @Override
   public void disabledPeriodic() {
     mControlSystem.disabledPeriodic();
+    mAutonomousHandler.checkSelectedRoutine();
   }
 
   @Override
