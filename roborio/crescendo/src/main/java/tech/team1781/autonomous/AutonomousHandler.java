@@ -64,13 +64,18 @@ public class AutonomousHandler {
             mStepIndex = 0;
             mSelectedRoutine = mAutoChooser.getSelected();
             mSampledSteps = mSelectedRoutine.getSteps();
+            sampledStep = mSelectedRoutine.getSteps()[0];
 
             pathsGeneratedForRed = currentAlliance;
+            Logger.recordOutput("Autonomous/ChosenRoutine", mSelectedRoutine.getName());
+            System.out.println("Cached currently selected routine");
         }
     }
 
     public void init() {
         boolean currentAlliance = ControlSystem.isRed();
+        mTimer.reset();
+        mStepIndex = 0;
 
         if (mSelectedRoutine != mAutoChooser.getSelected() || pathsGeneratedForRed != currentAlliance) {
             mTimer.reset();
