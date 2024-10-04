@@ -139,7 +139,7 @@ public class ControlSystem {
 
     public static boolean isRed() {
         var alliance = DriverStation.getAlliance();
-        if (alliance.isPresent()) {
+        if (!alliance.isPresent()) {
             return false;
         }
 
@@ -450,6 +450,10 @@ public class ControlSystem {
         }
     }
 
+    public boolean hasNote() {
+        return mScollector.hasNote();
+    }
+
     public void run(DriverInput driverInput) {
         Logger.recordOutput("ControlSystem/CurrentControlSystemAction", mCurrentAction);
 
@@ -611,8 +615,6 @@ public class ControlSystem {
         }
     }
 
-    //TODO: Review to make sure this method works as expected, which is to update position when conditions are ideal.
-    //TODO: TEST ON ROBOT
     public void localizationUpdates() {
         Pose2d limelightPoseTemp = Limelight.getBotPose2d(ConfigMap.APRILTAG_LIMELIGHT);
         Pose2d limelightPose = new Pose2d(limelightPoseTemp.getTranslation(), mDriveSystem.getRobotAngle());
@@ -646,7 +648,7 @@ public class ControlSystem {
 
         defineAction(Action.SHOOT_NOTE_TWO,
                 new SubsystemManager(mArm, ArmState.NOTE_TWO),
-                new SubsystemManager(mScollector, ScollectorState.RAMP_SHOOT));
+                new SubsystemManager(mScollector, ScollectorState.SHOOT_ASAP));
 
         defineAction(Action.RAMP_SHOOTER,
                 new SubsystemManager(mArm, ArmState.SAFE),
@@ -688,11 +690,11 @@ public class ControlSystem {
 
         defineAction(Action.SHOOT_NOTE_ONE,
                 new SubsystemManager(mArm, ArmState.NOTE_ONE),
-                new SubsystemManager(mScollector, ScollectorState.RAMP_SHOOT));
+                new SubsystemManager(mScollector, ScollectorState.SHOOT_ASAP));
 
         defineAction(Action.SHOOT_NOTE_THREE,
                 new SubsystemManager(mArm, ArmState.NOTE_THREE),
-                new SubsystemManager(mScollector, ScollectorState.RAMP_SHOOT));
+                new SubsystemManager(mScollector, ScollectorState.SHOOT_ASAP));
 
         defineAction(Action.COLLECT_RAMP_STAY_DOWN,
                 new SubsystemManager(mArm, ArmState.COLLECT),

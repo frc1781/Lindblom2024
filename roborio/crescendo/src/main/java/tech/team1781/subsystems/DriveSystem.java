@@ -164,13 +164,15 @@ public class DriveSystem extends Subsystem {
         switch ((DriveSystemState) getState()) {
             case DRIVE_SETPOINT:
             case DRIVE_NOTE:
-                return matchesDesiredPosition();
+                return matchesDesiredPosition() || controlSystem.hasNote();
             case DRIVE_ROTATION:
                 return matchesRotation(mDesiredWaypoint.getPosition().z);
             case DRIVE_TRAJECTORY:
-                mDesiredPosition = mDesiredTrajectory.getEndState().getTargetHolonomicPose();
                 return matchesPosition(mDesiredTrajectory.getEndState().getTargetHolonomicPose())
                         && (currentTime >= mDesiredTrajectory.getTotalTimeSeconds());
+            case DRIVE_TRAJECTORY_NOTE:
+                return (matchesPosition(mDesiredTrajectory.getEndState().getTargetHolonomicPose())
+                        && (currentTime >= mDesiredTrajectory.getTotalTimeSeconds())) || controlSystem.hasNote();
             case DRIVE_MANUAL:
                 return true;
             default:
@@ -353,6 +355,8 @@ public class DriveSystem extends Subsystem {
         mTrajectoryController = new HolonomicDriveController(xTrajectoryController, yTrajectoryController,
                 rotTrajectoryController);
 
+        mDesiredPosition = mDesiredTrajectory.getEndState().getDifferentialPose();
+
         mXController.reset();
         mYController.reset();
         mRotController.reset(getRobotAngle().getRadians());
@@ -402,6 +406,8 @@ public class DriveSystem extends Subsystem {
 
             driveWithChassisSpeeds(speed);
         } else if (Limelight.getTX(ConfigMap.NOTE_LIMELIGHT) != 0.0) {
+            Logger.recordOutput("DriveSystem/DetectedNote", true);
+
             Pose2d pose = mDesiredTrajectory.getEndState().getTargetHolonomicPose();
             double x = (pose.getX() * (ControlSystem.isRed() ? -1 : 1))
                     + (ControlSystem.isRed() ? EEGeometryUtil.FIELD_LENGTH : 0);
@@ -411,9 +417,9 @@ public class DriveSystem extends Subsystem {
             Rotation2d rot2D = EEGeometryUtil.normalizeAngle(new Rotation2d(rot));
             setWaypoint(new WaypointHolder(x, y, rot2D.getRadians(), AutoStep.DEFAULT_SPEED));
             setDesiredState(DriveSystemState.DRIVE_NOTE);
+        } else {
+            Logger.recordOutput("DriveSystem/DetectedNote", false);
         }
-
-        
     }
 
     public void setRotation(double rotationRads) {

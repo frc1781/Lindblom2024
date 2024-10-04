@@ -239,10 +239,7 @@ public class Scollector extends Subsystem {
     public boolean shooterAtSpeed() {
         double leftSpeed = mBottomShooterMotor.getEncoder().getVelocity();
         double rightSpeed = mTopShooterMotor.getEncoder().getVelocity();
-        double leftDiff = Math.abs(leftSpeed - ConfigMap.MAX_SHOOTER_SPEED);
-        double rightDiff = Math.abs(rightSpeed - ConfigMap.MAX_SHOOTER_SPEED);
         double point = ConfigMap.MAX_SHOOTER_SPEED - 1;
-        final double TOLERANCE = 0.1;
 
         return leftSpeed >= point && rightSpeed >= point;
 
@@ -251,10 +248,7 @@ public class Scollector extends Subsystem {
     public boolean shooterAtSpeed(double speed) {
         double leftSpeed = mBottomShooterMotor.getEncoder().getVelocity();
         double rightSpeed = mTopShooterMotor.getEncoder().getVelocity();
-        double leftDiff = Math.abs(leftSpeed - ConfigMap.MAX_SHOOTER_SPEED);
-        double rightDiff = Math.abs(rightSpeed - ConfigMap.MAX_SHOOTER_SPEED);
         double point = speed;
-        final double TOLERANCE = 0.1;
 
         return leftSpeed >= point && rightSpeed >= point;
 

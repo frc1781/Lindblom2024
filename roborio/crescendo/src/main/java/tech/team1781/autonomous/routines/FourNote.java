@@ -28,11 +28,11 @@ public class FourNote implements AutoRoutine {
         return new AutoStep[] {
                 new AutoStep(6, Action.SHOOT_SUBWOOFER_NO_AIM),
                 new AutoStep(5, Action.COLLECT_RAMP, Paths.getPathFromName("p2;n2")),
-                new AutoStep(2, Action.SHOOT_NOTE_TWO),
+                new AutoStep(5, Action.SHOOT_NOTE_TWO),
                 new AutoStep(5, Action.COLLECT_RAMP, Paths.getPathFromName("n2;n3")),
-                new AutoStep(2, Action.SHOOT_NOTE_THREE),
+                new AutoStep(5, Action.SHOOT_NOTE_THREE),
                 new AutoStep(5, Action.COLLECT_RAMP, Paths.getPathFromName("n3;n1")),
-                new AutoStep(2, Action.SHOOT_NOTE_ONE)
+                new AutoStep(5, Action.SHOOT_NOTE_ONE)
         };
     }
 
