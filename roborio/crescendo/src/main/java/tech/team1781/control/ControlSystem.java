@@ -95,7 +95,9 @@ public class ControlSystem {
         SHOOT_SUBWOOFER_NO_AIM,
         REJECT_NOTE,
         COLLECT_RAMP_STAY_DOWN,
-        COLLECT_SEEK
+        COLLECT_SEEK,
+        WAIT,
+        LOB
     }
 
     public ControlSystem(AutonomousHandler aHandler) {
@@ -419,6 +421,11 @@ public class ControlSystem {
             return mScollector.hasNote() || mScollector.noteCloseToShooter();
         }
 
+        if (mDriveSystem.getState() == DriveSystemState.DRIVE_MANUAL && mCurrentAction == Action.WAIT) {
+            //should allow for the timer for run out
+            return false;
+        }
+
         return !isRunningAction() && mDriveSystem.matchesDesiredState();
     }
 
@@ -706,6 +713,8 @@ public class ControlSystem {
                 new SubsystemManager(mDriveSystem, DriveSystemState.DRIVE_TRAJECTORY_NOTE)
         );
 
+        defineAction(Action.WAIT,
+                new SubsystemManager(mDriveSystem, DriveSystemState.DRIVE_MANUAL));
     }
 
     private void defineAction(Action action, SubsystemManager... settings) {

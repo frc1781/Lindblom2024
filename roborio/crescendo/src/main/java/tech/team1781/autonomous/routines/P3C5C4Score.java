@@ -24,11 +24,6 @@ public class P3C5C4Score implements AutoRoutine {
                 new AutoStep(5,Action.COLLECT_RAMP,Paths.getPathFromName("shoot;c4")),
                 new AutoStep(5, Paths.getPathFromName("c4;shoot")),
                 new AutoStep(3, Action.SHOOT_FAR),
-                
-
-                // new AutoStep(1.4, EVector.positionWithDegrees(2.2, 0.8, 45)),
-                
-                        // Positions.P3.withX(Positions.P3.x + 0.5).withY(Positions.P3.y + 0.3)),
         };
     }
 

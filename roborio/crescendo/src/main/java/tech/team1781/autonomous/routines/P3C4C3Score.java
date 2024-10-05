@@ -29,10 +29,6 @@ public class P3C4C3Score implements AutoRoutine {
                 new AutoStep(1.4, Action.COLLECT_RAMP_STAY_DOWN,EVector.positionWithDegrees(6.3, 1.0, 45)),
                 new AutoStep(1.4, Action.COLLECT_RAMP_STAY_DOWN,EVector.positionWithDegrees(7.5, 4.0, 45)),
                 new AutoStep(5, Action.COLLECT_RAMP, Positions.C3.withZ(Math.toRadians(45)), true),
-
-                // new AutoStep(1.4, EVector.positionWithDegrees(2.2, 0.8, 45)),
-                
-                        // Positions.P3.withX(Positions.P3.x + 0.5).withY(Positions.P3.y + 0.3)),
         };
     }
 

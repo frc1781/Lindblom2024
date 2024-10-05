@@ -18,9 +18,8 @@ public class P1WaitLeave implements AutoRoutine{
     public AutoStep[] getSteps() {
         return new AutoStep[] {
                 new AutoStep(6, Action.SHOOT_SUBWOOFER),
-                new AutoStep(5,Action.COLLECT_RAMP, Paths.getPathFromName("p1;c1")),
-                new AutoStep(5,Action.COLLECT_RAMP, Paths.getPathFromName("c1;shootAmpSide")),
-                new AutoStep(2, Action.SHOOT_FAR),
+                new AutoStep(5, Action.WAIT),
+                new AutoStep(10, Paths.getPathFromName("p1;leave"))
         };
     }
     

@@ -9,17 +9,6 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-import org.littletonrobotics.junction.LoggedRobot;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.NT4Publisher;
-import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-
-import org.littletonrobotics.junction.LoggedRobot;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.NT4Publisher;
-import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import tech.team1781.ConfigMap;
 import edu.wpi.first.wpilibj.Compressor;
@@ -34,8 +23,6 @@ import tech.team1781.subsystems.Subsystem.OperatingMode;
 
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
-
-import java.sql.Driver;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -87,20 +74,20 @@ public class Robot extends LoggedRobot {
     mCompressor.enableDigital();
 
     mAutonomousHandler = new AutonomousHandler(
-        new P1N1Subwoofer(),
-        new P2N2Subwoofer(),
-        new P3N3Subwoofer(),
-        new P1N1N2Subwoofer(),
-        new P1N1C1Subwoofer(),
+        new P1N1(),
+        new P2N2(),
+        new P3N3(),
+        new P1N1N2(),
+        new P1N1C1Close(),
         new P2N2C2Subwoofer(),
-        new P3N3C5Subwoofer(),
+        new P3N3C5Close(),
         new P3Leave(),
         new P1WaitLeave(),
         new P2N2N3Subwoofer(),
         new P2N2N1Subwoofer(),
         new Hockey(),
-        new P1N1C1ThreeNote(),
-        new FourNote(),
+        new P1N1C1Far(),
+        new P2FourNote(),
         new P3C5N3(),
         new P3C5C4(),
         new P3C4C3(),
