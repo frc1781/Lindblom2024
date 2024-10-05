@@ -90,7 +90,7 @@ public class LEDs extends Subsystem {
 
     @Override
     public void disabledPeriodic() {
-        vwoop(0,0,255);
+        rainbow();
         mLedController.setData(mLedBuffer);
     }
 
