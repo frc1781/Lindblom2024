@@ -1,23 +1,14 @@
 package tech.team1781.autonomous;
 
 import com.pathplanner.lib.path.PathPlannerPath;
-import org.littletonrobotics.junction.Logger;
-
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.util.concurrent.Event;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import org.littletonrobotics.junction.Logger;
 import tech.team1781.ConfigMap;
 import tech.team1781.control.ControlSystem;
-import tech.team1781.subsystems.Subsystem;
 
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 
 public class AutonomousHandler {

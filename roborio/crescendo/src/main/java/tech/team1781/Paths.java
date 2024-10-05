@@ -1,12 +1,10 @@
 package tech.team1781;
 
-import java.nio.file.Path;
-import java.util.HashMap;
-
 import com.pathplanner.lib.path.PathPlannerPath;
-
 import tech.team1781.autonomous.AutonomousBuilder;
 import tech.team1781.control.ControlSystem;
+
+import java.util.HashMap;
 
 public class Paths {
 

@@ -1,14 +1,13 @@
 package tech.team1781;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.simulation.XboxControllerSim;
 import tech.team1781.utils.EVector;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 
 public class DriverInput {
 

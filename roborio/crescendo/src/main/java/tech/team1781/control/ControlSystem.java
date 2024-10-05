@@ -1,25 +1,19 @@
 package tech.team1781.control;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Stack;
-
-import org.littletonrobotics.junction.Logger;
-
-import com.pathplanner.lib.path.PathPlannerPath;
-
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
+import org.littletonrobotics.junction.Logger;
 import tech.team1781.ConfigMap;
+import tech.team1781.DriverInput;
 import tech.team1781.DriverInput.ControllerSide;
+import tech.team1781.ShuffleboardStyle;
 import tech.team1781.autonomous.AutoStep;
 import tech.team1781.autonomous.AutonomousHandler;
 import tech.team1781.autonomous.AutonomousHandler.AutoRoutine;
@@ -27,14 +21,16 @@ import tech.team1781.autonomous.AutonomousHandler.NoAutoRoutineException;
 import tech.team1781.subsystems.*;
 import tech.team1781.subsystems.Arm.ArmState;
 import tech.team1781.subsystems.DriveSystem.DriveSystemState;
+import tech.team1781.subsystems.LEDs.LedState;
 import tech.team1781.subsystems.Scollector.ScollectorState;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
 import tech.team1781.subsystems.Subsystem.SubsystemState;
-import tech.team1781.subsystems.LEDs.LedState;
 import tech.team1781.utils.EVector;
-import tech.team1781.DriverInput;
-import tech.team1781.ShuffleboardStyle;
 import tech.team1781.utils.Limelight;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Stack;
 
 public class ControlSystem {
     private HashMap<Action, SubsystemManager[]> mActions = new HashMap<Action, SubsystemManager[]>();

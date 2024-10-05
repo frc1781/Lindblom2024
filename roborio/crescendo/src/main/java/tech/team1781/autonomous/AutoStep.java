@@ -1,9 +1,6 @@
 package tech.team1781.autonomous;
 
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.path.PathPlannerTrajectory;
-
-import tech.team1781.ConfigMap;
 import tech.team1781.control.ControlSystem.Action;
 import tech.team1781.utils.EVector;
 

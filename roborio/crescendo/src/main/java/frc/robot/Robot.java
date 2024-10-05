@@ -4,25 +4,19 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import tech.team1781.ConfigMap;
-import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
 import tech.team1781.DriverInput;
 import tech.team1781.autonomous.AutonomousHandler;
 import tech.team1781.autonomous.RoutineOverException;
 import tech.team1781.autonomous.routines.*;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.subsystems.Subsystem.OperatingMode;
-
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.PowerDistribution;
 
 /**
  * The VM is configured to automatically run this class, and to call the

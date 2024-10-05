@@ -1,22 +1,18 @@
 package tech.team1781.autonomous;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-
-import org.littletonrobotics.junction.Logger;
-
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.GenericEntry;
-import tech.team1781.ConfigMap;
+import org.littletonrobotics.junction.Logger;
 import tech.team1781.Paths;
 import tech.team1781.Paths.AutonomousPosition;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.control.ControlSystem.Action;
-import tech.team1781.utils.EVector;
+
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 
 public class AutonomousBuilder {
 
