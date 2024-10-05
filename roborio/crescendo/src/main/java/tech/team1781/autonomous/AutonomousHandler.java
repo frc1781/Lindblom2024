@@ -55,11 +55,11 @@ public class AutonomousHandler {
     }
 
     public void checkSelectedRoutine() {
-        if (mAutoChooser.getSelected() == null) return;
-
         boolean currentAlliance = ControlSystem.isRed();
+        AutoRoutine chosenRoutine = mAutoChooser.getSelected();
+        Logger.recordOutput("Autonomous/ChosenRoutine", chosenRoutine.getName());
 
-        if (mSelectedRoutine != mAutoChooser.getSelected() || pathsGeneratedForRed != currentAlliance) {
+        if (mSelectedRoutine != chosenRoutine || pathsGeneratedForRed != currentAlliance) {
             mTimer.reset();
             mStepIndex = 0;
             mSelectedRoutine = mAutoChooser.getSelected();
@@ -67,7 +67,7 @@ public class AutonomousHandler {
             sampledStep = mSelectedRoutine.getSteps()[0];
 
             pathsGeneratedForRed = currentAlliance;
-            Logger.recordOutput("Autonomous/ChosenRoutine", mSelectedRoutine.getName());
+            Logger.recordOutput("Autonomous/Routine", mSelectedRoutine.getName());
             System.out.println("Cached currently selected routine");
         }
     }
@@ -83,6 +83,7 @@ public class AutonomousHandler {
             mSelectedRoutine = mAutoChooser.getSelected();
             mSampledSteps = mSelectedRoutine.getSteps();
             sampledStep = mSelectedRoutine.getSteps()[0];
+            System.out.println("Cached Routine not valid, reloading...");
         }
 
         Logger.recordOutput("Autonomous/Routine",  mSelectedRoutine.getName());
@@ -159,7 +160,7 @@ public class AutonomousHandler {
     public class NoAutoRoutineException extends Exception {
         @Override 
         public void printStackTrace() {
-         System.out.printf("The routine was null or invalid. We should wait till we being auto.");
+         System.out.printf("The routine was null or invalid. We should wait till we start auto.");
         }
     }
 

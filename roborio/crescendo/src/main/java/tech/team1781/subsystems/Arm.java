@@ -60,7 +60,7 @@ public class Arm extends Subsystem {
     private IdleMode mIdleMode;
 
     public Arm() {
-        super("Arm", ArmState.KICKSTAND);
+        super("Arm", ArmState.SAFE);
         mRightMotor = new CANSparkMax(
                 ConfigMap.ARM_PIVOT_RIGHT_MOTOR,
                 CANSparkMax.MotorType.kBrushless);

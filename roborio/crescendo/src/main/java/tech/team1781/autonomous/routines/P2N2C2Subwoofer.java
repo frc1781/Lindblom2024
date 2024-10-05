@@ -21,7 +21,7 @@ public class P2N2C2Subwoofer implements AutoRoutine{
             new AutoStep(5, Action.COLLECT_RAMP, Paths.getPathFromName("p2;n2")),
             new AutoStep(2, Action.SHOOT_NOTE_TWO),
             new AutoStep(5, Action.COLLECT_RAMP, Paths.getPathFromName("n2;c2")),
-            new AutoStep(5, Action.COLLECT_RAMP, Paths.getPathFromName("c2;n2")),
+            new AutoStep(5, Action.RAMP_SHOOTER, Paths.getPathFromName("c2;n2")),
             new AutoStep(5, Action.SHOOT_NOTE_TWO),
         };
     }
