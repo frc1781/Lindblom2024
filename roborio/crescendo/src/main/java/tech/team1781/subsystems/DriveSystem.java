@@ -378,34 +378,17 @@ public class DriveSystem extends Subsystem {
             trajectoryTimer.stop();
             trajectoryTimer.reset();
             return;
-        } else {
-            trajectoryTimer.start();
-        }
-
-        ChassisSpeeds speed;
-
-        double distanceFromEndPose = getRobotPose().getTranslation().getDistance(mDesiredPosition.getTranslation());
-
-        final double END_DIST_TOLERANCE = 0.1; // in meters
-
-        if (getState() != DriveSystemState.DRIVE_TRAJECTORY_NOTE ||
-                distanceFromEndPose > END_DIST_TOLERANCE) {
-            PathPlannerTrajectory.State pathplannerState = mDesiredTrajectory.sample(trajectoryTimer.get());
-
+        } 
         
-            Pose2d targetPose = new Pose2d(pathplannerState.positionMeters, pathplannerState.heading);
-            Rotation2d targetOrientation = EEGeometryUtil
-                    .normalizeAngle(pathplannerState.getTargetHolonomicPose().getRotation());
-            speed = mTrajectoryController.calculate(
-                    getRobotPose(),
-                    targetPose,
-                    pathplannerState.velocityMps,
-                    targetOrientation);
-
-                    Logger.recordOutput("DriveSystem/TargetTrajectory", targetPose);
-
-            driveWithChassisSpeeds(speed);
-        } else if (Limelight.getTX(ConfigMap.NOTE_LIMELIGHT) != 0.0) {
+        trajectoryTimer.start();
+        
+        double distanceFromEndPose = getRobotPose().getTranslation().getDistance(mDesiredPosition.getTranslation());
+        final double END_DIST_TOLERANCE = 1.5; // in meters when we start seeking a note
+       
+        //If DRIVING TO A NOTE SEE IF WE CAN SEE IT NOW AND SWITCH TO A TRAJECTORY
+        if (getState() == DriveSystemState.DRIVE_TRAJECTORY_NOTE && 
+            distanceFromEndPose < END_DIST_TOLERANCE && 
+            Limelight.getTX(ConfigMap.NOTE_LIMELIGHT) != 0.0) {
             Logger.recordOutput("DriveSystem/DetectedNote", true);
 
             Pose2d pose = mDesiredTrajectory.getEndState().getTargetHolonomicPose();
@@ -417,9 +400,21 @@ public class DriveSystem extends Subsystem {
             Rotation2d rot2D = EEGeometryUtil.normalizeAngle(new Rotation2d(rot));
             setWaypoint(new WaypointHolder(x, y, rot2D.getRadians(), AutoStep.DEFAULT_SPEED));
             setDesiredState(DriveSystemState.DRIVE_NOTE);
-        } else {
-            Logger.recordOutput("DriveSystem/DetectedNote", false);
-        }
+            return;
+        } 
+
+        //CONVERSION OF A pathPlannerState INTO desiredChassisSpeeds at a given time in the trajectory
+        PathPlannerTrajectory.State pathplannerState = mDesiredTrajectory.sample(trajectoryTimer.get());
+        Pose2d targetPose = new Pose2d(pathplannerState.positionMeters, pathplannerState.heading);
+        Rotation2d targetOrientation = EEGeometryUtil.normalizeAngle(pathplannerState.getTargetHolonomicPose().getRotation());
+        ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(
+                getRobotPose(),
+                targetPose,
+                pathplannerState.velocityMps,
+                targetOrientation);
+                Logger.recordOutput("DriveSystem/TargetTrajectory", targetPose);
+
+        driveWithChassisSpeeds(desiredChassisSpeeds);
     }
 
     public void setRotation(double rotationRads) {
