@@ -384,22 +384,14 @@ public class DriveSystem extends Subsystem {
         
         double distanceFromEndPose = getRobotPose().getTranslation().getDistance(mDesiredPosition.getTranslation());
         final double END_DIST_TOLERANCE = 1.5; // in meters when we start seeking a note
+        final double seenNoteOffset = Limelight.getTX(ConfigMap.NOTE_LIMELIGHT); // if 0.0 then no note seen
        
-        //If DRIVING TO A NOTE SEE IF WE CAN SEE IT NOW AND SWITCH TO A TRAJECTORY
-        if (getState() == DriveSystemState.DRIVE_TRAJECTORY_NOTE && 
-            distanceFromEndPose < END_DIST_TOLERANCE && 
-            Limelight.getTX(ConfigMap.NOTE_LIMELIGHT) != 0.0) {
-            Logger.recordOutput("DriveSystem/DetectedNote", true);
-
-            Pose2d pose = mDesiredTrajectory.getEndState().getTargetHolonomicPose();
-            double x = (pose.getX() * (ControlSystem.isRed() ? -1 : 1))
-                    + (ControlSystem.isRed() ? EEGeometryUtil.FIELD_LENGTH : 0);
-            double y = pose.getY();
-            double rot = ControlSystem.isRed() ? (-pose.getRotation().getRadians()) + Math.PI
-                    : pose.getRotation().getRadians();
-            Rotation2d rot2D = EEGeometryUtil.normalizeAngle(new Rotation2d(rot));
-            setWaypoint(new WaypointHolder(x, y, rot2D.getRadians(), AutoStep.DEFAULT_SPEED));
+        //If DRIVING TO A NOTE SEE IF WE CAN SEE IT NOW AND SWITCH TO A NEW TRAJECTORY (waypoint)
+        if (getState() == DriveSystemState.DRIVE_TRAJECTORY_NOTE && distanceFromEndPose < END_DIST_TOLERANCE && seenNoteOffset != 0.0) {
+            Pose2d originalTargetPose = mDesiredTrajectory.getEndState().getTargetHolonomicPose();
+            setWaypoint(createWayPointToSeenNote(seenNoteOffset, originalTargetPose));
             setDesiredState(DriveSystemState.DRIVE_NOTE);
+            Logger.recordOutput("DriveSystem/DetectedNote", true);
             return;
         } 
 
@@ -415,6 +407,15 @@ public class DriveSystem extends Subsystem {
                 Logger.recordOutput("DriveSystem/TargetTrajectory", targetPose);
 
         driveWithChassisSpeeds(desiredChassisSpeeds);
+    }
+
+    private WaypointHolder createWayPointToSeenNote(double noteOffset, Pose2d originalTargetPose) {
+        double distanceFromNote = getRobotPose().getTranslation().getDistance(originalTargetPose.getTranslation());
+        //ASSUMING WE ARE FACING ALMOST 0 OR 180 ON THE FIELD GOING FOR A NOTE
+        double targetY = originalTargetPose.getY();
+        double targetX = originalTargetPose.getX();
+        Rotation2d targetRotation = originalTargetPose.getRotation();
+        return new WaypointHolder(targetX, targetY, targetRotation.getRadians(), AutoStep.DEFAULT_SPEED);
     }
 
     public void setRotation(double rotationRads) {
