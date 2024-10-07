@@ -279,14 +279,10 @@ public class DriveSystem extends Subsystem {
     }
 
     public void goToWaypoint() {
-        double xObservedNoteAngle;
-        double currentAngle;
-
-        if (mDesiredWaypoint == null) {
+          if (mDesiredWaypoint == null) {
             return;
         }
 
-        EVector currentPoseVector = EVector.fromPose(getRobotPose());
         EVector desiredWaypointPosition = mDesiredWaypoint.getPosition();
         double rotation = desiredWaypointPosition.z;
 
@@ -295,38 +291,6 @@ public class DriveSystem extends Subsystem {
                 desiredWaypointPosition.toPose2d(),
                 mDesiredWaypoint.getSpeedMetersPerSecond(),
                 new Rotation2d(rotation));
-
-        if (getState() == DriveSystemState.DRIVE_NOTE) {
-            final double DISTANCE_TOLERANCE = 3;
-            final double ANGLE_TOLERANCE = 0.1;
-            double dist = currentPoseVector.withZ(0)
-                    .dist(
-                            desiredWaypointPosition.withZ(0));
-
-            if (dist <= DISTANCE_TOLERANCE) {
-
-                xObservedNoteAngle = Math.toRadians(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT));
-                if (xObservedNoteAngle != 0.0) {
-                    currentAngle = getRobotAngle().getRadians();
-                    if (Math.abs(xObservedNoteAngle) > ANGLE_TOLERANCE) {
-                        desiredChassisSpeeds.omegaRadiansPerSecond = mNoteAimController.calculate(xObservedNoteAngle,
-                                0);
-                        System.out.println("rot rps: " + desiredChassisSpeeds.omegaRadiansPerSecond);
-                        mDesiredWaypoint.changeRotation(currentAngle);
-                        // } else {
-                        System.out.println("drinvg towards note");
-                        mDesiredWaypoint.changeX(
-                                Math.cos(currentAngle) * dist
-                                        + currentPoseVector.x);
-                        mDesiredWaypoint.changeY(
-                                Math.sin(currentAngle) * dist
-                                        + currentPoseVector.y);
-                    }
-                }
-
-            }
-
-        }
 
         driveWithChassisSpeeds(desiredChassisSpeeds);
     }
@@ -410,11 +374,12 @@ public class DriveSystem extends Subsystem {
     }
 
     private WaypointHolder createWayPointToSeenNote(double noteOffset, Pose2d originalTargetPose) {
+        Rotation2d rotToNote = Rotation2d.fromDegrees(noteOffset);
         double distanceFromNote = getRobotPose().getTranslation().getDistance(originalTargetPose.getTranslation());
-        //ASSUMING WE ARE FACING ALMOST 0 OR 180 ON THE FIELD GOING FOR A NOTE
-        double targetY = originalTargetPose.getY();
+        //ASSUMING WE ARE FACING ALMOST 0 OR 180 ON THE FIELD GOING FOR A NOTE, ADJUST Y coordinate of targetPose
+        double targetY = originalTargetPose.getY() - Math.tan(rotToNote.getRadians())*distanceFromNote * Math.cos(originalTargetPose.getRotation().getRadians());
         double targetX = originalTargetPose.getX();
-        Rotation2d targetRotation = originalTargetPose.getRotation();
+        Rotation2d targetRotation = originalTargetPose.getRotation().minus(rotToNote);
         return new WaypointHolder(targetX, targetY, targetRotation.getRadians(), AutoStep.DEFAULT_SPEED);
     }
 
