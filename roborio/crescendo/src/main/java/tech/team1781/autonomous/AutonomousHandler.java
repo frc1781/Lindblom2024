@@ -48,6 +48,8 @@ public class AutonomousHandler {
     public void checkSelectedRoutine() {
         boolean currentAlliance = ControlSystem.isRed();
         AutoRoutine chosenRoutine = mAutoChooser.getSelected();
+        if (chosenRoutine == null) return;
+
         Logger.recordOutput("Autonomous/ChosenRoutine", chosenRoutine.getName());
 
         if (mSelectedRoutine != chosenRoutine || pathsGeneratedForRed != currentAlliance) {

@@ -82,7 +82,7 @@ public class Robot extends LoggedRobot {
         new Hockey(),
         new P1N1C1Far(),
         new P2FourNote(),
-        new P3C5N3(),
+        new P3C5(),
         new P3C5C4(),
         new P3C4C3(),
         new P3C5C4Score(),

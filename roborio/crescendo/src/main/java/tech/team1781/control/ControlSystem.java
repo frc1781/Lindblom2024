@@ -43,6 +43,8 @@ public class ControlSystem {
     private Arm mArm;
     private LEDs mLEDs;
 
+    private Action mCurrentAction;
+
     private OperatingMode mCurrentOperatingMode;
 
     private AutonomousHandler autonomousHandler;
@@ -69,7 +71,6 @@ public class ControlSystem {
             false, ShuffleboardStyle.SEES_APRILTAG);
     private HashMap<Number, Pose2d> aprilTagCoords = new HashMap<>();
 
-    private Action mCurrentAction = null;
     private SeekNoteState mCurrentSeekNoteState = SeekNoteState.SEEKING;
     private Timer mSeekTimer = new Timer();
 
@@ -403,6 +404,10 @@ public class ControlSystem {
             mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
         }
 
+    }
+
+    public Action getCurrentAction() {
+        return mCurrentAction;
     }
 
     public boolean stepIsFinished() {

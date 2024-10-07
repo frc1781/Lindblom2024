@@ -178,8 +178,8 @@ public class Scollector extends Subsystem {
                 driveMotors();
                 break;
             case RAMP_SHOOT:
-                if (mArmInPosition && shooterAtSpeed()) {
-                    shoot();
+                if (mArmInPosition && shooterAtSpeed(5)) {
+                    this.setDesiredState(ScollectorState.SHOOT);
                 }
 
                 driveMotors();
