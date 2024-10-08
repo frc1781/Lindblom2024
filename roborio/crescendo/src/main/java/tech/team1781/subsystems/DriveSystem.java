@@ -367,6 +367,7 @@ public class DriveSystem extends Subsystem {
                 Logger.recordOutput("DriveSystem/TargetTrajectory", targetPose);
         
         if (getState() == DriveSystemState.DRIVE_TRAJECTORY_NOTE && distanceFromEndPose < END_DIST_TOLERANCE && seesNote) {
+            controlSystem.LEDsSeesNote();
             final double kP = .1; //super low for testing
             int sideFlip = ControlSystem.isRed() ? -1 : 1;
             newYVelocity = seenNoteOffset * kP * sideFlip;

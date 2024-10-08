@@ -744,6 +744,10 @@ public class ControlSystem {
         return autonomousHandler.getStartPosition();
     }
 
+    public void LEDsSeesNote() {
+        mLEDs.setDesiredState(LedState.SEES_NOTE);
+    }
+
     private enum SeekNoteState {
         SEEKING,
         COLLECTING,
