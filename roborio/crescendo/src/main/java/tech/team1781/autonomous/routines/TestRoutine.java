@@ -16,6 +16,8 @@ public class TestRoutine implements AutoRoutine {
     public AutoStep[] getSteps() {  
         return new AutoStep[] {
             new AutoStep(10, Action.COLLECT_RAMP, Paths.getPathFromName("tpath"), true),
+            new AutoStep(10, Action.RAMP_SHOOTER, Paths.getPathFromName("tpathBack")),
+            new AutoStep(4, Action.SHOOT_SUBWOOFER_NO_AIM)
         };
     }
 

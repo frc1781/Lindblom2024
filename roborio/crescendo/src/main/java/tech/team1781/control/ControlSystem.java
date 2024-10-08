@@ -437,7 +437,7 @@ public class ControlSystem {
 
         switch (operatingMode) {
             case TELEOP:
-                Limelight.setPipeline(ConfigMap.NOTE_LIMELIGHT, ConfigMap.NOTE_LIMELIGHT_APRILTAG_PIPELINE);
+                //Limelight.setPipeline(ConfigMap.NOTE_LIMELIGHT, ConfigMap.NOTE_LIMELIGHT_APRILTAG_PIPELINE);
 
                 mSettingStack.clear();
                 mXDriveLimiter.reset(0);
@@ -446,7 +446,7 @@ public class ControlSystem {
                 mDriveSystem.setDesiredState(DriveSystem.DriveSystemState.DRIVE_MANUAL);
                 break;
             case AUTONOMOUS:
-                Limelight.setPipeline(ConfigMap.NOTE_LIMELIGHT, ConfigMap.NOTE_LIMELIGHT_NOTE_PIPELINE);
+                //Limelight.setPipeline(ConfigMap.NOTE_LIMELIGHT, ConfigMap.NOTE_LIMELIGHT_NOTE_PIPELINE);
                 break;
             default:
                 break;

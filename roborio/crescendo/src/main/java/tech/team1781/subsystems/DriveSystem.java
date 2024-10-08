@@ -268,6 +268,8 @@ public class DriveSystem extends Subsystem {
         mDesiredTrajectory = null;
         mIsManual = false;
 
+        Logger.recordOutput("DriveSystem/WaypointPose", mDesiredWaypoint.getPosition().toPose2d());
+
         mXController.reset();
         mYController.reset();
         mRotController.reset(getRobotAngle().getRadians());
@@ -279,7 +281,7 @@ public class DriveSystem extends Subsystem {
     }
 
     public void goToWaypoint() {
-          if (mDesiredWaypoint == null) {
+          if (mDesiredWaypoint == null || controlSystem.hasNote()) {
             return;
         }
 
@@ -312,7 +314,7 @@ public class DriveSystem extends Subsystem {
         PIDController yTrajectoryController;
         ProfiledPIDController rotTrajectoryController;
         xTrajectoryController = new PIDController(0.7, 0.0, 0.001);
-        yTrajectoryController = new PIDController(0.7, 0.0, 0.001);
+        yTrajectoryController = new PIDController(1.5, 0.0, 0.001);
         rotTrajectoryController = new ProfiledPIDController(5.0, 0.01, 0.01,
                 new TrapezoidProfile.Constraints(4.28, 8.14));
         rotTrajectoryController.enableContinuousInput(0, 2 * Math.PI);
@@ -343,21 +345,15 @@ public class DriveSystem extends Subsystem {
             trajectoryTimer.reset();
             return;
         } 
-        
         trajectoryTimer.start();
         
         double distanceFromEndPose = getRobotPose().getTranslation().getDistance(mDesiredPosition.getTranslation());
-        final double END_DIST_TOLERANCE = 1.5; // in meters when we start seeking a note
+        final double END_DIST_TOLERANCE = 2.5; // in meters when we start seeking a note
         final double seenNoteOffset = Limelight.getTX(ConfigMap.NOTE_LIMELIGHT); // if 0.0 then no note seen
-       
-        //If DRIVING TO A NOTE SEE IF WE CAN SEE IT NOW AND SWITCH TO A NEW TRAJECTORY (waypoint)
-        if (getState() == DriveSystemState.DRIVE_TRAJECTORY_NOTE && distanceFromEndPose < END_DIST_TOLERANCE && seenNoteOffset != 0.0) {
-            Pose2d originalTargetPose = mDesiredTrajectory.getEndState().getTargetHolonomicPose();
-            setWaypoint(createWayPointToSeenNote(seenNoteOffset, originalTargetPose));
-            setDesiredState(DriveSystemState.DRIVE_NOTE);
-            Logger.recordOutput("DriveSystem/DetectedNote", true);
-            return;
-        } 
+        final boolean seesNote = seenNoteOffset != 0.0;
+
+        double newYVelocity = 0.0;
+        Logger.recordOutput("DriveSystem/NoteOffest", seenNoteOffset);
 
         //CONVERSION OF A pathPlannerState INTO desiredChassisSpeeds at a given time in the trajectory
         PathPlannerTrajectory.State pathplannerState = mDesiredTrajectory.sample(trajectoryTimer.get());
@@ -369,13 +365,26 @@ public class DriveSystem extends Subsystem {
                 pathplannerState.velocityMps,
                 targetOrientation);
                 Logger.recordOutput("DriveSystem/TargetTrajectory", targetPose);
+        
+        if (getState() == DriveSystemState.DRIVE_TRAJECTORY_NOTE && distanceFromEndPose < END_DIST_TOLERANCE && seesNote) {
+            final double kP = .1; //super low for testing
+            int sideFlip = ControlSystem.isRed() ? -1 : 1;
+            newYVelocity = seenNoteOffset * kP * sideFlip;
+
+            Logger.recordOutput("DriveSystem/NoteRequestedVelocity", newYVelocity);
+            Logger.recordOutput("DriveSystem/DetectedNote", true);
+            desiredChassisSpeeds.vyMetersPerSecond = newYVelocity;
+        }
 
         driveWithChassisSpeeds(desiredChassisSpeeds);
     }
 
+    //waypoint solution
     private WaypointHolder createWayPointToSeenNote(double noteOffset, Pose2d originalTargetPose) {
         Rotation2d rotToNote = Rotation2d.fromDegrees(noteOffset);
         double distanceFromNote = getRobotPose().getTranslation().getDistance(originalTargetPose.getTranslation());
+        Logger.recordOutput("DriveSystem/SeenNoteOffset", noteOffset);
+        Logger.recordOutput("DriveSystem/DistanceFromNote", distanceFromNote);
         //ASSUMING WE ARE FACING ALMOST 0 OR 180 ON THE FIELD GOING FOR A NOTE, ADJUST Y coordinate of targetPose
         double targetY = originalTargetPose.getY() - Math.tan(rotToNote.getRadians())*distanceFromNote * Math.cos(originalTargetPose.getRotation().getRadians());
         double targetX = originalTargetPose.getX();
