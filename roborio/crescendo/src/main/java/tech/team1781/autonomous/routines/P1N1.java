@@ -18,7 +18,7 @@ public class P1N1 implements AutoRoutine {
             new AutoStep(6, Action.SHOOT_SUBWOOFER_NO_AIM),
             new AutoStep(5, Action.COLLECT_RAMP, Paths.getPathFromName("p1;n1")),
             new AutoStep(5, Paths.getPathFromName("n1;p1")),
-            new AutoStep(5, Action.SHOOT_SUBWOOFER_NO_AIM)
+            new AutoStep(5, Action.SHOOT_SUBWOOFER)
         };
     }
 

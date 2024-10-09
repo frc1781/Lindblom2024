@@ -315,8 +315,8 @@ public class DriveSystem extends Subsystem {
         ProfiledPIDController rotTrajectoryController;
         xTrajectoryController = new PIDController(0.7, 0.0, 0.001);
         yTrajectoryController = new PIDController(1.5, 0.0, 0.001);
-        rotTrajectoryController = new ProfiledPIDController(5.0, 0.01, 0.01,
-                new TrapezoidProfile.Constraints(4.28, 8.14));
+        rotTrajectoryController = new ProfiledPIDController(5.5, 0.01, 0.01,
+                new TrapezoidProfile.Constraints(6.28, 12.14));
         rotTrajectoryController.enableContinuousInput(0, 2 * Math.PI);
         mTrajectoryController = new HolonomicDriveController(xTrajectoryController, yTrajectoryController,
                 rotTrajectoryController);
@@ -326,7 +326,7 @@ public class DriveSystem extends Subsystem {
         mXController.reset();
         mYController.reset();
         mRotController.reset(getRobotAngle().getRadians());
-
+         
         trajectoryTimer = new Timer();
         trajectoryTimer.reset();
         if (mOdometryBeenSet) {
