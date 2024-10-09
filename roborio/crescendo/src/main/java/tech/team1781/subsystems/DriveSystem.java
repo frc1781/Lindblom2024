@@ -168,13 +168,6 @@ public class DriveSystem extends Subsystem {
             case DRIVE_ROTATION:
                 return matchesRotation(mDesiredWaypoint.getPosition().z);
             case DRIVE_TRAJECTORY:
-                ControlSystem.Action currentAction = controlSystem.getCurrentAction();
-
-                if (currentAction == ControlSystem.Action.COLLECT || currentAction == ControlSystem.Action.COLLECT_RAMP || currentAction == ControlSystem.Action.COLLECT_AUTO_SHOOT) {
-                    return (matchesPosition(mDesiredTrajectory.getEndState().getTargetHolonomicPose())
-                            && (currentTime >= mDesiredTrajectory.getTotalTimeSeconds())) || controlSystem.hasNote() ;
-                }
-
                 return matchesPosition(mDesiredTrajectory.getEndState().getTargetHolonomicPose())
                         && (currentTime >= mDesiredTrajectory.getTotalTimeSeconds());
             case DRIVE_TRAJECTORY_NOTE:
@@ -275,6 +268,8 @@ public class DriveSystem extends Subsystem {
         mDesiredTrajectory = null;
         mIsManual = false;
 
+        Logger.recordOutput("DriveSystem/WaypointPose", mDesiredWaypoint.getPosition().toPose2d());
+
         mXController.reset();
         mYController.reset();
         mRotController.reset(getRobotAngle().getRadians());
@@ -286,14 +281,10 @@ public class DriveSystem extends Subsystem {
     }
 
     public void goToWaypoint() {
-        double xObservedNoteAngle;
-        double currentAngle;
-
-        if (mDesiredWaypoint == null) {
+          if (mDesiredWaypoint == null || controlSystem.hasNote()) {
             return;
         }
 
-        EVector currentPoseVector = EVector.fromPose(getRobotPose());
         EVector desiredWaypointPosition = mDesiredWaypoint.getPosition();
         double rotation = desiredWaypointPosition.z;
 
@@ -302,38 +293,6 @@ public class DriveSystem extends Subsystem {
                 desiredWaypointPosition.toPose2d(),
                 mDesiredWaypoint.getSpeedMetersPerSecond(),
                 new Rotation2d(rotation));
-
-        if (getState() == DriveSystemState.DRIVE_NOTE) {
-            final double DISTANCE_TOLERANCE = 3;
-            final double ANGLE_TOLERANCE = 0.1;
-            double dist = currentPoseVector.withZ(0)
-                    .dist(
-                            desiredWaypointPosition.withZ(0));
-
-            if (dist <= DISTANCE_TOLERANCE) {
-
-                xObservedNoteAngle = Math.toRadians(Limelight.getTX(ConfigMap.NOTE_LIMELIGHT));
-                if (xObservedNoteAngle != 0.0) {
-                    currentAngle = getRobotAngle().getRadians();
-                    if (Math.abs(xObservedNoteAngle) > ANGLE_TOLERANCE) {
-                        desiredChassisSpeeds.omegaRadiansPerSecond = mNoteAimController.calculate(xObservedNoteAngle,
-                                0);
-                        System.out.println("rot rps: " + desiredChassisSpeeds.omegaRadiansPerSecond);
-                        mDesiredWaypoint.changeRotation(currentAngle);
-                        // } else {
-                        System.out.println("drinvg towards note");
-                        mDesiredWaypoint.changeX(
-                                Math.cos(currentAngle) * dist
-                                        + currentPoseVector.x);
-                        mDesiredWaypoint.changeY(
-                                Math.sin(currentAngle) * dist
-                                        + currentPoseVector.y);
-                    }
-                }
-
-            }
-
-        }
 
         driveWithChassisSpeeds(desiredChassisSpeeds);
     }
@@ -355,7 +314,7 @@ public class DriveSystem extends Subsystem {
         PIDController yTrajectoryController;
         ProfiledPIDController rotTrajectoryController;
         xTrajectoryController = new PIDController(0.7, 0.0, 0.001);
-        yTrajectoryController = new PIDController(0.7, 0.0, 0.001);
+        yTrajectoryController = new PIDController(1.5, 0.0, 0.001);
         rotTrajectoryController = new ProfiledPIDController(5.0, 0.01, 0.01,
                 new TrapezoidProfile.Constraints(4.28, 8.14));
         rotTrajectoryController.enableContinuousInput(0, 2 * Math.PI);
@@ -385,48 +344,53 @@ public class DriveSystem extends Subsystem {
             trajectoryTimer.stop();
             trajectoryTimer.reset();
             return;
-        } else {
-            trajectoryTimer.start();
-        }
-
-        ChassisSpeeds speed;
-
-        double distanceFromEndPose = getRobotPose().getTranslation().getDistance(mDesiredPosition.getTranslation());
-
-        final double END_DIST_TOLERANCE = 2; // in meters
-
-        if (getState() != DriveSystemState.DRIVE_TRAJECTORY_NOTE ||
-                Limelight.getTX(ConfigMap.NOTE_LIMELIGHT) == 0.0 ||
-                distanceFromEndPose > END_DIST_TOLERANCE) {
-            PathPlannerTrajectory.State pathplannerState = mDesiredTrajectory.sample(trajectoryTimer.get());
-
+        } 
+        trajectoryTimer.start();
         
-            Pose2d targetPose = new Pose2d(pathplannerState.positionMeters, pathplannerState.heading);
-            Rotation2d targetOrientation = EEGeometryUtil
-                    .normalizeAngle(pathplannerState.getTargetHolonomicPose().getRotation());
-            speed = mTrajectoryController.calculate(
-                    getRobotPose(),
-                    targetPose,
-                    pathplannerState.velocityMps,
-                    targetOrientation);
+        double distanceFromEndPose = getRobotPose().getTranslation().getDistance(mDesiredPosition.getTranslation());
+        final double END_DIST_TOLERANCE = 2.5; // in meters when we start seeking a note
+        final double seenNoteOffset = Limelight.getTX(ConfigMap.NOTE_LIMELIGHT); // if 0.0 then no note seen
+        final boolean seesNote = seenNoteOffset != 0.0;
 
-                    Logger.recordOutput("DriveSystem/TargetTrajectory", targetPose);
+        double newYVelocity = 0.0;
+        Logger.recordOutput("DriveSystem/NoteOffest", seenNoteOffset);
 
-            driveWithChassisSpeeds(speed);
-            Logger.recordOutput("DriveSystem/DetectedNote", false);
-        } else if (Limelight.getTX(ConfigMap.NOTE_LIMELIGHT) != 0.0) {
+        //CONVERSION OF A pathPlannerState INTO desiredChassisSpeeds at a given time in the trajectory
+        PathPlannerTrajectory.State pathplannerState = mDesiredTrajectory.sample(trajectoryTimer.get());
+        Pose2d targetPose = new Pose2d(pathplannerState.positionMeters, pathplannerState.heading);
+        Rotation2d targetOrientation = EEGeometryUtil.normalizeAngle(pathplannerState.getTargetHolonomicPose().getRotation());
+        ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(
+                getRobotPose(),
+                targetPose,
+                pathplannerState.velocityMps,
+                targetOrientation);
+                Logger.recordOutput("DriveSystem/TargetTrajectory", targetPose);
+        
+        if (getState() == DriveSystemState.DRIVE_TRAJECTORY_NOTE && distanceFromEndPose < END_DIST_TOLERANCE && seesNote) {
+            controlSystem.LEDsSeesNote();
+            final double kP = .1; //super low for testing
+            int sideFlip = ControlSystem.isRed() ? -1 : 1;
+            newYVelocity = seenNoteOffset * kP * sideFlip;
+
+            Logger.recordOutput("DriveSystem/NoteRequestedVelocity", newYVelocity);
             Logger.recordOutput("DriveSystem/DetectedNote", true);
-
-            Pose2d pose = mDesiredTrajectory.getEndState().getTargetHolonomicPose();
-            double x = (pose.getX() * (ControlSystem.isRed() ? -1 : 1))
-                    + (ControlSystem.isRed() ? EEGeometryUtil.FIELD_LENGTH : 0);
-            double y = pose.getY();
-            double rot = ControlSystem.isRed() ? (-pose.getRotation().getRadians()) + Math.PI
-                    : pose.getRotation().getRadians();
-            Rotation2d rot2D = EEGeometryUtil.normalizeAngle(new Rotation2d(rot));
-            setWaypoint(new WaypointHolder(x, y, rot2D.getRadians(), AutoStep.DEFAULT_SPEED));
-            setDesiredState(DriveSystemState.DRIVE_NOTE);
+            desiredChassisSpeeds.vyMetersPerSecond = newYVelocity;
         }
+
+        driveWithChassisSpeeds(desiredChassisSpeeds);
+    }
+
+    //waypoint solution
+    private WaypointHolder createWayPointToSeenNote(double noteOffset, Pose2d originalTargetPose) {
+        Rotation2d rotToNote = Rotation2d.fromDegrees(noteOffset);
+        double distanceFromNote = getRobotPose().getTranslation().getDistance(originalTargetPose.getTranslation());
+        Logger.recordOutput("DriveSystem/SeenNoteOffset", noteOffset);
+        Logger.recordOutput("DriveSystem/DistanceFromNote", distanceFromNote);
+        //ASSUMING WE ARE FACING ALMOST 0 OR 180 ON THE FIELD GOING FOR A NOTE, ADJUST Y coordinate of targetPose
+        double targetY = originalTargetPose.getY() - Math.tan(rotToNote.getRadians())*distanceFromNote * Math.cos(originalTargetPose.getRotation().getRadians());
+        double targetX = originalTargetPose.getX();
+        Rotation2d targetRotation = originalTargetPose.getRotation().minus(rotToNote);
+        return new WaypointHolder(targetX, targetY, targetRotation.getRadians(), AutoStep.DEFAULT_SPEED);
     }
 
     public void setRotation(double rotationRads) {

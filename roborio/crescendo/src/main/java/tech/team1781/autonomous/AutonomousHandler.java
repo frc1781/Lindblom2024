@@ -20,8 +20,6 @@ public class AutonomousHandler {
     private HashMap<Integer, PathPlannerPath> mPaths;
 
     private boolean pathsGeneratedForRed;
-
-
     private AutoStep sampledStep;
     private AutoStep[] mSampledSteps;
 

@@ -30,6 +30,7 @@ public class LEDs extends Subsystem {
         HAS_NOTE,
         BAD_ROLL,
         NO_NOTE,
+        SEES_NOTE,
         DEFAULT
     }
 
@@ -65,6 +66,9 @@ public class LEDs extends Subsystem {
                 break;
             case BAD_ROLL:
                 solid(0,0,255);
+                break;
+            case SEES_NOTE:
+                solid(0, 255, 255);
                 break;
             default:
                 rainbow();
