@@ -126,8 +126,6 @@ public class Robot extends LoggedRobot {
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SCORE_AMP, (isPressed) -> mControlSystem.setAmp(isPressed));
 
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SCORE_PODIUM, (isPressed) -> mControlSystem.shootPodium(isPressed));
-
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SHOOT, (isPressed) -> mControlSystem.setShooting(isPressed));
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.PREPARE_TO_SHOOT, (isPressed) -> mControlSystem.setPrepareToShoot(isPressed));
@@ -146,24 +144,8 @@ public class Robot extends LoggedRobot {
       }
     });
 
-    // mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT,
-    // ConfigMap.NOTE_COLLECTION, (isHeld) -> {
-    // mControlSystem.setAutoCollectionButton(isHeld);
-    // });
-
-    // mDriverInput.addClickListener(ConfigMap.DRIVER_CONTROLLER_PORT,
-    // ConfigMap.CALIBRATE_POSITION, (isPressed) -> {
-    // if (isPressed) {
-    // mControlSystem.calibratePosition();
-    // }
-    // });
-
     mDriverInput.addHoldListener(ConfigMap.DRIVER_CONTROLLER_PORT, ConfigMap.COLLECT_HIGH, (isPressed) -> {
       mControlSystem.setCollectHigh(isPressed);
-    });
-
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SCORE_AMP, (isPressed) -> {
-      mControlSystem.setAmp(isPressed);
     });
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SCORE_PODIUM, (isPressed) -> {
@@ -174,9 +156,7 @@ public class Robot extends LoggedRobot {
       mControlSystem.setCenteringOnAprilTag(isHeld);
     });
 
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.LOB, (isHeld) -> {
-      mControlSystem.lobNote(isHeld);
-    });}
+}
 
     
 

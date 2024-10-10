@@ -260,7 +260,6 @@ public class Scollector extends Subsystem {
 
     private void driveMotors() {
         double setpoint = ConfigMap.MAX_SHOOTER_SPEED;
-        System.out.println(mTopPID.getOutputMax());
         mTopPID.setReference(setpoint, ControlType.kVelocity);
         mBottomPID.setReference(setpoint, ControlType.kVelocity);
     }
