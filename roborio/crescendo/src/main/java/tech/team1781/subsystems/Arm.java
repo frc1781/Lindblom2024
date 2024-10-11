@@ -2,6 +2,9 @@ package tech.team1781.subsystems;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
+
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
@@ -24,7 +27,7 @@ import tech.team1781.ConfigMap;
 import tech.team1781.ShuffleboardStyle;
 import tech.team1781.control.ControlSystem;
 import tech.team1781.utils.EVector;
-import tech.team1781.utils.NetworkLogger;
+
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PowerDistribution;
 
@@ -35,18 +38,9 @@ public class Arm extends Subsystem {
     private CANSparkMax mRightMotor, mLeftMotor;
 
     private AbsoluteEncoder mArmAbsoluteEncoder;
-    private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.04, 0, 0,
+    private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.045, 0, 0,
             new TrapezoidProfile.Constraints(90, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
-
-    private GenericEntry mArmPositionEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Angle", -1,
-            ShuffleboardStyle.ARM_ANGLE);
-    private GenericEntry mSparkErrorEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Spark Max Errored",
-            false, ShuffleboardStyle.ARM_ERROR);
-    private GenericEntry mSparkDataNotSentEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "encoder",
-            false, ShuffleboardStyle.ARM_ERROR);
-    private GenericEntry mArmAimSpotEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Arm Aim Spot",
-            "N/A", ShuffleboardStyle.ARM_AIM_SPOT);
 
     private double mDesiredPosition = 0;
     private Pose2d mRobotPose;
@@ -56,8 +50,10 @@ public class Arm extends Subsystem {
     private double mPrevRecordedAngle = 0.0;
     private IdleMode mIdleMode;
 
+    private double armDutyCycle;
+
     public Arm() {
-        super("Arm", ArmState.KICKSTAND);
+        super("Arm", ArmState.SAFE);
         mRightMotor = new CANSparkMax(
                 ConfigMap.ARM_PIVOT_RIGHT_MOTOR,
                 CANSparkMax.MotorType.kBrushless);
@@ -77,12 +73,12 @@ public class Arm extends Subsystem {
         mRightMotor.setIdleMode(mIdleMode);
         mLeftMotor.setIdleMode(mIdleMode);
       
-        mRightMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 10);
+        mRightMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 10); //important for absoulte encoder to respond quicky
 
-        mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
-        mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
-        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 80);
-        mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, -10);
+        mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, false);
+        mLeftMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, false);
+       // mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, 80);
+       // mLeftMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, -10);
         mLeftMotor.burnFlash();
         mRightMotor.burnFlash();
 
@@ -102,8 +98,8 @@ public class Arm extends Subsystem {
 
 
 
-        NetworkLogger.initLog("Arm Matches State", true);
-        NetworkLogger.initLog("Raw Absolute Arm", 0.0);
+        Logger.recordOutput("Arm/MatchesState", true);
+        Logger.recordOutput("Arm/RawAbsoluteArm", 0.0);
     }
 
     public enum ArmState implements Subsystem.SubsystemState {
@@ -126,8 +122,13 @@ public class Arm extends Subsystem {
 
     @Override
     public void genericPeriodic() {
-        NetworkLogger.logData("Arm Matches State", matchesDesiredState());
-        NetworkLogger.logData("Raw Absolute Arm", getAngleAbsolute());
+       Logger.recordOutput("Arm/MatchesState", matchesDesiredState());
+        Logger.recordOutput("Arm/RawAbsoluteArm", getAngleAbsolute());
+        Logger.recordOutput("Arm/DesiredAngle", mDesiredPosition);
+        Logger.recordOutput("Arm/BottomLimitSwitch", mLeftMotor.getReverseLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen).isPressed());
+        Logger.recordOutput("Arm/TopLimitSwitch", mLeftMotor.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen).isPressed());
+        Logger.recordOutput("Arm/RequestedDutyCycle", armDutyCycle);
+        Logger.recordOutput("Arm/AcutalDutyCycle", mLeftMotor.get());
 
         // testEntry.setDouble(getAngleAbsolute());
         if (mArmAbsoluteEncoder.getPosition() < 10) {
@@ -136,10 +137,6 @@ public class Arm extends Subsystem {
             setIdleMode(IdleMode.kBrake);
         }
 
-
-        mArmAimSpotEntry.setString(mCurrentAimSpot.toString());
-
-        //dropped to ground, reset relative encoder only when going down.
         syncArm();
     }
 
@@ -164,20 +161,15 @@ public class Arm extends Subsystem {
         }
 
         double currentArmAngle = getAngle();
-        mArmPositionEntry.setDouble(currentArmAngle);
         if (currentArmAngle != 0.0) {
-            var armDutyCycle = mPositionPID.calculate(currentArmAngle, mDesiredPosition);
-            if (mSparkErrorEntry.getBoolean(false))
-                mSparkErrorEntry.setBoolean(false);
+            armDutyCycle = mPositionPID.calculate(currentArmAngle, mDesiredPosition);
 
             if (getState() == ArmState.COLLECT && getAngle() < 10.0) { // drop into position on ground
                 armDutyCycle = 0.0;
             }
 
             mLeftMotor.set(armDutyCycle);
-        } else {
-            mSparkErrorEntry.setBoolean(true);
-        }
+        } 
     }
 
     @Override
@@ -290,16 +282,16 @@ public class Arm extends Subsystem {
     }
 
     private boolean matchesPosition() {
-        return Math.abs(mArmAbsoluteEncoder.getPosition() - mDesiredPosition) < 1.5;
+        return Math.abs(getAngleAbsolute() - mDesiredPosition) < 1.85;
     }
 
     private enum CURRENT_AIM_SPOT {
         UNDEFEINED(0.0, EVector.newVector(), EVector.newVector(), 0.0),
         SUBWOOFER(35, ConfigMap.RED_SPEAKER_LOCATION, ConfigMap.BLUE_SPEAKER_LOCATION, 2.5), // Was 32.5
         PODIUM(50.0, ConfigMap.RED_PODIUM, ConfigMap.BLUE_PODIUM, 1), // Pos used to be 45
-        NOTE_3(53, EVector.newVector(14.5, 4.27), EVector.newVector(2.48, 4.27), 1), // was 42.4
-        NOTE_2(52, EVector.newVector(14.13, 5.53), EVector.newVector(2.48, 5.53), 0.5), // Was 50
-        NOTE_1(51, EVector.newVector(14.06, 6.74), EVector.newVector(2.48, 6.74), 0.5); // Was 50
+        NOTE_3(48, EVector.newVector(14.5, 4.27), EVector.newVector(2.48, 4.27), 1), // was 42.4
+        NOTE_2(48, EVector.newVector(14.13, 5.53), EVector.newVector(2.48, 5.53), 0.5), // Was 50
+        NOTE_1(48, EVector.newVector(14.06, 6.74), EVector.newVector(2.48, 6.74), 0.5); // Was 50
 
         private double position;
         private EVector redPosition;

@@ -2,6 +2,8 @@ package tech.team1781.subsystems;
 
 import java.util.ArrayList;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.playingwithfusion.TimeOfFlight;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkMax;
@@ -19,7 +21,7 @@ import tech.team1781.ConfigMap;
 import tech.team1781.ShuffleboardStyle;
 import tech.team1781.subsystems.LEDs.LedState;
 import tech.team1781.utils.EVector;
-import tech.team1781.utils.NetworkLogger;
+
 
 //EXAMPLE SUBSYSTEM, NOT FOR ACTUAL BOT
 public class Scollector extends Subsystem {
@@ -41,18 +43,7 @@ public class Scollector extends Subsystem {
 
     private TimeOfFlight mTopTof = new TimeOfFlight(ConfigMap.TOP_SCOLLECTOR_TOF);
     private TimeOfFlight mBottomTof = new TimeOfFlight(ConfigMap.BOTTOM_SCOLLECTOR_TOF);
-
-    private boolean mArmInPosition = false;
     private Timer mShooterTimer = new Timer();
-
-    private GenericEntry mTopShooterVelocity = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Top Velocity", 0,
-            ShuffleboardStyle.TOP_SHOOTER);
-    private GenericEntry mBottomShooterVelocity = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB,
-            "Bottom Velocity", 0, ShuffleboardStyle.BOTTOM_SHOOTER);
-    private GenericEntry mReadyToShootEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Ready To Shoot",
-            true, ShuffleboardStyle.READY_TO_SHOOT);
-    private GenericEntry mHasNoteEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Has Note", false,
-            ShuffleboardStyle.HAS_NOTE);
 
     public Scollector() {
         super("Scollector", ScollectorState.IDLE);
@@ -93,34 +84,36 @@ public class Scollector extends Subsystem {
         System.out.println("top motor faults: " + mTopShooterMotor.getFaults());
         System.out.println("top motor faults: " + mBottomShooterMotor.getFaults());
 
-        NetworkLogger.initLog("Scollector Matches State", true);
+        Logger.recordOutput("Scollector/MatchesState", true);
     }
 
     public enum ScollectorState implements SubsystemState {
         IDLE, COLLECT, SPIT, SHOOT, COLLECT_RAMP, COLLECT_AUTO_SHOOT, RAMP_SHOOTER, LOB, SHOOT_ASAP, COLLECT_RAMP_LOB,
-        COLLECT_AUTO_LOB
+        COLLECT_AUTO_LOB, RAMP_SHOOT
     }
 
     @Override
     public void genericPeriodic() {
-        NetworkLogger.logData("Scollector Matches State", matchesDesiredState());
-
-        mTopShooterVelocity.setDouble(mTopShooterMotor.getEncoder().getVelocity());
-        mBottomShooterVelocity.setDouble(mBottomShooterMotor.getEncoder().getVelocity());
-        mReadyToShootEntry.setBoolean(shooterAtSpeed());
-        mHasNoteEntry.setBoolean(hasNote());
+        Logger.recordOutput("Scollector/MatchesState", matchesDesiredState());
+        Logger.recordOutput("Scollector/HasNote", hasNote());
+        Logger.recordOutput("Scollector/NoteCloseToShooter", noteCloseToShooter());
+        Logger.recordOutput("Scollector/ShooterAtSpeed", shooterAtSpeed());
+        Logger.recordOutput("Scollector/TopShooterSpeedVelocity", mTopShooterMotor.getEncoder().getVelocity());
+        Logger.recordOutput("Scollector/BottomShooterSpeedVelocity", mBottomShooterMotor.getEncoder().getVelocity());
+        Logger.recordOutput("Scollector/CollectorMotorDutyCycle", mCollectorMotor.get());
+        Logger.recordOutput("Scollector/TopTOF", mTopTof.getRange());
+        Logger.recordOutput("Scollector/BottomTOF", mBottomTof.getRange());
+        Logger.recordOutput("Scollector/CollectorMotorCurrent", mCollectorMotor.getOutputCurrent());
     }
 
     @Override
     public void init() {
-        mArmInPosition = false;
         mShooterTimer.reset();
         mShooterTimer.stop();
     }
 
     @Override
     public void getToState() {
-
         switch ((ScollectorState) getState()) {
             case IDLE:
                 mCollectorMotor.set(0);
@@ -150,7 +143,7 @@ public class Scollector extends Subsystem {
             case COLLECT_AUTO_SHOOT:
                 if (!hasNote()) {
                     collect();
-                } else if (mArmInPosition && (noteCloseToShooter() || hasNote()) && shooterAtSpeed()) {
+                } else if (controlSystem.doesArmMatchState() && (noteCloseToShooter() || hasNote()) && shooterAtSpeed()) {
                     shoot();
                 } else {
                     mCollectorMotor.set(0);
@@ -159,30 +152,26 @@ public class Scollector extends Subsystem {
                 driveMotors();
                 break;
             case COLLECT_AUTO_LOB:
-                // if (!hasNote()) {
-                //     collect();
-                //     System.out.println("aaaaaaaaaaaa");
-                // } else if (mArmInPosition && (noteCloseToShooter() || hasNote()) && shooterAtSpeed(ConfigMap.MIN_SHOOTER_SPEED)) {
-                //     shoot();
-                //     System.out.println("bbbbbbbbbbbbb");
-                // } else {
-                //     mCollectorMotor.set(0);
-                //     System.out.println("cccccccccccccccccc: " + mArmInPosition + " :: " + noteCloseToShooter() + " :: " + hasNote() + " :: " + shooterAtSpeed(ConfigMap.MIN_SHOOTER_SPEED));
-                // }
-
                 driveMotors();
                 break;
             case RAMP_SHOOTER:
                 driveMotors();
-                mCollectorMotor.set(0);
+                    mCollectorMotor.set(0);
                 break;
             case LOB:
                 driveMotors(ConfigMap.MIN_SHOOTER_SPEED);
                 break;
             case SHOOT_ASAP:
-                if (mArmInPosition) {
-                    shoot();
-                } else {
+                if (controlSystem.doesArmMatchState()) {
+                    this.setDesiredState(ScollectorState.SHOOT);
+                }
+
+                driveMotors();
+                break;
+            case RAMP_SHOOT:
+                if (controlSystem.doesArmMatchState() && shooterAtSpeed(5)) {
+                    //System.out.println("SHOOT SHOOT SHOOT");
+                    this.setDesiredState(ScollectorState.SHOOT);
                 }
 
                 driveMotors();
@@ -200,11 +189,12 @@ public class Scollector extends Subsystem {
             case SPIT:
                 return mCollectorMotor.get() == -1;
             case COLLECT_RAMP:
-                return true;
+                return hasNote();
             case COLLECT_AUTO_LOB:
             case COLLECT_AUTO_SHOOT:
             case SHOOT:
             case LOB:
+            case RAMP_SHOOT:
             case SHOOT_ASAP:
                 return !hasNote() && !noteCloseToShooter();
             case RAMP_SHOOTER:
@@ -221,6 +211,19 @@ public class Scollector extends Subsystem {
     @Override
     public void teleopPeriodic() {
     }
+
+    @Override
+    public void setDesiredState(SubsystemState desiredState) {
+        if (desiredState == currentState) {
+           return;
+        }
+
+        mCollectorMotor.set(0);
+        System.out.println(desiredState);
+  
+        currentState = desiredState;
+        Logger.recordOutput(getName() + "/CurrentState", getState().toString());
+     }
 
     public boolean hasNote() {
         double range = mBottomTof.getRange();
@@ -241,10 +244,7 @@ public class Scollector extends Subsystem {
     public boolean shooterAtSpeed() {
         double leftSpeed = mBottomShooterMotor.getEncoder().getVelocity();
         double rightSpeed = mTopShooterMotor.getEncoder().getVelocity();
-        double leftDiff = Math.abs(leftSpeed - ConfigMap.MAX_SHOOTER_SPEED);
-        double rightDiff = Math.abs(rightSpeed - ConfigMap.MAX_SHOOTER_SPEED);
         double point = ConfigMap.MAX_SHOOTER_SPEED - 1;
-        final double TOLERANCE = 0.1;
 
         return leftSpeed >= point && rightSpeed >= point;
 
@@ -253,22 +253,14 @@ public class Scollector extends Subsystem {
     public boolean shooterAtSpeed(double speed) {
         double leftSpeed = mBottomShooterMotor.getEncoder().getVelocity();
         double rightSpeed = mTopShooterMotor.getEncoder().getVelocity();
-        double leftDiff = Math.abs(leftSpeed - ConfigMap.MAX_SHOOTER_SPEED);
-        double rightDiff = Math.abs(rightSpeed - ConfigMap.MAX_SHOOTER_SPEED);
         double point = speed;
-        final double TOLERANCE = 0.1;
 
         return leftSpeed >= point && rightSpeed >= point;
 
     }
 
-    public void setArmReadyToShoot(boolean armReady) {
-        mArmInPosition = armReady;
-    }
-
     private void driveMotors() {
         double setpoint = ConfigMap.MAX_SHOOTER_SPEED;
-        System.out.println(mTopPID.getOutputMax());
         mTopPID.setReference(setpoint, ControlType.kVelocity);
         mBottomPID.setReference(setpoint, ControlType.kVelocity);
     }
@@ -289,7 +281,11 @@ public class Scollector extends Subsystem {
     }
 
     private void shoot() {
-        driveMotors();
+        if (controlSystem.isArmLobbing()) {
+            driveMotors(ConfigMap.MIN_SHOOTER_SPEED);
+        } else {
+            driveMotors();
+        }
         mCollectorMotor.set(-1);
     }
 

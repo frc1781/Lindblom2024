@@ -1,15 +1,10 @@
 package tech.team1781.utils;
 
-import java.util.HashMap;
-
-import edu.wpi.first.util.datalog.BooleanLogEntry;
-import edu.wpi.first.util.datalog.DataLogEntry;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
-import edu.wpi.first.util.datalog.FloatLogEntry;
-import edu.wpi.first.util.datalog.IntegerLogEntry;
-import edu.wpi.first.util.datalog.StringLogEntry;
+import edu.wpi.first.util.datalog.*;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+
+import java.util.HashMap;
 
 public class RioLogger {
     private static HashMap<String, DataLogEntry> mEntries = new HashMap<>();

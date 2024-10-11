@@ -1,11 +1,13 @@
 package tech.team1781.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import tech.team1781.control.ControlSystem;
-import tech.team1781.utils.NetworkLogger;
+
 
 public class LEDs extends Subsystem {
     private final int LED_LENGTH = 75;
@@ -21,21 +23,20 @@ public class LEDs extends Subsystem {
     public LEDs() {
         super("LEDs", LedState.DEFAULT);
 
-        NetworkLogger.initLog("LEDs Matches State", true);
+        Logger.recordOutput("LEDs/MatchesState", true);
     }
 
     public enum LedState implements SubsystemState {
         HAS_NOTE,
         BAD_ROLL,
         NO_NOTE,
+        SEES_NOTE,
         DEFAULT
-
-
     }
 
     @Override
     public void genericPeriodic() {
-        NetworkLogger.logData("LEDs Matches State", matchesDesiredState());
+        Logger.recordOutput("LEDs/MatchesState", matchesDesiredState());
     }
 
     @Override
@@ -58,25 +59,22 @@ public class LEDs extends Subsystem {
 
         switch ((LedState) getState()) {
             case NO_NOTE:
-                // vwoop(g,r,b.kRed);
                 solid(255,0,0);
                 break;
             case HAS_NOTE:
-                // flashThenSolid(g,r,b.kGreen);
                 solid(0,255,0);
                 break;
             case BAD_ROLL:
                 solid(0,0,255);
                 break;
+            case SEES_NOTE:
+                solid(0, 255, 255);
+                break;
             default:
-                // solid(g,r,b.kGreen);
                 rainbow();
-                // flashThenSolid(g,r,b.kGreen);
                 break;
         }
-
         mLedController.setData(mLedBuffer);
-
     }
 
     @Override
@@ -96,10 +94,7 @@ public class LEDs extends Subsystem {
 
     @Override
     public void disabledPeriodic() {
-        // rainbow();
-
-        // doubleVwoop(252, 186, 3, 138, 0, 0);
-        vwoop(0,0,255);
+        rainbow();
         mLedController.setData(mLedBuffer);
     }
 

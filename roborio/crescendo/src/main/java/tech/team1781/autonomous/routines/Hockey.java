@@ -1,10 +1,9 @@
 package tech.team1781.autonomous.routines;
 
+import tech.team1781.Paths;
 import tech.team1781.autonomous.AutoStep;
-import tech.team1781.autonomous.Positions;
 import tech.team1781.autonomous.AutonomousHandler.AutoRoutine;
 import tech.team1781.control.ControlSystem.Action;
-import tech.team1781.utils.EVector;
 
 public class Hockey implements AutoRoutine{
 
@@ -16,12 +15,9 @@ public class Hockey implements AutoRoutine{
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-            new AutoStep(100, Action.OFF_KICKSTAND),
-            new AutoStep(100, Action.COLLECT_RAMP),
-            new AutoStep(0.1, Positions.P3),
             new AutoStep(5, Action.SHOOT_SUBWOOFER),
-            new AutoStep(10, EVector.positionWithDegrees(3.07, 0.6, 0)),
-            new AutoStep(10, Action.COLLECT_RAMP, Positions.C5)
+            new AutoStep(10, Action.COLLECT_RAMP, Paths.getPathFromName("p3;c5"), true),
+                //new AutoStep(2, Action.)
         };
     }
     

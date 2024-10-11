@@ -1,14 +1,12 @@
 package tech.team1781;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.shuffleboard.WidgetType;
 import tech.team1781.utils.EVector;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ShuffleboardStyle {
 

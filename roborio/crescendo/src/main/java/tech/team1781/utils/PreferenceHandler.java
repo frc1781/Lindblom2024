@@ -1,10 +1,10 @@
 package tech.team1781.utils;
 
-import java.util.HashMap;
-
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.Preferences;
 import tech.team1781.ConfigMap;
+
+import java.util.HashMap;
 
 public class PreferenceHandler {
 

@@ -1,11 +1,10 @@
 package tech.team1781;
 
-import java.util.HashMap;
-
 import com.pathplanner.lib.path.PathPlannerPath;
-
 import tech.team1781.autonomous.AutonomousBuilder;
 import tech.team1781.control.ControlSystem;
+
+import java.util.HashMap;
 
 public class Paths {
 
@@ -43,6 +42,8 @@ public class Paths {
     private static final PathPlannerPath note1ToCenter3 = PathPlannerPath.fromPathFile("n1;c3");
     private static final PathPlannerPath note1ToCenter4 = PathPlannerPath.fromPathFile("n1;c4");
     private static final PathPlannerPath note1ToCenter5 = PathPlannerPath.fromPathFile("n1;c5");
+
+    public static final PathPlannerPath note1ToPosition1 = PathPlannerPath.fromPathFile("n1;p1");
 
     private static final PathPlannerPath note2ToNote1 = PathPlannerPath.fromPathFile("n2;n1");
     private static final PathPlannerPath note2ToNote3 = PathPlannerPath.fromPathFile("n2;n3");

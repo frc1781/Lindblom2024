@@ -1,13 +1,10 @@
 package tech.team1781.autonomous;
 
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.path.PathPlannerTrajectory;
-
-import tech.team1781.ConfigMap;
 import tech.team1781.control.ControlSystem.Action;
 import tech.team1781.utils.EVector;
 
-public class AutoStep {
+public class  AutoStep {
     private double mMaxTime = -1;
     private Action mAction = null;
     private WaypointHolder mWaypointHolder = null;
@@ -76,6 +73,14 @@ public class AutoStep {
         mPath = path;
 
         mType = isNotePosition ? StepType.NOTE_TRAJECTORY : StepType.PATH_AND_ACTION;
+    }
+
+    public AutoStep(double maxTime, Action action, PathPlannerPath path, boolean isNotePosition, boolean shouldStopOnceCollected) {
+        mMaxTime = maxTime;
+        mAction = action;
+        mPath = path;
+
+        mType = shouldStopOnceCollected ? StepType.QUICK_PATH_ACTION : StepType.PATH_AND_ACTION;
     }
 
     public AutoStep(double maxTime, Action action) {
@@ -175,7 +180,8 @@ public class AutoStep {
         POSITION_AND_ACTION,
         ROTATION_AND_ACTION,
         PATH_AND_ACTION,
-        NOTE_TRAJECTORY
+        NOTE_TRAJECTORY,
+        QUICK_PATH_ACTION
     }
 
 }
