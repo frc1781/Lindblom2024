@@ -122,11 +122,11 @@ public class Robot extends LoggedRobot {
     });
 
     // Co-pilot Controls
+    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SHOOT, (isPressed) -> mControlSystem.setShooting(isPressed));
+
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.LOB, (isHeld) -> mControlSystem.lobNote(isHeld));
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SCORE_AMP, (isPressed) -> mControlSystem.setAmp(isPressed));
-
-    mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.SHOOT, (isPressed) -> mControlSystem.setShooting(isPressed));
 
     mDriverInput.addHoldListener(ConfigMap.CO_PILOT_PORT, ConfigMap.PREPARE_TO_SHOOT, (isPressed) -> mControlSystem.setPrepareToShoot(isPressed));
 

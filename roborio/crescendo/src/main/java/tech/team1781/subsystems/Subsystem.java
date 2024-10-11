@@ -47,7 +47,6 @@ public abstract class Subsystem {
 
       currentState = desiredState;
       Logger.recordOutput(getName() + "/CurrentState", getState().toString());
-      System.out.println("Changing " + name +  "'s state to " + desiredState);
    }
    
    public final SubsystemState getState() {

@@ -111,6 +111,9 @@ public class Scollector extends Subsystem {
         Logger.recordOutput("Scollector/ShooterAtSpeed", shooterAtSpeed());
         Logger.recordOutput("Scollector/TopShooterSpeedVelocity", mTopShooterMotor.getEncoder().getVelocity());
         Logger.recordOutput("Scollector/BottomShooterSpeedVelocity", mBottomShooterMotor.getEncoder().getVelocity());
+        Logger.recordOutput("Scollector/CollectorMotorDutyCycle", mCollectorMotor.get());
+        Logger.recordOutput("Scollector/TopTOF", mTopTof.getRange());
+        Logger.recordOutput("Scollector/BottomTOF", mBottomTof.getRange());
     }
 
     @Override
@@ -165,7 +168,7 @@ public class Scollector extends Subsystem {
                 break;
             case RAMP_SHOOTER:
                 driveMotors();
-                mCollectorMotor.set(0);
+                    mCollectorMotor.set(0);
                 break;
             case LOB:
                 driveMotors(ConfigMap.MIN_SHOOTER_SPEED);
@@ -280,7 +283,12 @@ public class Scollector extends Subsystem {
     }
 
     private void shoot() {
-        driveMotors();
+        System.out.println("SHOOTING PLEASE WROK");
+        if (controlSystem.isArmLobbing()) {
+            driveMotors(ConfigMap.MIN_SHOOTER_SPEED);
+        } else {
+            driveMotors();
+        }
         mCollectorMotor.set(-1);
     }
 

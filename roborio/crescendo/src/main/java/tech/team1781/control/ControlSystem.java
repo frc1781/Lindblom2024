@@ -753,6 +753,10 @@ public class ControlSystem {
         mLEDs.setDesiredState(LedState.SEES_NOTE);
     }
 
+    public boolean isArmLobbing() {
+        return mScollector.getState() == ScollectorState.LOB;
+    }
+
     private enum SeekNoteState {
         SEEKING,
         COLLECTING,
