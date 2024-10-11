@@ -381,6 +381,11 @@ public class ControlSystem {
             case WAIT:
                 mDriveSystem.setDesiredState(DriveSystemState.DRIVE_MANUAL);
                 break;
+            case QUICK_PATH_ACTION:
+                mDriveSystem.setTrajectoryFromPath(step.getPath());
+                mDriveSystem.setDesiredState(DriveSystemState.DRIVE_TRAJECTORY_QUICK);
+                setAction(step.getAction());
+                break;
         }
     }
 
@@ -430,6 +435,7 @@ public class ControlSystem {
         return !isRunningAction() && mDriveSystem.matchesDesiredState();
     }
 
+
     public void init(OperatingMode operatingMode) {
         mCurrentOperatingMode = operatingMode;
 
@@ -467,7 +473,6 @@ public class ControlSystem {
 
         mArm.updateAimSpots(mDriveSystem.getRobotPose());
 
-        mScollector.setArmReadyToShoot(mArm.matchesDesiredState());
         if (mDriveSystem.badRoll()) {
             mLEDs.setDesiredState(LedState.BAD_ROLL);
         } else if (mScollector.hasNote()) {
@@ -563,9 +568,9 @@ public class ControlSystem {
 
     private boolean isCurrentlyAutoAiming() {
         return mCurrentAction == Action.AUTO_AIM_SHOOT
-                || mCurrentAction == Action.SHOOT_NOTE_ONE
-                || mCurrentAction == Action.SHOOT_NOTE_TWO
-                || mCurrentAction == Action.SHOOT_NOTE_THREE
+                // || mCurrentAction == Action.SHOOT_NOTE_ONE
+                // || mCurrentAction == Action.SHOOT_NOTE_TWO
+                // || mCurrentAction == Action.SHOOT_NOTE_THREE
                 || mCurrentAction == Action.SHOOT_SUBWOOFER;
     }
 
@@ -641,10 +646,14 @@ public class ControlSystem {
         }
     }
 
+    public boolean doesArmMatchState() {
+        return mArm.matchesDesiredState();
+    }
+
     private void initActions() {
         defineAction(Action.SHOOT_SUBWOOFER_NO_AIM,
-                new SubsystemManager(mScollector, ScollectorState.RAMP_SHOOT),
-                new SubsystemManager(mArm, ArmState.SUBWOOFER));
+                new SubsystemManager(mArm, ArmState.SUBWOOFER),
+                new SubsystemManager(mScollector, ScollectorState.RAMP_SHOOT));
 
         defineAction(Action.SHOOT_FAR,
                 new SubsystemManager(mScollector, ScollectorState.SHOOT_ASAP),

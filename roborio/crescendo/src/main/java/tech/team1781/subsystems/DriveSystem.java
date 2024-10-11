@@ -113,7 +113,8 @@ public class DriveSystem extends Subsystem {
         DRIVE_MANUAL,
         DRIVE_ROTATION,
         SYSID,
-        DRIVE_TRAJECTORY_NOTE
+        DRIVE_TRAJECTORY_NOTE,
+        DRIVE_TRAJECTORY_QUICK // generally more unstable because it doesn't wait for a path to finish before letting control system contiune
     }
 
     public void setDesiredState(SubsystemState desiredState) {
@@ -152,6 +153,7 @@ public class DriveSystem extends Subsystem {
                 break;
             case DRIVE_TRAJECTORY_NOTE:
             case DRIVE_TRAJECTORY:
+            case DRIVE_TRAJECTORY_QUICK:
                 followTrajectory();
                 break;
             case DRIVE_MANUAL:
@@ -173,6 +175,7 @@ public class DriveSystem extends Subsystem {
                 return matchesPosition(mDesiredTrajectory.getEndState().getTargetHolonomicPose())
                         && (currentTime >= mDesiredTrajectory.getTotalTimeSeconds());
             case DRIVE_TRAJECTORY_NOTE:
+            case DRIVE_TRAJECTORY_QUICK:
                 return (matchesPosition(mDesiredTrajectory.getEndState().getTargetHolonomicPose())
                         && (currentTime >= mDesiredTrajectory.getTotalTimeSeconds())) || controlSystem.hasNote();
             case DRIVE_MANUAL:
@@ -197,7 +200,7 @@ public class DriveSystem extends Subsystem {
 
         if (mDesiredWaypoint != null) {
             double dist = mDesiredWaypoint.getPosition().dist(EVector.fromPose(getRobotPose()));
-            return dist < 0.1;
+            return dist < 0.15;
         }
         return false;
     }
@@ -443,8 +446,8 @@ public class DriveSystem extends Subsystem {
 
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
 
-        Logger.recordOutput("Drive System/DesiredVelocities", EVector.newVector(xSpeed, ySpeed, rot).toPose2d());
-        Logger.recordOutput("Drive System/DesiredVelocity Magnitude",
+        Logger.recordOutput("DriveSystem/DesiredVelocities", EVector.newVector(xSpeed, ySpeed, rot).toPose2d());
+        Logger.recordOutput("DriveSystem/DesiredVelocity Magnitude",
                 EVector.newVector(xSpeed, ySpeed, rot).magnitude());
 
         mFrontLeft.setDesiredState(moduleStates[0]);
@@ -504,15 +507,16 @@ public class DriveSystem extends Subsystem {
             } catch (Exception e) {
                 System.err.println(e);
             }
-        } else if (!mOdometryBeenSet && currentMode == OperatingMode.TELEOP) {
-            //Just set to 0,0 with a rotation respective to it's alliance color
-            double startingDegRotation = ControlSystem.isRed() ? 180 : 0;
-            mPoseEstimator.resetPosition(new Rotation2d(startingDegRotation), getModulePositions(), new Pose2d());
+        } 
+        // else if (!mOdometryBeenSet && currentMode == OperatingMode.TELEOP) {
+        //     //Just set to 0,0 with a rotation respective to it's alliance color
+        //     double startingDegRotation = ControlSystem.isRed() ? 180 : 0;
+        //     mPoseEstimator.resetPosition(new Rotation2d(startingDegRotation), getModulePositions(), new Pose2d());
 
-            // wait for Limelight
-            ignoreLimelightDistanceChecks = true;
-            mOdometryBeenSet = true;
-        }
+        //     // wait for Limelight
+        //     ignoreLimelightDistanceChecks = true;
+        //     mOdometryBeenSet = true;
+        // }
     }
 
     private void setInitialLocalization(Pose2d pose) {
@@ -526,11 +530,11 @@ public class DriveSystem extends Subsystem {
 
         double dist = getRobotPose().getTranslation().getDistance(visionEstimate.getTranslation());
 
-        if (!ignoreLimelightDistanceChecks ||(Math.abs(dist) >= 2 || visionEstimate.getX() == -99.9)) {
+        if (Math.abs(dist) >= 2 || visionEstimate.getX() == -99.9) {
             return;
         }
 
-        ignoreLimelightDistanceChecks = false;
+        //ignoreLimelightDistanceChecks = false;
         mPoseEstimator.addVisionMeasurement(visionEstimate, Timer.getFPGATimestamp());
     }
 

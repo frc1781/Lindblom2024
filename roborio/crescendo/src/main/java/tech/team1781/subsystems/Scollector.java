@@ -43,18 +43,7 @@ public class Scollector extends Subsystem {
 
     private TimeOfFlight mTopTof = new TimeOfFlight(ConfigMap.TOP_SCOLLECTOR_TOF);
     private TimeOfFlight mBottomTof = new TimeOfFlight(ConfigMap.BOTTOM_SCOLLECTOR_TOF);
-
-    private boolean mArmInPosition = false;
     private Timer mShooterTimer = new Timer();
-
-    private GenericEntry mTopShooterVelocity = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Top Velocity", 0,
-            ShuffleboardStyle.TOP_SHOOTER);
-    private GenericEntry mBottomShooterVelocity = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB,
-            "Bottom Velocity", 0, ShuffleboardStyle.BOTTOM_SHOOTER);
-    private GenericEntry mReadyToShootEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Ready To Shoot",
-            true, ShuffleboardStyle.READY_TO_SHOOT);
-    private GenericEntry mHasNoteEntry = ShuffleboardStyle.getEntry(ConfigMap.SHUFFLEBOARD_TAB, "Has Note", false,
-            ShuffleboardStyle.HAS_NOTE);
 
     public Scollector() {
         super("Scollector", ScollectorState.IDLE);
@@ -114,18 +103,17 @@ public class Scollector extends Subsystem {
         Logger.recordOutput("Scollector/CollectorMotorDutyCycle", mCollectorMotor.get());
         Logger.recordOutput("Scollector/TopTOF", mTopTof.getRange());
         Logger.recordOutput("Scollector/BottomTOF", mBottomTof.getRange());
+        Logger.recordOutput("Scollector/CollectorMotorCurrent", mCollectorMotor.getOutputCurrent());
     }
 
     @Override
     public void init() {
-        mArmInPosition = false;
         mShooterTimer.reset();
         mShooterTimer.stop();
     }
 
     @Override
     public void getToState() {
-
         switch ((ScollectorState) getState()) {
             case IDLE:
                 mCollectorMotor.set(0);
@@ -155,7 +143,7 @@ public class Scollector extends Subsystem {
             case COLLECT_AUTO_SHOOT:
                 if (!hasNote()) {
                     collect();
-                } else if (mArmInPosition && (noteCloseToShooter() || hasNote()) && shooterAtSpeed()) {
+                } else if (controlSystem.doesArmMatchState() && (noteCloseToShooter() || hasNote()) && shooterAtSpeed()) {
                     shoot();
                 } else {
                     mCollectorMotor.set(0);
@@ -174,14 +162,15 @@ public class Scollector extends Subsystem {
                 driveMotors(ConfigMap.MIN_SHOOTER_SPEED);
                 break;
             case SHOOT_ASAP:
-                if (mArmInPosition) {
-                    shoot();
+                if (controlSystem.doesArmMatchState()) {
+                    this.setDesiredState(ScollectorState.SHOOT);
                 }
 
                 driveMotors();
                 break;
             case RAMP_SHOOT:
-                if (mArmInPosition && shooterAtSpeed(5)) {
+                if (controlSystem.doesArmMatchState() && shooterAtSpeed(5)) {
+                    //System.out.println("SHOOT SHOOT SHOOT");
                     this.setDesiredState(ScollectorState.SHOOT);
                 }
 
@@ -223,6 +212,19 @@ public class Scollector extends Subsystem {
     public void teleopPeriodic() {
     }
 
+    @Override
+    public void setDesiredState(SubsystemState desiredState) {
+        if (desiredState == currentState) {
+           return;
+        }
+
+        mCollectorMotor.set(0);
+        System.out.println(desiredState);
+  
+        currentState = desiredState;
+        Logger.recordOutput(getName() + "/CurrentState", getState().toString());
+     }
+
     public boolean hasNote() {
         double range = mBottomTof.getRange();
         if (!mBottomTof.isRangeValid() && range == 0.0) {
@@ -257,10 +259,6 @@ public class Scollector extends Subsystem {
 
     }
 
-    public void setArmReadyToShoot(boolean armReady) {
-        mArmInPosition = armReady;
-    }
-
     private void driveMotors() {
         double setpoint = ConfigMap.MAX_SHOOTER_SPEED;
         mTopPID.setReference(setpoint, ControlType.kVelocity);
@@ -283,7 +281,6 @@ public class Scollector extends Subsystem {
     }
 
     private void shoot() {
-        System.out.println("SHOOTING PLEASE WROK");
         if (controlSystem.isArmLobbing()) {
             driveMotors(ConfigMap.MIN_SHOOTER_SPEED);
         } else {

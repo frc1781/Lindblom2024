@@ -124,13 +124,13 @@ public class AutonomousHandler {
     public Pose2d getStartPosition() throws NoAutoRoutineException {
         if (mSelectedRoutine != null) {
             for (int i = 0; i < mSampledSteps.length; i++) {
-                System.out.println(i);
                 switch (mSampledSteps[i].getType()) {
                     case POSITION:
                     case POSITION_AND_ACTION:
                         return mSampledSteps[i].getWaypointHolder().getPosition().toPose2d();
                     case PATH_AND_ACTION:
                     case PATH:
+                    case QUICK_PATH_ACTION:
                         return mSampledSteps[i].getPath().getPreviewStartingHolonomicPose();
                     case WAIT:
                     case NOTE_POSITION:

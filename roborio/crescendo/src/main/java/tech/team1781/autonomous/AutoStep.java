@@ -75,6 +75,14 @@ public class  AutoStep {
         mType = isNotePosition ? StepType.NOTE_TRAJECTORY : StepType.PATH_AND_ACTION;
     }
 
+    public AutoStep(double maxTime, Action action, PathPlannerPath path, boolean isNotePosition, boolean shouldStopOnceCollected) {
+        mMaxTime = maxTime;
+        mAction = action;
+        mPath = path;
+
+        mType = shouldStopOnceCollected ? StepType.QUICK_PATH_ACTION : StepType.PATH_AND_ACTION;
+    }
+
     public AutoStep(double maxTime, Action action) {
         mMaxTime = maxTime;
         mAction = action;
@@ -172,7 +180,8 @@ public class  AutoStep {
         POSITION_AND_ACTION,
         ROTATION_AND_ACTION,
         PATH_AND_ACTION,
-        NOTE_TRAJECTORY
+        NOTE_TRAJECTORY,
+        QUICK_PATH_ACTION
     }
 
 }
