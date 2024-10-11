@@ -27,4 +27,4 @@ public class P2FourNote implements AutoRoutine {
                 new AutoStep(5, Action.SHOOT_NOTE_ONE)
         };
     }
-}
+} 
