@@ -57,6 +57,8 @@ public class DriveSystem extends Subsystem {
     private final SwerveDrivePoseEstimator mPoseEstimator;
     private boolean mIsFieldOriented = true;
     private boolean mOdometryBeenSet = false;
+    private boolean ignoreLimelightDistanceChecks = false;
+
     // Sensors
     private final AHRS mNavX = new AHRS(SPI.Port.kMXP);
 
@@ -350,7 +352,9 @@ public class DriveSystem extends Subsystem {
         double distanceFromEndPose = getRobotPose().getTranslation().getDistance(mDesiredPosition.getTranslation());
         final double END_DIST_TOLERANCE = 2.5; // in meters when we start seeking a note
         final double seenNoteOffset = Limelight.getTX(ConfigMap.NOTE_LIMELIGHT); // if 0.0 then no note seen
+        final double noteAreaInView = Limelight.getTA(ConfigMap.NOTE_LIMELIGHT); // % of the area of the camera's output
         final boolean seesNote = seenNoteOffset != 0.0;
+        final boolean noteTooSmall = noteAreaInView < .1;
 
         double newYVelocity = 0.0;
         Logger.recordOutput("DriveSystem/NoteOffest", seenNoteOffset);
@@ -366,7 +370,7 @@ public class DriveSystem extends Subsystem {
                 targetOrientation);
                 Logger.recordOutput("DriveSystem/TargetTrajectory", targetPose);
         
-        if (getState() == DriveSystemState.DRIVE_TRAJECTORY_NOTE && distanceFromEndPose < END_DIST_TOLERANCE && seesNote) {
+        if (getState() == DriveSystemState.DRIVE_TRAJECTORY_NOTE && distanceFromEndPose < END_DIST_TOLERANCE && seesNote && !noteTooSmall) {
             controlSystem.LEDsSeesNote();
             final double kP = .1; //super low for testing
             int sideFlip = ControlSystem.isRed() ? -1 : 1;
@@ -500,6 +504,14 @@ public class DriveSystem extends Subsystem {
             } catch (Exception e) {
                 System.err.println(e);
             }
+        } else if (!mOdometryBeenSet && currentMode == OperatingMode.TELEOP) {
+            //Just set to 0,0 with a rotation respective to it's alliance color
+            double startingDegRotation = ControlSystem.isRed() ? 180 : 0;
+            mPoseEstimator.resetPosition(new Rotation2d(startingDegRotation), getModulePositions(), new Pose2d());
+
+            // wait for Limelight
+            ignoreLimelightDistanceChecks = true;
+            mOdometryBeenSet = true;
         }
     }
 
@@ -514,9 +526,11 @@ public class DriveSystem extends Subsystem {
 
         double dist = getRobotPose().getTranslation().getDistance(visionEstimate.getTranslation());
 
-        if (Math.abs(dist) >= 2 || visionEstimate.getX() == -99.9) {
+        if (!ignoreLimelightDistanceChecks ||(Math.abs(dist) >= 2 || visionEstimate.getX() == -99.9)) {
             return;
         }
+
+        ignoreLimelightDistanceChecks = false;
         mPoseEstimator.addVisionMeasurement(visionEstimate, Timer.getFPGATimestamp());
     }
 
