@@ -358,6 +358,7 @@ public class DriveSystem extends Subsystem {
         final double noteAreaInView = Limelight.getTA(ConfigMap.NOTE_LIMELIGHT); // % of the area of the camera's output
         final boolean seesNote = seenNoteOffset != 0.0;
         final boolean noteTooSmall = noteAreaInView < .1;
+        final boolean noteTooFar = Math.abs(seenNoteOffset) > 18; 
 
         double newYVelocity = 0.0;
         Logger.recordOutput("DriveSystem/NoteOffest", seenNoteOffset);
@@ -373,7 +374,7 @@ public class DriveSystem extends Subsystem {
                 targetOrientation);
                 Logger.recordOutput("DriveSystem/TargetTrajectory", targetPose);
         
-        if (getState() == DriveSystemState.DRIVE_TRAJECTORY_NOTE && distanceFromEndPose < END_DIST_TOLERANCE && seesNote && !noteTooSmall) {
+        if (getState() == DriveSystemState.DRIVE_TRAJECTORY_NOTE && distanceFromEndPose < END_DIST_TOLERANCE && seesNote && !noteTooSmall && !noteTooFar) {
             controlSystem.LEDsSeesNote();
             final double kP = .1; //super low for testing
             int sideFlip = ControlSystem.isRed() ? -1 : 1;
