@@ -23,7 +23,7 @@ public class ConfigMap {
         public static final int RED_SPEAKER_APRILTAG = 4;
         public static final int BLUE_SPEAKER_APRILTAG = 7;
 
-        public static final double MAX_SHOOTER_SPEED = 7;
+        public static final double MAX_SHOOTER_SPEED = 6;
         public static final double MIN_SHOOTER_SPEED = 3.5;
 
         // CAN IDs

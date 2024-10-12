@@ -169,7 +169,7 @@ public class Scollector extends Subsystem {
                 driveMotors();
                 break;
             case RAMP_SHOOT:
-                if (controlSystem.doesArmMatchState() && shooterAtSpeed(5)) {
+                if (controlSystem.doesArmMatchState() && shooterAtSpeed(4.5)) {
                     //System.out.println("SHOOT SHOOT SHOOT");
                     this.setDesiredState(ScollectorState.SHOOT);
                 }
