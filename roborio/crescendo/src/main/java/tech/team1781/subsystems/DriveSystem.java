@@ -31,6 +31,10 @@ import org.littletonrobotics.junction.Logger;
 
 public class DriveSystem extends Subsystem {
 
+    private double time;
+    private double xVelocity;
+    private double yVelocity;
+
     // Swerve Modules
     private final SwerveModule mFrontLeft = new KrakenL2SwerveModule("Front Left Module",
             ConfigMap.FRONT_LEFT_MODULE_DRIVE_MOTOR,
@@ -126,7 +130,7 @@ public class DriveSystem extends Subsystem {
     public void getToState() {
         Logger.recordOutput("DriveSystem/OdometryBeenSet", mOdometryBeenSet);
         Logger.recordOutput("DriveSystem/CurrentPose", getRobotPose());
-        Logger.recordOutput("DriveSystem/SwervePositions", getModulePositions());
+        Logger.recordOutput("DriveSystem/SwervePositions", getModuleStates());
         Logger.recordOutput("DriveSystem/MatchesState", matchesDesiredState());
         Logger.recordOutput("DriveSystem/DesiredPosition", mDesiredPosition);
         Logger.recordOutput("DriveSystem/MatchesDesiredPosition", matchesPosition(mDesiredPosition));
@@ -158,6 +162,20 @@ public class DriveSystem extends Subsystem {
                 break;
             case DRIVE_MANUAL:
                 break;
+            case SYSID:
+                driveRaw(100, 0, 0);
+                ChassisSpeeds speeds = getChassisSpeeds();
+                double timeInSeconds = trajectoryTimer.get();
+                double deltaTime = timeInSeconds - time;
+                double deltaVelocity = speeds.vxMetersPerSecond - xVelocity;
+
+                xVelocity = speeds.vxMetersPerSecond;
+                time = timeInSeconds;
+
+                Logger.recordOutput("SysID/XVelocity", speeds.vxMetersPerSecond);
+                Logger.recordOutput("SysID/YVelocity", speeds.vyMetersPerSecond);
+                Logger.recordOutput("SysID/Acceleration", deltaVelocity / deltaTime);
+                break;          
             default:
                 break;
         }
@@ -321,7 +339,8 @@ public class DriveSystem extends Subsystem {
         xTrajectoryController = new PIDController(0.7, 0.0, 0.001);
         yTrajectoryController = new PIDController(1.5, 0.0, 0.001);
         rotTrajectoryController = new ProfiledPIDController(5.5, 0.01, 0.01,
-                new TrapezoidProfile.Constraints(6.28, 12.14));
+            new TrapezoidProfile.Constraints(20, 20));
+                //new TrapezoidProfile.Constraints(6.28, 12.14));
         rotTrajectoryController.enableContinuousInput(0, 2 * Math.PI);
         mTrajectoryController = new HolonomicDriveController(xTrajectoryController, yTrajectoryController,
                 rotTrajectoryController);
