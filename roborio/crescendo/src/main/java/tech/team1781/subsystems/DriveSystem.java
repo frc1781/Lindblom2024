@@ -261,7 +261,7 @@ public class DriveSystem extends Subsystem {
     public void genericPeriodic() {
         if (mOdometryBeenSet) {
             updateOdometry();
-        } else if (currentMode == OperatingMode.AUTONOMOUS) {
+        } else  { //if (currentMode == OperatingMode.AUTONOMOUS) {
             setInitialLocalization();
             System.out.println("retrying...");
         }

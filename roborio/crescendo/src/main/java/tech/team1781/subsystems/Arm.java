@@ -140,6 +140,10 @@ public class Arm extends Subsystem {
         syncArm();
     }
 
+    public void disabledPeriodic() {
+        setIdleMode(IdleMode.kBrake);
+    }
+
     @Override
     public void init() {
         setDesiredState(ArmState.KICKSTAND);
