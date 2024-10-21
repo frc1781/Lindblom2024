@@ -1,7 +1,5 @@
 package tech.team1781.subsystems;
 
-import java.util.ArrayList;
-
 import org.littletonrobotics.junction.Logger;
 
 import com.playingwithfusion.TimeOfFlight;
@@ -12,14 +10,8 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.IdleMode;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.motorcontrol.PWMTalonSRX;
 import tech.team1781.ConfigMap;
-import tech.team1781.ShuffleboardStyle;
-import tech.team1781.subsystems.LEDs.LedState;
 import tech.team1781.utils.EVector;
 
 

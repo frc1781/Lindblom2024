@@ -220,10 +220,12 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void testInit() {
+      mControlSystem.init(OperatingMode.TEST);
   }
 
   @Override
   public void testPeriodic() {
+    mControlSystem.run(null);
   }
 
   @Override

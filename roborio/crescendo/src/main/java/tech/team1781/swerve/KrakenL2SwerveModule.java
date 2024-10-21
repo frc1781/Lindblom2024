@@ -1,5 +1,7 @@
 package tech.team1781.swerve;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -20,8 +22,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import tech.team1781.ConfigMap;
-import tech.team1781.utils.RioLogger;
 import tech.team1781.utils.SwerveModuleConfiguration;
 
 public class KrakenL2SwerveModule extends SwerveModule { 
@@ -37,6 +39,15 @@ public class KrakenL2SwerveModule extends SwerveModule {
     ); 
     private final RelativeEncoder mTurnEncoder;
     private final CANcoder mTurnAbsoluteEncoder;
+
+    private double totalDutyCycles = 0;
+    private double totalMPS = 0;
+
+    private double totalNumerator = 0;
+    private double totalAccerlation = 0;
+
+    private double prevTime = 0;
+    private double prevVelocity = 0;
 
     public KrakenL2SwerveModule(String name,int driveMotorID, int turnMotorID, int cancoderID, double cancoderOffset) {
         super(name, driveMotorID, turnMotorID, cancoderID, cancoderOffset);
@@ -101,17 +112,17 @@ public class KrakenL2SwerveModule extends SwerveModule {
 
         mTurnMotor.burnFlash();
 
-        RioLogger.initLog(name + "/Offset", cancoderOffset);
-        RioLogger.logData(name + "/Offset", cancoderOffset);
+        Logger.recordOutput(name + "/Offset", cancoderOffset);
+        Logger.recordOutput(name + "/Offset", cancoderOffset);
 
-        RioLogger.initLog(name + "/Drive Motor Velocity", 0.0);
-        RioLogger.initLog(name + "/Drive Motor Position", 0.0);
-        RioLogger.initLog(name + "/Turning Motor Position", 0.0);
-        RioLogger.initLog(name + "/CANCoder Position", 0.0);
-        RioLogger.initLog(name + "/Turning Motor CANCoder Difference", 0.0);
+        Logger.recordOutput(name + "/Drive Motor Velocity", 0.0);
+        Logger.recordOutput(name + "/Drive Motor Position", 0.0);
+        Logger.recordOutput(name + "/Turning Motor Position", 0.0);
+        Logger.recordOutput(name + "/CANCoder Position", 0.0);
+        Logger.recordOutput(name + "/Turning Motor CANCoder Difference", 0.0);
 
-        RioLogger.initLog(name + "/Drive Requested Velocity", 0.0);
-        RioLogger.initLog(name + "/Turn Requested Position", 0.0);
+        Logger.recordOutput(name + "/Drive Requested Velocity", 0.0);
+        Logger.recordOutput(name + "/Turn Requested Position", 0.0);
     }
 
     public Rotation2d getAbsoluteAngle() {
@@ -135,18 +146,49 @@ public class KrakenL2SwerveModule extends SwerveModule {
 
     public void setDesiredState(SwerveModuleState desiredState) {
         SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, getAbsoluteAngle());
-        RioLogger.logData(this.name + "/Drive Requested Velocity", optimizedState.speedMetersPerSecond);
-        RioLogger.logData(this.name + "/Turn Requested Position", optimizedState.angle.getRadians());
+        Logger.recordOutput(this.name + "/Drive Requested Velocity", optimizedState.speedMetersPerSecond);
+        Logger.recordOutput(this.name + "/Turn Requested Position", optimizedState.angle.getRadians());
+
+        if (moduleConfiguration().drivingKS < optimizedState.speedMetersPerSecond / ConfigMap.MAX_VELOCITY_METERS_PER_SECOND) {
+            double accerlation = mDriveMotor.getAcceleration().getValueAsDouble();
+
+            totalDutyCycles += optimizedState.speedMetersPerSecond / ConfigMap.MAX_VELOCITY_METERS_PER_SECOND;
+            totalMPS += getDriveMotorSpeed();
+        
+            totalAccerlation += accerlation;
+            totalNumerator += (optimizedState.speedMetersPerSecond / ConfigMap.MAX_VELOCITY_METERS_PER_SECOND) - (moduleConfiguration().drivingKV * getDriveMotorSpeed()); 
+
+            Logger.recordOutput(this.name + "/Total Num", totalNumerator);
+            Logger.recordOutput(this.name + "/Total Accerlation", totalAccerlation);
+
+            Logger.recordOutput(this.name + "/Drive Motor Accerlation", accerlation);
+
+            Logger.recordOutput(this.name + "/Total Duty Cycles", totalDutyCycles);
+            Logger.recordOutput(this.name + "/Total MPS", totalMPS);
+
+            Logger.recordOutput(this.name + "/KV", totalDutyCycles / totalMPS);
+            Logger.recordOutput(this.name + "/KA", totalNumerator / totalAccerlation);;
+        }
         
         mTurnPID.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
         // mDriveVelocity.Velocity = desiredState.speedMetersPerSecond;
         // mDriveVelocity.FeedForward = driveFF.calculate(desiredState.speedMetersPerSecond);
-        mDriveMotor.set(optimizedState.speedMetersPerSecond / ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
-
-        RioLogger.logData(this.name + "/Drive Motor Velocity", getDriveMotorSpeed());
-        RioLogger.logData(this.name + "/Drive Motor Position", getDriveMotorPosition());
-        RioLogger.logData(this.name + "/Turning Motor Position", mTurnEncoder.getPosition());
+        Logger.recordOutput(this.name + "/Drive Motor Duty Cycle", optimizedState.speedMetersPerSecond / ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
         
+        double currentTime = Timer.getFPGATimestamp();
+
+        double FFDutyCycle = driveFF.calculate(prevVelocity, optimizedState.speedMetersPerSecond, prevTime - currentTime);
+        prevTime = currentTime;
+        prevVelocity = optimizedState.speedMetersPerSecond;
+
+        Logger.recordOutput(this.name + "/FF Duty Cycle", FFDutyCycle); 
+
+        mDriveMotor.set(FFDutyCycle);
+
+        Logger.recordOutput(this.name + "/Drive Motor Velocity", getDriveMotorSpeed());
+        Logger.recordOutput(this.name + "/Drive Motor Position", getDriveMotorPosition());
+        Logger.recordOutput(this.name + "/Turning Motor Position", mTurnEncoder.getPosition());
+
         mDesiredState = optimizedState;
         syncRelativeToAbsoluteEncoder();
     }
@@ -171,8 +213,8 @@ public class KrakenL2SwerveModule extends SwerveModule {
         double turnEncoderPosition = mTurnEncoder.getPosition();
         double diff = getAbsoluteAngle().getRadians() - turnEncoderPosition;
 
-        RioLogger.logData(name + "/CANCoder Position", turnEncoderPosition);
-        RioLogger.logData(this.name + "/Turning Motor CANCoder Difference", diff);
+        Logger.recordOutput(name + "/CANCoder Position", turnEncoderPosition);
+        Logger.recordOutput(this.name + "/Turning Motor CANCoder Difference", diff);
         if(Math.abs(diff) > 0.02) {
             mTurnEncoder.setPosition(getAbsoluteAngle().getRadians());
         }
@@ -192,9 +234,9 @@ public class KrakenL2SwerveModule extends SwerveModule {
         ret_val.drivingI = 0.0;
         ret_val.drivingD = 0.01;
         ret_val.drivingFF = 1.0 / (ConfigMap.MAX_VELOCITY_METERS_PER_SECOND + 0.08);
-        ret_val.drivingKS = 0.02;
-        ret_val.drivingKV = 1.0 / (ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND + 0.08) - ret_val.drivingKS;
-        ret_val.drivingKA = 5.4; 
+        ret_val.drivingKS = 0.0154;
+        ret_val.drivingKV = 0.2529;
+        ret_val.drivingKA = 0.01; 
 
         ret_val.turningP = 1;
         ret_val.turningI = 0.0;

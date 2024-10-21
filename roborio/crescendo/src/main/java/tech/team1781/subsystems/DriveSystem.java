@@ -126,10 +126,13 @@ public class DriveSystem extends Subsystem {
     public void getToState() {
         Logger.recordOutput("DriveSystem/OdometryBeenSet", mOdometryBeenSet);
         Logger.recordOutput("DriveSystem/CurrentPose", getRobotPose());
-        Logger.recordOutput("DriveSystem/SwervePositions", getModulePositions());
+        Logger.recordOutput("DriveSystem/SwerveStates", getModuleStates());
         Logger.recordOutput("DriveSystem/MatchesState", matchesDesiredState());
         Logger.recordOutput("DriveSystem/DesiredPosition", mDesiredPosition);
         Logger.recordOutput("DriveSystem/MatchesDesiredPosition", matchesPosition(mDesiredPosition));
+
+        Logger.recordOutput("SysID/XVelocity", mNavX.getVelocityX());
+        Logger.recordOutput("SysID/YVelocity", mNavX.getVelocityY());
         if (trajectoryTimer != null) {
             Logger.recordOutput("DriveSystem/TrajectoryTimer", trajectoryTimer.get());
         } else {
@@ -241,6 +244,11 @@ public class DriveSystem extends Subsystem {
             case SIMULATION:
                 break;
             case TEST:
+                setDesiredState(DriveSystemState.DRIVE_MANUAL);
+                setInitialLocalization();
+                
+                Logger.recordOutput("SysID/XVelocity", mNavX.getVelocityX());
+                Logger.recordOutput("SysID/YVelocity", mNavX.getVelocityY());
                 break;
             default:
                 break;
@@ -261,7 +269,7 @@ public class DriveSystem extends Subsystem {
     public void genericPeriodic() {
         if (mOdometryBeenSet) {
             updateOdometry();
-        } else  { //if (currentMode == OperatingMode.AUTONOMOUS) {
+        } else if (!mOdometryBeenSet)  { //if (currentMode == OperatingMode.AUTONOMOUS) {
             setInitialLocalization();
             System.out.println("retrying...");
         }
@@ -318,8 +326,8 @@ public class DriveSystem extends Subsystem {
         PIDController xTrajectoryController;
         PIDController yTrajectoryController;
         ProfiledPIDController rotTrajectoryController;
-        xTrajectoryController = new PIDController(0.7, 0.0, 0.001);
-        yTrajectoryController = new PIDController(1.5, 0.0, 0.001);
+        xTrajectoryController = new PIDController(0, 0, 0);
+        yTrajectoryController = new PIDController(0, 0, 0);
         rotTrajectoryController = new ProfiledPIDController(5.5, 0.01, 0.01,
                 new TrapezoidProfile.Constraints(6.28, 12.14));
         rotTrajectoryController.enableContinuousInput(0, 2 * Math.PI);
@@ -367,6 +375,7 @@ public class DriveSystem extends Subsystem {
         PathPlannerTrajectory.State pathplannerState = mDesiredTrajectory.sample(trajectoryTimer.get());
         Pose2d targetPose = new Pose2d(pathplannerState.positionMeters, pathplannerState.heading);
         Rotation2d targetOrientation = EEGeometryUtil.normalizeAngle(pathplannerState.getTargetHolonomicPose().getRotation());
+
         ChassisSpeeds desiredChassisSpeeds = mTrajectoryController.calculate(
                 getRobotPose(),
                 targetPose,
@@ -446,7 +455,7 @@ public class DriveSystem extends Subsystem {
                         : new ChassisSpeeds(xSpeed, ySpeed, rot));
 
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
-
+        Logger.recordOutput("DriveSystem/CurrentPose", getRobotPose());
         Logger.recordOutput("DriveSystem/DesiredVelocities", EVector.newVector(xSpeed, ySpeed, rot).toPose2d());
         Logger.recordOutput("DriveSystem/DesiredVelocity Magnitude",
                 EVector.newVector(xSpeed, ySpeed, rot).magnitude());
@@ -508,19 +517,18 @@ public class DriveSystem extends Subsystem {
             } catch (Exception e) {
                 System.err.println(e);
             }
-        } 
-        // else if (!mOdometryBeenSet && currentMode == OperatingMode.TELEOP) {
-        //     //Just set to 0,0 with a rotation respective to it's alliance color
-        //     double startingDegRotation = ControlSystem.isRed() ? 180 : 0;
-        //     mPoseEstimator.resetPosition(new Rotation2d(startingDegRotation), getModulePositions(), new Pose2d());
+        } else if (!mOdometryBeenSet) {
+             //Just set to 0,0 with a rotation respective to it's alliance color
+             double startingDegRotation = ControlSystem.isRed() ? 180 : 0;
+             mPoseEstimator.resetPosition(new Rotation2d(startingDegRotation), getModulePositions(), new Pose2d());
 
-        //     // wait for Limelight
-        //     ignoreLimelightDistanceChecks = true;
-        //     mOdometryBeenSet = true;
-        // }
+             // wait for Limelight
+             ignoreLimelightDistanceChecks = true;
+             mOdometryBeenSet = true;
+        }
     }
 
-    private void setInitialLocalization(Pose2d pose) {
+    public void setInitialLocalization(Pose2d pose) {
         mPoseEstimator.resetPosition(getNavXAngle(), getModulePositions(), pose);
     }
 
@@ -541,6 +549,7 @@ public class DriveSystem extends Subsystem {
 
     private void updateOdometry() {
         mPoseEstimator.update(getNavXAngle(), getModulePositions());
+
     }
 
     public boolean hasOdometryBeenSet() {
