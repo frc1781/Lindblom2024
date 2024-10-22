@@ -177,7 +177,7 @@ public class KrakenL2SwerveModule extends SwerveModule {
         
         double currentTime = Timer.getFPGATimestamp();
 
-        double FFDutyCycle = driveFF.calculate(prevVelocity, optimizedState.speedMetersPerSecond, prevTime - currentTime);
+        double FFDutyCycle = driveFF.calculate(optimizedState.speedMetersPerSecond);
         prevTime = currentTime;
         prevVelocity = optimizedState.speedMetersPerSecond;
 
