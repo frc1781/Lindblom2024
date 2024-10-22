@@ -261,7 +261,7 @@ public class DriveSystem extends Subsystem {
     public void genericPeriodic() {
         if (mOdometryBeenSet) {
             updateOdometry();
-        } else if (currentMode == OperatingMode.AUTONOMOUS) {
+        } else {
             setInitialLocalization();
             System.out.println("retrying...");
         }
@@ -509,15 +509,15 @@ public class DriveSystem extends Subsystem {
                 System.err.println(e);
             }
         } 
-        // else if (!mOdometryBeenSet && currentMode == OperatingMode.TELEOP) {
-        //     //Just set to 0,0 with a rotation respective to it's alliance color
-        //     double startingDegRotation = ControlSystem.isRed() ? 180 : 0;
-        //     mPoseEstimator.resetPosition(new Rotation2d(startingDegRotation), getModulePositions(), new Pose2d());
+         else if (!mOdometryBeenSet && currentMode == OperatingMode.TELEOP) {
+             //Just set to 0,0 with a rotation respective to it's alliance color
+             double startingDegRotation = ControlSystem.isRed() ? 180 : 0;
+             mPoseEstimator.resetPosition(new Rotation2d(startingDegRotation), getModulePositions(), new Pose2d());
 
-        //     // wait for Limelight
-        //     ignoreLimelightDistanceChecks = true;
-        //     mOdometryBeenSet = true;
-        // }
+             // wait for Limelight
+             ignoreLimelightDistanceChecks = true;
+             mOdometryBeenSet = true;
+         }
     }
 
     private void setInitialLocalization(Pose2d pose) {
