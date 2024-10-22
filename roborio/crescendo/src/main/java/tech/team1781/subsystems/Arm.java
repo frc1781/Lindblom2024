@@ -38,7 +38,7 @@ public class Arm extends Subsystem {
     private CANSparkMax mRightMotor, mLeftMotor;
 
     private AbsoluteEncoder mArmAbsoluteEncoder;
-    private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.025, 0.01, 0,
+    private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.025, 0.02, 0.0005,
             new TrapezoidProfile.Constraints(90, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
 
