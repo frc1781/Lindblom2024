@@ -151,7 +151,7 @@ public class KrakenL2SwerveModule extends SwerveModule {
 
         if (moduleConfiguration().drivingKS < optimizedState.speedMetersPerSecond / ConfigMap.MAX_VELOCITY_METERS_PER_SECOND) {
             double accerlation = mDriveMotor.getAcceleration().getValueAsDouble();
-
+//asdf
             totalDutyCycles += optimizedState.speedMetersPerSecond / ConfigMap.MAX_VELOCITY_METERS_PER_SECOND;
             totalMPS += getDriveMotorSpeed();
         
