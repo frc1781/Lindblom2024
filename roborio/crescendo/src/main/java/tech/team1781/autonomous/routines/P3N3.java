@@ -15,6 +15,7 @@ public class P3N3 implements AutoRoutine{
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
+            new AutoStep(100, Action.OFF_KICKSTAND),
             new AutoStep(6, Action.SHOOT_SUBWOOFER_NO_AIM),
             new AutoStep(5, Action.COLLECT_RAMP, Paths.getPathFromName("p3;n3")),
             new AutoStep(5, Paths.getPathFromName("n3;p3")),

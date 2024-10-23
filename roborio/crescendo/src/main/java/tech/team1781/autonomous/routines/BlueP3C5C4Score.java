@@ -26,10 +26,6 @@ public class BlueP3C5C4Score implements AutoRoutine {
                 new AutoStep(3, Action.SHOOT_SUBWOOFER_NO_AIM),
                 new AutoStep(1.4, EVector.positionWithDegrees(2.2, 0.8, 45)),
                 new AutoStep(5, Action.COLLECT_RAMP, Positions.C4.withZ(Math.toRadians(45)).withX(Positions.C4.x + 0.75).withY(Positions.C4.y + 0.25), true),
-
-                // new AutoStep(1.4, EVector.positionWithDegrees(2.2, 0.8, 45)),
-                
-                        // Positions.P3.withX(Positions.P3.x + 0.5).withY(Positions.P3.y + 0.3)),
         };
     }
 

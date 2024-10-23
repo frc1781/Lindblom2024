@@ -16,6 +16,7 @@ public class P2FourNote implements AutoRoutine {
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
+                new AutoStep(100, Action.OFF_KICKSTAND),
                 new AutoStep(6, Action.SHOOT_SUBWOOFER_NO_AIM),
                 new AutoStep(5, Action.COLLECT_RAMP, Paths.getPathFromName("p2;n2"), true, true),
                 new AutoStep(5, Action.SHOOT_NOTE_TWO),

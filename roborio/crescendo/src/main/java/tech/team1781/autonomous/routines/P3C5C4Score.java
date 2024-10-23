@@ -15,7 +15,7 @@ public class P3C5C4Score implements AutoRoutine {
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
-                
+                new AutoStep(100, Action.OFF_KICKSTAND),
                 new AutoStep(2.0, Action.COLLECT_RAMP, Paths.getPathFromName("p3;c5")),
                 new AutoStep(4,Paths.getPathFromName("c5;shoot")),
                 new AutoStep(3, Action.SHOOT_FAR),

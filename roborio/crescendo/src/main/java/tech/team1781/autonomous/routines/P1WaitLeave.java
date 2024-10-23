@@ -15,6 +15,7 @@ public class P1WaitLeave implements AutoRoutine{
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
+                new AutoStep(100, Action.OFF_KICKSTAND),
                 new AutoStep(6, Action.SHOOT_SUBWOOFER),
                 new AutoStep(5, Action.WAIT),
                 new AutoStep(10, Paths.getPathFromName("p1;leave"))

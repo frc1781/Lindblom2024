@@ -14,6 +14,7 @@ public class TestP2N2 implements AutoRoutine {
     @Override
     public AutoStep[] getSteps() {
         return new AutoStep[] {
+            new AutoStep(100, Action.OFF_KICKSTAND),
             new AutoStep(6, Action.SHOOT_SUBWOOFER_NO_AIM),
             new AutoStep(10, Action.COLLECT_RAMP, Paths.getPathFromName("p2;n2")),
             new AutoStep(4, Action.SHOOT_NOTE_TWO),
