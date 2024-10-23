@@ -438,10 +438,10 @@ public class DriveSystem extends Subsystem {
         SwerveModuleState[] moduleStates = mKinematics.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
 
-        mFrontLeft.setDesiredState(moduleStates[0]);
-        mFrontRight.setDesiredState(moduleStates[1]);
-        mBackLeft.setDesiredState(moduleStates[2]);
-        mBackRight.setDesiredState(moduleStates[3]);
+        mFrontLeft.runDesiredModuleState(moduleStates[0]);
+        mFrontRight.runDesiredModuleState(moduleStates[1]);
+        mBackLeft.runDesiredModuleState(moduleStates[2]);
+        mBackRight.runDesiredModuleState(moduleStates[3]);
     }
 
     public void driveRaw(double xSpeed, double ySpeed, double rot) {
@@ -460,10 +460,10 @@ public class DriveSystem extends Subsystem {
         Logger.recordOutput("DriveSystem/DesiredVelocity Magnitude",
                 EVector.newVector(xSpeed, ySpeed, rot).magnitude());
 
-        mFrontLeft.setDesiredState(moduleStates[0]);
-        mFrontRight.setDesiredState(moduleStates[1]);
-        mBackLeft.setDesiredState(moduleStates[2]);
-        mBackRight.setDesiredState(moduleStates[3]);
+        mFrontLeft.runDesiredModuleState(moduleStates[0]);
+        mFrontRight.runDesiredModuleState(moduleStates[1]);
+        mBackLeft.runDesiredModuleState(moduleStates[2]);
+        mBackRight.runDesiredModuleState(moduleStates[3]);
     }
 
     // Drive Info

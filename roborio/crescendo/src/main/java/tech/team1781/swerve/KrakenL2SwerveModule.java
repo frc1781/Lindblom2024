@@ -144,46 +144,18 @@ public class KrakenL2SwerveModule extends SwerveModule {
         return new SwerveModulePosition(getDriveMotorPosition(), getAbsoluteAngle());
     }
 
-    public void setDesiredState(SwerveModuleState desiredState) {
+    public void runDesiredModuleState(SwerveModuleState desiredState) {
         SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, getAbsoluteAngle());
         Logger.recordOutput(this.name + "/Drive Requested Velocity", optimizedState.speedMetersPerSecond);
         Logger.recordOutput(this.name + "/Turn Requested Position", optimizedState.angle.getRadians());
 
-        if (moduleConfiguration().drivingKS < optimizedState.speedMetersPerSecond / ConfigMap.MAX_VELOCITY_METERS_PER_SECOND) {
-            double accerlation = mDriveMotor.getAcceleration().getValueAsDouble();
-
-            totalDutyCycles += optimizedState.speedMetersPerSecond / ConfigMap.MAX_VELOCITY_METERS_PER_SECOND;
-            totalMPS += getDriveMotorSpeed();
-        
-            totalAccerlation += accerlation;
-            totalNumerator += (optimizedState.speedMetersPerSecond / ConfigMap.MAX_VELOCITY_METERS_PER_SECOND) - (moduleConfiguration().drivingKV * getDriveMotorSpeed()); 
-
-            Logger.recordOutput(this.name + "/Total Num", totalNumerator);
-            Logger.recordOutput(this.name + "/Total Accerlation", totalAccerlation);
-
-            Logger.recordOutput(this.name + "/Drive Motor Accerlation", accerlation);
-
-            Logger.recordOutput(this.name + "/Total Duty Cycles", totalDutyCycles);
-            Logger.recordOutput(this.name + "/Total MPS", totalMPS);
-
-            Logger.recordOutput(this.name + "/KV", totalDutyCycles / totalMPS);
-            Logger.recordOutput(this.name + "/KA", totalNumerator / totalAccerlation);;
-        }
-        
         mTurnPID.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
-        // mDriveVelocity.Velocity = desiredState.speedMetersPerSecond;
-        // mDriveVelocity.FeedForward = driveFF.calculate(desiredState.speedMetersPerSecond);
-        Logger.recordOutput(this.name + "/Drive Motor Duty Cycle", optimizedState.speedMetersPerSecond / ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
-        
-        double currentTime = Timer.getFPGATimestamp();
 
-        double FFDutyCycle = driveFF.calculate(optimizedState.speedMetersPerSecond);
-        prevTime = currentTime;
-        prevVelocity = optimizedState.speedMetersPerSecond;
+        //driveVelocity.Velocity = Conversions.MPSToRPS(desiredState.speedMetersPerSecond, Constants.Swerve.wheelCircumference);
+        mDriveVelocity.Velocity = optimizedState.speedMetersPerSecond;
+        mDriveVelocity.FeedForward = driveFF.calculate(optimizedState.speedMetersPerSecond);
 
-        Logger.recordOutput(this.name + "/FF Duty Cycle", FFDutyCycle); 
-
-        mDriveMotor.set(FFDutyCycle);
+        mDriveMotor.setControl(mDriveVelocity);
 
         Logger.recordOutput(this.name + "/Drive Motor Velocity", getDriveMotorSpeed());
         Logger.recordOutput(this.name + "/Drive Motor Position", getDriveMotorPosition());
@@ -191,10 +163,6 @@ public class KrakenL2SwerveModule extends SwerveModule {
 
         mDesiredState = optimizedState;
         syncRelativeToAbsoluteEncoder();
-    }
-
-    public void printDriveMotor() {
-        // System.out.print("," + mDesiredState.speedMetersPerSecond / ConfigMap.MAX_VELOCITY_METERS_PER_SECOND + "\n");
     }
 
     private double getDriveMotorSpeed() {
@@ -229,7 +197,8 @@ public class KrakenL2SwerveModule extends SwerveModule {
         ret_val.velocityConversion = ret_val.metersPerRevolution / 60.0;
         ret_val.radiansPerSecond = ret_val.radiansPerRevolution / 60.0;
 
-        //MUST TUNE ALL OF THESE AND DO SYSID 
+        //MUST TUNE ALL OF THESE AND DO SYSID
+        //need kA still, but KS and KV are good
         ret_val.drivingP = 0.1; 
         ret_val.drivingI = 0.0;
         ret_val.drivingD = 0.01;
