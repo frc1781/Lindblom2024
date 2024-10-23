@@ -57,6 +57,12 @@ public class LEDs extends Subsystem {
             return;
         }
 
+        if (currentMode == OperatingMode.DISABLED) {
+            rainbow();
+            mLedController.setData(mLedBuffer);
+            return;
+        }
+
         switch ((LedState) getState()) {
             case NO_NOTE:
                 solid(255,0,0);

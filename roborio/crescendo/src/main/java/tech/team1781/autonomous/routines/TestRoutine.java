@@ -15,7 +15,7 @@ public class TestRoutine implements AutoRoutine {
     @Override
     public AutoStep[] getSteps() {  
         return new AutoStep[] {
-            new AutoStep(25, Paths.getPathFromName("tpath")),
+            new AutoStep(25, Action.ARM_DOWN, Paths.getPathFromName("tpath")),
         };
     }
 

@@ -68,6 +68,7 @@ public class ConfigMap {
 
         // Swerve
 
+        public static final double WHEEL_CIRCUMFERENCE = 0.1016;
         public static final double DRIVETRAIN_TRACKWIDTH = Units.inchesToMeters(23);
         public static final double DRIVETRAIN_WHEELBASE = Units.inchesToMeters(25);
         public static final double MAX_VELOCITY_METERS_PER_SECOND = 4.3;

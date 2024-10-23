@@ -22,8 +22,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import tech.team1781.ConfigMap;
+import tech.team1781.utils.Conversions;
 import tech.team1781.utils.SwerveModuleConfiguration;
 
 public class KrakenL2SwerveModule extends SwerveModule { 
@@ -69,8 +69,8 @@ public class KrakenL2SwerveModule extends SwerveModule {
         driveConfig.Slot0.kP = moduleConfiguration().drivingP; //need to be tuned
         driveConfig.Slot0.kI = moduleConfiguration().drivingI;
         driveConfig.Slot0.kD = moduleConfiguration().drivingD;
-        driveConfig.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = 0.25;  //need to be investigated
-        driveConfig.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.25;
+        driveConfig.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = 0;  //need to be investigated
+        driveConfig.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0;
         driveConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = 0;
         driveConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0; 
         
@@ -151,11 +151,13 @@ public class KrakenL2SwerveModule extends SwerveModule {
 
         mTurnPID.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
 
-        //driveVelocity.Velocity = Conversions.MPSToRPS(desiredState.speedMetersPerSecond, Constants.Swerve.wheelCircumference);
-        mDriveVelocity.Velocity = optimizedState.speedMetersPerSecond;
-        mDriveVelocity.FeedForward = driveFF.calculate(optimizedState.speedMetersPerSecond);
+        //mDriveVelocity.Velocity = Conversions.MPSToRPS(optimizedState.speedMetersPerSecond, ConfigMap.WHEEL_CIRCUMFERENCE);
+        //mDriveVelocity.Velocity = optimizedState.speedMetersPerSecond;
+        double FF = driveFF.calculate(optimizedState.speedMetersPerSecond);
+        Logger.recordOutput(this.name + "/FeedForwardOutput", FF);
+        //mDriveVelocity.FeedForward = driveFF.calculate(optimizedState.speedMetersPerSecond);
 
-        mDriveMotor.setControl(mDriveVelocity);
+        mDriveMotor.set(FF);
 
         Logger.recordOutput(this.name + "/Drive Motor Velocity", getDriveMotorSpeed());
         Logger.recordOutput(this.name + "/Drive Motor Position", getDriveMotorPosition());
@@ -191,7 +193,6 @@ public class KrakenL2SwerveModule extends SwerveModule {
 
     static SwerveModuleConfiguration moduleConfiguration() {
         SwerveModuleConfiguration ret_val = new SwerveModuleConfiguration();
-
         ret_val.metersPerRevolution = 1 / (0.1016 * Math.PI * (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) * .9766); //this is not named correctly
         ret_val.radiansPerRevolution = 2 * Math.PI * (14.0 / 50.0) * (10.0 / 60.0);
         ret_val.velocityConversion = ret_val.metersPerRevolution / 60.0;
@@ -199,13 +200,14 @@ public class KrakenL2SwerveModule extends SwerveModule {
 
         //MUST TUNE ALL OF THESE AND DO SYSID
         //need kA still, but KS and KV are good
-        ret_val.drivingP = 0.1; 
-        ret_val.drivingI = 0.0;
-        ret_val.drivingD = 0.01;
-        ret_val.drivingFF = 1.0 / (ConfigMap.MAX_VELOCITY_METERS_PER_SECOND + 0.08);
+        // is pid the kA replacement
+        ret_val.drivingP = 0;
+        ret_val.drivingI = 0;
+        ret_val.drivingD = 0;
+        ret_val.drivingFF = 1.0 / (ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
         ret_val.drivingKS = 0.0154;
         ret_val.drivingKV = 0.2529;
-        ret_val.drivingKA = 0.01; 
+        ret_val.drivingKA = 0.3;
 
         ret_val.turningP = 1;
         ret_val.turningI = 0.0;

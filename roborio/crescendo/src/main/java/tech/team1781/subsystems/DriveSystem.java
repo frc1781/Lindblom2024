@@ -267,6 +267,11 @@ public class DriveSystem extends Subsystem {
 
     @Override
     public void genericPeriodic() {
+        Logger.recordOutput("DriveSystem/XVelocity", mNavX.getVelocityX());
+        Logger.recordOutput("DriveSystem/YVelocity", mNavX.getVelocityY());
+        Logger.recordOutput("DriveSystem/XAcceleration", mNavX.getRawAccelX());
+        Logger.recordOutput("DriveSystem/YAcceleration", mNavX.getRawAccelY());
+
         if (mOdometryBeenSet) {
             updateOdometry();
         } else if (!mOdometryBeenSet)  { //if (currentMode == OperatingMode.AUTONOMOUS) {
