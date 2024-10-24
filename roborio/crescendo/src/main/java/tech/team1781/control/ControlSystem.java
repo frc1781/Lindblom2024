@@ -74,6 +74,8 @@ public class ControlSystem {
     private SeekNoteState mCurrentSeekNoteState = SeekNoteState.SEEKING;
     private Timer mSeekTimer = new Timer();
 
+    private double testMPS;
+
     public enum Action {
         COLLECT,
         SHOOT,
@@ -92,12 +94,14 @@ public class ControlSystem {
         SHOOT_SUBWOOFER_NO_AIM,
         REJECT_NOTE,
         COLLECT_RAMP_STAY_DOWN,
+        ARM_DOWN,
         COLLECT_SEEK,
         WAIT,
         LOB
     }
 
     public ControlSystem(AutonomousHandler aHandler) {
+        testMPS = 0.0;
         mDriveSystem = new DriveSystem();
         mScollector = new Scollector();
         mClimber = new Climber();
@@ -459,6 +463,9 @@ public class ControlSystem {
             case AUTONOMOUS:
                 //Limelight.setPipeline(ConfigMap.NOTE_LIMELIGHT, ConfigMap.NOTE_LIMELIGHT_NOTE_PIPELINE);
                 break;
+            case TEST:
+                testMPS = 0.0; 
+                break;
             default:
                 break;
         }
@@ -550,6 +557,14 @@ public class ControlSystem {
                     mDriveSystem.driveRaw(0, 0, 0);
                     mAimingAngle = 0.0;
                 }
+                break;
+            case TEST:
+            Logger.recordOutput("ControlSystem/testMPS", testMPS);
+                //testMPS += 0.0001;
+                // if (testMPS < 0.2) {
+                //     mDriveSystem.driveRaw(testMPS, 0.0, 0.0);
+                // }
+                mDriveSystem.driveRaw(ConfigMap.MAX_VELOCITY_METERS_PER_SECOND, 0.0, 0.0);
                 break;
         }
 
@@ -721,6 +736,9 @@ public class ControlSystem {
                 new SubsystemManager(mArm, ArmState.COLLECT),
                 new SubsystemManager(mScollector, ScollectorState.COLLECT_RAMP),
                 new SubsystemManager(mDriveSystem, DriveSystemState.DRIVE_TRAJECTORY_NOTE)
+        );
+        defineAction(Action.ARM_DOWN,
+                new SubsystemManager(mArm, ArmState.COLLECT)
         );
 
         defineAction(Action.WAIT,

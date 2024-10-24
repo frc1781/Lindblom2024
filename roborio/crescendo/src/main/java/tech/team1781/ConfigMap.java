@@ -23,7 +23,7 @@ public class ConfigMap {
         public static final int RED_SPEAKER_APRILTAG = 4;
         public static final int BLUE_SPEAKER_APRILTAG = 7;
 
-        public static final double MAX_SHOOTER_SPEED = 7;
+        public static final double MAX_SHOOTER_SPEED = 6;
         public static final double MIN_SHOOTER_SPEED = 3.5;
 
         // CAN IDs
@@ -68,9 +68,10 @@ public class ConfigMap {
 
         // Swerve
 
+        public static final double WHEEL_CIRCUMFERENCE = 0.1016;
         public static final double DRIVETRAIN_TRACKWIDTH = Units.inchesToMeters(23);
         public static final double DRIVETRAIN_WHEELBASE = Units.inchesToMeters(25);
-        public static final double MAX_VELOCITY_METERS_PER_SECOND = 4.2;
+        public static final double MAX_VELOCITY_METERS_PER_SECOND = 4.3;
         public static final double MAX_VELOCITY_FOR_UPDATE = 0.01;
         public static final double MAX_VELOCITY_RADIANS_PER_SECOND = (MAX_VELOCITY_METERS_PER_SECOND /
                         (Math.hypot(DRIVETRAIN_TRACKWIDTH / 2, DRIVETRAIN_WHEELBASE / 2)));

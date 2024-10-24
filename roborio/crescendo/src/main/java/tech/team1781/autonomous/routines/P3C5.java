@@ -19,8 +19,8 @@ public class P3C5 implements AutoRoutine {
                 new AutoStep(100, Action.OFF_KICKSTAND),
                 new AutoStep(3, Action.SHOOT_SUBWOOFER_NO_AIM),
                 new AutoStep(20, Action.COLLECT_RAMP, Paths.getPathFromName("p3;c5"), true),
-                new AutoStep(4, Action.RAMP_SHOOTER, Paths.getPathFromName("c5;shoot")),
-                new AutoStep(3, Action.SHOOT_FAR),
+                new AutoStep(4, Action.RAMP_SHOOTER, Paths.getPathFromName("c5;p3")),
+                new AutoStep(3, Action.SHOOT_SUBWOOFER_NO_AIM),
         };
     }
 

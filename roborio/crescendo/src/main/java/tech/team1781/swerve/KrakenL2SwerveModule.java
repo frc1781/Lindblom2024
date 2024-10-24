@@ -1,5 +1,7 @@
 package tech.team1781.swerve;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -21,7 +23,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
 import tech.team1781.ConfigMap;
-import tech.team1781.utils.RioLogger;
+import tech.team1781.utils.Conversions;
 import tech.team1781.utils.SwerveModuleConfiguration;
 
 public class KrakenL2SwerveModule extends SwerveModule { 
@@ -37,6 +39,15 @@ public class KrakenL2SwerveModule extends SwerveModule {
     ); 
     private final RelativeEncoder mTurnEncoder;
     private final CANcoder mTurnAbsoluteEncoder;
+
+    private double totalDutyCycles = 0;
+    private double totalMPS = 0;
+
+    private double totalNumerator = 0;
+    private double totalAccerlation = 0;
+
+    private double prevTime = 0;
+    private double prevVelocity = 0;
 
     public KrakenL2SwerveModule(String name,int driveMotorID, int turnMotorID, int cancoderID, double cancoderOffset) {
         super(name, driveMotorID, turnMotorID, cancoderID, cancoderOffset);
@@ -58,8 +69,8 @@ public class KrakenL2SwerveModule extends SwerveModule {
         driveConfig.Slot0.kP = moduleConfiguration().drivingP; //need to be tuned
         driveConfig.Slot0.kI = moduleConfiguration().drivingI;
         driveConfig.Slot0.kD = moduleConfiguration().drivingD;
-        driveConfig.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = 0.25;  //need to be investigated
-        driveConfig.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0.25;
+        driveConfig.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = 0;  //need to be investigated
+        driveConfig.OpenLoopRamps.VoltageOpenLoopRampPeriod = 0;
         driveConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = 0;
         driveConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = 0; 
         
@@ -101,17 +112,17 @@ public class KrakenL2SwerveModule extends SwerveModule {
 
         mTurnMotor.burnFlash();
 
-        RioLogger.initLog(name + "/Offset", cancoderOffset);
-        RioLogger.logData(name + "/Offset", cancoderOffset);
+        Logger.recordOutput(name + "/Offset", cancoderOffset);
+        Logger.recordOutput(name + "/Offset", cancoderOffset);
 
-        RioLogger.initLog(name + "/Drive Motor Velocity", 0.0);
-        RioLogger.initLog(name + "/Drive Motor Position", 0.0);
-        RioLogger.initLog(name + "/Turning Motor Position", 0.0);
-        RioLogger.initLog(name + "/CANCoder Position", 0.0);
-        RioLogger.initLog(name + "/Turning Motor CANCoder Difference", 0.0);
+        Logger.recordOutput(name + "/Drive Motor Velocity", 0.0);
+        Logger.recordOutput(name + "/Drive Motor Position", 0.0);
+        Logger.recordOutput(name + "/Turning Motor Position", 0.0);
+        Logger.recordOutput(name + "/CANCoder Position", 0.0);
+        Logger.recordOutput(name + "/Turning Motor CANCoder Difference", 0.0);
 
-        RioLogger.initLog(name + "/Drive Requested Velocity", 0.0);
-        RioLogger.initLog(name + "/Turn Requested Position", 0.0);
+        Logger.recordOutput(name + "/Drive Requested Velocity", 0.0);
+        Logger.recordOutput(name + "/Turn Requested Position", 0.0);
     }
 
     public Rotation2d getAbsoluteAngle() {
@@ -133,26 +144,27 @@ public class KrakenL2SwerveModule extends SwerveModule {
         return new SwerveModulePosition(getDriveMotorPosition(), getAbsoluteAngle());
     }
 
-    public void setDesiredState(SwerveModuleState desiredState) {
+    public void runDesiredModuleState(SwerveModuleState desiredState) {
         SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, getAbsoluteAngle());
-        RioLogger.logData(this.name + "/Drive Requested Velocity", optimizedState.speedMetersPerSecond);
-        RioLogger.logData(this.name + "/Turn Requested Position", optimizedState.angle.getRadians());
-        
-        mTurnPID.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
-        // mDriveVelocity.Velocity = desiredState.speedMetersPerSecond;
-        // mDriveVelocity.FeedForward = driveFF.calculate(desiredState.speedMetersPerSecond);
-        mDriveMotor.set(optimizedState.speedMetersPerSecond / ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
+        Logger.recordOutput(this.name + "/Drive Requested Velocity", optimizedState.speedMetersPerSecond);
+        Logger.recordOutput(this.name + "/Turn Requested Position", optimizedState.angle.getRadians());
 
-        RioLogger.logData(this.name + "/Drive Motor Velocity", getDriveMotorSpeed());
-        RioLogger.logData(this.name + "/Drive Motor Position", getDriveMotorPosition());
-        RioLogger.logData(this.name + "/Turning Motor Position", mTurnEncoder.getPosition());
-        
+        mTurnPID.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
+
+        //mDriveVelocity.Velocity = Conversions.MPSToRPS(optimizedState.speedMetersPerSecond, ConfigMap.WHEEL_CIRCUMFERENCE);
+        //mDriveVelocity.Velocity = optimizedState.speedMetersPerSecond;
+        double FF = driveFF.calculate(optimizedState.speedMetersPerSecond);
+        Logger.recordOutput(this.name + "/FeedForwardOutput", FF);
+        //mDriveVelocity.FeedForward = driveFF.calculate(optimizedState.speedMetersPerSecond);
+
+        mDriveMotor.set(FF);
+
+        Logger.recordOutput(this.name + "/Drive Motor Velocity", getDriveMotorSpeed());
+        Logger.recordOutput(this.name + "/Drive Motor Position", getDriveMotorPosition());
+        Logger.recordOutput(this.name + "/Turning Motor Position", mTurnEncoder.getPosition());
+
         mDesiredState = optimizedState;
         syncRelativeToAbsoluteEncoder();
-    }
-
-    public void printDriveMotor() {
-        // System.out.print("," + mDesiredState.speedMetersPerSecond / ConfigMap.MAX_VELOCITY_METERS_PER_SECOND + "\n");
     }
 
     private double getDriveMotorSpeed() {
@@ -171,8 +183,8 @@ public class KrakenL2SwerveModule extends SwerveModule {
         double turnEncoderPosition = mTurnEncoder.getPosition();
         double diff = getAbsoluteAngle().getRadians() - turnEncoderPosition;
 
-        RioLogger.logData(name + "/CANCoder Position", turnEncoderPosition);
-        RioLogger.logData(this.name + "/Turning Motor CANCoder Difference", diff);
+        Logger.recordOutput(name + "/CANCoder Position", turnEncoderPosition);
+        Logger.recordOutput(this.name + "/Turning Motor CANCoder Difference", diff);
         if(Math.abs(diff) > 0.02) {
             mTurnEncoder.setPosition(getAbsoluteAngle().getRadians());
         }
@@ -181,20 +193,21 @@ public class KrakenL2SwerveModule extends SwerveModule {
 
     static SwerveModuleConfiguration moduleConfiguration() {
         SwerveModuleConfiguration ret_val = new SwerveModuleConfiguration();
-
         ret_val.metersPerRevolution = 1 / (0.1016 * Math.PI * (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) * .9766); //this is not named correctly
         ret_val.radiansPerRevolution = 2 * Math.PI * (14.0 / 50.0) * (10.0 / 60.0);
         ret_val.velocityConversion = ret_val.metersPerRevolution / 60.0;
         ret_val.radiansPerSecond = ret_val.radiansPerRevolution / 60.0;
 
-        //MUST TUNE ALL OF THESE AND DO SYSID 
-        ret_val.drivingP = 0.1; 
-        ret_val.drivingI = 0.0;
-        ret_val.drivingD = 0.01;
-        ret_val.drivingFF = 1.0 / (ConfigMap.MAX_VELOCITY_METERS_PER_SECOND + 0.08);
-        ret_val.drivingKS = 0.02;
-        ret_val.drivingKV = 1.0 / (ConfigMap.MAX_VELOCITY_RADIANS_PER_SECOND + 0.08) - ret_val.drivingKS;
-        ret_val.drivingKA = 5.4; 
+        //MUST TUNE ALL OF THESE AND DO SYSID
+        //need kA still, but KS and KV are good
+        // is pid the kA replacement
+        ret_val.drivingP = 0;
+        ret_val.drivingI = 0;
+        ret_val.drivingD = 0;
+        ret_val.drivingFF = 1.0 / (ConfigMap.MAX_VELOCITY_METERS_PER_SECOND);
+        ret_val.drivingKS = 0.0154;
+        ret_val.drivingKV = 0.2529;
+        ret_val.drivingKA = 0.3;
 
         ret_val.turningP = 1;
         ret_val.turningI = 0.0;

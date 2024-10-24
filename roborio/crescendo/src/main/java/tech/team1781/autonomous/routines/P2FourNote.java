@@ -25,7 +25,7 @@ public class P2FourNote implements AutoRoutine {
                 new AutoStep(5, Action.SHOOT_SUBWOOFER_NO_AIM),
                 new AutoStep(5, Action.COLLECT_RAMP, Paths.getPathFromName("p2;n1;simple"), true, true),
                 new AutoStep(5, Action.RAMP_SHOOTER, Paths.getPathFromName("n1;p2;simple")),
-                new AutoStep(5, Action.SHOOT_NOTE_ONE)
+                new AutoStep(5, Action.SHOOT_SUBWOOFER_NO_AIM)
         };
     }
 } 

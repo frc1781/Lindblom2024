@@ -31,7 +31,7 @@ public abstract class SwerveModule {
 
     public abstract SwerveModuleState getCurrentState();
 
-    public abstract void setDesiredState(SwerveModuleState sentDesiredState);
+    public abstract void runDesiredModuleState(SwerveModuleState sentDesiredState);
 
     abstract void syncRelativeToAbsoluteEncoder();
 
