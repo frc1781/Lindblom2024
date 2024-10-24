@@ -17,6 +17,7 @@ public class P3C4C3Score implements AutoRoutine {
     public AutoStep[] getSteps() {
         return new AutoStep[] {
                 new AutoStep(100, Action.OFF_KICKSTAND),
+                new AutoStep(100, Action.OFF_KICKSTAND),
                 new AutoStep(0.1, Positions.P3),
                 new AutoStep(3, Action.SHOOT_SUBWOOFER_NO_AIM),
                 new AutoStep(1.4,Action.COLLECT_RAMP_STAY_DOWN ,EVector.positionWithDegrees(2.2, 0.8, 45)),
