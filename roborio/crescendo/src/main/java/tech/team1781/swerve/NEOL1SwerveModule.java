@@ -109,7 +109,7 @@ public class NEOL1SwerveModule extends SwerveModule{
         return new SwerveModulePosition(mDriveEncoder.getPosition(), getAbsoluteAngle());
     }
 
-    public void setDesiredState(SwerveModuleState desiredState) {
+    public void runDesiredModuleState(SwerveModuleState desiredState) {
 
         SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, new Rotation2d(mTurnEncoder.getPosition()));
         mDrivePID.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);

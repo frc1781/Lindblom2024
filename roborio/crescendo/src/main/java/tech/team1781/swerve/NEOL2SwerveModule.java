@@ -88,7 +88,7 @@ public class NEOL2SwerveModule extends SwerveModule{
 
 
 
-    public void setDesiredState(SwerveModuleState desiredState) {
+    public void runDesiredModuleState(SwerveModuleState desiredState) {
         SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, getAbsoluteAngle());
         mDrivePID.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
         mTurnPID.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
