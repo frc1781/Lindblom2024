@@ -582,11 +582,11 @@ public class ControlSystem {
     }
 
     private boolean isCurrentlyAutoAiming() {
-        return mCurrentAction == Action.AUTO_AIM_SHOOT
+        return false;//mCurrentAction == Action.AUTO_AIM_SHOOT
                 // || mCurrentAction == Action.SHOOT_NOTE_ONE
                 // || mCurrentAction == Action.SHOOT_NOTE_TWO
                 // || mCurrentAction == Action.SHOOT_NOTE_THREE
-                || mCurrentAction == Action.SHOOT_SUBWOOFER;
+                //|| mCurrentAction == Action.SHOOT_SUBWOOFER;
     }
 
     private boolean isLookingForNote() {
