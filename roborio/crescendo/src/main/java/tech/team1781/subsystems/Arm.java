@@ -38,9 +38,15 @@ public class Arm extends Subsystem {
     private CANSparkMax mRightMotor, mLeftMotor;
 
     private AbsoluteEncoder mArmAbsoluteEncoder;
-    private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.025, 0.02, 0.0005,
+    private ProfiledPIDController mPositionPID = new ProfiledPIDController(0.03, 0, 0,
             new TrapezoidProfile.Constraints(90, 450));
     private HashMap<ArmState, Double> mPositions = new HashMap<>();
+
+    private ProfiledPIDController mSmallPosHold = new ProfiledPIDController(0.01, 0, 0,
+            new TrapezoidProfile.Constraints(90, 450));
+    //kG
+    //kS
+    //kV
 
     private double mDesiredPosition = 0;
     private Pose2d mRobotPose;
@@ -164,8 +170,12 @@ public class Arm extends Subsystem {
         if (currentArmAngle != 0.0) {
             armDutyCycle = mPositionPID.calculate(currentArmAngle, mDesiredPosition);
 
-            if (getState() == ArmState.COLLECT && getAngle() < 5 || matchesPosition()) { // drop into position on ground
+            if ((getState() == ArmState.COLLECT && getAngle() < 5)) { // drop into position on ground
                 armDutyCycle = 0.0;
+            }
+
+            if (getState() == ArmState.SAFE && Math.abs(mDesiredPosition - getAngle()) < 10) {
+                armDutyCycle = mSmallPosHold.calculate(currentArmAngle, mDesiredPosition);
             }
 
             mLeftMotor.set(armDutyCycle);
