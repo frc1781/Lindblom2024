@@ -548,7 +548,6 @@ public class DriveSystem extends Subsystem {
             return;
         }
 
-        //ignoreLimelightDistanceChecks = false;
         mPoseEstimator.addVisionMeasurement(visionEstimate, Timer.getFPGATimestamp());
     }
 

@@ -115,6 +115,7 @@ public class ConfigMap {
         //Limelight
         public static final String APRILTAG_LIMELIGHT = "limelight-back";
         public static final String NOTE_LIMELIGHT = "limelight-front";
+        public static final String APRILTAG_CAMERA = "Main";
         public static final int NOTE_LIMELIGHT_NOTE_PIPELINE = 1;
         public static final int NOTE_LIMELIGHT_APRILTAG_PIPELINE = 0;
 
