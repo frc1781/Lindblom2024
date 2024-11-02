@@ -34,7 +34,6 @@ public class Robot extends LoggedRobot {
    * initialization code.
    */
 
-  private Compressor mCompressor;
   private ControlSystem mControlSystem;
   private AutonomousHandler mAutonomousHandler;
   private DriverInput mDriverInput;
@@ -62,10 +61,6 @@ public class Robot extends LoggedRobot {
     }
 
     Logger.start();
-
-    mCompressor = new Compressor(ConfigMap.FIRST_PCM_ID,
-        PneumaticsModuleType.REVPH);
-    mCompressor.enableDigital();
 
     mAutonomousHandler = new AutonomousHandler(
         new P1N1(),

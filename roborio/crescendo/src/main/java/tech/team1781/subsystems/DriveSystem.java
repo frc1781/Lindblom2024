@@ -542,11 +542,11 @@ public class DriveSystem extends Subsystem {
             setInitialLocalization(visionEstimate);
         }
 
-        double dist = getRobotPose().getTranslation().getDistance(visionEstimate.getTranslation());
+/*        double dist = getRobotPose().getTranslation().getDistance(visionEstimate.getTranslation());
 
         if (Math.abs(dist) >= 2 || visionEstimate.getX() == -99.9) {
             return;
-        }
+        }*/
 
         mPoseEstimator.addVisionMeasurement(visionEstimate, Timer.getFPGATimestamp());
     }

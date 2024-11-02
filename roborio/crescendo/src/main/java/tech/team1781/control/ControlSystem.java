@@ -9,6 +9,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
@@ -33,6 +34,7 @@ import tech.team1781.subsystems.Subsystem.SubsystemState;
 import tech.team1781.utils.EVector;
 import tech.team1781.utils.Limelight;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
@@ -79,12 +81,11 @@ public class ControlSystem {
 
     private double testMPS;
 
-    AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+    AprilTagFieldLayout aprilTagFieldLayout;
 
     private PhotonCamera aprilTagCamera = new PhotonCamera(ConfigMap.APRILTAG_CAMERA);;
     Transform3d robotToCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0,0,0));
-    PhotonPoseEstimator photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PhotonPoseEstimator.PoseStrategy.CLOSEST_TO_REFERENCE_POSE, aprilTagCamera, robotToCam);
-    Pose2d prevEstimatedVisionPose = new Pose2d();
+    PhotonPoseEstimator photonPoseEstimator;
 
     public enum Action {
         COLLECT,
@@ -146,7 +147,15 @@ public class ControlSystem {
 
         mStepTime = new Timer();
         autonomousHandler = aHandler;
+        String deployDirectoryPath = Filesystem.getDeployDirectory().getAbsolutePath();
+        try {
+            aprilTagFieldLayout = new AprilTagFieldLayout(deployDirectoryPath + "/CrescendoFieldLayout.json");
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+
         Logger.recordOutput("ControlSystem/CurrentControlSystemAction", "None");
+        photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, aprilTagCamera, robotToCam);
     }
 
     public static boolean isRed() {
@@ -287,23 +296,23 @@ public class ControlSystem {
 
     public void centerOnAprilTag(int id) {
         boolean targetVisible = false;
-        double targetYaw = 0.0;
-        var result = aprilTagCamera.getLatestResult();
-        if (result.hasTargets()) {
-            for (var target : result.getTargets()) {
-                if (target.getFiducialId() == 7) {
-                    targetYaw = target.getYaw();
-                    targetVisible = true;
-                }
-            }
-        }
+        // double targetYaw = 0.0;
+        // var result = aprilTagCamera.getLatestResult();
+        // if (result.hasTargets()) {
+        //     for (var target : result.getTargets()) {
+        //         if (target.getFiducialId() == 7) {
+        //             targetYaw = target.getYaw();
+        //             targetVisible = true;
+        //         }
+        //     }
+        // }
 
 
-        if (targetVisible) {
-            mAimingAngle = mLimelightAimController.calculate(targetYaw, 0);
-        } else {
-            odometryAlignment(id);
-        }
+        // if (targetVisible) {
+        //     mAimingAngle = mLimelightAimController.calculate(targetYaw, 0);
+        // } else {
+        //     odometryAlignment(id);
+        // }
     }
 
     public void strafeToAprilTag() {
@@ -657,28 +666,19 @@ public class ControlSystem {
         }
     }
 
-    public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
-        if (prevEstimatedVisionPose.getX() == 0.0) {
-            photonPoseEstimator.setReferencePose(prevEstimatedVisionPose);
-        }
-
-        return photonPoseEstimator.update();
-    }
-
     public void localizationUpdates() {
-        Optional<EstimatedRobotPose> estimatedRobotPose = getEstimatedGlobalPose();
-        if (estimatedRobotPose.isPresent()) {
-            EstimatedRobotPose pose = estimatedRobotPose.get();
-            prevEstimatedVisionPose = pose.estimatedPose.toPose2d();
-            if (pose.targetsUsed.size() > 1) {  
-                mDriveSystem.updateVisionLocalization(new Pose2d(pose.estimatedPose.getTranslation().toTranslation2d(), mDriveSystem.getRobotAngle()));
-                Logger.recordOutput("ControlSystem/AprilTagCamera", pose.estimatedPose);
-                Logger.recordOutput("ControlSystem/UpdatingPose", true);
-                return;
-            }
-        }
-
-        Logger.recordOutput("ControlSystem/UpdatingPose", false);
+//        Optional<EstimatedRobotPose> estimatedRobotPose = photonPoseEstimator.update();
+//        if (estimatedRobotPose.isPresent()) {
+//            EstimatedRobotPose pose = estimatedRobotPose.get();
+//            if (pose.targetsUsed.size() > 1) {
+//                mDriveSystem.updateVisionLocalization(new Pose2d(pose.estimatedPose.getTranslation().toTranslation2d(), mDriveSystem.getRobotAngle()));
+//                Logger.recordOutput("ControlSystem/AprilTagCamera", pose.estimatedPose);
+//                Logger.recordOutput("ControlSystem/UpdatingPose", true);
+//                return;
+//            }
+//        }
+//
+//        Logger.recordOutput("ControlSystem/UpdatingPose", false);
     }
 
     public boolean doesArmMatchState() {
