@@ -16,6 +16,8 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.targeting.MultiTargetPNPResult;
+import org.photonvision.targeting.PhotonPipelineResult;
 import tech.team1781.ConfigMap;
 import tech.team1781.DriverInput;
 import tech.team1781.DriverInput.ControllerSide;
@@ -80,12 +82,7 @@ public class ControlSystem {
     private Timer mSeekTimer = new Timer();
 
     private double testMPS;
-
-    AprilTagFieldLayout aprilTagFieldLayout;
-
     private PhotonCamera aprilTagCamera = new PhotonCamera(ConfigMap.APRILTAG_CAMERA);;
-    Transform3d robotToCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0,0,0));
-    PhotonPoseEstimator photonPoseEstimator;
 
     public enum Action {
         COLLECT,
@@ -147,15 +144,8 @@ public class ControlSystem {
 
         mStepTime = new Timer();
         autonomousHandler = aHandler;
-        String deployDirectoryPath = Filesystem.getDeployDirectory().getAbsolutePath();
-        try {
-            aprilTagFieldLayout = new AprilTagFieldLayout(deployDirectoryPath + "/CrescendoFieldLayout.json");
-        } catch (Exception e) {
-            System.err.println(e);
-        }
 
         Logger.recordOutput("ControlSystem/CurrentControlSystemAction", "None");
-        photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, aprilTagCamera, robotToCam);
     }
 
     public static boolean isRed() {
@@ -667,18 +657,17 @@ public class ControlSystem {
     }
 
     public void localizationUpdates() {
-//        Optional<EstimatedRobotPose> estimatedRobotPose = photonPoseEstimator.update();
-//        if (estimatedRobotPose.isPresent()) {
-//            EstimatedRobotPose pose = estimatedRobotPose.get();
-//            if (pose.targetsUsed.size() > 1) {
-//                mDriveSystem.updateVisionLocalization(new Pose2d(pose.estimatedPose.getTranslation().toTranslation2d(), mDriveSystem.getRobotAngle()));
-//                Logger.recordOutput("ControlSystem/AprilTagCamera", pose.estimatedPose);
-//                Logger.recordOutput("ControlSystem/UpdatingPose", true);
-//                return;
-//            }
-//        }
-//
-//        Logger.recordOutput("ControlSystem/UpdatingPose", false);
+        MultiTargetPNPResult result = aprilTagCamera.getLatestResult().getMultiTagResult();
+        Transform3d estimatedRobotPose = result.estimatedPose.best;
+            if (result.fiducialIDsUsed.size() > 1) {
+                Pose2d finalPose = new Pose2d(estimatedRobotPose.getTranslation().toTranslation2d(), mDriveSystem.getRobotAngle());
+                mDriveSystem.updateVisionLocalization(finalPose);
+                Logger.recordOutput("ControlSystem/AprilTagCamera", finalPose);
+                Logger.recordOutput("ControlSystem/UpdatingPose", true);
+                return;
+            }
+
+        Logger.recordOutput("ControlSystem/UpdatingPose", false);
     }
 
     public boolean doesArmMatchState() {
