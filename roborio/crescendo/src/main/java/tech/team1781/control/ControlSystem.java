@@ -76,7 +76,6 @@ public class ControlSystem {
     private boolean mAutoCenterAmp = false;
 
     private Stack<SubsystemManager> mSettingStack = new Stack<>();
-    private HashMap<Number, Pose2d> aprilTagCoords = new HashMap<>();
 
     private SeekNoteState mCurrentSeekNoteState = SeekNoteState.SEEKING;
     private Timer mSeekTimer = new Timer();
@@ -122,23 +121,6 @@ public class ControlSystem {
         mSubsystems.add(mClimber);
         mSubsystems.add(mArm);
         mSubsystems.add(mLEDs);
-
-        aprilTagCoords.put(1, new Pose2d(15.078597, 0.245597, new Rotation2d()));
-        aprilTagCoords.put(2, new Pose2d(16.184259, 0.883391, new Rotation2d()));
-        aprilTagCoords.put(3, new Pose2d(16.578467, 4.982443, new Rotation2d()));
-        aprilTagCoords.put(4, new Pose2d(16.578467, 5.547593, new Rotation2d()));
-        aprilTagCoords.put(5, new Pose2d(14.699883, 8.203925, new Rotation2d()));
-        aprilTagCoords.put(6, new Pose2d(1.840625, 8.203925, new Rotation2d()));
-        aprilTagCoords.put(7, new Pose2d(-0.038975, 5.547593, new Rotation2d()));
-        aprilTagCoords.put(8, new Pose2d(-0.038975, 4.982443, new Rotation2d()));
-        aprilTagCoords.put(9, new Pose2d(0.355233, 0.883391, new Rotation2d()));
-        aprilTagCoords.put(10, new Pose2d(1.460641, 0.245597, new Rotation2d()));
-        aprilTagCoords.put(11, new Pose2d(11.903851, 3.712951, new Rotation2d()));
-        aprilTagCoords.put(12, new Pose2d(11.903851, 4.498065, new Rotation2d()));
-        aprilTagCoords.put(13, new Pose2d(11.219321, 4.104873, new Rotation2d()));
-        aprilTagCoords.put(14, new Pose2d(5.319917, 4.104873, new Rotation2d()));
-        aprilTagCoords.put(15, new Pose2d(4.640467, 4.498065, new Rotation2d()));
-        aprilTagCoords.put(16, new Pose2d(4.640467, 3.712951, new Rotation2d()));
 
         initActions();
 
@@ -286,23 +268,20 @@ public class ControlSystem {
 
     public void centerOnAprilTag(int id) {
         boolean targetVisible = false;
-        // double targetYaw = 0.0;
-        // var result = aprilTagCamera.getLatestResult();
-        // if (result.hasTargets()) {
-        //     for (var target : result.getTargets()) {
-        //         if (target.getFiducialId() == 7) {
-        //             targetYaw = target.getYaw();
-        //             targetVisible = true;
-        //         }
-        //     }
-        // }
+         double targetYaw = 0.0;
+         var result = aprilTagCamera.getLatestResult().getTargets();
+         if (!result.isEmpty()) {
+             for (var target : result) {
+                 if (target.getFiducialId() == id) {
+                     targetYaw = target.getYaw();
+                     targetVisible = true;
+                 }
+             }
+         }
 
-
-        // if (targetVisible) {
-        //     mAimingAngle = mLimelightAimController.calculate(targetYaw, 0);
-        // } else {
-        //     odometryAlignment(id);
-        // }
+         if (targetVisible) {
+             mAimingAngle = mLimelightAimController.calculate(targetYaw, 0);
+         }
     }
 
     public void strafeToAprilTag() {
@@ -314,18 +293,6 @@ public class ControlSystem {
         }
 
         mStrafeDC = -mAmpAimController.calculate(tx, 0);
-    }
-
-    public void odometryAlignment(int id) {
-        EVector robotPose = EVector.fromPose(mDriveSystem.getRobotPose());
-        EVector targetPose = EVector.fromPose(aprilTagCoords.get(id));
-
-        robotPose.z = 0;
-
-        double angle = robotPose.angleBetween(targetPose) - Math.PI;
-        angle = normalizeRadians(angle);
-
-        mAimingAngle = mLimelightAimController.calculate(mDriveSystem.getRobotAngle().getRadians(), angle);
     }
 
     private double normalizeRadians(double rads) {
