@@ -57,7 +57,7 @@ public class DriveSystem extends Subsystem {
     private final SwerveDrivePoseEstimator mPoseEstimator;
     private boolean mIsFieldOriented = true;
     private boolean mOdometryBeenSet = false;
-    private boolean ignoreLimelightDistanceChecks = false;
+    private boolean ignoreVisionDistanceChecks = false;
 
     // Sensors
     private final AHRS mNavX = new AHRS(SPI.Port.kMXP);
@@ -528,7 +528,7 @@ public class DriveSystem extends Subsystem {
              mPoseEstimator.resetPosition(new Rotation2d(startingDegRotation), getModulePositions(), new Pose2d());
 
              // wait for Limelight
-             ignoreLimelightDistanceChecks = true;
+             ignoreVisionDistanceChecks = true;
              mOdometryBeenSet = true;
         }
     }
@@ -542,11 +542,11 @@ public class DriveSystem extends Subsystem {
             setInitialLocalization(visionEstimate);
         }
 
-/*        double dist = getRobotPose().getTranslation().getDistance(visionEstimate.getTranslation());
+        double dist = getRobotPose().getTranslation().getDistance(visionEstimate.getTranslation());
 
-        if (Math.abs(dist) >= 2 || visionEstimate.getX() == -99.9) {
+        if ((Math.abs(dist) >= 2 || visionEstimate.getX() == -99.9) && !ignoreVisionDistanceChecks) {
             return;
-        }*/
+        }
 
         mPoseEstimator.addVisionMeasurement(visionEstimate, Timer.getFPGATimestamp());
     }
