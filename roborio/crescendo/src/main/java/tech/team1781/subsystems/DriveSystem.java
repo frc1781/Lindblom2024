@@ -387,6 +387,10 @@ public class DriveSystem extends Subsystem {
                 pathplannerState.velocityMps,
                 targetOrientation);
                 Logger.recordOutput("DriveSystem/TargetTrajectory", targetPose);
+
+        Logger.recordOutput("DriveSystem/SeesNote", seesNote);
+        Logger.recordOutput("DriveSystem/NoteTooSmall", noteTooSmall);
+        Logger.recordOutput("DriveSystem/NoteTooFar", noteTooFar);
         
         if (getState() == DriveSystemState.DRIVE_TRAJECTORY_NOTE && distanceFromEndPose < END_DIST_TOLERANCE && seesNote && !noteTooSmall && !noteTooFar) {
             controlSystem.LEDsSeesNote();
@@ -394,8 +398,9 @@ public class DriveSystem extends Subsystem {
             int sideFlip = ControlSystem.isRed() ? -1 : 1;
             newYVelocity = seenNoteOffset * kP * sideFlip;
 
+            Logger.recordOutput("DriveSystem/SideFlip", sideFlip);
             Logger.recordOutput("DriveSystem/NoteRequestedVelocity", newYVelocity);
-            Logger.recordOutput("DriveSystem/DetectedNote", true);
+            Logger.recordOutput("DriveSystem/AdjustingToNote", true);
             desiredChassisSpeeds.vyMetersPerSecond = newYVelocity;
         }
 
